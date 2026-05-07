@@ -1,45 +1,157 @@
 {
   "beneficiaries": {
     "title": "Beneficiary Management",
-    "backToList": "Back to Beneficiaries List",
-    "subtitle_at": "{field} at {university}",
+    "backToList": "Back to Beneficiaries",
+    "searchPlaceholder": "Search by name, country, email, or phone...",
+    "addBeneficiary": "Add Beneficiary",
+    "addedSuccess": "Beneficiary {{name}} added.",
+    "noResults": "No beneficiaries found",
+    "noResultsDescription": "Try adjusting your search or filters.",
+    "noData": "No data available.",
+    "noSponsorshipData": "No sponsorship details available.",
+    "subtitle_at": "{{field}} at {{university}}",
+    "familyMembers": "Family of {{count}} members",
+
+    "types": {
+      "all": "All Types",
+      "student": "Student",
+      "orphan": "Orphan",
+      "hafiz": "Hafiz",
+      "family": "Family",
+      "institution": "Institution",
+      "community": "Community"
+    },
+
+    "statuses": {
+      "all": "All Statuses",
+      "active": "Active",
+      "inactive": "Inactive",
+      "graduated": "Graduated",
+      "suspended": "Suspended",
+      "on-hold": "On Hold"
+    },
+
+    "supportTypes": {
+      "sponsorship": "Sponsorship",
+      "direct-support": "Direct Support"
+    },
+
+    "stats": {
+      "total": "Total",
+      "active": "Active",
+      "individuals": "Individuals",
+      "groups": "Groups & Institutions"
+    },
+
+    "views": {
+      "table": "Table View",
+      "card": "Card View"
+    },
+
+    "table": {
+      "name": "Name",
+      "type": "Type",
+      "status": "Status",
+      "country": "Country",
+      "project": "Project",
+      "lastAid": "Last Aid"
+    },
+
+    "tabs": {
+      "overview": "Overview",
+      "academics": "Academics",
+      "sponsorship": "Sponsorship",
+      "guardian": "Guardian & Family",
+      "aid_log": "Aid & Services",
+      "needs_assessment": "Needs Assessment",
+      "documents": "Documents"
+    },
+
     "kpi": {
       "gpa": "Current GPA",
-      "financialAid": "Financial Aid",
-      "communication": "Communication",
+      "aidReceived": "Aid Received",
+      "milestones": "Milestones",
       "documents": "Documents",
-      "communication_value": "{count} logs"
+      "members": "Family Members",
+      "guardian": "Guardian"
     },
-    "searchPlaceholder": "Search beneficiaries...",
-    "categorySelectLabel": "Beneficiary categories",
-    "advancedFiltersPlaceholder": "Advanced filters panel is under construction.",
-    "viewUnderConstruction": "{view} view is under construction.",
-    "addedSuccess": "Beneficiary {name} added.",
-    "sponsorships": "Sponsorship",
-    "directSupport": "Direct Support",
-    "noResults": "No beneficiaries found",
-    "noResultsDescription": "Try adjusting search or filters.",
+
+    "sections": {
+      "contactInfo": "Contact Information",
+      "details": "Details",
+      "milestones": "Milestones",
+      "guardian": "Guardian",
+      "familyMembers": "Family Members"
+    },
+
+    "fields": {
+      "id": "ID",
+      "name": "Name",
+      "country": "Country",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "dob": "Date of Birth",
+      "gender": "Gender",
+      "university": "University",
+      "major": "Major / Field",
+      "gpa": "GPA",
+      "gpaProgress": "GPA Progress",
+      "academicYear": "Academic Year",
+      "school": "School",
+      "grade": "Grade",
+      "attendance": "Attendance",
+      "circle": "Quran Circle",
+      "juzCompleted": "Juz Completed",
+      "headOfHousehold": "Head of Household",
+      "memberCount": "Number of Members",
+      "monthlyIncome": "Monthly Income",
+      "housingType": "Housing Type",
+      "directorName": "Director",
+      "capacity": "Capacity",
+      "institutionType": "Type",
+      "populationEstimate": "Population Estimate",
+      "fieldOfficer": "Field Officer",
+      "areaType": "Area Type",
+      "supportType": "Support Type",
+      "startDate": "Start Date",
+      "monthlyAmount": "Monthly Amount",
+      "donorId": "Donor ID",
+      "guardianName": "Guardian Name",
+      "relation": "Relation",
+      "age": "Age"
+    },
+
     "filters": {
-      "allTypes": "All Types",
-      "allProjects": "All Projects",
-      "sponsorshipProjects": "Sponsorship Projects",
       "allCountries": "All Countries"
     },
-    "aiSearch": {
-      "title": "AI Search",
-      "placeholder": "Search with natural language...",
-      "search": "Search"
+
+    "assessment": {
+      "title": "Needs Assessment History",
+      "newAssessment": "New Assessment",
+      "by": "By",
+      "povertyScore": "Poverty Score",
+      "foodSecurity": "Food Security",
+      "housing": "Housing",
+      "medical": "Medical",
+      "educational": "Educational",
+      "suggestedPrograms": "Suggested Programs",
+      "noAssessments": "No assessments yet",
+      "noAssessmentsDesc": "Start by creating a new needs assessment.",
+      "foodStatus": {
+        "secure": "Secure",
+        "at_risk": "At Risk",
+        "insecure": "Insecure"
+      },
+      "housingStatus": {
+        "stable": "Stable",
+        "unstable": "Unstable"
+      }
     },
-    "card": {
-      "sponsoredStudent": "Sponsored Student",
-      "directSupport": "Direct Support"
-    },
-    "documents": {
-      "officialDocuments": "Official Documents"
-    },
+
     "aidLog": {
       "title": "Aid & Services Log",
-      "noItems": "No aid or services have been logged for this beneficiary yet.",
+      "noItems": "No aid or services logged yet.",
       "value": "Value",
       "status": {
         "delivered": "Delivered",
@@ -47,68 +159,18 @@
         "scheduled": "Scheduled"
       }
     },
-    "overview": {
-      "title": "Personal Details",
-      "id": "ID",
-      "country": "Country",
-      "email": "Email",
-      "phone": "Phone",
-      "university": "University",
-      "major": "Major",
-      "gpa": "GPA",
-      "academic_year": "Academic Year"
+
+    "addModal": {
+      "title": "Add New Beneficiary",
+      "nameEn": "Name (English)",
+      "nameAr": "Name (Arabic)",
+      "type": "Type",
+      "supportType": "Support Type",
+      "submit": "Add Beneficiary"
     },
-    "modal": {
-      "tabs": {
-        "personal": "Personal",
-        "journey_impact": "Journey & Impact",
-        "academic": "Academic",
-        "sponsorship": "Sponsorship",
-        "needs_assessment": "Needs Assessment",
-        "qualification_journey": "Qualification Journey",
-        "aid_log": "Aid & Services",
-        "calendar": "Calendar",
-        "files_and_documents": "Files & Documents",
-        "communication": "Communication"
-      },
-      "add": {
-        "title": "Add New Beneficiary",
-        "fullName": "Full Name",
-        "beneficiaryType": "Beneficiary Type",
-        "country": "Country",
-        "email": "Email",
-        "phone": "Phone",
-        "addButton": "Add",
-        "validation": {
-          "nameRequired": "Name is required."
-        }
-      },
-      "personalInfo": {
-        "fullName": "Full Name",
-        "country": "Country"
-      },
-      "academic": {
-        "grade": "Grade"
-      }
-    },
-    "types": {
-      "all": "All",
-      "student": "Student",
-      "orphan": "Orphan",
-      "hafiz": "Hafiz",
-      "family": "Family",
-      "institution": "Institution",
-      "community": "Community",
-      "incubation_beneficiary": "Incubation Beneficiary",
-      "individual-other": "Individual"
-    },
-    "voice": {
-      "notSupported": "Speech recognition is not supported in this browser.",
-      "permissionDenied": "Microphone permission was denied. Please enable it in your browser settings.",
-      "startError": "Could not start listening. Please try again."
-    },
+
     "linkedBeneficiaries": "Linked Beneficiaries",
     "noLinked": "No linked beneficiaries",
-    "reached": "reached"
+    "reached": "Reached"
   }
 }

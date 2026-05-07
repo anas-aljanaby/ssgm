@@ -25,6 +25,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, donors, onDragEnd, s
     const totalPotential = donors.reduce((sum, donor) => sum + donor.potentialGift, 0);
     const isCompact = density === 'compact';
     const isActiveTarget = isOver || isFocused;
+    const openTasks = donors.reduce((sum, donor) => sum + donor.tasks.filter(task => !task.completed).length, 0);
     
     return (
         <div
@@ -32,31 +33,36 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, donors, onDragEnd, s
             id={`kanban-column-${stage.id}`}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className={`h-full flex flex-col rounded-lg border transition-colors ${
-                isCompact ? 'min-w-[15rem] max-w-[15rem]' : 'min-w-[21rem] max-w-[21rem]'
+            className={`h-full flex flex-col rounded-xl border transition-colors ${
+                isCompact ? 'min-w-[12.5rem] max-w-[12.5rem]' : 'min-w-[18rem] max-w-[18rem]'
             } ${
                 isActiveTarget
                     ? 'border-primary bg-primary-light/50 shadow-inner dark:border-secondary dark:bg-primary/20'
-                    : 'border-transparent'
+                    : 'border-gray-200 bg-white/55 dark:border-slate-800 dark:bg-slate-900/30'
             }`}
         >
-            <div className={`${isCompact ? 'p-2.5' : 'p-3'} sticky top-0 z-10 rounded-t-lg border-b-4 ${stage.border} ${stage.color}`}>
-                <div className="flex justify-between items-start gap-3">
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                            <h2 className={`${isCompact ? 'text-sm' : ''} font-bold text-foreground dark:text-dark-foreground truncate`}>{t(stage.titleKey)}</h2>
-                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 bg-white/60 dark:bg-black/20 px-2 py-0.5 rounded-full">
-                                {formatNumber(donors.length, language)}
-                            </span>
-                        </div>
-                        <p className={`${isCompact ? 'mt-0.5' : 'mt-1'} text-xs font-medium text-gray-500 dark:text-gray-400 truncate`}>
-                            {t('donors.kanban.columnPotential')}: {formatCurrency(totalPotential, language)}
+            <div className={`${isCompact ? 'p-2.5' : 'p-3'} sticky top-0 z-10 rounded-t-xl border-t-4 border-b border-gray-200 bg-white/95 backdrop-blur dark:border-slate-700 dark:bg-slate-900/95 ${stage.border}`}>
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                        <h2 className={`${isCompact ? 'text-sm' : 'text-base'} font-bold text-foreground dark:text-dark-foreground truncate`}>{t(stage.titleKey)}</h2>
+                        <p className={`${isCompact ? 'mt-0.5' : 'mt-1'} text-xs font-semibold text-gray-500 dark:text-gray-400 truncate`}>
+                            {formatCurrency(totalPotential, language)}
                         </p>
+                    </div>
+                    <div className="text-end">
+                        <span className={`${isCompact ? 'text-lg' : 'text-xl'} block font-bold leading-none text-foreground dark:text-dark-foreground`}>
+                            {formatNumber(donors.length, language)}
+                        </span>
+                        {!isCompact && (
+                            <span className="mt-1 block whitespace-nowrap text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                                {t('donors.card.openTasks')}: {formatNumber(openTasks, language)}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>
 
-            <div className={`flex-grow ${isCompact ? 'p-2 space-y-2.5 min-h-[24rem] max-h-[calc(100vh-22rem)]' : 'p-2 space-y-3 min-h-[28rem] max-h-[calc(100vh-20rem)]'} overflow-y-auto bg-gray-100/50 dark:bg-dark-background/50 rounded-b-lg`}>
+            <div className={`flex-grow ${isCompact ? 'p-1.5 space-y-1.5 min-h-[24rem] max-h-[calc(100vh-22rem)]' : 'p-2.5 space-y-2.5 min-h-[28rem] max-h-[calc(100vh-20rem)]'} overflow-y-auto rounded-b-xl bg-gray-50/80 dark:bg-dark-background/40`}>
                 {donors.map(donor => (
                     <KanbanCard
                         key={donor.id}
@@ -67,7 +73,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, donors, onDragEnd, s
                     />
                 ))}
                 {donors.length === 0 && (
-                    <div className="rounded-lg border border-dashed border-gray-300 dark:border-slate-700 p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                    <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-slate-700 dark:text-gray-400">
                         {t('donors.kanban.emptyColumn')}
                     </div>
                 )}

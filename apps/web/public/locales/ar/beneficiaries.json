@@ -1,45 +1,157 @@
 {
   "beneficiaries": {
     "title": "إدارة المستفيدين",
-    "backToList": "العودة إلى قائمة المستفيدين",
-    "subtitle_at": "{field} في {university}",
-    "kpi": {
-      "gpa": "المعدل التراكمي الحالي",
-      "financialAid": "المساعدات المالية",
-      "communication": "التواصل",
-      "documents": "المستندات",
-      "communication_value": "{count} سجلات"
-    },
-    "searchPlaceholder": "ابحث عن المستفيدين...",
-    "categorySelectLabel": "فئات المستفيدين",
-    "advancedFiltersPlaceholder": "لوحة الفلاتر المتقدمة قيد التطوير.",
-    "viewUnderConstruction": "عرض {view} قيد التطوير.",
-    "addedSuccess": "تمت إضافة المستفيد {name}.",
-    "sponsorships": "الكفالة",
-    "directSupport": "دعم مباشر",
+    "backToList": "العودة إلى القائمة",
+    "searchPlaceholder": "ابحث بالاسم، البلد، البريد أو الهاتف...",
+    "addBeneficiary": "إضافة مستفيد",
+    "addedSuccess": "تمت إضافة المستفيد {{name}}.",
     "noResults": "لا يوجد مستفيدون",
     "noResultsDescription": "جرّب تعديل البحث أو الفلاتر.",
+    "noData": "لا توجد بيانات.",
+    "noSponsorshipData": "لا توجد بيانات كفالة.",
+    "subtitle_at": "{{field}} في {{university}}",
+    "familyMembers": "أسرة مكونة من {{count}} أفراد",
+
+    "types": {
+      "all": "كل الأنواع",
+      "student": "طالب",
+      "orphan": "يتيم",
+      "hafiz": "حافظ",
+      "family": "أسرة",
+      "institution": "مؤسسة",
+      "community": "مجتمع"
+    },
+
+    "statuses": {
+      "all": "كل الحالات",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "graduated": "متخرج",
+      "suspended": "موقوف",
+      "on-hold": "معلّق"
+    },
+
+    "supportTypes": {
+      "sponsorship": "كفالة",
+      "direct-support": "دعم مباشر"
+    },
+
+    "stats": {
+      "total": "الإجمالي",
+      "active": "النشطون",
+      "individuals": "الأفراد",
+      "groups": "المجموعات والمؤسسات"
+    },
+
+    "views": {
+      "table": "عرض جدول",
+      "card": "عرض بطاقات"
+    },
+
+    "table": {
+      "name": "الاسم",
+      "type": "النوع",
+      "status": "الحالة",
+      "country": "البلد",
+      "project": "المشروع",
+      "lastAid": "آخر مساعدة"
+    },
+
+    "tabs": {
+      "overview": "نظرة عامة",
+      "academics": "البيانات الأكاديمية",
+      "sponsorship": "الكفالة",
+      "guardian": "الولي والأسرة",
+      "aid_log": "المساعدات والخدمات",
+      "needs_assessment": "تقييم الاحتياجات",
+      "documents": "المستندات"
+    },
+
+    "kpi": {
+      "gpa": "المعدل التراكمي",
+      "aidReceived": "المساعدات المستلمة",
+      "milestones": "الإنجازات",
+      "documents": "المستندات",
+      "members": "أفراد الأسرة",
+      "guardian": "الولي"
+    },
+
+    "sections": {
+      "contactInfo": "معلومات الاتصال",
+      "details": "التفاصيل",
+      "milestones": "الإنجازات",
+      "guardian": "الولي",
+      "familyMembers": "أفراد الأسرة"
+    },
+
+    "fields": {
+      "id": "المعرّف",
+      "name": "الاسم",
+      "country": "البلد",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "address": "العنوان",
+      "dob": "تاريخ الميلاد",
+      "gender": "الجنس",
+      "university": "الجامعة",
+      "major": "التخصص",
+      "gpa": "المعدل التراكمي",
+      "gpaProgress": "مستوى المعدل",
+      "academicYear": "المرحلة الدراسية",
+      "school": "المدرسة",
+      "grade": "الصف",
+      "attendance": "الحضور",
+      "circle": "حلقة التحفيظ",
+      "juzCompleted": "الأجزاء المكتملة",
+      "headOfHousehold": "رب الأسرة",
+      "memberCount": "عدد الأفراد",
+      "monthlyIncome": "الدخل الشهري",
+      "housingType": "نوع السكن",
+      "directorName": "المدير",
+      "capacity": "السعة",
+      "institutionType": "النوع",
+      "populationEstimate": "عدد السكان التقريبي",
+      "fieldOfficer": "المسؤول الميداني",
+      "areaType": "نوع المنطقة",
+      "supportType": "نوع الدعم",
+      "startDate": "تاريخ البدء",
+      "monthlyAmount": "المبلغ الشهري",
+      "donorId": "معرّف المتبرع",
+      "guardianName": "اسم الولي",
+      "relation": "صلة القرابة",
+      "age": "العمر"
+    },
+
     "filters": {
-      "allTypes": "كل الأنواع",
-      "allProjects": "كل المشاريع",
-      "sponsorshipProjects": "مشاريع الكفالة",
       "allCountries": "كل الدول"
     },
-    "aiSearch": {
-      "title": "بحث ذكي",
-      "placeholder": "ابحث بلغة طبيعية...",
-      "search": "بحث"
+
+    "assessment": {
+      "title": "سجل تقييم الاحتياجات",
+      "newAssessment": "تقييم جديد",
+      "by": "بواسطة",
+      "povertyScore": "درجة الفقر",
+      "foodSecurity": "الأمن الغذائي",
+      "housing": "السكن",
+      "medical": "طبي",
+      "educational": "تعليمي",
+      "suggestedPrograms": "برامج مقترحة",
+      "noAssessments": "لا توجد تقييمات",
+      "noAssessmentsDesc": "ابدأ بإجراء تقييم جديد لتحديد احتياجات المستفيد.",
+      "foodStatus": {
+        "secure": "آمن",
+        "at_risk": "معرض للخطر",
+        "insecure": "غير آمن"
+      },
+      "housingStatus": {
+        "stable": "مستقر",
+        "unstable": "غير مستقر"
+      }
     },
-    "card": {
-      "sponsoredStudent": "طالب مكفول",
-      "directSupport": "دعم مباشر"
-    },
-    "documents": {
-      "officialDocuments": "المستندات الرسمية"
-    },
+
     "aidLog": {
       "title": "سجل المساعدات والخدمات",
-      "noItems": "لم يتم تسجيل أي مساعدات أو خدمات لهذا المستفيد بعد.",
+      "noItems": "لم يتم تسجيل أي مساعدات بعد.",
       "value": "القيمة",
       "status": {
         "delivered": "تم التسليم",
@@ -47,66 +159,16 @@
         "scheduled": "مجدول"
       }
     },
-    "overview": {
-      "title": "تفاصيل الملف الشخصي",
-      "id": "المعرّف",
-      "country": "البلد",
-      "email": "البريد الإلكتروني",
-      "phone": "الهاتف",
-      "university": "الجامعة",
-      "major": "التخصص",
-      "gpa": "المعدل التراكمي",
-      "academic_year": "المرحلة الدراسية"
+
+    "addModal": {
+      "title": "إضافة مستفيد جديد",
+      "nameEn": "الاسم (إنجليزي)",
+      "nameAr": "الاسم (عربي)",
+      "type": "النوع",
+      "supportType": "نوع الدعم",
+      "submit": "إضافة المستفيد"
     },
-    "modal": {
-      "tabs": {
-        "personal": "الملف الشخصي",
-        "journey_impact": "الرحلة والأثر",
-        "academic": "البيانات الأكاديمية",
-        "sponsorship": "بيانات الكفالة",
-        "needs_assessment": "تقييم الاحتياجات",
-        "qualification_journey": "رحلة التأهيل",
-        "aid_log": "المساعدات والخدمات",
-        "calendar": "الرزنامة",
-        "files_and_documents": "الملفات والمستندات",
-        "communication": "التواصل"
-      },
-      "add": {
-        "title": "إضافة مستفيد جديد",
-        "fullName": "الاسم الكامل",
-        "beneficiaryType": "نوع المستفيد",
-        "country": "الدولة",
-        "email": "البريد الإلكتروني",
-        "phone": "الهاتف",
-        "addButton": "إضافة",
-        "validation": {
-          "nameRequired": "الاسم مطلوب."
-        }
-      },
-      "personalInfo": {
-        "fullName": "الاسم الكامل",
-        "country": "الدولة"
-      },
-      "academic": {
-        "grade": "الدرجة"
-      }
-    },
-    "types": {
-      "all": "الكل",
-      "student": "طالب",
-      "orphan": "يتيم",
-      "hafiz": "حافظ",
-      "family": "أسرة",
-      "institution": "مؤسسة",
-      "community": "مجتمع",
-      "incubation_beneficiary": "مستفيدي الاحتضان",
-      "individual-other": "فرد آخر"
-    },
-    "voice": {
-      "notSupported": "التعرّف الصوتي غير مدعوم في هذا المتصفح.",
-      "permissionDenied": "تم رفض إذن الميكروفون. يرجى تفعيله من إعدادات المتصفح.",
-      "startError": "تعذر بدء الاستماع. يرجى المحاولة مرة أخرى."
-    },
+
     "linkedBeneficiaries": "المستفيدون المرتبطون",
     "noLinked": "لا يوجد مستفيدون مرتبطون",
     "reached": "تم الوصول"

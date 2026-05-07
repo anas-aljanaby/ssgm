@@ -58,9 +58,9 @@ const BeneficiariesTab: React.FC<BeneficiariesTabProps> = ({ project, beneficiar
                         <tbody>
                             {projectBeneficiaries.map(b => (
                                 <tr key={b.id} className="border-t dark:border-slate-700">
-                                    <td className="p-3 font-semibold">{b.name}</td>
+                                    <td className="p-3 font-semibold">{b.name[language]}</td>
                                     <td className="p-3">{b.country}</td>
-                                    <td className="p-3">{b.academicLevel[language]}</td>
+                                    <td className="p-3">{b.profile.type === 'student' ? b.profile.academicInfo?.level?.[language] : t(`beneficiaries.types.${b.beneficiaryType}`)}</td>
                                 </tr>
                             ))}
                              {projectBeneficiaries.length === 0 && (

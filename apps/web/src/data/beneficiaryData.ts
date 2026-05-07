@@ -1,6 +1,8 @@
-import type { BeneficiaryData, Beneficiary, NeedsAssessment, Milestone } from '../types';
-import { MOCK_ORPHAN_DATA } from './orphanData';
+import type { BeneficiaryData, Beneficiary, NeedsAssessment } from '../types';
 
+// =================================================================
+// Shared Assessments
+// =================================================================
 const MOCK_ASSESSMENTS: NeedsAssessment[] = [
     {
         id: 'asm-001',
@@ -10,7 +12,7 @@ const MOCK_ASSESSMENTS: NeedsAssessment[] = [
         foodSecurity: 'at_risk',
         housingStatus: 'stable',
         educationalNeeds: 'Needs support for university textbooks and a laptop for studies.',
-        suggestedPrograms: ['PROGRAM_EDU_SUPPORT', 'PROGRAM_TECH_GRANT']
+        suggestedPrograms: ['PROGRAM_EDU_SUPPORT', 'PROGRAM_TECH_GRANT'],
     },
     {
         id: 'asm-002',
@@ -20,7 +22,7 @@ const MOCK_ASSESSMENTS: NeedsAssessment[] = [
         foodSecurity: 'insecure',
         housingStatus: 'unstable',
         medicalNeeds: 'Requires regular check-ups for two children.',
-        suggestedPrograms: ['PROGRAM_FOOD_AID', 'PROGRAM_HOUSING_SUPPORT', 'PROGRAM_HEALTH_CARE']
+        suggestedPrograms: ['PROGRAM_FOOD_AID', 'PROGRAM_HOUSING_SUPPORT', 'PROGRAM_HEALTH_CARE'],
     },
     {
         id: 'asm-003',
@@ -30,7 +32,7 @@ const MOCK_ASSESSMENTS: NeedsAssessment[] = [
         foodSecurity: 'secure',
         housingStatus: 'stable',
         educationalNeeds: 'None reported.',
-        suggestedPrograms: []
+        suggestedPrograms: [],
     },
     {
         id: 'asm-004',
@@ -40,222 +42,256 @@ const MOCK_ASSESSMENTS: NeedsAssessment[] = [
         foodSecurity: 'insecure',
         housingStatus: 'unstable',
         medicalNeeds: 'Chronic illness support',
-        suggestedPrograms: ['PROGRAM_FOOD_AID', 'PROGRAM_HEALTH_CARE']
-    }
-];
-
-const students: Beneficiary[] = [
-    {
-      id: 'ben-001',
-      name: 'Yusuf Al-Ahmad',
-      beneficiaryType: 'student',
-      photo: 'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?q=80&w=200&auto=format&fit=crop',
-      type: 'sponsorship',
-      country: 'Turkey',
-      assessments: [MOCK_ASSESSMENTS[0]],
-      milestones: [
-        { id: 'm1', title: { en: 'Enrolled in University', ar: 'الالتحاق بالجامعة' }, status: 'achieved', date: '2023-09-01' },
-        { id: 'm2', title: { en: 'Completed First Year', ar: 'إكمال السنة الأولى' }, status: 'achieved', date: '2024-06-15' },
-        { id: 'm3', title: { en: 'Joined Leadership Program', ar: 'الانضمام لبرنامج التأهيل القيادي' }, status: 'in-progress', date: '2024-09-01' },
-        { id: 'm4', title: { en: 'Internship', ar: 'تدريب عملي' }, status: 'pending' },
-        { id: 'm5', title: { en: 'Graduation', ar: 'التخرج' }, status: 'pending' },
-      ],
-      profile: {
-        academicInfo: {
-            level: { en: 'University - 2nd Year', ar: 'جامعة - سنة ثانية' },
-            field: 'Computer Engineering',
-            university: 'Istanbul University',
-            gpa: 3.4
-        },
-        dob: '2004-08-15',
-        gender: 'Male',
-        contact: { email: 'yusuf.a@example.com', phone: '+90 555 123 4567', address: 'Istanbul, Turkey' },
-        sponsorshipDetails: { status: 'Active', startDate: '2023-09-01', donorId: 2, studentId: 'stud-001' },
-        academicRecords: { school: 'Istanbul University', grade: '2nd Year', gpa: 3.4, reports: [
-          { date: '2023-01-15', name: 'Fall 2022 Report', url: '#', gpa: 3.1 },
-          { date: '2023-06-10', name: 'Spring 2023 Report', url: '#', gpa: 3.3 },
-          { date: '2024-01-15', name: 'Fall 2023 Report', url: '#', gpa: 3.2 },
-          { date: '2024-06-10', name: 'Spring 2024 Report', url: '#', gpa: 3.4 }
-        ] },
-        financialAid: { supportAmount: 250, lastPaymentDate: '2024-07-01', paymentHistory: [{ date: '2024-07-01', amount: 250 }, { date: '2024-06-01', amount: 250 }, { date: '2024-05-01', amount: 250 }] },
-        communicationLog: [{ date: '2024-05-20', type: 'Email', notes: 'Checked in on exam preparations.' }],
-        qualificationPrograms: [
-          { programId: 'leadership', name: { en: 'Leadership Qualification', ar: 'التأهيل القيادي' }, status: 'In Progress' },
-          { programId: 'educational', name: { en: 'Educational Development', ar: 'البناء التربوي' }, status: 'Completed' }
-        ],
-        communityInitiatives: [
-            { initiativeId: 'proj-1', name: { en: 'Ramadan Iftar Initiative', ar: 'مبادرة إفطار صائم' }, role: 'Volunteer' }
-        ],
-        documents: [
-            {
-                id: 'folder-official', type: 'folder', name: 'Official Documents', accessLevel: 'private', lastModified: '2024-01-01T00:00:00Z',
-                children: []
-            },
-            {
-                id: 'folder-ben-1', type: 'folder', name: 'Academic Records', accessLevel: 'team', lastModified: '2024-07-01T00:00:00Z',
-                children: [
-                     {
-                        id: 'file-ben-1', type: 'file', name: 'University Transcript 2024.pdf', fileType: 'pdf', size: 850, uploadedBy: 'Yusuf Al-Ahmad',
-                        uploadedDate: '2024-07-01T00:00:00Z', lastModified: '2024-07-01T00:00:00Z', tags: ['academic', 'official'],
-                        description: 'Official transcript for the 2023-2024 academic year.', accessLevel: 'private', viewCount: 3,
-                        versions: [{ version: 'v1.0', date: '2024-07-01T00:00:00Z', author: 'Yusuf Al-Ahmad', notes: 'Initial upload.', size: 850 }]
-                    }
-                ]
-            },
-            {
-                id: 'file-ben-2', type: 'file', name: 'Personal ID.jpg', fileType: 'jpg', size: 300, uploadedBy: 'System',
-                uploadedDate: '2023-08-15T00:00:00Z', lastModified: '2023-08-15T00:00:00Z', tags: ['id'],
-                description: 'Scanned copy of personal identification.', accessLevel: 'private', viewCount: 5,
-                versions: [{ version: 'v1.0', date: '2023-08-15T00:00:00Z', author: 'System', notes: 'Initial upload.', size: 300 }]
-            }
-        ],
-        aidLog: [
-            { id: 'aid-b1-1', type: 'financial', date: new Date().toISOString(), description: { en: 'Monthly Stipend', ar: 'مخصص شهري' }, value: 250, unit: 'USD', status: 'Delivered', relatedProjectId: 'proj-educ' },
-            { id: 'aid-b1-2', type: 'in-kind', date: '2024-06-15T00:00:00Z', description: { en: 'Laptop for Studies', ar: 'جهاز كمبيوتر محمول للدراسة' }, value: 1, unit: 'pcs', status: 'Delivered', inventoryItemId: 'ELEC-LAP-01' },
-            { id: 'aid-b1-3', type: 'service', date: '2024-05-20T00:00:00Z', description: { en: 'Leadership Workshop Attendance', ar: 'حضور ورشة عمل القيادة' }, value: 8, unit: 'hours', status: 'Delivered' },
-            { id: 'aid-b1-4', type: 'financial', date: '2024-08-01T00:00:00Z', description: { en: 'August Stipend', ar: 'مخصص أغسطس' }, value: 250, unit: 'USD', status: 'Scheduled' }
-        ]
-      },
-    },
-    {
-      id: 'ben-002',
-      name: 'Fatima Al-Jamil',
-      beneficiaryType: 'student',
-      photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop',
-      type: 'direct-support',
-      country: 'Lebanon',
-      projectId: 'proj-educ',
-      assessments: [MOCK_ASSESSMENTS[2]],
-      profile: {
-        academicInfo: {
-            level: { en: 'High School - 11th Grade', ar: 'ثانوية - صف حادي عشر' },
-            field: 'Science Stream',
-            university: 'Beirut International School',
-            gpa: 3.8
-        },
-        dob: '2007-03-22',
-        gender: 'Female',
-        contact: { email: 'fatima.j@example.com', phone: '+961 3 987 654', address: 'Beirut, Lebanon' },
-        sponsorshipDetails: { status: 'Active', startDate: '2024-01-15' },
-        financialAid: { supportAmount: 100, lastPaymentDate: '2024-07-05', paymentHistory: [] },
-        aidLog: [
-            { id: 'aid-b2-1', type: 'financial', date: new Date().toISOString(), description: { en: 'School Fees', ar: 'رسوم مدرسية' }, value: 100, unit: 'USD', status: 'Delivered', relatedProjectId: 'proj-educ' },
-        ]
-      },
-    },
-    {
-      id: 'ben-003',
-      name: 'Ahmad Hussein',
-      beneficiaryType: 'student',
-      photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop',
-      type: 'direct-support',
-      country: 'Turkey',
-      projectId: 'proj-lead',
-      assessments: [MOCK_ASSESSMENTS[3]],
-      profile: {
-        academicInfo: {
-            level: { en: 'University - 4th Year', ar: 'جامعة - سنة رابعة' },
-            field: 'Business Administration',
-            university: 'METU',
-            gpa: 3.1
-        },
-        dob: '2002-11-05',
-        gender: 'Male',
-        contact: { email: 'ahmad.h@example.com', phone: '+90 555 234 5678', address: 'Ankara, Turkey' },
-        sponsorshipDetails: { status: 'Active', startDate: '2024-02-01' },
-      },
+        suggestedPrograms: ['PROGRAM_FOOD_AID', 'PROGRAM_HEALTH_CARE'],
     },
 ];
 
-const others: Beneficiary[] = [
+// =================================================================
+// Beneficiaries
+// =================================================================
+const beneficiaries: Beneficiary[] = [
+    // --- Students ---
     {
-        id: 'ben-fam-001',
-        name: 'عائلة الأحمد',
-        beneficiaryType: 'family',
-        photo: 'https://images.unsplash.com/photo-1555952494-033f74201b56?q=80&w=200&auto=format&fit=crop',
-        type: 'direct-support',
-        country: 'Syria',
-        projectId: 'proj-comm',
-        assessments: [MOCK_ASSESSMENTS[1]],
-        profile: {
-            contact: { email: 'family.ahmad@example.com', phone: '+963 912345678', address: 'Damascus, Syria' },
-            customData: {
-                'رب الأسرة': 'خالد الأحمد',
-                'عدد أفراد الأسرة': 5,
-                'الحالة السكنية': 'إيجار',
-                'متوسط الدخل الشهري': '150 USD',
-            },
-            aidLog: [
-                { id: 'aid-f1-1', type: 'in-kind', date: new Date().toISOString(), description: { en: 'Monthly Food Basket', ar: 'سلة غذائية شهرية' }, value: 75, unit: 'USD', status: 'Delivered', relatedProjectId: 'proj-comm' },
-            ]
-        }
-    },
-    ...MOCK_ORPHAN_DATA,
-    {
-        id: 'ben-haf-001',
-        name: 'عبد الرحمن محمود',
-        beneficiaryType: 'hafiz',
-        photo: 'https://images.unsplash.com/photo-1601053706996-5c5188f57f6a?q=80&w=200&auto=format&fit=crop',
-        type: 'sponsorship',
-        country: 'Egypt',
-        profile: {
-             academicInfo: {
-                 level: { en: 'Quran Memorization Circle', ar: 'حلقة تحفيظ قرآن' },
-             }
-        }
-    },
-    {
-        id: 'ben-inst-001',
-        name: 'مدرسة الأمل',
-        beneficiaryType: 'institution',
-        photo: 'https://picsum.photos/seed/school/100/100',
-        type: 'direct-support',
+        id: 'ben-001',
+        name: { en: 'Yusuf Al-Ahmad', ar: 'يوسف الأحمد' },
+        beneficiaryType: 'student',
+        photo: 'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?q=80&w=200&auto=format&fit=crop',
+        status: 'active',
+        supportType: 'sponsorship',
         country: 'Turkey',
         projectId: 'proj-educ',
         profile: {
-            customData: {
-                'عدد الطلاب': 250,
-                'مدير المدرسة': 'أحمد يلماز'
-            }
-        }
+            type: 'student',
+            dob: '2004-08-15',
+            gender: 'Male',
+            contact: { email: 'yusuf.a@example.com', phone: '+90 555 123 4567', address: 'Istanbul, Turkey' },
+            academicInfo: {
+                level: { en: 'University - 2nd Year', ar: 'جامعة - سنة ثانية' },
+                field: 'Computer Engineering',
+                university: 'Istanbul University',
+                gpa: 3.4,
+            },
+            sponsorship: { donorId: 2, startDate: '2023-09-01', monthlyAmount: 250, currency: 'USD' },
+        },
+        aidLog: [
+            { id: 'aid-b1-1', type: 'financial', date: '2024-07-01T00:00:00Z', description: { en: 'Monthly Stipend', ar: 'مخصص شهري' }, value: 250, unit: 'USD', status: 'Delivered', relatedProjectId: 'proj-educ' },
+            { id: 'aid-b1-2', type: 'in-kind', date: '2024-06-15T00:00:00Z', description: { en: 'Laptop for Studies', ar: 'جهاز كمبيوتر محمول للدراسة' }, value: 1, unit: 'pcs', status: 'Delivered', inventoryItemId: 'ELEC-LAP-01' },
+            { id: 'aid-b1-3', type: 'service', date: '2024-05-20T00:00:00Z', description: { en: 'Leadership Workshop Attendance', ar: 'حضور ورشة عمل القيادة' }, value: 8, unit: 'hours', status: 'Delivered' },
+            { id: 'aid-b1-4', type: 'financial', date: '2024-08-01T00:00:00Z', description: { en: 'August Stipend', ar: 'مخصص أغسطس' }, value: 250, unit: 'USD', status: 'Scheduled' },
+        ],
+        assessments: [MOCK_ASSESSMENTS[0]],
+        milestones: [
+            { id: 'm1', title: { en: 'Enrolled in University', ar: 'الالتحاق بالجامعة' }, status: 'achieved', date: '2023-09-01' },
+            { id: 'm2', title: { en: 'Completed First Year', ar: 'إكمال السنة الأولى' }, status: 'achieved', date: '2024-06-15' },
+            { id: 'm3', title: { en: 'Internship', ar: 'تدريب عملي' }, status: 'in-progress', date: '2024-09-01' },
+            { id: 'm4', title: { en: 'Graduation', ar: 'التخرج' }, status: 'pending' },
+        ],
+        documents: [],
     },
     {
+        id: 'ben-002',
+        name: { en: 'Fatima Al-Jamil', ar: 'فاطمة الجميل' },
+        beneficiaryType: 'student',
+        photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop',
+        status: 'active',
+        supportType: 'direct-support',
+        country: 'Lebanon',
+        projectId: 'proj-educ',
+        profile: {
+            type: 'student',
+            dob: '2007-03-22',
+            gender: 'Female',
+            contact: { email: 'fatima.j@example.com', phone: '+961 3 987 654', address: 'Beirut, Lebanon' },
+            academicInfo: {
+                level: { en: 'High School - 11th Grade', ar: 'ثانوية - صف حادي عشر' },
+                field: 'Science Stream',
+                university: 'Beirut International School',
+                gpa: 3.8,
+            },
+            sponsorship: { startDate: '2024-01-15', monthlyAmount: 100, currency: 'USD' },
+        },
+        aidLog: [
+            { id: 'aid-b2-1', type: 'financial', date: '2024-07-05T00:00:00Z', description: { en: 'School Fees', ar: 'رسوم مدرسية' }, value: 100, unit: 'USD', status: 'Delivered', relatedProjectId: 'proj-educ' },
+        ],
+        assessments: [MOCK_ASSESSMENTS[2]],
+        milestones: [],
+        documents: [],
+    },
+    {
+        id: 'ben-003',
+        name: { en: 'Ahmad Hussein', ar: 'أحمد حسين' },
+        beneficiaryType: 'student',
+        photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop',
+        status: 'active',
+        supportType: 'direct-support',
+        country: 'Turkey',
+        projectId: 'proj-lead',
+        profile: {
+            type: 'student',
+            dob: '2002-11-05',
+            gender: 'Male',
+            contact: { email: 'ahmad.h@example.com', phone: '+90 555 234 5678', address: 'Ankara, Turkey' },
+            academicInfo: {
+                level: { en: 'University - 4th Year', ar: 'جامعة - سنة رابعة' },
+                field: 'Business Administration',
+                university: 'METU',
+                gpa: 3.1,
+            },
+            sponsorship: { startDate: '2024-02-01' },
+        },
+        aidLog: [],
+        assessments: [MOCK_ASSESSMENTS[3]],
+        milestones: [],
+        documents: [],
+    },
+
+    // --- Orphan ---
+    {
+        id: 'ben-orp-001',
+        name: { en: 'Ali Khaled', ar: 'علي خالد' },
+        beneficiaryType: 'orphan',
+        photo: 'https://images.unsplash.com/photo-1519985359926-d63c467a5ee2?q=80&w=200&auto=format&fit=crop',
+        status: 'active',
+        supportType: 'sponsorship',
+        country: 'Jordan',
+        profile: {
+            type: 'orphan',
+            dob: '2012-05-10',
+            gender: 'Male',
+            contact: { phone: '+962 7 1234 5678', address: 'Amman, Jordan' },
+            guardian: { name: 'Maryam Abdullah', relation: 'Mother', phone: '+962 7 1234 5678' },
+            academicInfo: { grade: '6th Grade', school: 'Al-Amal School', attendance: '98%', level: 'Excellent' },
+            sponsorship: { donorId: 'DN-001', startDate: '2024-01-01', monthlyAmount: 150, currency: 'USD' },
+            familyMembers: [
+                { relation: 'Mother', name: 'Maryam Abdullah', age: 38 },
+                { relation: 'Brother', name: 'Hassan', age: 9 },
+                { relation: 'Sister', name: 'Sara', age: 7 },
+            ],
+        },
+        aidLog: [
+            { id: 'aid-o1-1', type: 'financial', date: '2024-07-01T00:00:00Z', description: { en: 'July Sponsorship Payment', ar: 'دفعة كفالة يوليو' }, value: 150, unit: 'USD', status: 'Delivered' },
+            { id: 'aid-o1-2', type: 'in-kind', date: '2024-07-10T00:00:00Z', description: { en: 'Eid Clothing', ar: 'ملابس العيد' }, value: 1, unit: 'package', status: 'Delivered', inventoryItemId: 'CL-KID-01' },
+            { id: 'aid-o1-3', type: 'service', date: '2024-06-05T00:00:00Z', description: { en: 'Psychological Support Session', ar: 'جلسة دعم نفسي' }, value: 1, unit: 'session', status: 'Delivered' },
+            { id: 'aid-o1-4', type: 'financial', date: '2024-08-01T00:00:00Z', description: { en: 'August Sponsorship Payment', ar: 'دفعة كفالة أغسطس' }, value: 150, unit: 'USD', status: 'Scheduled' },
+        ],
+        assessments: [],
+        milestones: [
+            { id: 'om1', title: { en: '1st Place in Reading Contest', ar: 'المركز الأول في مسابقة القراءة' }, status: 'achieved', date: '2024-07-22' },
+        ],
+        documents: [],
+    },
+
+    // --- Family ---
+    {
+        id: 'ben-fam-001',
+        name: { en: 'Al-Ahmad Family', ar: 'عائلة الأحمد' },
+        beneficiaryType: 'family',
+        photo: 'https://images.unsplash.com/photo-1555952494-033f74201b56?q=80&w=200&auto=format&fit=crop',
+        status: 'active',
+        supportType: 'direct-support',
+        country: 'Syria',
+        projectId: 'proj-comm',
+        profile: {
+            type: 'family',
+            headOfHousehold: 'Khaled Al-Ahmad',
+            memberCount: 5,
+            monthlyIncome: '150 USD',
+            housingType: 'Rental',
+            contact: { email: 'family.ahmad@example.com', phone: '+963 912345678', address: 'Damascus, Syria' },
+        },
+        aidLog: [
+            { id: 'aid-f1-1', type: 'in-kind', date: '2024-07-01T00:00:00Z', description: { en: 'Monthly Food Basket', ar: 'سلة غذائية شهرية' }, value: 75, unit: 'USD', status: 'Delivered', relatedProjectId: 'proj-comm' },
+        ],
+        assessments: [MOCK_ASSESSMENTS[1]],
+        milestones: [],
+        documents: [],
+    },
+
+    // --- Hafiz ---
+    {
+        id: 'ben-haf-001',
+        name: { en: 'Abdulrahman Mahmoud', ar: 'عبد الرحمن محمود' },
+        beneficiaryType: 'hafiz',
+        photo: 'https://images.unsplash.com/photo-1601053706996-5c5188f57f6a?q=80&w=200&auto=format&fit=crop',
+        status: 'active',
+        supportType: 'sponsorship',
+        country: 'Egypt',
+        profile: {
+            type: 'hafiz',
+            dob: '2010-03-15',
+            gender: 'Male',
+            contact: { phone: '+20 100 1234 567' },
+            memorization: {
+                level: { en: 'Quran Memorization Circle', ar: 'حلقة تحفيظ قرآن' },
+                juzCompleted: 18,
+                circle: 'Al-Noor Circle',
+            },
+            sponsorship: { monthlyAmount: 80, currency: 'USD', startDate: '2023-06-01' },
+        },
+        aidLog: [],
+        assessments: [],
+        milestones: [
+            { id: 'hm1', title: { en: 'Completed 15 Juz', ar: 'إكمال 15 جزءاً' }, status: 'achieved', date: '2024-03-01' },
+            { id: 'hm2', title: { en: 'Complete 20 Juz', ar: 'إكمال 20 جزءاً' }, status: 'in-progress' },
+            { id: 'hm3', title: { en: 'Full Quran Memorization', ar: 'ختم القرآن الكريم' }, status: 'pending' },
+        ],
+        documents: [],
+    },
+
+    // --- Institution ---
+    {
+        id: 'ben-inst-001',
+        name: { en: 'Al-Amal School', ar: 'مدرسة الأمل' },
+        beneficiaryType: 'institution',
+        photo: 'https://picsum.photos/seed/school/200/200',
+        status: 'active',
+        supportType: 'direct-support',
+        country: 'Turkey',
+        projectId: 'proj-educ',
+        profile: {
+            type: 'institution',
+            directorName: 'Ahmad Yilmaz',
+            capacity: 250,
+            institutionType: 'school',
+            contact: { email: 'info@alamal.edu.tr', phone: '+90 212 555 0000' },
+        },
+        aidLog: [],
+        assessments: [],
+        milestones: [],
+        documents: [],
+    },
+
+    // --- Community ---
+    {
         id: 'ben-comm-001',
-        name: 'مخيم الزعتري للاجئين',
+        name: { en: 'Zaatari Refugee Camp', ar: 'مخيم الزعتري للاجئين' },
         beneficiaryType: 'community',
-        photo: 'https://picsum.photos/seed/zaatari/100/100',
-        type: 'direct-support',
+        photo: 'https://picsum.photos/seed/zaatari/200/200',
+        status: 'active',
+        supportType: 'direct-support',
         country: 'Jordan',
         projectId: 'proj-comm',
         profile: {
-            customData: {
-                'عدد السكان التقريبي': 80000,
-                'المسؤول الميداني': 'علي حسن'
-            }
-        }
-    },
-    {
-        id: 'ben-inc-001',
-        name: 'فكرة تك',
-        beneficiaryType: 'incubation_beneficiary',
-        photo: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=200&auto=format&fit=crop',
-        type: 'direct-support',
-        country: 'Turkey',
-        projectId: 'proj-incubation', // A new project ID, just for show.
-        academicLevel: { en: 'Startup', ar: 'شركة ناشئة' },
-        profile: {
-            academicLevel: { en: 'Startup', ar: 'شركة ناشئة' },
+            type: 'community',
+            populationEstimate: 80000,
+            fieldOfficer: 'Ali Hassan',
+            areaType: 'refugee camp',
+            contact: { email: 'field@zaatari.org', phone: '+962 6 000 0000' },
         },
+        aidLog: [
+            { id: 'aid-c1-1', type: 'in-kind', date: '2024-06-01T00:00:00Z', description: { en: 'Water Supply Delivery', ar: 'توصيل مياه' }, value: 5000, unit: 'liters', status: 'Delivered', relatedProjectId: 'proj-comm' },
+        ],
         assessments: [],
         milestones: [],
-    }
+        documents: [],
+    },
 ];
 
 export const INITIAL_BENEFICIARY_DATA: BeneficiaryData = {
-  projects: [
-    { id: 'proj-lead', name: { en: 'Leadership Building Project', ar: 'مشروع البناء القيادي' } },
-    { id: 'proj-educ', name: { en: 'Educational Support Initiative', ar: 'مبادرة الدعم التعليمي' } },
-    { id: 'proj-comm', name: { en: 'Community Service Program', ar: 'برنامج خدمة المجتمع' } },
-  ],
-  beneficiaries: [...students, ...others]
+    projects: [
+        { id: 'proj-lead', name: { en: 'Leadership Building Project', ar: 'مشروع البناء القيادي' } },
+        { id: 'proj-educ', name: { en: 'Educational Support Initiative', ar: 'مبادرة الدعم التعليمي' } },
+        { id: 'proj-comm', name: { en: 'Community Service Program', ar: 'برنامج خدمة المجتمع' } },
+    ],
+    beneficiaries,
 };

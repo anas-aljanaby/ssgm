@@ -1,168 +1,166 @@
-
-
 import React, { useState, useMemo } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useBeneficiaryData } from '../../../hooks/useBeneficiaryData';
-import type { Beneficiary, ProgramProject, BeneficiaryType } from '../../../types';
-import BeneficiaryCard from './beneficiaries/BeneficiaryCard';
-import BeneficiaryDetailView from './beneficiaries/BeneficiaryDetailView';
-import { BeneficiaryIcon } from '../icons/ModuleIcons';
-import { Users, BookOpen, Heart, Home, Building, Globe } from 'lucide-react';
-import PortalModal from '../beneficiary-portal/PortalModal';
-import { BeneficiaryStats } from './beneficiaries/BeneficiaryStats';
-import BeneficiaryToolbar from './beneficiaries/BeneficiaryToolbar';
-import AddBeneficiaryModal from './beneficiaries/AddBeneficiaryModal';
-import { useToast } from '../../hooks/useToast';
-import OrphanProfile from './beneficiaries/OrphanProfile';
+import type { Beneficiary, BeneficiaryType } from '../../../types';
+import { BeneficiaryIcon } from '../../icons/ModuleIcons';
+import BeneficiaryCard from './BeneficiaryCard';
+import BeneficiaryTable from './BeneficiaryTable';
+import BeneficiaryDetailView from './BeneficiaryDetailView';
+import BeneficiaryToolbar from './BeneficiaryToolbar';
+import BeneficiaryStatBar from './BeneficiaryStatBar';
+import AddBeneficiaryModal from './AddBeneficiaryModal';
+import { useToast } from '../../../hooks/useToast';
 
 const BeneficiariesModule: React.FC = () => {
-    const { t, language } = useLocalization();
+    const { t, language } = useLocalization(['common', 'beneficiaries']);
     const { beneficiaryData } = useBeneficiaryData();
-    const { projects } = beneficiaryData;
     const toast = useToast();
-    
+
     const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>(beneficiaryData.beneficiaries);
-    const [selectedCategory, setSelectedCategory] = useState<BeneficiaryType | 'all'>('all');
     const [selectedBeneficiary, setSelectedBeneficiary] = useState<Beneficiary | null>(null);
-    const [isPortalOpen, setIsPortalOpen] = useState(false);
-    
-    // New states for toolbar
-    const [view, setView] = useState<'card' | 'list' | 'map' | 'briefcase'>('card');
+
+    // Toolbar state
+    const [view, setView] = useState<'table' | 'card'>('table');
     const [searchTerm, setSearchTerm] = useState('');
-    const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
+    const [selectedType, setSelectedType] = useState<BeneficiaryType | 'all'>('all');
+    const [selectedStatus, setSelectedStatus] = useState<string>('all');
+    const [selectedCountry, setSelectedCountry] = useState<string>('all');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-    const categories: { id: BeneficiaryType | 'all', name: string, icon: React.FC }[] = [
-        { id: 'all', name: t('beneficiaries.types.all'), icon: Users },
-        { id: 'student', name: t('beneficiaries.types.student'), icon: BookOpen },
-        { id: 'orphan', name: t('beneficiaries.types.orphan'), icon: Heart },
-        { id: 'hafiz', name: t('beneficiaries.types.hafiz'), icon: BookOpen },
-        { id: 'family', name: t('beneficiaries.types.family'), icon: Home },
-        { id: 'institution', name: t('beneficiaries.types.institution'), icon: Building },
-        { id: 'community', name: t('beneficiaries.types.community'), icon: Globe },
-    ];
-    
-    const handleAddBeneficiary = (data: any) => {
-        const newBeneficiary: Beneficiary = {
-            id: `ben-${Date.now()}`,
-            name: data.name,
-            beneficiaryType: data.beneficiaryType,
-            photo: `https://picsum.photos/seed/${encodeURIComponent(data.name)}/100/100`,
-            type: 'direct-support',
-            country: data.country,
-            profile: data.profile,
-            assessments: [],
-            milestones: []
-        };
-        setBeneficiaries(prev => [newBeneficiary, ...prev]);
-        toast.showSuccess(t('beneficiaries.addedSuccess', { name: data.name }));
-        setIsAddModalOpen(false);
-    };
-    
+    // Derived data for filters
+    const countries = useMemo(() => {
+        const set = new Set(beneficiaries.map(b => b.country));
+        return Array.from(set).sort();
+    }, [beneficiaries]);
+
+    // Filtering
     const filteredBeneficiaries = useMemo(() => {
         return beneficiaries.filter(b => {
-            const matchesCategory = selectedCategory === 'all' || b.beneficiaryType === selectedCategory;
-            const matchesSearch = searchTerm ? b.name.toLowerCase().includes(searchTerm.toLowerCase()) : true;
-            return matchesCategory && matchesSearch;
+            if (selectedType !== 'all' && b.beneficiaryType !== selectedType) return false;
+            if (selectedStatus !== 'all' && b.status !== selectedStatus) return false;
+            if (selectedCountry !== 'all' && b.country !== selectedCountry) return false;
+
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                const name = (b.name[language] || b.name.en || b.name.ar || '').toLowerCase();
+                const country = b.country.toLowerCase();
+                const contact = b.profile.contact;
+                const matchesName = name.includes(term);
+                const matchesCountry = country.includes(term);
+                const matchesEmail = contact?.email?.toLowerCase().includes(term) ?? false;
+                const matchesPhone = contact?.phone?.includes(term) ?? false;
+                if (!matchesName && !matchesCountry && !matchesEmail && !matchesPhone) return false;
+            }
+
+            return true;
         });
-    }, [beneficiaries, selectedCategory, searchTerm]);
-    
-    const renderCurrentView = () => {
-        switch (view) {
-            case 'card':
-                return (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        {filteredBeneficiaries.map(beneficiary => {
-                            const project = projects.find(p => p.id === beneficiary.projectId);
-                            return (
-                                <BeneficiaryCard
-                                    key={beneficiary.id}
-                                    beneficiary={beneficiary}
-                                    project={project}
-                                    onClick={() => setSelectedBeneficiary(beneficiary)}
-                                />
-                            );
-                        })}
-                    </div>
-                );
-            case 'list':
-            case 'map':
-            case 'briefcase':
-                return (
-                    <div className="text-center py-16 px-6 bg-card dark:bg-dark-card rounded-2xl shadow-inner mt-6">
-                        <h3 className="text-xl font-semibold text-foreground dark:text-dark-foreground mt-4">{t('beneficiaries.viewUnderConstruction', { view })}</h3>
-                    </div>
-                );
-            default:
-                return null;
-        }
+    }, [beneficiaries, selectedType, selectedStatus, selectedCountry, searchTerm, language]);
+
+    const handleAddBeneficiary = (data: Partial<Beneficiary>) => {
+        const newBeneficiary: Beneficiary = {
+            id: `ben-${Date.now()}`,
+            name: data.name || { en: '', ar: '' },
+            beneficiaryType: data.beneficiaryType || 'student',
+            photo: `https://picsum.photos/seed/${Date.now()}/200/200`,
+            status: 'active',
+            supportType: data.supportType || 'direct-support',
+            country: data.country || '',
+            profile: data.profile || { type: 'student' },
+            aidLog: [],
+            assessments: [],
+            milestones: [],
+            documents: [],
+        };
+        setBeneficiaries(prev => [newBeneficiary, ...prev]);
+        toast.showSuccess(t('beneficiaries.addedSuccess', { name: newBeneficiary.name[language] }));
+        setIsAddModalOpen(false);
     };
 
+    const handleUpdate = (updated: Beneficiary) => {
+        setBeneficiaries(prev => prev.map(b => b.id === updated.id ? updated : b));
+        setSelectedBeneficiary(updated);
+    };
+
+    // Detail view
     if (selectedBeneficiary) {
-        if (selectedBeneficiary.id === 'ben-orp-001') {
-            return <OrphanProfile orphanId={selectedBeneficiary.id} onBack={() => setSelectedBeneficiary(null)} />;
-        }
-        return <BeneficiaryDetailView 
-                    beneficiary={selectedBeneficiary} 
-                    onBack={() => setSelectedBeneficiary(null)} 
-                    onOpenPortal={() => setIsPortalOpen(true)} 
-                    onUpdate={(updated) => {
-                        setBeneficiaries(prev => prev.map(b => b.id === updated.id ? updated : b));
-                        setSelectedBeneficiary(updated);
-                    }}
-                />;
+        return (
+            <BeneficiaryDetailView
+                beneficiary={selectedBeneficiary}
+                onBack={() => setSelectedBeneficiary(null)}
+                onUpdate={handleUpdate}
+            />
+        );
     }
 
     return (
         <>
-        <AddBeneficiaryModal
-            isOpen={isAddModalOpen}
-            onClose={() => setIsAddModalOpen(false)}
-            onAdd={handleAddBeneficiary}
-        />
-        <div className="space-y-6" dir="rtl">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <h1 className="text-3xl font-bold text-foreground dark:text-dark-foreground flex items-center gap-3">
-                    <BeneficiaryIcon /> {t('beneficiaries.title')}
-                </h1>
-
-                <div>
-                    <label htmlFor="beneficiary-category-select" className="sr-only">{t('beneficiaries.categorySelectLabel')}</label>
-                    <select 
-                        id="beneficiary-category-select"
-                        value={selectedCategory}
-                        onChange={e => setSelectedCategory(e.target.value as any)}
-                        className="p-2 border rounded-lg bg-card dark:bg-dark-card dark:border-slate-600 min-w-[200px] text-lg font-semibold"
-                    >
-                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
-                </div>
-            </div>
-
-            <BeneficiaryStats beneficiaries={filteredBeneficiaries} />
-            
-            <BeneficiaryToolbar
-                view={view}
-                onViewChange={setView}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                onAddBeneficiary={() => setIsAddModalOpen(true)}
-                onToggleAdvancedFilters={() => setIsAdvancedFiltersOpen(prev => !prev)}
+            <AddBeneficiaryModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onAdd={handleAddBeneficiary}
             />
-            
-            {isAdvancedFiltersOpen && <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-xl border dark:border-slate-700 animate-fade-in-fast">{t('beneficiaries.advancedFiltersPlaceholder')}</div>}
 
-            {filteredBeneficiaries.length > 0 ? renderCurrentView() : (
-                <div className="col-span-full text-center py-16 px-6 bg-card dark:bg-dark-card rounded-2xl shadow-inner mt-6">
-                    <h3 className="text-xl font-semibold text-foreground dark:text-dark-foreground mb-2">{t('beneficiaries.noResults')}</h3>
-                    <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">{t('beneficiaries.noResultsDescription')}</p>
+            <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <h1 className="text-3xl font-bold text-foreground dark:text-dark-foreground flex items-center gap-3">
+                        <BeneficiaryIcon /> {t('beneficiaries.title')}
+                    </h1>
                 </div>
-            )}
-        </div>
-         <PortalModal 
-            isOpen={isPortalOpen} 
-            onClose={() => setIsPortalOpen(false)} 
-        />
+
+                {/* Stat bar */}
+                <BeneficiaryStatBar beneficiaries={filteredBeneficiaries} />
+
+                {/* Toolbar */}
+                <BeneficiaryToolbar
+                    view={view}
+                    onViewChange={setView}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    selectedType={selectedType}
+                    onTypeChange={setSelectedType}
+                    selectedStatus={selectedStatus}
+                    onStatusChange={setSelectedStatus}
+                    selectedCountry={selectedCountry}
+                    onCountryChange={setSelectedCountry}
+                    countries={countries}
+                    onAddBeneficiary={() => setIsAddModalOpen(true)}
+                />
+
+                {/* Content */}
+                {filteredBeneficiaries.length > 0 ? (
+                    view === 'table' ? (
+                        <BeneficiaryTable
+                            beneficiaries={filteredBeneficiaries}
+                            projects={beneficiaryData.projects}
+                            onSelect={setSelectedBeneficiary}
+                        />
+                    ) : (
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-5">
+                            {filteredBeneficiaries.map(b => {
+                                const project = beneficiaryData.projects.find(p => p.id === b.projectId);
+                                return (
+                                    <BeneficiaryCard
+                                        key={b.id}
+                                        beneficiary={b}
+                                        project={project}
+                                        onClick={() => setSelectedBeneficiary(b)}
+                                    />
+                                );
+                            })}
+                        </div>
+                    )
+                ) : (
+                    <div className="text-center py-16 px-6 bg-card dark:bg-dark-card rounded-2xl shadow-inner">
+                        <h3 className="text-xl font-semibold text-foreground dark:text-dark-foreground mb-2">
+                            {t('beneficiaries.noResults')}
+                        </h3>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                            {t('beneficiaries.noResultsDescription')}
+                        </p>
+                    </div>
+                )}
+            </div>
         </>
     );
 };

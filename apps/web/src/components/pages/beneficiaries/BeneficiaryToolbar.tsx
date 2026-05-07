@@ -1,77 +1,117 @@
-
-
 import React from 'react';
-import { Briefcase, Map, Users, List, Search } from 'lucide-react';
-import { MicrophoneIcon } from '../../icons/AiIcons';
+import { List } from 'lucide-react';
+import { SearchIcon } from '../../icons/GenericIcons';
+import { HrIcon } from '../../icons/ModuleIcons';
+import { useLocalization } from '../../../hooks/useLocalization';
+import type { BeneficiaryType } from '../../../types';
 
 interface BeneficiaryToolbarProps {
-    view: string;
-    onViewChange: (view: string) => void;
+    view: 'table' | 'card';
+    onViewChange: (view: 'table' | 'card') => void;
     searchTerm: string;
     onSearchChange: (term: string) => void;
+    selectedType: BeneficiaryType | 'all';
+    onTypeChange: (type: BeneficiaryType | 'all') => void;
+    selectedStatus: string;
+    onStatusChange: (status: string) => void;
+    selectedCountry: string;
+    onCountryChange: (country: string) => void;
+    countries: string[];
     onAddBeneficiary: () => void;
-    onToggleAdvancedFilters: () => void;
-    isListening: boolean;
-    handleListen: () => void;
-    micError: string | null;
 }
 
 const BeneficiaryToolbar: React.FC<BeneficiaryToolbarProps> = ({
-    view, onViewChange, searchTerm, onSearchChange, onAddBeneficiary, onToggleAdvancedFilters, isListening, handleListen, micError
+    view, onViewChange, searchTerm, onSearchChange,
+    selectedType, onTypeChange,
+    selectedStatus, onStatusChange,
+    selectedCountry, onCountryChange,
+    countries, onAddBeneficiary,
 }) => {
+    const { t, dir } = useLocalization(['common', 'beneficiaries']);
 
-    const getButtonClass = (buttonView: string) => {
-        return view === buttonView
-            ? "p-2 bg-primary text-white rounded-lg"
-            : "p-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-md";
-    };
+    const beneficiaryTypes: Array<BeneficiaryType | 'all'> = ['all', 'student', 'orphan', 'hafiz', 'family', 'institution', 'community'];
+    const statuses = ['all', 'active', 'inactive', 'graduated', 'suspended', 'on-hold'];
+
+    const ViewButton: React.FC<{
+        label: string;
+        icon: React.ReactNode;
+        isActive: boolean;
+        onClick: () => void;
+    }> = ({ label, icon, isActive, onClick }) => (
+        <button
+            onClick={onClick}
+            title={label}
+            className={`p-2 rounded-md transition-colors ${isActive ? 'bg-primary text-white' : 'hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+        >
+            {icon}
+        </button>
+    );
 
     return (
-        <div className="p-2 bg-gray-100 dark:bg-dark-card/50 rounded-lg flex items-center gap-2">
-            <button 
-                onClick={onAddBeneficiary}
-                className="px-4 py-2 text-sm font-semibold text-white bg-green-500 rounded-lg hover:bg-green-600"
-            >
-                إضافة مستفيد
-            </button>
-
-            <div className="flex items-center gap-1 p-1 bg-white dark:bg-slate-700 rounded-lg shadow-sm">
-                <button onClick={() => onViewChange('briefcase')} className={getButtonClass('briefcase')} aria-label="Briefcase View"><Briefcase size={20} /></button>
-                <button onClick={() => onViewChange('map')} className={getButtonClass('map')} aria-label="Map View"><Map size={20} /></button>
-                <button onClick={() => onViewChange('card')} className={getButtonClass('card')} aria-label="Card View"><Users size={20} /></button>
-                <button onClick={() => onViewChange('list')} className={getButtonClass('list')} aria-label="List View"><List size={20} /></button>
-            </div>
-
-            <button 
-                onClick={onToggleAdvancedFilters}
-                className="px-3 py-2 text-sm font-medium border bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600"
-            >
-                فلاتر متقدمة
-            </button>
-
-            <div className="relative flex-grow">
-                <input 
-                    type="text" 
-                    value={searchTerm} 
-                    onChange={e => onSearchChange(e.target.value)} 
-                    placeholder={isListening ? "جاري الاستماع..." : "بحث بالاسم، جهة الاتصال، أو مجال التركيز..."}
-                    className="w-full p-3 pr-24 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary"
-                />
-                 <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                    <Search className="w-5 h-5 text-gray-400" />
+        <div className="flex-shrink-0 p-4 bg-card dark:bg-dark-card rounded-xl shadow-soft border dark:border-slate-700/50">
+            <div className="flex flex-col lg:flex-row gap-3">
+                {/* Search */}
+                <div className="relative flex-grow">
+                    <div className={`absolute inset-y-0 flex items-center ${dir === 'ltr' ? 'ps-3' : 'pe-3'} pointer-events-none`}>
+                        <SearchIcon />
+                    </div>
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={e => onSearchChange(e.target.value)}
+                        placeholder={t('beneficiaries.searchPlaceholder')}
+                        className={`block w-full p-2.5 ${dir === 'ltr' ? 'ps-10' : 'pe-10'} text-sm border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-800 focus:ring-primary focus:border-primary`}
+                    />
                 </div>
-                 <div className="absolute inset-y-0 right-11 flex items-center">
-                     <button
-                        onClick={handleListen}
-                        disabled={!!micError}
-                        title={micError || "Search by voice"}
-                        className={`p-2 rounded-full transition-colors disabled:text-gray-400 disabled:cursor-not-allowed ${
-                            isListening
-                                ? 'text-red-500 bg-red-100 dark:bg-red-900/50 animate-pulse'
-                                : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-slate-700'
-                        }`}
+
+                {/* Filters row */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {/* Type filter */}
+                    <select
+                        value={selectedType}
+                        onChange={e => onTypeChange(e.target.value as BeneficiaryType | 'all')}
+                        className="px-3 py-2.5 text-sm border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-800"
                     >
-                        <MicrophoneIcon className="w-5 h-5" />
+                        {beneficiaryTypes.map(type => (
+                            <option key={type} value={type}>{t(`beneficiaries.types.${type}`)}</option>
+                        ))}
+                    </select>
+
+                    {/* Status filter */}
+                    <select
+                        value={selectedStatus}
+                        onChange={e => onStatusChange(e.target.value)}
+                        className="px-3 py-2.5 text-sm border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-800"
+                    >
+                        {statuses.map(s => (
+                            <option key={s} value={s}>{t(`beneficiaries.statuses.${s}`)}</option>
+                        ))}
+                    </select>
+
+                    {/* Country filter */}
+                    <select
+                        value={selectedCountry}
+                        onChange={e => onCountryChange(e.target.value)}
+                        className="px-3 py-2.5 text-sm border border-gray-300 dark:border-slate-700 rounded-lg bg-gray-50 dark:bg-slate-800"
+                    >
+                        <option value="all">{t('beneficiaries.filters.allCountries')}</option>
+                        {countries.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                        ))}
+                    </select>
+
+                    {/* View toggle */}
+                    <div className="p-1 bg-gray-100 dark:bg-slate-900 rounded-lg flex items-center">
+                        <ViewButton label={t('beneficiaries.views.table')} icon={<List size={18} />} isActive={view === 'table'} onClick={() => onViewChange('table')} />
+                        <ViewButton label={t('beneficiaries.views.card')} icon={<HrIcon className="w-[18px] h-[18px]" />} isActive={view === 'card'} onClick={() => onViewChange('card')} />
+                    </div>
+
+                    {/* Add button */}
+                    <button
+                        onClick={onAddBeneficiary}
+                        className="px-4 py-2 text-sm font-medium text-white bg-secondary hover:bg-secondary-dark rounded-lg transition-colors"
+                    >
+                        {t('beneficiaries.addBeneficiary')}
                     </button>
                 </div>
             </div>

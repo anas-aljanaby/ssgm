@@ -569,7 +569,7 @@ const RegistryTab: React.FC<{
         }
     }, [sortColumn]);
 
-    const getButtonClass = (buttonView: 'list' | 'card' | 'kanban') => {
+    const getButtonClass = (buttonView: 'list' | 'card') => {
         return view === buttonView
             ? "p-2 bg-primary text-white rounded-md"
             : "p-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-md";
@@ -630,8 +630,27 @@ const RegistryTab: React.FC<{
                             <div className="p-1 bg-gray-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
                                 <button onClick={() => setView('list')} className={getButtonClass('list')} aria-label={t('individual_donors.listView')} title={t('individual_donors.listView')}><List size={20}/></button>
                                 <button onClick={() => setView('card')} className={getButtonClass('card')} aria-label={t('individual_donors.iconView')} title={t('individual_donors.iconView')}><Users size={20} /></button>
-                                <button onClick={() => setView('kanban')} className={getButtonClass('kanban')} aria-label={t('individual_donors.kanbanView')} title={t('individual_donors.kanbanView')}><LayoutDashboard size={20} /></button>
                             </div>
+                            <button
+                                type="button"
+                                onClick={() => setView(view === 'kanban' ? 'list' : 'kanban')}
+                                aria-pressed={view === 'kanban'}
+                                className={`inline-flex items-center justify-center gap-2 rounded-lg border px-3.5 py-2.5 text-sm font-semibold transition-colors ${
+                                    view === 'kanban'
+                                        ? 'border-primary bg-primary text-white shadow-sm'
+                                        : 'border-gray-300 bg-white text-gray-700 hover:border-primary/50 hover:bg-primary-light/80 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-200 dark:hover:bg-slate-700'
+                                }`}
+                            >
+                                <LayoutDashboard size={17} />
+                                <span>{t('donors.kanban.pipelineBoard')}</span>
+                                <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold ${
+                                    view === 'kanban'
+                                        ? 'bg-white/20 text-white'
+                                        : 'bg-gray-100 text-gray-600 dark:bg-slate-900 dark:text-gray-300'
+                                }`}>
+                                    {formatNumber(filteredPipelineDonors.length, language)}
+                                </span>
+                            </button>
                             <button
                                 onClick={() => setIsAddModalOpen(true)}
                                 className="px-4 py-2 text-sm font-medium text-white bg-secondary hover:bg-secondary-dark rounded-lg transition-colors"

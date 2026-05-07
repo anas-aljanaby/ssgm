@@ -33,10 +33,22 @@ const KanbanCardShell: React.FC<KanbanCardShellProps> = ({
 }) => {
     const { t, language } = useLocalization(['common', 'donors']);
 
-    const healthColors = {
-        'Good': 'border-green-500',
-        'Moderate': 'border-yellow-500',
-        'At Risk': 'border-red-500',
+    const healthStyles = {
+        'Good': {
+            border: 'border-emerald-500',
+            dot: 'bg-emerald-500',
+            chip: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-800',
+        },
+        'Moderate': {
+            border: 'border-amber-500',
+            dot: 'bg-amber-500',
+            chip: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-200 dark:border-amber-800',
+        },
+        'At Risk': {
+            border: 'border-rose-500',
+            dot: 'bg-rose-500',
+            chip: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-200 dark:border-rose-800',
+        },
     };
 
     const likelihoodStyles = {
@@ -52,6 +64,12 @@ const KanbanCardShell: React.FC<KanbanCardShellProps> = ({
     const owner = donor.assignedOwner || t('donors.kanban.unassigned');
     const askAmount = donor.suggestedAskAmount ?? donor.potentialGift;
     const isCompact = density === 'compact';
+    const openTasks = donor.tasks.filter(task => !task.completed);
+    const today = new Date().toISOString().split('T')[0];
+    const overdueTasks = openTasks.filter(task => task.dueDate < today);
+    const nextTask = openTasks.slice().sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
+    const stageAgeIsStale = stageAgeDays !== null && stageAgeDays > 30;
+    const relationshipHealthLabel = t(`donors.health.${donor.relationshipHealth.replace(/\s+/g, '')}`, donor.relationshipHealth);
 
     const handleMoveChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const targetStageId = e.target.value as DonorStageId;
@@ -63,25 +81,26 @@ const KanbanCardShell: React.FC<KanbanCardShellProps> = ({
     return (
         <div
             ref={rootRef}
-            className={`flex flex-col bg-card dark:bg-dark-card rounded-lg border-s-4 ${healthColors[donor.relationshipHealth]} ${
-                isCompact ? 'space-y-2.5 p-3 shadow-sm' : 'space-y-3 p-3 shadow-md'
+            className={`group flex flex-col rounded-lg border bg-card dark:bg-dark-card ${healthStyles[donor.relationshipHealth].border} ${
+                isCompact ? 'space-y-1.5 p-2 shadow-sm' : 'space-y-2.5 p-3 shadow-sm'
             } ${
                 isDragOverlay
                     ? 'shadow-2xl ring-2 ring-primary/40 cursor-grabbing'
-                    : 'hover:shadow-lg transition-shadow'
+                    : 'hover:border-primary/60 hover:shadow-md transition-all'
             } ${isDragging ? 'opacity-40' : ''}`}
             aria-label={t('donors.card.ariaLabel', { name: donor.name })}
         >
-                {/* Header */}
-                <div className="flex justify-between items-start gap-2">
-                    <div className={`flex items-center min-w-0 ${isCompact ? 'gap-2' : 'gap-3'}`}>
-                        <img src={donor.avatar} alt={donor.name} className={`${isCompact ? 'w-8 h-8' : 'w-10 h-10'} rounded-full flex-shrink-0 object-cover bg-gray-100`} loading="lazy" />
-                        <div className="flex-grow min-w-0">
-                            <h3 className={`${isCompact ? 'text-sm' : 'text-base'} font-bold text-foreground dark:text-dark-foreground whitespace-normal`}>{donor.name}</h3>
-                            <p className="text-xs text-gray-500 truncate">
-                                {[donor.country, donor.donorType && t(`donors.types.${donor.donorType.replace(/ /g, '')}`, donor.donorType)].filter(Boolean).join(' / ')}
-                            </p>
+                <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                        <div className="flex min-w-0 items-center gap-1.5">
+                            <span className={`h-2 w-2 shrink-0 rounded-full ${healthStyles[donor.relationshipHealth].dot}`} aria-hidden="true" />
+                            <h3 className={`${isCompact ? 'text-[13px]' : 'text-sm'} truncate font-bold text-foreground dark:text-dark-foreground`}>{donor.name}</h3>
                         </div>
+                        {!isCompact && (
+                            <p className="mt-0.5 truncate text-xs font-medium text-gray-500 dark:text-gray-400">
+                                {owner}
+                            </p>
+                        )}
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                         {dragHandle}
@@ -89,65 +108,82 @@ const KanbanCardShell: React.FC<KanbanCardShellProps> = ({
                 </div>
 
                 {isCompact ? (
-                    <div className="flex items-center justify-between gap-2 rounded-md bg-gray-50 dark:bg-slate-800/60 px-2 py-1.5 text-[11px]">
-                        <span className="truncate font-semibold text-gray-600 dark:text-gray-300">{owner}</span>
-                        <span className={`${stageAgeDays !== null && stageAgeDays > 30 ? 'text-amber-700 dark:text-amber-300' : 'text-gray-500 dark:text-gray-400'} shrink-0`}>
-                            {stageAgeDays !== null ? t('donors.kanban.daysInStage', { count: formatNumber(stageAgeDays, language) }) : t('common.notAvailable', 'N/A')}
-                        </span>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="rounded-md bg-gray-50 dark:bg-slate-800/60 p-2">
-                            <span className="block text-gray-500 dark:text-gray-400">{t('donors.kanban.owner')}</span>
-                            <span className="mt-1 block truncate font-bold text-foreground dark:text-dark-foreground">
-                                {owner}
-                            </span>
-                        </div>
-                        <div className="rounded-md bg-gray-50 dark:bg-slate-800/60 p-2">
-                            <span className="block text-gray-500 dark:text-gray-400">{t('donors.kanban.stageAge')}</span>
-                            <span className={`mt-1 block font-bold ${stageAgeDays !== null && stageAgeDays > 30 ? 'text-amber-700 dark:text-amber-300' : 'text-foreground dark:text-dark-foreground'}`}>
+                    <>
+                        <div className="flex items-end justify-between gap-2">
+                            <span className="truncate text-sm font-bold text-foreground dark:text-dark-foreground">{formatCurrency(askAmount, language)}</span>
+                            <span className={`shrink-0 text-[11px] font-bold ${stageAgeIsStale ? 'text-amber-700 dark:text-amber-300' : 'text-gray-500 dark:text-gray-400'}`}>
                                 {stageAgeDays !== null ? t('donors.kanban.daysInStage', { count: formatNumber(stageAgeDays, language) }) : t('common.notAvailable', 'N/A')}
                             </span>
                         </div>
-                    </div>
+                        <div className="flex items-center justify-between gap-2 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                            <span className="truncate">{owner}</span>
+                            {openTasks.length > 0 && (
+                                <span className={overdueTasks.length > 0 ? 'text-rose-600 dark:text-rose-300' : ''}>
+                                    {t('donors.card.openTasks')}: {formatNumber(openTasks.length, language)}
+                                </span>
+                            )}
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="rounded-md bg-gray-50 px-2.5 py-2 dark:bg-slate-800/60">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <span className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400">{t('donors.kanban.suggestedAsk')}</span>
+                                    <span className="mt-0.5 block text-base font-bold text-foreground dark:text-dark-foreground">{formatCurrency(askAmount, language)}</span>
+                                </div>
+                                <div className="text-end">
+                                    <span className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400">{t('donors.kanban.stageAge')}</span>
+                                    <span className={`mt-0.5 block text-sm font-bold ${stageAgeIsStale ? 'text-amber-700 dark:text-amber-300' : 'text-foreground dark:text-dark-foreground'}`}>
+                                        {stageAgeDays !== null ? t('donors.kanban.daysInStage', { count: formatNumber(stageAgeDays, language) }) : t('common.notAvailable', 'N/A')}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="rounded-md border border-gray-100 px-2 py-1.5 dark:border-slate-800">
+                                <span className="block text-gray-500 dark:text-gray-400">{t('donors.card.potential')}</span>
+                                <span className="mt-0.5 block truncate font-bold text-foreground dark:text-dark-foreground">{formatCurrency(donor.potentialGift, language)}</span>
+                            </div>
+                            <div className="rounded-md border border-gray-100 px-2 py-1.5 dark:border-slate-800">
+                                <span className="block text-gray-500 dark:text-gray-400">{t('donors.card.openTasks')}</span>
+                                <span className={`mt-0.5 block font-bold ${overdueTasks.length > 0 ? 'text-rose-600 dark:text-rose-300' : 'text-foreground dark:text-dark-foreground'}`}>
+                                    {formatNumber(openTasks.length, language)}
+                                    {overdueTasks.length > 0 ? ` ${t('donors.card.overdue')}` : ''}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${healthStyles[donor.relationshipHealth].chip}`}>
+                                {relationshipHealthLabel}
+                            </span>
+                            {donor.likelihood && (
+                                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${likelihoodStyles[donor.likelihood]}`}>
+                                    {t('donors.kanban.likelihood')}: {t(`donors.likelihood.${donor.likelihood}`)}
+                                </span>
+                            )}
+                        </div>
+
+                        {(nextTask || donor.lastContact) && (
+                            <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
+                                {nextTask && (
+                                    <p className="truncate">
+                                        <span className="font-semibold text-gray-600 dark:text-gray-300">{t('donors.card.nextTask')}:</span> {nextTask.text}
+                                    </p>
+                                )}
+                                {donor.lastContact && (
+                                    <p className="truncate">
+                                        {t('donors.kanban.lastContact')}: {formatRelativeTime(donor.lastContact, language)}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </>
                 )}
 
-                {/* Financials */}
-                <div className={`grid ${isCompact ? 'grid-cols-2 gap-2 p-2' : 'grid-cols-3 gap-2 p-3'} text-xs bg-gray-50 dark:bg-slate-800/50 rounded-lg`}>
-                    <div>
-                        <span className="block text-gray-500 dark:text-gray-400">{t('donors.card.potential')}</span>
-                        <span className="font-bold text-foreground dark:text-dark-foreground">{formatCurrency(donor.potentialGift, language)}</span>
-                    </div>
-                    <div>
-                        <span className="block text-gray-500 dark:text-gray-400">{t('donors.kanban.suggestedAsk')}</span>
-                        <span className="font-bold text-foreground dark:text-dark-foreground">{formatCurrency(askAmount, language)}</span>
-                    </div>
-                    {!isCompact && <div>
-                        <span className="block text-gray-500 dark:text-gray-400">{t('donors.card.donated')}</span>
-                        <span className="font-bold text-foreground dark:text-dark-foreground">{formatCurrency(donor.totalDonated, language)}</span>
-                    </div>}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                    {donor.likelihood && (
-                        <span className={`rounded-full border px-2 py-1 text-[11px] font-bold ${likelihoodStyles[donor.likelihood]}`}>
-                            {t('donors.kanban.likelihood')}: {t(`donors.likelihood.${donor.likelihood}`)}
-                        </span>
-                    )}
-                    {donor.interestTags?.slice(0, 2).map(tag => (
-                        <span key={tag} className="rounded-full bg-primary-light/80 px-2 py-1 text-[11px] font-semibold text-primary dark:bg-primary/20 dark:text-secondary">
-                            {tag}
-                        </span>
-                    ))}
-                </div>
-
-                {!isCompact && donor.lastContact && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {t('donors.kanban.lastContact')}: {formatRelativeTime(donor.lastContact, language)}
-                    </p>
-                )}
-
-                {stages && onMoveDonor && (
+                {!isCompact && stages && onMoveDonor && (
                     <label className="block">
                         <span className="sr-only">{t('donors.kanban.moveTo')}</span>
                         <select

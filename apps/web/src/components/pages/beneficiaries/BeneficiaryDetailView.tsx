@@ -1,254 +1,180 @@
-
-
-
-import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import type { Beneficiary, Language } from '../../../types';
+import React, { useState, useMemo } from 'react';
+import type { Beneficiary, BeneficiaryType, Language } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
-import { useTheme } from '../../../hooks/useTheme';
-import { formatDate, formatCurrency, formatNumber } from '../../../lib/utils';
-import { SparklesIcon } from '../../icons/GenericIcons';
-import { GraduationCapIcon, DollarSignCircleIcon, MessagesIcon, ArrowLeftIcon, DocumentTextIcon } from '../../icons/UtilityIcons';
-import Spinner from '../../common/Spinner';
-import QualificationJourneyTab from './QualificationJourneyTab';
-import BeneficiaryDocumentsTab from './BeneficiaryDocumentsTab';
-import { useLeadershipData } from '../../../hooks/useLeadershipData';
-import BeneficiaryCalendarView from './BeneficiaryCalendarView';
-import NeedsAssessmentTab from './NeedsAssessmentTab';
+import { formatCurrency, formatNumber } from '../../../lib/utils';
+import { ArrowLeftIcon, GraduationCapIcon, DollarSignCircleIcon, DocumentTextIcon } from '../../icons/UtilityIcons';
+import Tabs from '../../common/Tabs';
+import BeneficiaryStatusBadge from './BeneficiaryStatusBadge';
+import OverviewTab from './tabs/OverviewTab';
 import AidLogTab from './AidLogTab';
-import BeneficiaryJourneyTab from './BeneficiaryJourneyTab';
+import NeedsAssessmentTab from './NeedsAssessmentTab';
+import BeneficiaryDocumentsTab from './BeneficiaryDocumentsTab';
+import AcademicsTab from './tabs/AcademicsTab';
+import SponsorshipTab from './tabs/SponsorshipTab';
+import GuardianTab from './tabs/GuardianTab';
+import { Users, CheckCircle } from 'lucide-react';
+import { getBeneficiarySubtitle } from './beneficiaryUtils';
 
-// --- SUB-COMPONENTS ---
-const InfoItem: React.FC<{ label: string; value?: string | number | React.ReactNode }> = ({ label, value }) => (
-    <div>
-        <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</dt>
-        <dd className="mt-1 text-sm font-semibold text-foreground dark:text-dark-foreground">{value || 'N/A'}</dd>
-    </div>
-);
-
-const getBeneficiarySubtitle = (beneficiary: Beneficiary, language: Language, t: (key: string, options?: any) => string): string => {
-    switch (beneficiary.beneficiaryType) {
-        case 'student':
-            const info = beneficiary.profile?.academicInfo;
-            if (info?.field && info?.university) {
-                return t('beneficiaries.subtitle_at', { field: info.field, university: info.university });
-            }
-            return info?.level?.[language] || beneficiary.country;
-        case 'family':
-            const memberCount = beneficiary.profile?.customData?.['عدد أفراد الأسرة'];
-            return memberCount ? `أسرة مكونة من ${memberCount} أفراد` : beneficiary.country;
-        case 'orphan':
-             const grade = beneficiary.profile?.customData?.['المرحلة الدراسية'];
-            return grade || beneficiary.country;
-        default:
-            return beneficiary.country;
-    }
-}
-
-
-const Header: React.FC<{ beneficiary: Beneficiary }> = ({ beneficiary }) => {
-    const { t, language } = useLocalization();
-    const statusStyles = {
-        'Active': 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
-        'Graduated': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
-        'On Hold': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
-    };
-    const subtitle = getBeneficiarySubtitle(beneficiary, language, t);
-
-    return (
-        <div className="flex flex-col sm:flex-row items-center gap-6">
-            <img src={beneficiary.photo} alt={beneficiary.name} className="w-32 h-32 rounded-full border-4 border-primary-light dark:border-primary/20 shadow-lg" loading="lazy"/>
-            <div className="text-center sm:text-left">
-                <h1 className="text-4xl font-bold text-foreground dark:text-dark-foreground">{beneficiary.name}</h1>
-                <p className="text-lg text-gray-500 dark:text-gray-400">{subtitle}</p>
-                 <div className="mt-2 flex items-center justify-center sm:justify-start gap-2">
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusStyles[beneficiary.profile.sponsorshipDetails?.status || 'Active']}`}>
-                        {beneficiary.profile.sponsorshipDetails?.status || 'Active'}
-                    </span>
-                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 dark:bg-slate-700">
-                        {t(beneficiary.type === 'sponsorship' ? 'beneficiaries.sponsorships' : 'beneficiaries.directSupport')}
-                    </span>
-                </div>
-            </div>
-        </div>
-    );
+// =================================================================
+// Tab configuration per beneficiary type
+// =================================================================
+const TAB_CONFIG: Record<BeneficiaryType, string[]> = {
+    student: ['overview', 'academics', 'sponsorship', 'aid_log', 'needs_assessment', 'documents'],
+    orphan: ['overview', 'guardian', 'sponsorship', 'aid_log', 'needs_assessment', 'documents'],
+    hafiz: ['overview', 'sponsorship', 'aid_log', 'documents'],
+    family: ['overview', 'aid_log', 'needs_assessment', 'documents'],
+    institution: ['overview', 'aid_log', 'documents'],
+    community: ['overview', 'aid_log', 'documents'],
 };
 
-const KpiCard: React.FC<{ title: string; value: string | React.ReactNode; icon: React.ReactNode }> = ({ title, value, icon }) => (
-    <div className="bg-card dark:bg-dark-card p-4 rounded-xl shadow-soft flex items-center gap-4">
-        <div className="text-primary dark:text-secondary text-2xl">{icon}</div>
-        <div>
-            <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h4>
-            <p className="text-2xl font-bold text-foreground dark:text-dark-foreground">{value}</p>
-        </div>
-    </div>
-);
+// =================================================================
+// KPI helpers
+// =================================================================
+const getKpis = (b: Beneficiary, t: (k: string, o?: any) => string, language: Language) => {
+    const kpis: Array<{ label: string; value: string; icon: React.ReactNode }> = [];
 
-const AcademicProgressChart: React.FC<{ beneficiary: Beneficiary }> = ({ beneficiary }) => {
-    const { language } = useLocalization();
-    const { theme } = useTheme();
-    const isDark = theme === 'dark';
-    const data = beneficiary.profile.academicRecords?.reports?.map(r => ({
-        date: new Date(r.date).toLocaleDateString(language, { year: 'numeric', month: 'short'}),
-        gpa: r.gpa
-    })) || [];
-    
-    if (data.length <= 1) {
-        return <div className="text-center text-sm text-gray-500 py-10">Not enough data for a chart.</div>;
+    const p = b.profile;
+
+    // Type-specific KPIs
+    if (p.type === 'student' && p.academicInfo?.gpa) {
+        kpis.push({ label: t('beneficiaries.kpi.gpa'), value: p.academicInfo.gpa.toFixed(2), icon: <GraduationCapIcon className="w-5 h-5" /> });
+    }
+    if (p.type === 'family' && p.memberCount) {
+        kpis.push({ label: t('beneficiaries.kpi.members'), value: String(p.memberCount), icon: <Users className="w-5 h-5" /> });
+    }
+    if (p.type === 'orphan' && p.guardian) {
+        kpis.push({ label: t('beneficiaries.kpi.guardian'), value: p.guardian.name, icon: <Users className="w-5 h-5" /> });
     }
 
-    return (
-        <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#444" : "#ddd"} />
-                    <XAxis dataKey="date" tick={{ fill: isDark ? "#fff" : "#333", fontSize: 12 }} />
-                    <YAxis domain={[0, 4]} tick={{ fill: isDark ? "#fff" : "#333" }} />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="gpa" stroke="#8884d8" strokeWidth={2} activeDot={{ r: 8 }} />
-                </LineChart>
-            </ResponsiveContainer>
-        </div>
-    );
+    // Aid total (for all types)
+    const aidTotal = b.aidLog
+        .filter(a => a.status === 'Delivered' && a.type === 'financial')
+        .reduce((sum, a) => sum + (a.value || 0), 0);
+    if (aidTotal > 0) {
+        kpis.push({ label: t('beneficiaries.kpi.aidReceived'), value: formatCurrency(aidTotal, language), icon: <DollarSignCircleIcon className="w-5 h-5" /> });
+    }
+
+    // Milestones
+    if (b.milestones.length > 0) {
+        const achieved = b.milestones.filter(m => m.status === 'achieved').length;
+        kpis.push({ label: t('beneficiaries.kpi.milestones'), value: `${achieved}/${b.milestones.length}`, icon: <CheckCircle className="w-5 h-5" /> });
+    }
+
+    // Documents
+    if (b.documents.length > 0) {
+        kpis.push({ label: t('beneficiaries.kpi.documents'), value: formatNumber(b.documents.length, language), icon: <DocumentTextIcon className="w-5 h-5" /> });
+    }
+
+    return kpis;
 };
 
-const OverviewTab: React.FC<{ beneficiary: Beneficiary }> = ({ beneficiary }) => {
-    const { t, language } = useLocalization();
-    const renderStudentDetails = () => {
-        const info = beneficiary.profile?.academicInfo;
-        return (
-            <>
-                <InfoItem label={t('beneficiaries.overview.university')} value={info?.university} />
-                <InfoItem label={t('beneficiaries.overview.major')} value={info?.field} />
-                <InfoItem label={t('beneficiaries.overview.gpa')} value={info?.gpa} />
-                <InfoItem label={t('beneficiaries.overview.academic_year')} value={info?.level?.[language] || 'N/A'} />
-            </>
-        );
-    };
-    
-    const renderCustomDetails = () => {
-        const customData = beneficiary.profile?.customData;
-        if (!customData) return <p>No custom data available.</p>;
-        return (
-            <>
-                {Object.entries(customData).map(([key, value]) => (
-                    <InfoItem key={key} label={key} value={String(value)} />
-                ))}
-            </>
-        );
-    };
-
-    return (
-        <div className="bg-card dark:bg-dark-card p-6 rounded-xl shadow-inner border dark:border-slate-700/50">
-            <h3 className="font-bold text-lg mb-4">{t('beneficiaries.overview.title')}</h3>
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                <InfoItem label={t('beneficiaries.overview.id')} value={beneficiary.id} />
-                <InfoItem label={t('beneficiaries.overview.country')} value={beneficiary.country} />
-                <InfoItem label={t('beneficiaries.overview.email')} value={beneficiary.profile?.contact?.email} />
-                <InfoItem label={t('beneficiaries.overview.phone')} value={beneficiary.profile?.contact?.phone} />
-                {beneficiary.beneficiaryType === 'student' ? renderStudentDetails() : renderCustomDetails()}
-            </dl>
-        </div>
-    );
-};
-
-
+// =================================================================
+// Main component
+// =================================================================
 interface BeneficiaryDetailViewProps {
     beneficiary: Beneficiary;
     onBack: () => void;
-    onOpenPortal: () => void;
     onUpdate: (beneficiary: Beneficiary) => void;
 }
 
-
-// --- MAIN COMPONENT ---
-const BeneficiaryDetailView: React.FC<BeneficiaryDetailViewProps> = ({ beneficiary, onBack, onOpenPortal, onUpdate }) => {
-    const { t, language } = useLocalization();
+const BeneficiaryDetailView: React.FC<BeneficiaryDetailViewProps> = ({ beneficiary, onBack, onUpdate }) => {
+    const { t, language } = useLocalization(['common', 'beneficiaries']);
     const [activeTab, setActiveTab] = useState('overview');
-    const { leadershipData, dispatch } = useLeadershipData();
 
-    const tabs = [
-        { id: 'overview', label: t('beneficiaries.modal.tabs.personal') },
-        { id: 'journey_impact', label: t('beneficiaries.modal.tabs.journey_impact') },
-        { id: 'academics', label: t('beneficiaries.modal.tabs.academic') },
-        { id: 'sponsorship', label: t('beneficiaries.modal.tabs.sponsorship') },
-        { id: 'needs_assessment', label: t('beneficiaries.modal.tabs.needs_assessment') },
-        { id: 'qualification_journey', label: t('beneficiaries.modal.tabs.qualification_journey') },
-        { id: 'aid_log', label: t('beneficiaries.modal.tabs.aid_log') },
-        { id: 'calendar', label: t('beneficiaries.modal.tabs.calendar') },
-        { id: 'documents', label: t('beneficiaries.modal.tabs.files_and_documents') },
-        { id: 'communication', label: t('beneficiaries.modal.tabs.communication') },
-    ];
-    
-    const TabButton: React.FC<{id: string, label: string}> = ({ id, label }) => (
-        <button
-          onClick={() => setActiveTab(id)}
-          className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${activeTab === id ? 'bg-primary text-white' : 'hover:bg-gray-200 dark:hover:bg-slate-700'}`}
-        >
-          {label}
-        </button>
-    );
-    
+    const tabIds = TAB_CONFIG[beneficiary.beneficiaryType] || TAB_CONFIG.student;
+    const tabs = useMemo(() => tabIds.map(id => ({
+        id,
+        label: t(`beneficiaries.tabs.${id}`),
+    })), [tabIds, t]);
+
+    const kpis = getKpis(beneficiary, t, language);
+    const name = beneficiary.name[language] || beneficiary.name.en || beneficiary.name.ar;
+    const subtitle = getBeneficiarySubtitle(beneficiary, language, t);
+
+    const typeColor: Record<string, string> = {
+        student: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+        orphan: 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300',
+        hafiz: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+        family: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+        institution: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+        community: 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
+    };
+
     const renderTabContent = () => {
-        switch(activeTab) {
+        switch (activeTab) {
             case 'overview':
                 return <OverviewTab beneficiary={beneficiary} />;
-            case 'journey_impact':
-                return <BeneficiaryJourneyTab beneficiary={beneficiary} />;
             case 'academics':
-                return (
-                    <div className="bg-card dark:bg-dark-card p-6 rounded-xl shadow-soft">
-                        <h3 className="font-bold text-lg mb-4">Academic Progress</h3>
-                         <AcademicProgressChart beneficiary={beneficiary} />
-                    </div>
-                );
-            case 'qualification_journey':
-                return <QualificationJourneyTab beneficiary={beneficiary} />;
+                return beneficiary.profile.type === 'student' ? <AcademicsTab profile={beneficiary.profile} /> : null;
+            case 'sponsorship':
+                return <SponsorshipTab beneficiary={beneficiary} />;
+            case 'guardian':
+                return beneficiary.profile.type === 'orphan' ? <GuardianTab profile={beneficiary.profile} /> : null;
             case 'aid_log':
-                return <AidLogTab aidLog={beneficiary.profile?.aidLog || []} />;
-            case 'calendar':
-                return <BeneficiaryCalendarView beneficiary={beneficiary} leadershipData={leadershipData} dispatch={dispatch} />;
-            case 'documents':
-                return <BeneficiaryDocumentsTab documents={beneficiary.profile.documents || []} beneficiaryName={beneficiary.name} />;
+                return <AidLogTab aidLog={beneficiary.aidLog} />;
             case 'needs_assessment':
                 return <NeedsAssessmentTab beneficiary={beneficiary} onUpdate={onUpdate} />;
+            case 'documents':
+                return <BeneficiaryDocumentsTab documents={beneficiary.documents} beneficiaryName={name} />;
             default:
-                return <div className="text-center p-16 text-gray-500 bg-card dark:bg-dark-card rounded-xl">{t('placeholder.underConstruction')}</div>;
+                return null;
         }
     };
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 animate-fade-in space-y-6">
-            <div className="flex justify-between items-start mb-4">
-                <button onClick={onBack} className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
-                    <ArrowLeftIcon className="rtl:rotate-180" /> {t('beneficiaries.backToList')}
-                </button>
-                <button
-                  onClick={onOpenPortal}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center space-x-2 space-x-reverse"
-                >
-                  <span>🚀</span>
-                  <span>دخول البوابة الشخصية</span>
-                </button>
-            </div>
-            <Header beneficiary={beneficiary} />
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <KpiCard title={t('beneficiaries.kpi.gpa')} value={beneficiary.profile.academicRecords?.gpa?.toFixed(2) || 'N/A'} icon={<GraduationCapIcon />} />
-                <KpiCard title={t('beneficiaries.kpi.financialAid')} value={formatCurrency(beneficiary.profile.financialAid?.supportAmount || 0, language)} icon={<DollarSignCircleIcon />} />
-                <KpiCard title={t('beneficiaries.kpi.communication')} value={t('beneficiaries.kpi.communication_value', { count: beneficiary.profile.communicationLog?.length || 0 })} icon={<MessagesIcon />} />
-                <KpiCard title={t('beneficiaries.kpi.documents')} value={formatNumber(beneficiary.profile.documents?.length || 0, language)} icon={<DocumentTextIcon />} />
+        <div className="animate-fade-in space-y-6">
+            {/* Back button */}
+            <button onClick={onBack} className="flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
+                <ArrowLeftIcon className="rtl:rotate-180 w-4 h-4" /> {t('beneficiaries.backToList')}
+            </button>
+
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row items-start gap-5">
+                <img
+                    src={beneficiary.photo}
+                    alt={name}
+                    className="w-20 h-20 rounded-full border-4 border-primary-light dark:border-primary/20 shadow-lg object-cover"
+                    loading="lazy"
+                />
+                <div className="flex-1 min-w-0">
+                    <h1 className="text-3xl font-bold text-foreground dark:text-dark-foreground">{name}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <BeneficiaryStatusBadge status={beneficiary.status} />
+                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${typeColor[beneficiary.beneficiaryType]}`}>
+                            {t(`beneficiaries.types.${beneficiary.beneficiaryType}`)}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {beneficiary.country}
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 border-b border-gray-200 dark:border-slate-700 pb-2">
-                 {tabs.map(tab => <TabButton key={tab.id} id={tab.id} label={tab.label} />)}
-            </div>
+            {/* KPI cards */}
+            {kpis.length > 0 && (
+                <div className={`grid gap-4 ${kpis.length <= 2 ? 'grid-cols-2' : kpis.length === 3 ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
+                    {kpis.map((kpi, i) => (
+                        <div key={i} className="bg-card dark:bg-dark-card p-4 rounded-xl shadow-soft border dark:border-slate-700/50 flex items-center gap-3">
+                            <div className="text-primary dark:text-secondary">{kpi.icon}</div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{kpi.label}</p>
+                                <p className="text-xl font-bold text-foreground dark:text-dark-foreground">{kpi.value}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
-            <div className="mt-4">
-                 {renderTabContent()}
+            {/* Tabs */}
+            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-soft border dark:border-slate-700/50">
+                <div className="px-6 pt-2">
+                    <Tabs tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
+                </div>
+                <div className="p-6">
+                    {renderTabContent()}
+                </div>
             </div>
-            
         </div>
     );
 };

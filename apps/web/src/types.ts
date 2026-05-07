@@ -451,7 +451,9 @@ export interface ProgramProject {
     name: Record<Language, string>;
 }
 
-export type BeneficiaryType = 'student' | 'family' | 'orphan' | 'hafiz' | 'institution' | 'community' | 'individual-other' | 'incubation_beneficiary';
+export type BeneficiaryType = 'student' | 'family' | 'orphan' | 'hafiz' | 'institution' | 'community';
+export type BeneficiaryStatus = 'active' | 'inactive' | 'graduated' | 'suspended' | 'on-hold';
+export type SupportType = 'sponsorship' | 'direct-support';
 
 // Aid & Services Log Types
 export type AidType = 'financial' | 'in-kind' | 'service';
@@ -462,11 +464,11 @@ export interface AidItem {
     type: AidType;
     date: string; // ISO
     description: Record<Language, string>;
-    value?: number; // Monetary value if applicable
-    unit?: string; // e.g., 'kg', 'pcs' for in-kind, or currency code
+    value?: number;
+    unit?: string;
     status: AidStatus;
     relatedProjectId?: string;
-    inventoryItemId?: string; // Link to inventory
+    inventoryItemId?: string;
 }
 
 export interface NeedsAssessment {
@@ -483,24 +485,135 @@ export interface NeedsAssessment {
 }
 
 export interface Milestone {
-  id: string;
-  title: Record<Language, string>;
-  status: 'achieved' | 'in-progress' | 'pending';
-  date?: string; // ISO date
+    id: string;
+    title: Record<Language, string>;
+    status: 'achieved' | 'in-progress' | 'pending';
+    date?: string; // ISO date
 }
+
+// =================================================================
+// Beneficiary Profile Discriminated Union
+// =================================================================
+
+/** Shared contact info */
+export interface BeneficiaryContact {
+    email?: string;
+    phone?: string;
+    address?: string;
+}
+
+/** Sponsorship details for sponsored beneficiaries */
+export interface SponsorshipInfo {
+    donorId?: number | string;
+    startDate?: string; // ISO
+    monthlyAmount?: number;
+    currency?: string;
+}
+
+/** Student-specific profile */
+export interface StudentProfile {
+    type: 'student';
+    dob?: string;
+    gender?: string;
+    contact?: BeneficiaryContact;
+    academicInfo?: {
+        level: Record<Language, string>;
+        field?: string;
+        university?: string;
+        gpa?: number;
+    };
+    sponsorship?: SponsorshipInfo;
+}
+
+/** Orphan-specific profile */
+export interface OrphanProfile {
+    type: 'orphan';
+    dob?: string;
+    gender?: string;
+    contact?: BeneficiaryContact;
+    guardian?: {
+        name: string;
+        relation: string;
+        phone?: string;
+    };
+    academicInfo?: {
+        grade?: string;
+        school?: string;
+        attendance?: string;
+        level?: string;
+    };
+    sponsorship?: SponsorshipInfo;
+    familyMembers?: Array<{ relation: string; name: string; age?: number }>;
+}
+
+/** Hafiz-specific profile */
+export interface HafizProfile {
+    type: 'hafiz';
+    dob?: string;
+    gender?: string;
+    contact?: BeneficiaryContact;
+    memorization?: {
+        level: Record<Language, string>;
+        juzCompleted?: number;
+        circle?: string;
+    };
+    sponsorship?: SponsorshipInfo;
+}
+
+/** Family profile */
+export interface FamilyProfile {
+    type: 'family';
+    headOfHousehold?: string;
+    memberCount?: number;
+    monthlyIncome?: string;
+    housingType?: string;
+    contact?: BeneficiaryContact;
+}
+
+/** Institution profile (school, mosque, etc.) */
+export interface InstitutionProfile {
+    type: 'institution';
+    directorName?: string;
+    capacity?: number;
+    institutionType?: string; // school, mosque, clinic, etc.
+    contact?: BeneficiaryContact;
+}
+
+/** Community profile (camp, neighborhood, etc.) */
+export interface CommunityProfile {
+    type: 'community';
+    populationEstimate?: number;
+    fieldOfficer?: string;
+    areaType?: string; // camp, neighborhood, village, etc.
+    contact?: BeneficiaryContact;
+}
+
+export type BeneficiaryProfile =
+    | StudentProfile
+    | OrphanProfile
+    | HafizProfile
+    | FamilyProfile
+    | InstitutionProfile
+    | CommunityProfile;
+
+// =================================================================
+// Beneficiary (typed, no more `profile: any`)
+// =================================================================
 
 export interface Beneficiary {
     id: string;
-    name: string;
+    name: Record<Language, string>;
     beneficiaryType: BeneficiaryType;
     photo: string;
-    type: 'sponsorship' | 'direct-support';
+    status: BeneficiaryStatus;
+    supportType: SupportType;
     country: string;
     projectId?: string;
-    profile: any; // Can contain aidLog: AidItem[]
-    assessments?: NeedsAssessment[];
-    milestones?: Milestone[];
-    academicLevel?: Record<Language, string>;
+    profile: BeneficiaryProfile;
+    aidLog: AidItem[];
+    assessments: NeedsAssessment[];
+    milestones: Milestone[];
+    documents: DocumentItem[];
 }
 
 export interface BeneficiaryData {
