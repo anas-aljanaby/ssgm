@@ -58,6 +58,12 @@ const ALERT_ICON_COLORS: Record<string, string> = {
   info: 'text-blue-500',
 };
 
+const truncateFundLabel = (label: string, isArabic: boolean) => {
+  const maxLength = isArabic ? 18 : 20;
+  if (label.length <= maxLength) return label;
+  return `${label.slice(0, maxLength)}...`;
+};
+
 const OverviewTab: React.FC = () => {
   const { t, language } = useLocalization(['common', 'financials']);
   const isArabic = language === 'ar';
@@ -98,6 +104,7 @@ const OverviewTab: React.FC = () => {
     () =>
       MOCK_FUNDS.map((f) => ({
         name: language === 'ar' ? f.name.ar : f.name.en,
+        chartLabel: truncateFundLabel(language === 'ar' ? f.name.ar : f.name.en, language === 'ar'),
         balance: f.balance,
         type: f.type,
         fill: FUND_TYPE_COLORS[f.type] || '#6b7280',
@@ -226,7 +233,8 @@ const OverviewTab: React.FC = () => {
               <BarChart
                 data={fundChartData}
                 layout="vertical"
-                margin={isArabic ? { top: 5, right: 10, left: 20, bottom: 0 } : { top: 5, right: 20, left: 10, bottom: 0 }}
+                margin={isArabic ? { top: 5, right: 36, left: 24, bottom: 0 } : { top: 5, right: 28, left: 18, bottom: 0 }}
+                barCategoryGap={14}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" horizontal={false} />
                 <XAxis
@@ -239,13 +247,14 @@ const OverviewTab: React.FC = () => {
                 />
                 <YAxis
                   type="category"
-                  dataKey="name"
+                  dataKey="chartLabel"
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
                   axisLine={false}
                   tickLine={false}
-                  width={isArabic ? 180 : 140}
+                  width={isArabic ? 190 : 150}
                   orientation={isArabic ? 'right' : 'left'}
-                  tickMargin={isArabic ? 10 : 6}
+                  tickMargin={isArabic ? 14 : 10}
+                  interval={0}
                 />
                 <Tooltip
                   content={<CustomTooltip />}
