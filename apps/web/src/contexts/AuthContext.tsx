@@ -3,7 +3,7 @@ import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { api } from '../lib/api';
 
-const DEMO_USERNAME = 'admin';
+const DEMO_USERNAME = 'admin@admin.com';
 const DEMO_PASSWORD = 'admin';
 
 const createDemoUser = () =>
