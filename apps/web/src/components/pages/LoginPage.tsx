@@ -53,7 +53,6 @@ const LoginPage: React.FC = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full rounded-lg border border-border dark:border-dark-border bg-background dark:bg-dark-background px-4 py-2 text-foreground dark:text-dark-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             required
-                            minLength={isSignUp ? 6 : 1}
                         />
                     </div>
 
