@@ -492,14 +492,14 @@ const RegistryTab: React.FC<{
     }, []);
 
     const stages: DonorKanbanStage[] = [
-        { id: 'prospect', titleKey: 'donors.stages.prospect', color: 'bg-slate-100 dark:bg-slate-800/50', border: 'border-slate-400' },
-        { id: 'researching', titleKey: 'donors.stages.researching', color: 'bg-cyan-50 dark:bg-cyan-950/30', border: 'border-cyan-500' },
-        { id: 'contacted', titleKey: 'donors.stages.contacted', color: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-500' },
-        { id: 'cultivating', titleKey: 'donors.stages.cultivating', color: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-500' },
-        { id: 'solicited', titleKey: 'donors.stages.solicited', color: 'bg-violet-50 dark:bg-violet-950/30', border: 'border-violet-500' },
-        { id: 'pledged', titleKey: 'donors.stages.pledged', color: 'bg-teal-50 dark:bg-teal-950/30', border: 'border-teal-500' },
-        { id: 'donated', titleKey: 'donors.stages.donated', color: 'bg-green-50 dark:bg-green-950/30', border: 'border-green-500' },
-        { id: 'dormant', titleKey: 'donors.stages.dormant', color: 'bg-rose-50 dark:bg-rose-950/30', border: 'border-rose-500' },
+        { id: 'prospect', titleKey: 'donors.stages.prospect', color: 'bg-slate-100 dark:bg-slate-800/50', border: 'border-slate-400', railColor: '#f59e0b' },
+        { id: 'researching', titleKey: 'donors.stages.researching', color: 'bg-cyan-50 dark:bg-cyan-950/30', border: 'border-cyan-500', railColor: '#14b8a6' },
+        { id: 'contacted', titleKey: 'donors.stages.contacted', color: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-500', railColor: '#3b82f6' },
+        { id: 'cultivating', titleKey: 'donors.stages.cultivating', color: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-500', railColor: '#f59e0b' },
+        { id: 'solicited', titleKey: 'donors.stages.solicited', color: 'bg-violet-50 dark:bg-violet-950/30', border: 'border-violet-500', railColor: '#8b5cf6' },
+        { id: 'pledged', titleKey: 'donors.stages.pledged', color: 'bg-teal-50 dark:bg-teal-950/30', border: 'border-teal-500', railColor: '#06b6d4' },
+        { id: 'donated', titleKey: 'donors.stages.donated', color: 'bg-green-50 dark:bg-green-950/30', border: 'border-green-500', railColor: '#22c55e' },
+        { id: 'dormant', titleKey: 'donors.stages.dormant', color: 'bg-rose-50 dark:bg-rose-950/30', border: 'border-rose-500', railColor: '#ef4444' },
     ];
 
     const pipelineOwners = useMemo(() => {

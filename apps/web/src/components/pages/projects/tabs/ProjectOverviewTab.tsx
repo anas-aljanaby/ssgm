@@ -21,6 +21,12 @@ const InfoItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, 
 
 const ProjectOverviewTab: React.FC<ProjectOverviewTabProps> = ({ project }) => {
     const { t, language } = useLocalization(['projects']);
+    const formatProjectLocation = (city?: string, country?: string) => {
+        if (!city && !country) return '';
+        if (!city) return country || '';
+        if (!country) return city;
+        return language === 'ar' ? `${country}، ${city}` : `${city}, ${country}`;
+    };
 
     const scheduleStatus = project.costManagement.financialSummary.spi >= 1 ? 'onTrack' : 'atRisk';
     const budgetStatus = project.costManagement.financialSummary.cpi >= 1 ? 'onTrack' : 'overBudget';
@@ -86,7 +92,7 @@ const ProjectOverviewTab: React.FC<ProjectOverviewTabProps> = ({ project }) => {
                 <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-5">
                     <InfoItem label={t('projects.reporting.modal.overview.manager')} value={project.stakeholders.primaryContact} />
                     <InfoItem label={t('projects.reporting.modal.overview.dates')} value={`${formatDate(project.plannedStartDate, language)} – ${formatDate(project.plannedEndDate, language)}`} />
-                    <InfoItem label={t('projects.overview.location')} value={`${project.location.city}, ${project.location.country}`} />
+                    <InfoItem label={t('projects.overview.location')} value={formatProjectLocation(project.location.city, project.location.country)} />
                     <InfoItem label={t('projects.wizard.form.donor')} value={project.stakeholders.donor} />
                     <div className="col-span-2">
                         <InfoItem label={t('projects.overview.goal')} value={project.goal} />

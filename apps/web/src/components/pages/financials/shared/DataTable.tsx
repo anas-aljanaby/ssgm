@@ -61,9 +61,9 @@ function DataTable<T extends Record<string, any>>({
   }, [data, sortKey, sortDir]);
 
   const alignClass = (align?: 'left' | 'right' | 'center') => {
-    if (align === 'right') return 'text-right';
+    if (align === 'right') return 'text-end';
     if (align === 'center') return 'text-center';
-    return 'text-left';
+    return 'text-start';
   };
 
   return (

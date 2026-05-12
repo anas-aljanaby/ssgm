@@ -15,7 +15,7 @@ interface CreateProjectWizardProps {
 }
 
 const CreateProjectWizard: React.FC<CreateProjectWizardProps> = ({ isOpen, onClose, onCreateProject }) => {
-    const { t } = useLocalization();
+    const { t, dir } = useLocalization();
     const [currentStep, setCurrentStep] = useState(1);
 
     const [projectData, setProjectData] = useState<Partial<Omit<Project, 'id'>>>({
@@ -93,13 +93,13 @@ const CreateProjectWizard: React.FC<CreateProjectWizardProps> = ({ isOpen, onClo
                             disabled={currentStep === 1}
                             className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-600 text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
                         >
-                            <ArrowLeft size={14} />
+                            <ArrowLeft size={14} className={dir === 'rtl' ? 'rotate-180' : undefined} />
                             {t('projects.wizard.back')}
                         </button>
                         {currentStep < 3 ? (
                             <button onClick={handleNext} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors shadow-sm">
                                 {t('projects.wizard.next')}
-                                <ArrowRight size={14} />
+                                <ArrowRight size={14} className={dir === 'rtl' ? 'rotate-180' : undefined} />
                             </button>
                         ) : (
                             <button onClick={handleCreate} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary-dark transition-colors shadow-sm">

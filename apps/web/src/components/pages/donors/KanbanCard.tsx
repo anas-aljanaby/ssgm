@@ -3,9 +3,82 @@ import { useDraggable } from '@dnd-kit/core';
 import type { Donor } from '../../../types';
 import type { DonorStageId } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
-import { formatCurrency, formatNumber, formatRelativeTime } from '../../../lib/utils';
-import { GripVertical } from 'lucide-react';
+import { formatCurrency, formatNumber } from '../../../lib/utils';
+import { GripVertical, Clock, ChevronRight, Flag } from 'lucide-react';
 import type { DonorKanbanStage, KanbanDensity } from './KanbanBoard';
+
+const AVATAR_PALETTES = [
+    { bg: '#e0e7ff', fg: '#3730a3' },
+    { bg: '#fef3c7', fg: '#92400e' },
+    { bg: '#dcfce7', fg: '#166534' },
+    { bg: '#fee2e2', fg: '#991b1b' },
+    { bg: '#cffafe', fg: '#155e75' },
+];
+
+function getAvatarPalette(name: string) {
+    const idx = name.charCodeAt(0) % AVATAR_PALETTES.length;
+    return AVATAR_PALETTES[idx];
+}
+
+const HEALTH_DOT: Record<string, string> = {
+    'Good': 'bg-emerald-500',
+    'Moderate': 'bg-amber-500',
+    'At Risk': 'bg-rose-500',
+};
+
+const HEALTH_BAR_COLOR: Record<string, string> = {
+    'Good': 'bg-emerald-500',
+    'Moderate': 'bg-amber-500',
+    'At Risk': 'bg-rose-500',
+};
+
+const HEALTH_BAR_COUNT: Record<string, number> = {
+    'Good': 3,
+    'Moderate': 2,
+    'At Risk': 1,
+};
+
+const HEALTH_CHIP_STYLES: Record<string, string> = {
+    'Good': 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-200',
+    'Moderate': 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-200',
+    'At Risk': 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-200',
+};
+
+const HealthBars: React.FC<{ health: string }> = ({ health }) => {
+    const count = HEALTH_BAR_COUNT[health] ?? 1;
+    const colorClass = HEALTH_BAR_COLOR[health] ?? 'bg-rose-500';
+    return (
+        <span className="inline-flex gap-[2px] items-end" aria-hidden="true">
+            {[0, 1, 2].map(i => (
+                <span
+                    key={i}
+                    className={`w-[3px] rounded-sm ${
+                        i < count ? colorClass : 'bg-gray-200 dark:bg-slate-700'
+                    }`}
+                    style={{ height: i === 0 ? 6 : i === 1 ? 9 : 12 }}
+                />
+            ))}
+        </span>
+    );
+};
+
+const DonorAvatar: React.FC<{ name: string; health: string; size: 'sm' | 'md' }> = ({ name, health, size }) => {
+    const initial = name.charAt(0).toUpperCase();
+    const palette = getAvatarPalette(name);
+    return (
+        <div className="relative shrink-0">
+            <div
+                className={`${size === 'sm' ? 'h-[22px] w-[22px] text-[10px]' : 'h-8 w-8 text-[13px]'} rounded-full flex items-center justify-center font-semibold`}
+                style={{ background: palette.bg, color: palette.fg }}
+            >
+                {initial}
+            </div>
+            <span
+                className={`absolute ${size === 'sm' ? '-bottom-0.5 -start-0.5 h-[7px] w-[7px] border-[1.5px]' : '-bottom-0.5 -start-0.5 h-[9px] w-[9px] border-2'} rounded-full border-white dark:border-slate-900 ${HEALTH_DOT[health] ?? 'bg-gray-400'}`}
+            />
+        </div>
+    );
+};
 
 interface KanbanCardProps {
     donor: Donor;
@@ -25,180 +98,171 @@ const KanbanCardShell: React.FC<KanbanCardShellProps> = ({
     donor,
     density = 'comfortable',
     stages,
-    onMoveDonor,
     dragHandle,
     rootRef,
     isDragging = false,
     isDragOverlay = false,
 }) => {
     const { t, language } = useLocalization(['common', 'donors']);
+    const isCompact = density === 'compact';
 
-    const healthStyles = {
-        'Good': {
-            border: 'border-emerald-500',
-            dot: 'bg-emerald-500',
-            chip: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-800',
-        },
-        'Moderate': {
-            border: 'border-amber-500',
-            dot: 'bg-amber-500',
-            chip: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-200 dark:border-amber-800',
-        },
-        'At Risk': {
-            border: 'border-rose-500',
-            dot: 'bg-rose-500',
-            chip: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-200 dark:border-rose-800',
-        },
-    };
-
-    const likelihoodStyles = {
-        High: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-800',
-        Medium: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-200 dark:border-amber-800',
-        Low: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
-    };
-    
     const stageEnteredAt = donor.stageEnteredAt || donor.lastContact || donor.firstDonation;
     const stageAgeDays = stageEnteredAt
         ? Math.max(0, Math.floor((Date.now() - new Date(stageEnteredAt).getTime()) / 86400000))
         : null;
     const owner = donor.assignedOwner || t('donors.kanban.unassigned');
     const askAmount = donor.suggestedAskAmount ?? donor.potentialGift;
-    const isCompact = density === 'compact';
     const openTasks = donor.tasks.filter(task => !task.completed);
     const today = new Date().toISOString().split('T')[0];
     const overdueTasks = openTasks.filter(task => task.dueDate < today);
     const nextTask = openTasks.slice().sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
-    const stageAgeIsStale = stageAgeDays !== null && stageAgeDays > 30;
-    const relationshipHealthLabel = t(`donors.health.${donor.relationshipHealth.replace(/\s+/g, '')}`, donor.relationshipHealth);
+    const stageAgeIsStale = stageAgeDays !== null && stageAgeDays > 365;
 
-    const handleMoveChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const targetStageId = e.target.value as DonorStageId;
-        if (targetStageId !== donor.stage) {
-            onMoveDonor?.(donor.id, targetStageId);
-        }
-    };
+    const likelihoodLabel = donor.likelihood ? t(`donors.likelihood.${donor.likelihood}`) : '';
+    const healthLabel = t(`donors.health.${donor.relationshipHealth.replace(/\s+/g, '')}`, donor.relationshipHealth);
+
+    const currentStage = stages?.find(s => s.id === donor.stage);
+    const railColor = currentStage?.railColor || '#94a3b8';
+
+    if (isCompact) {
+        return (
+            <div
+                ref={rootRef}
+                className={`group relative rounded-[10px] bg-white dark:bg-dark-card py-2.5 pe-3 ps-3 ${
+                    isDragOverlay
+                        ? 'shadow-2xl ring-2 ring-primary/40 cursor-grabbing'
+                        : 'shadow-[0_1px_0_rgba(15,23,42,0.04),0_1px_2px_rgba(15,23,42,0.03)] hover:shadow-[0_4px_12px_rgba(15,23,42,0.06),0_2px_4px_rgba(15,23,42,0.04)] transition-shadow'
+                } ${isDragging ? 'opacity-40' : ''}`}
+                aria-label={t('donors.card.ariaLabel', { name: donor.name })}
+            >
+                {/* Right rail */}
+                <span
+                    className="absolute top-2.5 bottom-2.5 end-0 w-[3px] rounded-s-sm opacity-85"
+                    style={{ background: railColor }}
+                />
+                {/* Row 1: avatar + name + value */}
+                <div className="flex items-center gap-2">
+                    <DonorAvatar name={donor.name} health={donor.relationshipHealth} size="sm" />
+                    <span className="flex-1 text-[13px] font-semibold truncate text-foreground dark:text-dark-foreground">{donor.name}</span>
+                    <span className="text-[13px] font-semibold text-foreground dark:text-dark-foreground tabular-nums shrink-0">
+                        {formatCurrency(askAmount, language)}
+                    </span>
+                    {dragHandle}
+                </div>
+                {/* Row 2: meta */}
+                <div className="mt-2 pt-2 border-t border-dashed border-gray-100 dark:border-slate-800 flex items-center gap-2.5 text-[11px] text-gray-500 dark:text-gray-400">
+                    {stageAgeDays !== null && (
+                        <span className={`inline-flex items-center gap-1 tabular-nums ${stageAgeIsStale ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}`}>
+                            <Clock size={10} className="text-gray-400 dark:text-gray-500" />
+                            {formatNumber(stageAgeDays, language)} {t('donors.kanban.days', 'يوم')}
+                        </span>
+                    )}
+                    {overdueTasks.length > 0 && (
+                        <span className="inline-flex items-center gap-1 font-semibold text-rose-600 dark:text-rose-400">
+                            <Flag size={10} />
+                            <span className="tabular-nums">{formatNumber(overdueTasks.length, language)}</span>
+                            {t('donors.card.overdue')}
+                        </span>
+                    )}
+                    {openTasks.length > 0 && overdueTasks.length === 0 && (
+                        <span className="inline-flex items-center gap-1">
+                            <Flag size={10} className="text-gray-400 dark:text-gray-500" />
+                            <span className="tabular-nums">{formatNumber(openTasks.length, language)}</span>
+                            {t('donors.card.openTasks')}
+                        </span>
+                    )}
+                    <span className="inline-flex items-center gap-1.5">
+                        <HealthBars health={donor.relationshipHealth} />
+                        <span className="font-medium">{likelihoodLabel}</span>
+                    </span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div
             ref={rootRef}
-            className={`group flex flex-col rounded-lg border bg-card dark:bg-dark-card ${healthStyles[donor.relationshipHealth].border} ${
-                isCompact ? 'space-y-1.5 p-2 shadow-sm' : 'space-y-2.5 p-3 shadow-sm'
-            } ${
+            className={`group relative flex flex-col rounded-[10px] bg-white dark:bg-dark-card p-3 pe-3.5 ${
                 isDragOverlay
                     ? 'shadow-2xl ring-2 ring-primary/40 cursor-grabbing'
-                    : 'hover:border-primary/60 hover:shadow-md transition-all'
+                    : 'shadow-[0_1px_0_rgba(15,23,42,0.04),0_1px_2px_rgba(15,23,42,0.03)] hover:shadow-[0_4px_12px_rgba(15,23,42,0.06),0_2px_4px_rgba(15,23,42,0.04)] transition-shadow'
             } ${isDragging ? 'opacity-40' : ''}`}
             aria-label={t('donors.card.ariaLabel', { name: donor.name })}
         >
-                <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                            <span className={`h-2 w-2 shrink-0 rounded-full ${healthStyles[donor.relationshipHealth].dot}`} aria-hidden="true" />
-                            <h3 className={`${isCompact ? 'text-[13px]' : 'text-sm'} truncate font-bold text-foreground dark:text-dark-foreground`}>{donor.name}</h3>
-                        </div>
-                        {!isCompact && (
-                            <p className="mt-0.5 truncate text-xs font-medium text-gray-500 dark:text-gray-400">
-                                {owner}
-                            </p>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                        {dragHandle}
-                    </div>
+            {/* Right rail */}
+            <span
+                className="absolute top-2.5 bottom-2.5 end-0 w-[3px] rounded-s-sm opacity-85"
+                style={{ background: railColor }}
+            />
+
+            {/* Header: avatar + name/owner + drag */}
+            <div className="flex items-center gap-2.5">
+                <DonorAvatar name={donor.name} health={donor.relationshipHealth} size="md" />
+                <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-foreground dark:text-dark-foreground leading-tight truncate">{donor.name}</div>
+                    <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 truncate">{owner}</div>
                 </div>
+                {dragHandle}
+            </div>
 
-                {isCompact ? (
-                    <>
-                        <div className="flex items-end justify-between gap-2">
-                            <span className="truncate text-sm font-bold text-foreground dark:text-dark-foreground">{formatCurrency(askAmount, language)}</span>
-                            <span className={`shrink-0 text-[11px] font-bold ${stageAgeIsStale ? 'text-amber-700 dark:text-amber-300' : 'text-gray-500 dark:text-gray-400'}`}>
-                                {stageAgeDays !== null ? t('donors.kanban.daysInStage', { count: formatNumber(stageAgeDays, language) }) : t('common.notAvailable', 'N/A')}
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-                            <span className="truncate">{owner}</span>
-                            {openTasks.length > 0 && (
-                                <span className={overdueTasks.length > 0 ? 'text-rose-600 dark:text-rose-300' : ''}>
-                                    {t('donors.card.openTasks')}: {formatNumber(openTasks.length, language)}
-                                </span>
-                            )}
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="rounded-md bg-gray-50 px-2.5 py-2 dark:bg-slate-800/60">
-                            <div className="flex items-start justify-between gap-3">
-                                <div>
-                                    <span className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400">{t('donors.kanban.suggestedAsk')}</span>
-                                    <span className="mt-0.5 block text-base font-bold text-foreground dark:text-dark-foreground">{formatCurrency(askAmount, language)}</span>
-                                </div>
-                                <div className="text-end">
-                                    <span className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400">{t('donors.kanban.stageAge')}</span>
-                                    <span className={`mt-0.5 block text-sm font-bold ${stageAgeIsStale ? 'text-amber-700 dark:text-amber-300' : 'text-foreground dark:text-dark-foreground'}`}>
-                                        {stageAgeDays !== null ? t('donors.kanban.daysInStage', { count: formatNumber(stageAgeDays, language) }) : t('common.notAvailable', 'N/A')}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="rounded-md border border-gray-100 px-2 py-1.5 dark:border-slate-800">
-                                <span className="block text-gray-500 dark:text-gray-400">{t('donors.card.potential')}</span>
-                                <span className="mt-0.5 block truncate font-bold text-foreground dark:text-dark-foreground">{formatCurrency(donor.potentialGift, language)}</span>
-                            </div>
-                            <div className="rounded-md border border-gray-100 px-2 py-1.5 dark:border-slate-800">
-                                <span className="block text-gray-500 dark:text-gray-400">{t('donors.card.openTasks')}</span>
-                                <span className={`mt-0.5 block font-bold ${overdueTasks.length > 0 ? 'text-rose-600 dark:text-rose-300' : 'text-foreground dark:text-dark-foreground'}`}>
-                                    {formatNumber(openTasks.length, language)}
-                                    {overdueTasks.length > 0 ? ` ${t('donors.card.overdue')}` : ''}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-1.5">
-                            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${healthStyles[donor.relationshipHealth].chip}`}>
-                                {relationshipHealthLabel}
-                            </span>
-                            {donor.likelihood && (
-                                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${likelihoodStyles[donor.likelihood]}`}>
-                                    {t('donors.kanban.likelihood')}: {t(`donors.likelihood.${donor.likelihood}`)}
-                                </span>
-                            )}
-                        </div>
-
-                        {(nextTask || donor.lastContact) && (
-                            <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-                                {nextTask && (
-                                    <p className="truncate">
-                                        <span className="font-semibold text-gray-600 dark:text-gray-300">{t('donors.card.nextTask')}:</span> {nextTask.text}
-                                    </p>
-                                )}
-                                {donor.lastContact && (
-                                    <p className="truncate">
-                                        {t('donors.kanban.lastContact')}: {formatRelativeTime(donor.lastContact, language)}
-                                    </p>
-                                )}
-                            </div>
+            {/* 3-column stats */}
+            <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-slate-800">
+                <div className="flex flex-col gap-0.5">
+                    <span className="text-[10.5px] text-gray-400 dark:text-gray-500 font-medium">{t('donors.kanban.suggestedAsk')}</span>
+                    <span className="text-sm font-semibold text-foreground dark:text-dark-foreground tabular-nums">{formatCurrency(askAmount, language)}</span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                    <span className="text-[10.5px] text-gray-400 dark:text-gray-500 font-medium">{t('donors.kanban.stageAge')}</span>
+                    <span className={`text-sm font-semibold tabular-nums ${stageAgeIsStale ? 'text-amber-600 dark:text-amber-400' : 'text-foreground dark:text-dark-foreground'}`}>
+                        {stageAgeDays !== null ? `${formatNumber(stageAgeDays, language)} ${t('donors.kanban.days', 'يوم')}` : t('common.notAvailable', 'N/A')}
+                    </span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                    <span className="text-[10.5px] text-gray-400 dark:text-gray-500 font-medium">{t('donors.card.openTasks')}</span>
+                    <span className={`text-sm font-semibold tabular-nums inline-flex items-center gap-1.5 ${overdueTasks.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-foreground dark:text-dark-foreground'}`}>
+                        {formatNumber(openTasks.length, language)}
+                        {overdueTasks.length > 0 && (
+                            <span className="text-[10px] font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-1.5 py-px rounded-md">{t('donors.card.overdue')}</span>
                         )}
-                    </>
-                )}
+                    </span>
+                </div>
+            </div>
 
-                {!isCompact && stages && onMoveDonor && (
-                    <label className="block">
-                        <span className="sr-only">{t('donors.kanban.moveTo')}</span>
-                        <select
-                            value={donor.stage}
-                            onChange={handleMoveChange}
-                            onPointerDown={e => e.stopPropagation()}
-                            className="w-full rounded-md border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-200"
-                            aria-label={t('donors.kanban.moveTo')}
-                        >
-                            {stages.map(stage => (
-                                <option key={stage.id} value={stage.id}>{t(stage.titleKey)}</option>
-                            ))}
-                        </select>
-                    </label>
-                )}
+            {/* Tags: health chip + probability bars */}
+            <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold ${HEALTH_CHIP_STYLES[donor.relationshipHealth] ?? 'bg-gray-100 text-gray-600'}`}>
+                    {healthLabel}
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
+                    <HealthBars health={donor.relationshipHealth} />
+                    <span className="font-medium">{likelihoodLabel}</span>
+                </span>
+            </div>
+
+            {/* Footer: next task + details */}
+            <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-dashed border-gray-100 dark:border-slate-800">
+                {nextTask ? (
+                    <div className="flex items-center gap-1.5 min-w-0 text-[11.5px]">
+                        <span className="shrink-0 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 text-[10px] font-semibold px-1.5 py-px rounded">{t('donors.card.nextTask')}</span>
+                        <span className="truncate font-medium text-foreground dark:text-dark-foreground">{nextTask.text}</span>
+                    </div>
+                ) : <span />}
+                <div className="flex items-center gap-1 shrink-0">
+                    <button
+                        type="button"
+                        className="px-2.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-foreground dark:hover:text-dark-foreground hover:bg-gray-50 dark:hover:bg-slate-800 rounded-md transition-colors"
+                    >
+                        {t('donors.card.details', 'تفاصيل')}
+                    </button>
+                    <button
+                        type="button"
+                        className="p-1 text-gray-400 dark:text-gray-500 hover:text-foreground dark:hover:text-dark-foreground hover:bg-gray-50 dark:hover:bg-slate-800 rounded-md transition-colors"
+                    >
+                        <ChevronRight size={14} className="rtl:rotate-180" />
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
@@ -207,12 +271,16 @@ export const KanbanCardOverlay: React.FC<KanbanCardProps> = (props) => (
     <KanbanCardShell
         {...props}
         isDragOverlay
-        dragHandle={<div className="rounded-md p-1 text-primary dark:text-secondary"><GripVertical size={16} /></div>}
+        dragHandle={
+            props.density === 'compact' ? undefined :
+            <div className="rounded-md p-1 text-gray-300 dark:text-gray-600"><GripVertical size={14} /></div>
+        }
     />
 );
 
 const KanbanCard: React.FC<KanbanCardProps> = (props) => {
-    const { donor } = props;
+    const { donor, density } = props;
+    const isCompact = density === 'compact';
     const { t } = useLocalization(['common', 'donors']);
     const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useDraggable({
         id: `donor:${donor.id}`,
@@ -225,11 +293,13 @@ const KanbanCard: React.FC<KanbanCardProps> = (props) => {
             ref={setActivatorNodeRef}
             {...attributes}
             {...listeners}
-            className="rounded-md p-1 text-gray-400 cursor-grab hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/30 active:cursor-grabbing dark:hover:bg-slate-700 dark:hover:text-gray-200"
+            className={`rounded-md text-gray-300 dark:text-gray-600 cursor-grab hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 active:cursor-grabbing ${
+                isCompact ? 'p-0.5 opacity-0 group-hover:opacity-100 transition-opacity' : 'p-1'
+            }`}
             aria-label={t('donors.kanban.dragHandle', { name: donor.name })}
             title={t('donors.kanban.dragHandle', { name: donor.name })}
         >
-            <GripVertical size={16} />
+            <GripVertical size={isCompact ? 12 : 14} />
         </button>
     );
 

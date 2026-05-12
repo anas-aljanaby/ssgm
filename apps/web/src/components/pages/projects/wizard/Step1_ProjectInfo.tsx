@@ -67,9 +67,6 @@ const Step1_ProjectInfo: React.FC<Step1Props> = ({ data, updateData }) => {
             </FormField>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField label={t('projects.wizard.form.code')}>
-                    <input type="text" disabled value="PROJ-2024-003" className={`${inputClass} bg-gray-50 dark:bg-slate-900 cursor-not-allowed opacity-60`} />
-                </FormField>
                 <FormField label={t('projects.wizard.form.type')}>
                     <select name="type" value={data.type} onChange={handleInputChange} className={selectClass}>
                         {projectTypes.map(type => <option key={type} value={type}>{t(`projects.types.${type}`)}</option>)}

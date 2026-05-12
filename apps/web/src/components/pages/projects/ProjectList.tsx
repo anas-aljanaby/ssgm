@@ -29,7 +29,7 @@ const progressColor = (progress: number) => {
 };
 
 const ProjectList: React.FC<ProjectListProps> = ({ projects, onProjectSelect }) => {
-    const { t, language } = useLocalization();
+    const { t, language, dir } = useLocalization();
     const [view, setView] = useState<'list' | 'card'>('list');
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -43,6 +43,12 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, onProjectSelect }) 
             p.location?.city?.toLowerCase().includes(lower)
         );
     }, [projects, searchTerm, language]);
+    const formatProjectLocation = (city?: string, country?: string) => {
+        if (!city && !country) return '';
+        if (!city) return country || '';
+        if (!country) return city;
+        return language === 'ar' ? `${country}، ${city}` : `${city}, ${country}`;
+    };
 
     const renderListView = () => (
         <div className="bg-card dark:bg-dark-card rounded-xl shadow-soft overflow-hidden border border-gray-200 dark:border-slate-700/50">
@@ -71,11 +77,10 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, onProjectSelect }) 
                                             {project.name[language] || project.name.en}
                                         </p>
                                         <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-                                            <span className="font-mono">{project.id}</span>
                                             {project.location && (
                                                 <span className="flex items-center gap-1">
                                                     <MapPin size={11} />
-                                                    {project.location.city}, {project.location.country}
+                                                    {formatProjectLocation(project.location.city, project.location.country)}
                                                 </span>
                                             )}
                                         </div>
@@ -99,7 +104,7 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, onProjectSelect }) 
                                         <p className="text-xs text-gray-400 mt-0.5">{t('projects.list.spent', 'Spent')}: {formatCurrency(project.spent, language)}</p>
                                     </td>
                                     <td className="p-4">
-                                        <ChevronRight size={16} className="text-gray-300 dark:text-slate-600 group-hover:text-primary dark:group-hover:text-secondary transition-colors" />
+                                        <ChevronRight size={16} className={`text-gray-300 dark:text-slate-600 group-hover:text-primary dark:group-hover:text-secondary transition-colors ${dir === 'rtl' ? 'rotate-180' : ''}`} />
                                     </td>
                                 </tr>
                             );

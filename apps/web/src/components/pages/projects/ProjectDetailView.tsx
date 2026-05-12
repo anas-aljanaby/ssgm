@@ -42,9 +42,15 @@ const progressColor = (progress: number) => {
 };
 
 const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ project, beneficiaries, onBack, initialTab }) => {
-    const { t, language } = useLocalization();
+    const { t, language, dir } = useLocalization();
     const [activeTab, setActiveTab] = useState(initialTab || 'overview');
     const stage = stageConfig[project.stage] || stageConfig.design;
+    const formatProjectLocation = (city?: string, country?: string) => {
+        if (!city && !country) return '';
+        if (!city) return country || '';
+        if (!country) return city;
+        return language === 'ar' ? `${country}، ${city}` : `${city}, ${country}`;
+    };
 
     const tabs = [
         { id: 'overview', label: t('projects.tabs.overview') },
@@ -83,7 +89,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ project, benefici
         <div className="animate-fade-in space-y-4">
             <div className="bg-card dark:bg-dark-card rounded-xl border border-gray-200 dark:border-slate-700/50 p-5">
                 <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-primary dark:hover:text-secondary transition-colors mb-3">
-                    <ArrowLeft size={16} />
+                    <ArrowLeft size={16} className={dir === 'rtl' ? 'rotate-180' : undefined} />
                     {t('projects.backToList')}
                 </button>
 
@@ -99,11 +105,10 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ project, benefici
                             </span>
                         </div>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            <span className="font-mono text-xs">{project.id}</span>
                             {project.location && (
                                 <span className="flex items-center gap-1">
                                     <MapPin size={13} />
-                                    {project.location.city}, {project.location.country}
+                                    {formatProjectLocation(project.location.city, project.location.country)}
                                 </span>
                             )}
                             <span className="flex items-center gap-1">

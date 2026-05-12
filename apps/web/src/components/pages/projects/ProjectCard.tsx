@@ -29,6 +29,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
     const { t, language } = useLocalization();
     const stage = stageConfig[project.stage] || stageConfig.design;
     const budgetUsed = project.budget > 0 ? Math.round((project.spent / project.budget) * 100) : 0;
+    const formatProjectLocation = (city?: string, country?: string) => {
+        if (!city && !country) return '';
+        if (!city) return country || '';
+        if (!country) return city;
+        return language === 'ar' ? `${country}، ${city}` : `${city}, ${country}`;
+    };
 
     return (
         <motion.div
@@ -56,7 +62,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
                     {project.location && (
                         <span className="flex items-center gap-1">
                             <MapPin size={11} />
-                            {project.location.city}, {project.location.country}
+                            {formatProjectLocation(project.location.city, project.location.country)}
                         </span>
                     )}
                     <span className="flex items-center gap-1">

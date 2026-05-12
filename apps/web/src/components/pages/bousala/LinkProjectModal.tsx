@@ -55,7 +55,7 @@ const LinkProjectModal: React.FC<LinkProjectModalProps> = ({ isOpen, onClose, on
                                 />
                                 <div>
                                     <p className="font-semibold" dir="auto">{project.name[language] || project.name.en}</p>
-                                    <p className="text-xs text-gray-500">{project.id} &bull; {t(`projects.types.${project.type}`)}</p>
+                                    <p className="text-xs text-gray-500">{t(`projects.types.${project.type}`)}</p>
                                 </div>
                             </label>
                         )) : <p className="text-center text-gray-500">{t('bousala.linkProjectModal.noProjects')}</p>}

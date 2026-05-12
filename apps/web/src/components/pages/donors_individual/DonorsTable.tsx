@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import type { DonorStageId, IndividualDonor, SortDirection } from '../../../types';
@@ -94,8 +93,8 @@ const DonorsTable: React.FC<DonorsTableProps> = ({ donors, onDonorSelect, sortCo
     const [currentPage, setCurrentPage] = useState(1);
     const [hiddenColumns, setHiddenColumns] = useState<Set<ColumnId>>(new Set(DEFAULT_HIDDEN));
     const [isColumnPickerOpen, setIsColumnPickerOpen] = useState(false);
-    const [canScrollRight, setCanScrollRight] = useState(false);
-    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollEnd, setCanScrollEnd] = useState(false);
+    const [canScrollStart, setCanScrollStart] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const pickerRef = useRef<HTMLDivElement>(null);
     const rowsPerPage = 10;
@@ -110,8 +109,15 @@ const DonorsTable: React.FC<DonorsTableProps> = ({ donors, onDonorSelect, sortCo
     const checkScroll = useCallback(() => {
         const el = scrollRef.current;
         if (!el) return;
-        setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-        setCanScrollLeft(el.scrollLeft > 4);
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (maxScroll <= 0) {
+            setCanScrollStart(false);
+            setCanScrollEnd(false);
+            return;
+        }
+        const pos = Math.abs(el.scrollLeft);
+        setCanScrollStart(pos > 4);
+        setCanScrollEnd(pos < maxScroll - 4);
     }, []);
 
     useEffect(() => {
@@ -196,7 +202,8 @@ const DonorsTable: React.FC<DonorsTableProps> = ({ donors, onDonorSelect, sortCo
         const el = scrollRef.current;
         if (!el) return;
         const maxScroll = el.scrollWidth - el.clientWidth;
-        el.scrollTo({ left: maxScroll, behavior: 'smooth' });
+        const isRtl = getComputedStyle(el).direction === 'rtl';
+        el.scrollTo({ left: isRtl ? -maxScroll : maxScroll, behavior: 'smooth' });
     };
 
     const scrollToStart = () => {
@@ -377,13 +384,13 @@ const DonorsTable: React.FC<DonorsTableProps> = ({ donors, onDonorSelect, sortCo
 
             {/* Table with scroll indicators */}
             <div className="relative">
-                {canScrollLeft && (
+                {canScrollStart && (
                     <div className="pointer-events-none absolute inset-y-0 start-0 z-10 w-10 bg-gradient-to-r from-card to-transparent dark:from-dark-card rtl:bg-gradient-to-l" />
                 )}
-                {canScrollRight && (
+                {canScrollEnd && (
                     <div className="pointer-events-none absolute inset-y-0 end-0 z-10 w-14 bg-gradient-to-l from-card to-transparent dark:from-dark-card rtl:bg-gradient-to-r" />
                 )}
-                {canScrollLeft && (
+                {canScrollStart && (
                     <button
                         type="button"
                         onClick={scrollToStart}
@@ -394,7 +401,7 @@ const DonorsTable: React.FC<DonorsTableProps> = ({ donors, onDonorSelect, sortCo
                         <ArrowLeftToLine size={16} />
                     </button>
                 )}
-                {canScrollRight && (
+                {canScrollEnd && (
                     <button
                         type="button"
                         onClick={scrollToEnd}

@@ -18,9 +18,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  BarChart,
-  Bar,
-  Cell,
 } from 'recharts';
 import {
   DollarSign,
@@ -56,12 +53,6 @@ const ALERT_ICON_COLORS: Record<string, string> = {
   danger: 'text-red-500',
   warning: 'text-amber-500',
   info: 'text-blue-500',
-};
-
-const truncateFundLabel = (label: string, isArabic: boolean) => {
-  const maxLength = isArabic ? 18 : 20;
-  if (label.length <= maxLength) return label;
-  return `${label.slice(0, maxLength)}...`;
 };
 
 const OverviewTab: React.FC = () => {
@@ -104,13 +95,29 @@ const OverviewTab: React.FC = () => {
     () =>
       MOCK_FUNDS.map((f) => ({
         name: language === 'ar' ? f.name.ar : f.name.en,
-        chartLabel: truncateFundLabel(language === 'ar' ? f.name.ar : f.name.en, language === 'ar'),
+        chartLabel: language === 'ar' ? f.name.ar : f.name.en,
         balance: f.balance,
         type: f.type,
         fill: FUND_TYPE_COLORS[f.type] || '#6b7280',
       })),
     [language]
   );
+
+  const fundChartMax = useMemo(() => {
+    const maxBalance = Math.max(...fundChartData.map((fund) => fund.balance), 0);
+    return Math.max(1, Math.ceil(maxBalance / 50000) * 50000);
+  }, [fundChartData]);
+
+  const fundAxisTicks = useMemo(() => {
+    const step = fundChartMax / 4;
+    const ticks = Array.from({ length: 5 }, (_, index) => step * index);
+    return isArabic ? ticks.reverse() : ticks;
+  }, [fundChartMax, isArabic]);
+
+  const getFundAxisPosition = (value: number) => {
+    const percentage = (value / fundChartMax) * 100;
+    return isArabic ? 100 - percentage : percentage;
+  };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload) return null;
@@ -228,50 +235,59 @@ const OverviewTab: React.FC = () => {
           <h3 className="text-sm font-semibold text-foreground dark:text-dark-foreground mb-4">
             {t('financials.overview.fundBalances', 'Fund Balances')}
           </h3>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={fundChartData}
-                layout="vertical"
-                margin={isArabic ? { top: 5, right: 36, left: 24, bottom: 0 } : { top: 5, right: 28, left: 18, bottom: 0 }}
-                barCategoryGap={14}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" horizontal={false} />
-                <XAxis
-                  type="number"
-                  tick={{ fontSize: 12, fill: '#9ca3af' }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-                  reversed={isArabic}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="chartLabel"
-                  tick={{ fontSize: 11, fill: '#9ca3af' }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={isArabic ? 190 : 150}
-                  orientation={isArabic ? 'right' : 'left'}
-                  tickMargin={isArabic ? 14 : 10}
-                  interval={0}
-                />
-                <Tooltip
-                  content={<CustomTooltip />}
-                  cursor={{ fill: 'rgba(107, 114, 128, 0.1)' }}
-                />
-                <Bar
-                  dataKey="balance"
-                  name={t('financials.overview.balance', 'Balance')}
-                  radius={isArabic ? [4, 0, 0, 4] : [0, 4, 4, 0]}
-                  barSize={24}
+          <div className="h-72" dir="ltr">
+            <div className="flex h-full flex-col pt-3">
+              <div className="relative flex-1">
+                <div
+                  className={`absolute top-0 bottom-0 ${
+                    isArabic ? 'left-0 right-[9.5rem]' : 'left-[9.75rem] right-0'
+                  }`}
                 >
-                  {fundChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  {fundAxisTicks.map((tick) => (
+                    <span
+                      key={tick}
+                      className="absolute top-0 h-full border-s border-dashed border-gray-200 dark:border-slate-700/50"
+                      style={{ left: `${getFundAxisPosition(tick)}%` }}
+                    />
                   ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+                </div>
+                <div className="relative z-10 flex h-full flex-col justify-around">
+                  {fundChartData.map((entry) => {
+                    const width = `${(entry.balance / fundChartMax) * 100}%`;
+                    return (
+                      <div key={entry.name} className={`flex min-h-10 items-center ${isArabic ? 'gap-2' : 'gap-3'}`}>
+                        {!isArabic && (
+                          <span className="w-36 shrink-0 whitespace-normal break-words text-end text-xs font-medium leading-snug text-gray-400 dark:text-gray-500" title={entry.name}>
+                            {entry.chartLabel}
+                          </span>
+                        )}
+                        <div className="relative h-6 flex-1 overflow-hidden rounded">
+                          <div
+                            className={`absolute inset-y-0 rounded ${isArabic ? 'right-0' : 'left-0'}`}
+                            style={{ width, backgroundColor: entry.fill }}
+                            title={`${entry.name}: ${formatCurrency(entry.balance, language)}`}
+                          />
+                        </div>
+                        {isArabic && (
+                          <span className="w-36 shrink-0 whitespace-normal break-words text-left text-xs font-medium leading-snug text-gray-500 dark:text-gray-500" title={entry.name} dir="rtl">
+                            {entry.chartLabel}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                {!isArabic && <div className="w-36 shrink-0" />}
+                <div className="flex flex-1 justify-between text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  {fundAxisTicks.map((tick) => (
+                    <span key={tick}>${(tick / 1000).toFixed(0)}k</span>
+                  ))}
+                </div>
+                {isArabic && <div className="w-36 shrink-0" />}
+              </div>
+            </div>
           </div>
           {/* Legend */}
           <div className="flex flex-wrap gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-slate-700/50">

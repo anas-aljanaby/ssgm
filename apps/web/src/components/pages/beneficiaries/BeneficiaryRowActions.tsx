@@ -70,7 +70,7 @@ const BeneficiaryRowActions: React.FC<BeneficiaryRowActionsProps> = ({
         <div className="absolute end-0 top-9 z-20 w-44 rounded-lg border border-gray-200 bg-card p-1 shadow-lg dark:border-slate-700 dark:bg-dark-card">
           <button
             onClick={onView}
-            className="w-full rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-gray-100 dark:text-dark-foreground dark:hover:bg-slate-800"
+            className="w-full rounded-md px-3 py-2 text-start text-sm text-foreground transition-colors hover:bg-gray-100 dark:text-dark-foreground dark:hover:bg-slate-800"
           >
             {t('beneficiaries.actions.viewDetails')}
           </button>
@@ -78,18 +78,18 @@ const BeneficiaryRowActions: React.FC<BeneficiaryRowActionsProps> = ({
           <div className="relative">
             <button
               onClick={() => setIsStatusMenuOpen((prev) => !prev)}
-              className="w-full rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-gray-100 dark:text-dark-foreground dark:hover:bg-slate-800"
+              className="w-full rounded-md px-3 py-2 text-start text-sm text-foreground transition-colors hover:bg-gray-100 dark:text-dark-foreground dark:hover:bg-slate-800"
             >
               {t('beneficiaries.actions.changeStatus')}
             </button>
 
             {isStatusMenuOpen && (
-              <div className="absolute start-full top-0 z-30 ml-1 w-44 rounded-lg border border-gray-200 bg-card p-1 shadow-lg dark:border-slate-700 dark:bg-dark-card">
+              <div className="absolute start-full top-0 z-30 ms-1 w-44 rounded-lg border border-gray-200 bg-card p-1 shadow-lg dark:border-slate-700 dark:bg-dark-card">
                 {STATUS_OPTIONS.map((status) => (
                   <button
                     key={status}
                     onClick={() => handleStatusChange(status)}
-                    className="w-full rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-gray-100 dark:text-dark-foreground dark:hover:bg-slate-800"
+                    className="w-full rounded-md px-3 py-2 text-start text-sm text-foreground transition-colors hover:bg-gray-100 dark:text-dark-foreground dark:hover:bg-slate-800"
                   >
                     {t(`beneficiaries.statuses.${status}`)}
                   </button>
@@ -100,7 +100,7 @@ const BeneficiaryRowActions: React.FC<BeneficiaryRowActionsProps> = ({
 
           <button
             onClick={() => setIsConfirmOpen(true)}
-            className="w-full rounded-md px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+            className="w-full rounded-md px-3 py-2 text-start text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
           >
             {t('beneficiaries.actions.remove')}
           </button>

@@ -152,7 +152,7 @@ const SDGAlignmentDashboard: React.FC<{ projects: Project[] }> = ({ projects }) 
                                 />
                                 {projectCount > 0 && (
                                     <div
-                                        className="absolute top-1 end-1 min-w-[18px] h-[18px] px-1 bg-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm"
+                                        className="absolute bottom-1 end-1 min-w-[18px] h-[18px] px-1 bg-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm ring-1 ring-black/10"
                                         style={{ color: sdg.color }}
                                     >
                                         {projectCount}

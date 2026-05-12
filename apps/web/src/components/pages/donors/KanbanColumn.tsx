@@ -5,6 +5,7 @@ import { formatCurrency, formatNumber } from '../../../lib/utils';
 import type { Donor, DonorStageId } from '../../../types';
 import KanbanCard from './KanbanCard';
 import type { DonorKanbanStage, KanbanDensity } from './KanbanBoard';
+import { Plus } from 'lucide-react';
 
 interface KanbanColumnProps {
     stage: DonorKanbanStage;
@@ -26,43 +27,50 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, donors, onDragEnd, s
     const isCompact = density === 'compact';
     const isActiveTarget = isOver || isFocused;
     const openTasks = donors.reduce((sum, donor) => sum + donor.tasks.filter(task => !task.completed).length, 0);
-    
+
     return (
         <div
             ref={setNodeRef}
             id={`kanban-column-${stage.id}`}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className={`h-full flex flex-col rounded-xl border transition-colors ${
-                isCompact ? 'min-w-[12.5rem] max-w-[12.5rem]' : 'min-w-[18rem] max-w-[18rem]'
+            className={`h-full flex flex-col rounded-xl overflow-hidden transition-colors ${
+                isCompact ? 'min-w-[14rem] max-w-[14rem]' : 'min-w-[17rem] max-w-[17rem]'
             } ${
                 isActiveTarget
-                    ? 'border-primary bg-primary-light/50 shadow-inner dark:border-secondary dark:bg-primary/20'
-                    : 'border-gray-200 bg-white/55 dark:border-slate-800 dark:bg-slate-900/30'
-            }`}
+                    ? 'ring-2 ring-primary/35 dark:ring-secondary/40'
+                    : ''
+            } bg-[#f3f5f8] dark:bg-slate-900/40`}
         >
-            <div className={`${isCompact ? 'p-2.5' : 'p-3'} sticky top-0 z-10 rounded-t-xl border-t-4 border-b border-gray-200 bg-white/95 backdrop-blur dark:border-slate-700 dark:bg-slate-900/95 ${stage.border}`}>
-                <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                        <h2 className={`${isCompact ? 'text-sm' : 'text-base'} font-bold text-foreground dark:text-dark-foreground truncate`}>{t(stage.titleKey)}</h2>
-                        <p className={`${isCompact ? 'mt-0.5' : 'mt-1'} text-xs font-semibold text-gray-500 dark:text-gray-400 truncate`}>
-                            {formatCurrency(totalPotential, language)}
-                        </p>
-                    </div>
-                    <div className="text-end">
-                        <span className={`${isCompact ? 'text-lg' : 'text-xl'} block font-bold leading-none text-foreground dark:text-dark-foreground`}>
-                            {formatNumber(donors.length, language)}
-                        </span>
-                        {!isCompact && (
-                            <span className="mt-1 block whitespace-nowrap text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-                                {t('donors.card.openTasks')}: {formatNumber(openTasks, language)}
-                            </span>
-                        )}
-                    </div>
+            {/* Column header with colored top rail */}
+            <div className="relative bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 px-3.5 pt-4 pb-3">
+                <span
+                    className="absolute top-0 inset-x-0 h-[3px]"
+                    style={{ background: stage.railColor }}
+                />
+                <div className="flex items-center justify-between gap-2">
+                    <h2 className={`${isCompact ? 'text-sm' : 'text-[14px]'} font-bold text-foreground dark:text-dark-foreground truncate`}>
+                        {t(stage.titleKey)}
+                    </h2>
+                    <span className="shrink-0 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-2 py-0.5 rounded-full tabular-nums">
+                        {formatNumber(donors.length, language)}
+                    </span>
+                </div>
+                <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    <span className="font-semibold text-foreground dark:text-dark-foreground tabular-nums">
+                        {formatCurrency(totalPotential, language)}
+                    </span>
+                    <span className="text-gray-300 dark:text-slate-600">·</span>
+                    <span>
+                        {openTasks > 0
+                            ? `${formatNumber(openTasks, language)} ${t('donors.card.openTasks')}`
+                            : t('donors.kanban.noTasks', 'لا مهام')}
+                    </span>
                 </div>
             </div>
 
-            <div className={`flex-grow ${isCompact ? 'p-1.5 space-y-1.5 min-h-[24rem] max-h-[calc(100vh-22rem)]' : 'p-2.5 space-y-2.5 min-h-[28rem] max-h-[calc(100vh-20rem)]'} overflow-y-auto rounded-b-xl bg-gray-50/80 dark:bg-dark-background/40`}>
+            {/* Cards body */}
+            <div className={`flex-grow ${isCompact ? 'p-2 space-y-2 min-h-[20rem] max-h-[calc(100vh-22rem)]' : 'p-2.5 space-y-2 min-h-[20rem] max-h-[calc(100vh-20rem)]'} overflow-y-auto`}>
                 {donors.map(donor => (
                     <KanbanCard
                         key={donor.id}
@@ -73,7 +81,10 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, donors, onDragEnd, s
                     />
                 ))}
                 {donors.length === 0 && (
-                    <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-slate-700 dark:text-gray-400">
+                    <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-gray-300 dark:border-slate-600 p-6 text-center text-xs text-gray-400 dark:text-gray-500 flex-1 min-h-[100px]">
+                        <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 border border-dashed border-gray-300 dark:border-slate-600 grid place-items-center">
+                            <Plus size={14} className="text-gray-400 dark:text-gray-500" />
+                        </div>
                         {t('donors.kanban.emptyColumn')}
                     </div>
                 )}
