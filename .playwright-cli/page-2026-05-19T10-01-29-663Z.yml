@@ -1,0 +1,230 @@
+- generic [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e861]:
+          - link "Dashboard" [ref=e862] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e864]
+            - generic [ref=e869]: Dashboard
+        - listitem [ref=e870]:
+          - link "Bousala" [ref=e871] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e873]
+            - generic [ref=e876]: Bousala
+        - listitem [ref=e877]:
+          - link "Stakeholder Management" [ref=e878] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e880]
+            - generic [ref=e885]: Stakeholder Management
+        - listitem [ref=e886]:
+          - link "Donor Management" [ref=e887] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e889]
+            - generic [ref=e891]: Donor Management
+        - listitem [ref=e892]:
+          - link "Institutional Donors" [ref=e893] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e895]
+            - generic [ref=e897]: Institutional Donors
+        - listitem [ref=e898]:
+          - link "Beneficiary Management" [ref=e899] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e901]
+            - generic [ref=e906]: Beneficiary Management
+        - listitem [ref=e907]:
+          - link "Project Management" [ref=e908] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e910]
+            - generic [ref=e914]: Project Management
+        - listitem [ref=e915]:
+          - link "Financial Management" [ref=e916] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e918]
+            - generic [ref=e920]: Financial Management
+        - listitem [ref=e921]:
+          - link "Help & Support" [ref=e922] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e924]
+            - generic [ref=e927]: Help & Support
+        - listitem [ref=e928]:
+          - link "Settings" [ref=e929] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e931]
+            - generic [ref=e934]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e935]:
+          - link "Logout" [ref=e936] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e938]
+            - generic [ref=e941]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e942]
+            - button "liveIndicator.live" [ref=e2178] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e943]:
+          - generic [ref=e944]:
+            - heading "Financial Management" [level=1] [ref=e945]
+            - paragraph [ref=e946]: Central source of truth for all financial operations
+          - navigation [ref=e948]:
+            - button "Overview" [ref=e949] [cursor=pointer]
+            - button "Transactions" [ref=e950] [cursor=pointer]
+            - button "Donations" [ref=e951] [cursor=pointer]
+            - button "Pledges" [ref=e952] [cursor=pointer]
+            - button "Budgets" [ref=e953] [cursor=pointer]
+            - button "Disbursements" [ref=e954] [cursor=pointer]
+            - button "Grants & Funds" [active] [ref=e955] [cursor=pointer]
+            - button "Approvals" [ref=e956] [cursor=pointer]
+            - button "Reports" [ref=e957] [cursor=pointer]
+          - generic [ref=e2385]:
+            - generic [ref=e2387]:
+              - button "Funds" [ref=e2388] [cursor=pointer]:
+                - img [ref=e2389]
+                - text: Funds
+              - button "Grants" [ref=e2391] [cursor=pointer]:
+                - img [ref=e2392]
+                - text: Grants
+            - generic [ref=e2398]:
+              - generic [ref=e2399]:
+                - generic [ref=e2400]:
+                  - heading "General Operating Fund" [level=3] [ref=e2401]
+                  - generic [ref=e2402]: Unrestricted
+                - paragraph [ref=e2403]: $187,500
+                - generic [ref=e2404]:
+                  - generic [ref=e2405]:
+                    - paragraph [ref=e2406]: Received
+                    - paragraph [ref=e2407]: $425,000
+                  - generic [ref=e2408]:
+                    - paragraph [ref=e2409]: Spent
+                    - paragraph [ref=e2410]: $215,000
+                  - generic [ref=e2411]:
+                    - paragraph [ref=e2412]: Committed
+                    - paragraph [ref=e2413]: $22,500
+                  - generic [ref=e2414]:
+                    - paragraph [ref=e2415]: Available
+                    - paragraph [ref=e2416]: $187,500
+                - generic [ref=e2418]:
+                  - generic [ref=e2419]: Utilization
+                  - generic [ref=e2420]: 50.6%
+              - generic [ref=e2423]:
+                - generic [ref=e2424]:
+                  - heading "Education Fund" [level=3] [ref=e2425]
+                  - generic [ref=e2426]: Temporarily Restricted
+                - paragraph [ref=e2427]: $92,300
+                - generic [ref=e2428]:
+                  - generic [ref=e2429]:
+                    - paragraph [ref=e2430]: Received
+                    - paragraph [ref=e2431]: $185,000
+                  - generic [ref=e2432]:
+                    - paragraph [ref=e2433]: Spent
+                    - paragraph [ref=e2434]: $78,700
+                  - generic [ref=e2435]:
+                    - paragraph [ref=e2436]: Committed
+                    - paragraph [ref=e2437]: $14,000
+                  - generic [ref=e2438]:
+                    - paragraph [ref=e2439]: Available
+                    - paragraph [ref=e2440]: $92,300
+                - generic [ref=e2442]:
+                  - generic [ref=e2443]: Utilization
+                  - generic [ref=e2444]: 42.5%
+                - paragraph [ref=e2447]: Must be used for educational programs, scholarships, and training activities
+              - generic [ref=e2448]:
+                - generic [ref=e2449]:
+                  - heading "Albania IC Project Fund" [level=3] [ref=e2450]
+                  - generic [ref=e2451]: Temporarily Restricted
+                - paragraph [ref=e2452]: $38,150
+                - generic [ref=e2453]:
+                  - generic [ref=e2454]:
+                    - paragraph [ref=e2455]: Received
+                    - paragraph [ref=e2456]: $56,000
+                  - generic [ref=e2457]:
+                    - paragraph [ref=e2458]: Spent
+                    - paragraph [ref=e2459]: $14,850
+                  - generic [ref=e2460]:
+                    - paragraph [ref=e2461]: Committed
+                    - paragraph [ref=e2462]: $3,000
+                  - generic [ref=e2463]:
+                    - paragraph [ref=e2464]: Available
+                    - paragraph [ref=e2465]: $38,150
+                - generic [ref=e2467]:
+                  - generic [ref=e2468]: Utilization
+                  - generic [ref=e2469]: 26.5%
+                - paragraph [ref=e2472]: Restricted to Albania Islamic Center construction and operations
+                - generic [ref=e2473]:
+                  - img [ref=e2474]
+                  - generic [ref=e2476]: Albania Islamic Center
+              - generic [ref=e2477]:
+                - generic [ref=e2478]:
+                  - heading "Endowment Fund" [level=3] [ref=e2479]
+                  - generic [ref=e2480]: Permanently Restricted
+                - paragraph [ref=e2481]: $154,200
+                - generic [ref=e2482]:
+                  - generic [ref=e2483]:
+                    - paragraph [ref=e2484]: Received
+                    - paragraph [ref=e2485]: $150,000
+                  - generic [ref=e2486]:
+                    - paragraph [ref=e2487]: Spent
+                    - paragraph [ref=e2488]: $0
+                  - generic [ref=e2489]:
+                    - paragraph [ref=e2490]: Committed
+                    - paragraph [ref=e2491]: $0
+                  - generic [ref=e2492]:
+                    - paragraph [ref=e2493]: Available
+                    - paragraph [ref=e2494]: $150,000
+                - generic [ref=e2496]:
+                  - generic [ref=e2497]: Utilization
+                  - generic [ref=e2498]: 0.0%
+                - paragraph [ref=e2500]: Principal must be preserved; only investment income may be spent
+              - generic [ref=e2501]:
+                - generic [ref=e2502]:
+                  - heading "Emergency Relief Fund" [level=3] [ref=e2503]
+                  - generic [ref=e2504]: Temporarily Restricted
+                - paragraph [ref=e2505]: $15,450
+                - generic [ref=e2506]:
+                  - generic [ref=e2507]:
+                    - paragraph [ref=e2508]: Received
+                    - paragraph [ref=e2509]: $35,000
+                  - generic [ref=e2510]:
+                    - paragraph [ref=e2511]: Spent
+                    - paragraph [ref=e2512]: $18,550
+                  - generic [ref=e2513]:
+                    - paragraph [ref=e2514]: Committed
+                    - paragraph [ref=e2515]: $1,000
+                  - generic [ref=e2516]:
+                    - paragraph [ref=e2517]: Available
+                    - paragraph [ref=e2518]: $15,450
+                - generic [ref=e2520]:
+                  - generic [ref=e2521]: Utilization
+                  - generic [ref=e2522]: 53.0%
+                - paragraph [ref=e2525]: For emergency relief and humanitarian aid only
+  - generic [ref=e778]: $0k

@@ -1,0 +1,208 @@
+- generic [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e861]:
+          - link "Dashboard" [ref=e862] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e864]
+            - generic [ref=e869]: Dashboard
+        - listitem [ref=e870]:
+          - link "Bousala" [ref=e871] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e873]
+            - generic [ref=e876]: Bousala
+        - listitem [ref=e877]:
+          - link "Stakeholder Management" [ref=e878] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e880]
+            - generic [ref=e885]: Stakeholder Management
+        - listitem [ref=e886]:
+          - link "Donor Management" [ref=e887] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e889]
+            - generic [ref=e891]: Donor Management
+        - listitem [ref=e892]:
+          - link "Institutional Donors" [ref=e893] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e895]
+            - generic [ref=e897]: Institutional Donors
+        - listitem [ref=e898]:
+          - link "Beneficiary Management" [ref=e899] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e901]
+            - generic [ref=e906]: Beneficiary Management
+        - listitem [ref=e907]:
+          - link "Project Management" [ref=e908] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e910]
+            - generic [ref=e914]: Project Management
+        - listitem [ref=e915]:
+          - link "Financial Management" [ref=e916] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e918]
+            - generic [ref=e920]: Financial Management
+        - listitem [ref=e921]:
+          - link "Help & Support" [ref=e922] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e924]
+            - generic [ref=e927]: Help & Support
+        - listitem [ref=e928]:
+          - link "Settings" [ref=e929] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e931]
+            - generic [ref=e934]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e935]:
+          - link "Logout" [ref=e936] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e938]
+            - generic [ref=e941]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e942]
+            - button "liveIndicator.live" [ref=e3170] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e943]:
+          - generic [ref=e944]:
+            - heading "Financial Management" [level=1] [ref=e945]
+            - paragraph [ref=e946]: Central source of truth for all financial operations
+          - navigation [ref=e948]:
+            - button "Overview" [ref=e949] [cursor=pointer]
+            - button "Transactions" [ref=e950] [cursor=pointer]
+            - button "Donations" [ref=e951] [cursor=pointer]
+            - button "Pledges" [ref=e952] [cursor=pointer]
+            - button "Budgets" [active] [ref=e953] [cursor=pointer]
+            - button "Disbursements" [ref=e954] [cursor=pointer]
+            - button "Grants & Funds" [ref=e955] [cursor=pointer]
+            - button "Approvals" [ref=e956] [cursor=pointer]
+            - button "Reports" [ref=e957] [cursor=pointer]
+          - generic [ref=e3434]:
+            - generic [ref=e3435]:
+              - generic [ref=e3436]: Select Project
+              - combobox "Select Project" [ref=e3437]:
+                - option "Albania Islamic Center — 2024-2025" [selected]
+                - option "Istanbul Vocational Training Center — 2024-2025"
+                - option "Community Outreach Program — 2024-2025"
+            - generic [ref=e3438]:
+              - generic [ref=e3439]:
+                - img [ref=e3441]
+                - generic [ref=e3445]:
+                  - paragraph [ref=e3446]: $55,250
+                  - paragraph [ref=e3447]: Total Planned
+              - generic [ref=e3448]:
+                - img [ref=e3450]
+                - generic [ref=e3452]:
+                  - paragraph [ref=e3453]: $17,100
+                  - paragraph [ref=e3454]: Total Actual
+              - generic [ref=e3455]:
+                - img [ref=e3457]
+                - generic [ref=e3460]:
+                  - paragraph [ref=e3461]: $38,150
+                  - paragraph [ref=e3462]: Variance
+              - generic [ref=e3463]:
+                - img [ref=e3465]
+                - generic [ref=e3468]:
+                  - paragraph [ref=e3469]: 31.0%
+                  - paragraph [ref=e3470]: Utilization
+            - generic [ref=e3471]:
+              - heading "Budget vs Actuals" [level=3] [ref=e3472]
+              - generic [ref=e3475]:
+                - list [ref=e3477]:
+                  - listitem [ref=e3478]:
+                    - img "actual legend icon" [ref=e3479]
+                    - text: Actual
+                  - listitem [ref=e3481]:
+                    - img "planned legend icon" [ref=e3482]
+                    - text: Planned
+                - application [ref=e3484]:
+                  - generic [ref=e3524]:
+                    - generic [ref=e3525]:
+                      - generic [ref=e3527]: Construction & Materials
+                      - generic [ref=e3529]: Travel & Field Visits
+                      - generic [ref=e3531]: Professional Services
+                      - generic [ref=e3533]: Equipment & Furnishing
+                    - generic [ref=e3534]:
+                      - generic [ref=e3536]: $0
+                      - generic [ref=e3538]: $7,500
+                      - generic [ref=e3540]: $15,000
+                      - generic [ref=e3542]: $22,500
+                      - generic [ref=e3544]: $30,000
+            - table [ref=e3546]:
+              - rowgroup [ref=e3547]:
+                - row "Category Planned Committed Actual Available Var %" [ref=e3548]:
+                  - columnheader "Category" [ref=e3549]:
+                    - generic [ref=e3550]: Category
+                  - columnheader "Planned" [ref=e3551] [cursor=pointer]:
+                    - generic [ref=e3552]: Planned
+                  - columnheader "Committed" [ref=e3553]:
+                    - generic [ref=e3554]: Committed
+                  - columnheader "Actual" [ref=e3555] [cursor=pointer]:
+                    - generic [ref=e3556]: Actual
+                  - columnheader "Available" [ref=e3557]:
+                    - generic [ref=e3558]: Available
+                  - columnheader "Var %" [ref=e3559]:
+                    - generic [ref=e3560]: Var %
+              - rowgroup [ref=e3561]:
+                - row "Construction & Materials $30,000 $5,000 $12,500 $12,500 41.7%" [ref=e3562]:
+                  - cell "Construction & Materials" [ref=e3563]
+                  - cell "$30,000" [ref=e3564]
+                  - cell "$5,000" [ref=e3565]
+                  - cell "$12,500" [ref=e3566]
+                  - cell "$12,500" [ref=e3567]
+                  - cell "41.7%" [ref=e3568]:
+                    - generic [ref=e3570]: 41.7%
+                - row "Travel & Field Visits $8,000 $1,500 $2,300 $4,200 28.7%" [ref=e3573]:
+                  - cell "Travel & Field Visits" [ref=e3574]
+                  - cell "$8,000" [ref=e3575]
+                  - cell "$1,500" [ref=e3576]
+                  - cell "$2,300" [ref=e3577]
+                  - cell "$4,200" [ref=e3578]
+                  - cell "28.7%" [ref=e3579]:
+                    - generic [ref=e3581]: 28.7%
+                - row "Professional Services $12,000 $2,000 $2,300 $7,700 19.2%" [ref=e3584]:
+                  - cell "Professional Services" [ref=e3585]
+                  - cell "$12,000" [ref=e3586]
+                  - cell "$2,000" [ref=e3587]
+                  - cell "$2,300" [ref=e3588]
+                  - cell "$7,700" [ref=e3589]
+                  - cell "19.2%" [ref=e3590]:
+                    - generic [ref=e3592]: 19.2%
+                - row "Equipment & Furnishing $5,250 $0 $0 $5,250 0.0%" [ref=e3595]:
+                  - cell "Equipment & Furnishing" [ref=e3596]
+                  - cell "$5,250" [ref=e3597]
+                  - cell "$0" [ref=e3598]
+                  - cell "$0" [ref=e3599]
+                  - cell "$5,250" [ref=e3600]
+                  - cell "0.0%" [ref=e3601]:
+                    - generic [ref=e3603]: 0.0%
+  - generic [ref=e778]: $0

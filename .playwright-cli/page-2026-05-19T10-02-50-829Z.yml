@@ -1,0 +1,292 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e861]:
+          - link "Dashboard" [ref=e862] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e864]
+            - generic [ref=e869]: Dashboard
+        - listitem [ref=e870]:
+          - link "Bousala" [ref=e871] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e873]
+            - generic [ref=e876]: Bousala
+        - listitem [ref=e877]:
+          - link "Stakeholder Management" [ref=e878] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e880]
+            - generic [ref=e885]: Stakeholder Management
+        - listitem [ref=e886]:
+          - link "Donor Management" [ref=e887] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e889]
+            - generic [ref=e891]: Donor Management
+        - listitem [ref=e892]:
+          - link "Institutional Donors" [ref=e893] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e895]
+            - generic [ref=e897]: Institutional Donors
+        - listitem [ref=e898]:
+          - link "Beneficiary Management" [ref=e899] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e901]
+            - generic [ref=e906]: Beneficiary Management
+        - listitem [ref=e907]:
+          - link "Project Management" [ref=e908] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e910]
+            - generic [ref=e914]: Project Management
+        - listitem [ref=e915]:
+          - link "Financial Management" [ref=e916] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e918]
+            - generic [ref=e920]: Financial Management
+        - listitem [ref=e921]:
+          - link "Help & Support" [ref=e922] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e924]
+            - generic [ref=e927]: Help & Support
+        - listitem [ref=e928]:
+          - link "Settings" [ref=e929] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e931]
+            - generic [ref=e934]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e935]:
+          - link "Logout" [ref=e936] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e938]
+            - generic [ref=e941]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e942]
+            - button "liveIndicator.offline" [ref=e2918] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e943]:
+          - generic [ref=e944]:
+            - heading "Financial Management" [level=1] [ref=e945]
+            - paragraph [ref=e946]: Central source of truth for all financial operations
+          - navigation [ref=e948]:
+            - button "Overview" [ref=e949] [cursor=pointer]
+            - button "Transactions" [ref=e950] [cursor=pointer]
+            - button "Donations" [ref=e951] [cursor=pointer]
+            - button "Pledges" [ref=e952] [cursor=pointer]
+            - button "Budgets" [ref=e953] [cursor=pointer]
+            - button "Disbursements" [ref=e954] [cursor=pointer]
+            - button "Grants & Funds" [ref=e955] [cursor=pointer]
+            - button "Approvals" [ref=e956] [cursor=pointer]
+            - button "Reports" [ref=e957] [cursor=pointer]
+          - generic [ref=e2656]:
+            - generic [ref=e2657]:
+              - generic [ref=e2658]:
+                - img [ref=e2660]
+                - generic [ref=e2662]:
+                  - paragraph [ref=e2663]: $194,400
+                  - paragraph [ref=e2664]: Total Pledged
+              - generic [ref=e2665]:
+                - img [ref=e2667]
+                - generic [ref=e2670]:
+                  - paragraph [ref=e2671]: $144,200
+                  - paragraph [ref=e2672]: Total Collected
+              - generic [ref=e2673]:
+                - img [ref=e2675]
+                - generic [ref=e2677]:
+                  - paragraph [ref=e2678]: "1"
+                  - paragraph [ref=e2679]: Overdue Pledges
+              - generic [ref=e2680]:
+                - img [ref=e2682]
+                - generic [ref=e2685]:
+                  - paragraph [ref=e2686]: 74.2%
+                  - paragraph [ref=e2687]: Fulfillment Rate
+            - table [ref=e2689]:
+              - rowgroup [ref=e2690]:
+                - row "Donor Pledge Date Total Paid Balance Status Next Due" [ref=e2691]:
+                  - columnheader [ref=e2692]
+                  - columnheader "Donor" [ref=e2693]
+                  - columnheader "Pledge Date" [ref=e2694] [cursor=pointer]
+                  - columnheader "Total" [ref=e2695] [cursor=pointer]
+                  - columnheader "Paid" [ref=e2696]
+                  - columnheader "Balance" [ref=e2697]
+                  - columnheader "Status" [ref=e2698]
+                  - columnheader "Next Due" [ref=e2699]
+              - rowgroup [ref=e2700]:
+                - row "Aisha Al-Farsi Jan 15, 2024 $24,000 $18,000 $6,000 Active Jan 15, 2025" [ref=e2701] [cursor=pointer]:
+                  - cell [ref=e2702]:
+                    - img [ref=e2703]
+                  - cell "Aisha Al-Farsi" [ref=e2705]
+                  - cell "Jan 15, 2024" [ref=e2706]
+                  - cell "$24,000" [ref=e2707]
+                  - cell "$18,000" [ref=e2708]
+                  - cell "$6,000" [ref=e2709]
+                  - cell "Active" [ref=e2710]:
+                    - generic [ref=e2711]: Active
+                  - cell "Jan 15, 2025" [ref=e2712]
+                - row "David Chen Mar 1, 2024 $100,000 $100,000 $0 Fulfilled —" [ref=e2713] [cursor=pointer]:
+                  - cell [ref=e2714]:
+                    - img [ref=e2835]
+                  - cell "David Chen" [ref=e2717]
+                  - cell "Mar 1, 2024" [ref=e2718]
+                  - cell "$100,000" [ref=e2719]
+                  - cell "$100,000" [ref=e2720]
+                  - cell "$0" [ref=e2721]
+                  - cell "Fulfilled" [ref=e2722]:
+                    - generic [ref=e2723]: Fulfilled
+                  - cell "—" [ref=e2724]
+                - row "Fatma Yilmaz Jun 1, 2024 $12,000 $3,000 $9,000 Overdue Sep 1, 2024" [ref=e2725] [cursor=pointer]:
+                  - cell [ref=e2726]:
+                    - img [ref=e2727]
+                  - cell "Fatma Yilmaz" [ref=e2729]
+                  - cell "Jun 1, 2024" [ref=e2730]
+                  - cell "$12,000" [ref=e2731]
+                  - cell "$3,000" [ref=e2732]
+                  - cell "$9,000" [ref=e2733]
+                  - cell "Overdue" [ref=e2734]:
+                    - generic [ref=e2735]: Overdue
+                  - cell "Sep 1, 2024" [ref=e2736]
+                - row "Omar Al-Rashid Jul 1, 2024 $36,000 $15,600 $20,400 Partially Fulfilled Jan 1, 2025" [ref=e2919] [cursor=pointer]:
+                  - cell [ref=e2738]:
+                    - img [ref=e2837]
+                  - cell "Omar Al-Rashid" [ref=e2741]
+                  - cell "Jul 1, 2024" [ref=e2742]
+                  - cell "$36,000" [ref=e2743]
+                  - cell "$15,600" [ref=e2920]
+                  - cell "$20,400" [ref=e2921]
+                  - cell "Partially Fulfilled" [ref=e2746]:
+                    - generic [ref=e2747]: Partially Fulfilled
+                  - cell "Jan 1, 2025" [ref=e2922]
+                - row "Installment Schedule 43.3% Due Date Amount Paid Pledge Date Status Actions Jul 1, 2024 $3,000 $3,000 Jul 1, 2024 Paid Aug 1, 2024 $3,000 $3,000 Aug 2, 2024 Paid Sep 1, 2024 $3,000 $3,000 Sep 1, 2024 Paid Oct 1, 2024 $3,000 $3,000 Oct 1, 2024 Paid Nov 1, 2024 $3,000 $600 — Partial Record Payment Dec 1, 2024 $3,000 $3,000 May 19, 2026 Paid Jan 1, 2025 $3,000 $0 — Pending Record Payment" [ref=e2923]:
+                  - cell "Installment Schedule 43.3% Due Date Amount Paid Pledge Date Status Actions Jul 1, 2024 $3,000 $3,000 Jul 1, 2024 Paid Aug 1, 2024 $3,000 $3,000 Aug 2, 2024 Paid Sep 1, 2024 $3,000 $3,000 Sep 1, 2024 Paid Oct 1, 2024 $3,000 $3,000 Oct 1, 2024 Paid Nov 1, 2024 $3,000 $600 — Partial Record Payment Dec 1, 2024 $3,000 $3,000 May 19, 2026 Paid Jan 1, 2025 $3,000 $0 — Pending Record Payment" [ref=e2924]:
+                    - generic [ref=e2841]:
+                      - generic [ref=e2843]:
+                        - generic [ref=e2844]: Installment Schedule
+                        - generic [ref=e2845]: 43.3%
+                      - table [ref=e2849]:
+                        - rowgroup [ref=e2850]:
+                          - row "Due Date Amount Paid Pledge Date Status Actions" [ref=e2851]:
+                            - columnheader "Due Date" [ref=e2852]
+                            - columnheader "Amount" [ref=e2853]
+                            - columnheader "Paid" [ref=e2854]
+                            - columnheader "Pledge Date" [ref=e2855]
+                            - columnheader "Status" [ref=e2856]
+                            - columnheader "Actions" [ref=e2857]
+                        - rowgroup [ref=e2858]:
+                          - row "Jul 1, 2024 $3,000 $3,000 Jul 1, 2024 Paid" [ref=e2859]:
+                            - cell "Jul 1, 2024" [ref=e2860]
+                            - cell "$3,000" [ref=e2861]
+                            - cell "$3,000" [ref=e2862]
+                            - cell "Jul 1, 2024" [ref=e2863]
+                            - cell "Paid" [ref=e2864]:
+                              - generic [ref=e2865]: Paid
+                            - cell [ref=e2866]
+                          - row "Aug 1, 2024 $3,000 $3,000 Aug 2, 2024 Paid" [ref=e2867]:
+                            - cell "Aug 1, 2024" [ref=e2868]
+                            - cell "$3,000" [ref=e2869]
+                            - cell "$3,000" [ref=e2870]
+                            - cell "Aug 2, 2024" [ref=e2871]
+                            - cell "Paid" [ref=e2872]:
+                              - generic [ref=e2873]: Paid
+                            - cell [ref=e2874]
+                          - row "Sep 1, 2024 $3,000 $3,000 Sep 1, 2024 Paid" [ref=e2875]:
+                            - cell "Sep 1, 2024" [ref=e2876]
+                            - cell "$3,000" [ref=e2877]
+                            - cell "$3,000" [ref=e2878]
+                            - cell "Sep 1, 2024" [ref=e2879]
+                            - cell "Paid" [ref=e2880]:
+                              - generic [ref=e2881]: Paid
+                            - cell [ref=e2882]
+                          - row "Oct 1, 2024 $3,000 $3,000 Oct 1, 2024 Paid" [ref=e2883]:
+                            - cell "Oct 1, 2024" [ref=e2884]
+                            - cell "$3,000" [ref=e2885]
+                            - cell "$3,000" [ref=e2886]
+                            - cell "Oct 1, 2024" [ref=e2887]
+                            - cell "Paid" [ref=e2888]:
+                              - generic [ref=e2889]: Paid
+                            - cell [ref=e2890]
+                          - row "Nov 1, 2024 $3,000 $600 — Partial Record Payment" [ref=e2891]:
+                            - cell "Nov 1, 2024" [ref=e2892]
+                            - cell "$3,000" [ref=e2893]
+                            - cell "$600" [ref=e2894]
+                            - cell "—" [ref=e2895]
+                            - cell "Partial" [ref=e2896]:
+                              - generic [ref=e2897]: Partial
+                            - cell "Record Payment" [ref=e2898]:
+                              - button "Record Payment" [ref=e2899] [cursor=pointer]
+                          - row "Dec 1, 2024 $3,000 $3,000 May 19, 2026 Paid" [ref=e2925]:
+                            - cell "Dec 1, 2024" [ref=e2901]
+                            - cell "$3,000" [ref=e2902]
+                            - cell "$3,000" [ref=e2926]
+                            - cell "May 19, 2026" [ref=e2927]
+                            - cell "Paid" [ref=e2928]:
+                              - generic [ref=e2906]: Paid
+                            - cell [ref=e2929]
+                          - row "Jan 1, 2025 $3,000 $0 — Pending Record Payment" [ref=e2909]:
+                            - cell "Jan 1, 2025" [ref=e2910]
+                            - cell "$3,000" [ref=e2911]
+                            - cell "$0" [ref=e2912]
+                            - cell "—" [ref=e2913]
+                            - cell "Pending" [ref=e2914]:
+                              - generic [ref=e2915]: Pending
+                            - cell "Record Payment" [ref=e2916]:
+                              - button "Record Payment" [ref=e2917] [cursor=pointer]
+                - row "Sarah Johnson Sep 1, 2024 $20,000 $10,000 $10,000 Active Jan 1, 2025" [ref=e2749] [cursor=pointer]:
+                  - cell [ref=e2750]:
+                    - img [ref=e2751]
+                  - cell "Sarah Johnson" [ref=e2753]
+                  - cell "Sep 1, 2024" [ref=e2754]
+                  - cell "$20,000" [ref=e2755]
+                  - cell "$10,000" [ref=e2756]
+                  - cell "$10,000" [ref=e2757]
+                  - cell "Active" [ref=e2758]:
+                    - generic [ref=e2759]: Active
+                  - cell "Jan 1, 2025" [ref=e2760]
+                - row "Mohammed Al-Sayed Oct 1, 2024 $2,400 $600 $1,800 Active Jan 1, 2025" [ref=e2761] [cursor=pointer]:
+                  - cell [ref=e2762]:
+                    - img [ref=e2763]
+                  - cell "Mohammed Al-Sayed" [ref=e2765]
+                  - cell "Oct 1, 2024" [ref=e2766]
+                  - cell "$2,400" [ref=e2767]
+                  - cell "$600" [ref=e2768]
+                  - cell "$1,800" [ref=e2769]
+                  - cell "Active" [ref=e2770]:
+                    - generic [ref=e2771]: Active
+                  - cell "Jan 1, 2025" [ref=e2772]
+  - alert [ref=e2930]:
+    - generic [ref=e2932]:
+      - img [ref=e2934]
+      - generic [ref=e2937]:
+        - paragraph [ref=e2938]: Success
+        - paragraph [ref=e2939]: Payment recorded
+      - button "Close" [ref=e2941] [cursor=pointer]:
+        - generic [ref=e2942]: Close
+        - img [ref=e2943]
+  - generic [ref=e778]: $0k

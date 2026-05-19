@@ -7,6 +7,7 @@ import { User } from '@supabase/supabase-js';
 import { authMiddleware } from './middleware/auth';
 import { me } from './routes/me';
 import { donorsRouter } from './routes/donors';
+import { financialsRouter } from './routes/financials';
 import { aiRouter } from './routes/ai';
 
 type Variables = {
@@ -47,6 +48,7 @@ app.get('/protected', authMiddleware, (c) => {
 
 app.route('/me', me);
 app.route('/donors', donorsRouter);
+app.route('/financials', financialsRouter);
 app.route('/ai', aiRouter);
 
 const port = Number(process.env.PORT) || 3000;

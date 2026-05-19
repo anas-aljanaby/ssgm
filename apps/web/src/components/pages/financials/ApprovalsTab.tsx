@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { CheckCircle, XCircle, Eye, Clock } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import { formatCurrency, formatDate } from '../../../lib/utils';
-import { MOCK_APPROVAL_ITEMS } from '../../../data/financialsPageData';
 import type { ApprovalItem, ApprovalItemType } from '../../../types/financials';
+import { useApproveItem, useApprovals, useRejectItem } from '../../../hooks/useApprovals';
 
 const TYPE_COLORS: Record<ApprovalItemType, string> = {
   expense: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
@@ -24,7 +24,12 @@ const PRIORITY_COLORS: Record<string, string> = {
 const ApprovalsTab: React.FC = () => {
   const { t, language } = useLocalization();
   const { showSuccess, showError } = useToast();
-  const [approvalItems, setApprovalItems] = useState<ApprovalItem[]>(MOCK_APPROVAL_ITEMS);
+  const { data: approvalItems = [] } = useApprovals();
+  const approveItem = useApproveItem();
+  const rejectItem = useRejectItem();
+  const [activeAction, setActiveAction] = React.useState<'approve' | 'reject' | null>(null);
+  const [activeApprovalId, setActiveApprovalId] = React.useState<string | null>(null);
+  const [viewingItem, setViewingItem] = React.useState<ApprovalItem | null>(null);
 
   const pendingCount = useMemo(
     () => approvalItems.filter((item) => item.status === 'pending').length,
@@ -36,22 +41,32 @@ const ApprovalsTab: React.FC = () => {
     [approvalItems]
   );
 
-  const handleApprove = (id: string) => {
-    setApprovalItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, status: 'approved' as const } : item
-      )
-    );
-    showSuccess(t('financials.approvals.approve') + ' - ' + t('financials.status.approved'));
+  const handleApprove = async (id: string) => {
+    setActiveAction('approve');
+    setActiveApprovalId(id);
+    try {
+      await approveItem.mutateAsync({ id });
+      showSuccess(t('financials.approvals.approve') + ' - ' + t('financials.status.approved'));
+    } catch (error) {
+      showError(error instanceof Error ? error.message : t('common.error', 'Error'));
+    } finally {
+      setActiveAction(null);
+      setActiveApprovalId(null);
+    }
   };
 
-  const handleReject = (id: string) => {
-    setApprovalItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, status: 'rejected' as const } : item
-      )
-    );
-    showError(t('financials.approvals.reject') + ' - ' + t('financials.status.rejected'));
+  const handleReject = async (id: string) => {
+    setActiveAction('reject');
+    setActiveApprovalId(id);
+    try {
+      await rejectItem.mutateAsync({ id });
+      showSuccess(t('financials.approvals.reject') + ' - ' + t('financials.status.rejected'));
+    } catch (error) {
+      showError(error instanceof Error ? error.message : t('common.error', 'Error'));
+    } finally {
+      setActiveAction(null);
+      setActiveApprovalId(null);
+    }
   };
 
   const isDueSoon = (dueDate?: string): boolean => {
@@ -204,21 +219,30 @@ const ApprovalsTab: React.FC = () => {
                 <>
                   <button
                     onClick={() => handleApprove(item.id)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors"
+                    disabled={approveItem.isPending || rejectItem.isPending}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <CheckCircle className="w-4 h-4" />
-                    {t('financials.approvals.approve')}
+                    {activeAction === 'approve' && activeApprovalId === item.id
+                      ? t('common.loading', 'Loading...')
+                      : t('financials.approvals.approve')}
                   </button>
                   <button
                     onClick={() => handleReject(item.id)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors"
+                    disabled={approveItem.isPending || rejectItem.isPending}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <XCircle className="w-4 h-4" />
-                    {t('financials.approvals.reject')}
+                    {activeAction === 'reject' && activeApprovalId === item.id
+                      ? t('common.loading', 'Loading...')
+                      : t('financials.approvals.reject')}
                   </button>
                 </>
               )}
-              <button className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
+              <button
+                onClick={() => setViewingItem(item)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+              >
                 <Eye className="w-4 h-4" />
                 {t('financials.approvals.viewDetails')}
               </button>
@@ -226,6 +250,51 @@ const ApprovalsTab: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {viewingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-foreground dark:text-dark-foreground">
+                  {viewingItem.title}
+                </h3>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {viewingItem.description}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewingItem(null)}
+                className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-800"
+              >
+                {t('common.close', 'Close')}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <p className="text-gray-600 dark:text-gray-300">
+                <span className="font-semibold">{t('financials.approvals.requestedBy')}:</span> {viewingItem.requestedBy}
+              </p>
+              <p className="text-gray-600 dark:text-gray-300">
+                <span className="font-semibold">{t('financials.disbursements.date')}:</span>{' '}
+                {formatDate(viewingItem.requestedDate, language, 'medium')}
+              </p>
+              <p className="text-gray-600 dark:text-gray-300">
+                <span className="font-semibold">{t('financials.transactions.amount')}:</span>{' '}
+                {formatCurrency(viewingItem.amount, language)}
+              </p>
+              <p className="text-gray-600 dark:text-gray-300">
+                <span className="font-semibold">{t('financials.approvals.step', { current: viewingItem.currentStep, total: viewingItem.totalSteps })}</span>
+              </p>
+              {viewingItem.relatedEntityName && (
+                <p className="col-span-2 text-gray-600 dark:text-gray-300">
+                  <span className="font-semibold">{t('financials.transactions.relatedEntity')}:</span> {viewingItem.relatedEntityName}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,13 +3,7 @@ import { useLocalization } from '../../../hooks/useLocalization';
 import { formatCurrency } from '../../../lib/utils';
 import FinancialKpiCard from './shared/FinancialKpiCard';
 import StatusBadge from './shared/StatusBadge';
-import {
-  MOCK_MONTHLY_DATA,
-  MOCK_TRANSACTIONS,
-  MOCK_PLEDGES,
-  MOCK_ALERTS,
-  MOCK_FUNDS,
-} from '../../../data/financialsPageData';
+import { useFinancialOverview } from '../../../hooks/useFinancialOverview';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -55,52 +49,43 @@ const ALERT_ICON_COLORS: Record<string, string> = {
   info: 'text-blue-500',
 };
 
-const OverviewTab: React.FC = () => {
+interface OverviewTabProps {
+  onNavigateToTab?: (tabId: string) => void;
+}
+
+const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigateToTab }) => {
   const { t, language } = useLocalization(['common', 'financials']);
+  const { data } = useFinancialOverview();
   const isArabic = language === 'ar';
+  const monthlyData = data?.monthlyData ?? [];
+  const totalRevenue = data?.totalRevenue ?? 0;
+  const totalExpenses = data?.totalExpenses ?? 0;
+  const netIncome = data?.netIncome ?? 0;
+  const outstandingPledges = data?.outstandingPledges ?? 0;
+  const recentTransactions = data?.recentTransactions ?? [];
+  const funds = data?.funds ?? [];
+  const alerts = data?.alerts ?? [];
 
   const chartData = useMemo(
     () =>
-      MOCK_MONTHLY_DATA.map((d) => ({
+      monthlyData.map((d) => ({
         month: MONTH_ABBR[parseInt(d.month.split('-')[1], 10) - 1],
         revenue: d.revenue,
         expenses: d.expenses,
       })),
-    []
+    [monthlyData]
   );
-
-  const totalRevenue = useMemo(
-    () => MOCK_MONTHLY_DATA.reduce((sum, d) => sum + d.revenue, 0),
-    []
-  );
-
-  const totalExpenses = useMemo(
-    () => MOCK_MONTHLY_DATA.reduce((sum, d) => sum + d.expenses, 0),
-    []
-  );
-
-  const netIncome = useMemo(() => totalRevenue - totalExpenses, [totalRevenue, totalExpenses]);
-
-  const outstandingPledges = useMemo(
-    () =>
-      MOCK_PLEDGES.filter(
-        (p) => p.status === 'active' || p.status === 'overdue' || p.status === 'partially_fulfilled'
-      ).reduce((sum, p) => sum + (p.totalAmount - p.paidAmount), 0),
-    []
-  );
-
-  const recentTransactions = useMemo(() => MOCK_TRANSACTIONS.slice(0, 5), []);
 
   const fundChartData = useMemo(
     () =>
-      MOCK_FUNDS.map((f) => ({
+      funds.map((f) => ({
         name: language === 'ar' ? f.name.ar : f.name.en,
         chartLabel: language === 'ar' ? f.name.ar : f.name.en,
         balance: f.balance,
         type: f.type,
         fill: FUND_TYPE_COLORS[f.type] || '#6b7280',
       })),
-    [language]
+    [language, funds]
   );
 
   const fundChartMax = useMemo(() => {
@@ -321,7 +306,10 @@ const OverviewTab: React.FC = () => {
             <h3 className="text-sm font-semibold text-foreground dark:text-dark-foreground">
               {t('financials.overview.recentTransactions', 'Recent Transactions')}
             </h3>
-            <button className="text-xs text-primary dark:text-secondary hover:underline font-medium">
+            <button
+              onClick={() => onNavigateToTab?.('transactions')}
+              className="text-xs text-primary dark:text-secondary hover:underline font-medium"
+            >
               {t('financials.overview.viewAll', 'View All')}
             </button>
           </div>
@@ -381,7 +369,7 @@ const OverviewTab: React.FC = () => {
             {t('financials.overview.financialAlerts', 'Financial Alerts')}
           </h3>
           <div className="space-y-3">
-            {MOCK_ALERTS.map((alert) => {
+            {alerts.map((alert) => {
               const AlertIcon = ALERT_ICONS[alert.type] || Info;
               return (
                 <div

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Landmark, HandCoins, ChevronDown, ChevronRight } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useToast } from '../../../hooks/useToast';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import StatusBadge from './shared/StatusBadge';
-import { MOCK_FUNDS, MOCK_GRANTS } from '../../../data/financialsPageData';
 import type { Fund, Grant, FundType } from '../../../types/financials';
+import { useFunds } from '../../../hooks/useFunds';
+import { useGrants, useReceiveGrantInstallment } from '../../../hooks/useGrants';
 
 const FUND_TYPE_BADGE_CLASSES: Record<FundType, string> = {
   unrestricted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
@@ -14,9 +16,35 @@ const FUND_TYPE_BADGE_CLASSES: Record<FundType, string> = {
 
 const GrantsFundsTab: React.FC = () => {
   const { t, language } = useLocalization();
+  const { showSuccess, showError } = useToast();
+  const { data: funds = [] } = useFunds();
+  const { data: grants = [] } = useGrants();
+  const receiveInstallment = useReceiveGrantInstallment();
+  const [receivingInstallmentId, setReceivingInstallmentId] = useState<string | null>(null);
 
   const [activeView, setActiveView] = useState<'funds' | 'grants'>('funds');
   const [expandedGrantId, setExpandedGrantId] = useState<string | null>(null);
+
+  const handleReceiveInstallment = async (grant: Grant, installmentId: string, amount: number) => {
+    if (amount <= 0) {
+      showError(t('common.error', 'Error'));
+      return;
+    }
+
+    setReceivingInstallmentId(installmentId);
+    try {
+      await receiveInstallment.mutateAsync({
+        grantId: grant.id,
+        installmentId,
+        amount,
+      });
+      showSuccess(t('financials.grantsFunds.receivedAmount', 'Installment received'));
+    } catch (error) {
+      showError(error instanceof Error ? error.message : t('common.error', 'Error'));
+    } finally {
+      setReceivingInstallmentId(null);
+    }
+  };
 
   const getViewButtonClass = (view: 'funds' | 'grants') =>
     activeView === view
@@ -45,15 +73,19 @@ const GrantsFundsTab: React.FC = () => {
         </div>
       </div>
 
-      {activeView === 'funds' && <FundsView language={language} t={t} />}
+      {activeView === 'funds' && <FundsView language={language} t={t} funds={funds} />}
       {activeView === 'grants' && (
         <GrantsView
           language={language}
           t={t}
+          grants={grants}
           expandedGrantId={expandedGrantId}
           onToggleExpand={(id) =>
             setExpandedGrantId((prev) => (prev === id ? null : id))
           }
+          onReceiveInstallment={handleReceiveInstallment}
+          receivingInstallmentId={receivingInstallmentId}
+          isReceivingInstallment={receiveInstallment.isPending}
         />
       )}
     </div>
@@ -65,10 +97,11 @@ const GrantsFundsTab: React.FC = () => {
 interface FundsViewProps {
   language: 'en' | 'ar';
   t: (key: string, options?: any) => string;
+  funds: Fund[];
 }
 
-const FundsView: React.FC<FundsViewProps> = ({ language, t }) => {
-  if (MOCK_FUNDS.length === 0) {
+const FundsView: React.FC<FundsViewProps> = ({ language, t, funds }) => {
+  if (funds.length === 0) {
     return (
       <p className="text-center text-gray-400 dark:text-gray-500 py-12">
         {t('financials.grantsFunds.noFunds')}
@@ -78,7 +111,7 @@ const FundsView: React.FC<FundsViewProps> = ({ language, t }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {MOCK_FUNDS.map((fund) => (
+      {funds.map((fund) => (
         <FundCard key={fund.id} fund={fund} language={language} t={t} />
       ))}
     </div>
@@ -192,17 +225,25 @@ const FundCard: React.FC<FundCardProps> = ({ fund, language, t }) => {
 interface GrantsViewProps {
   language: 'en' | 'ar';
   t: (key: string, options?: any) => string;
+  grants: Grant[];
   expandedGrantId: string | null;
   onToggleExpand: (id: string) => void;
+  onReceiveInstallment: (grant: Grant, installmentId: string, amount: number) => void;
+  receivingInstallmentId: string | null;
+  isReceivingInstallment: boolean;
 }
 
 const GrantsView: React.FC<GrantsViewProps> = ({
   language,
   t,
+  grants,
   expandedGrantId,
   onToggleExpand,
+  onReceiveInstallment,
+  receivingInstallmentId,
+  isReceivingInstallment,
 }) => {
-  if (MOCK_GRANTS.length === 0) {
+  if (grants.length === 0) {
     return (
       <p className="text-center text-gray-400 dark:text-gray-500 py-12">
         {t('financials.grantsFunds.noGrants')}
@@ -240,7 +281,7 @@ const GrantsView: React.FC<GrantsViewProps> = ({
           </tr>
         </thead>
         <tbody>
-          {MOCK_GRANTS.map((grant, idx) => (
+          {grants.map((grant, idx) => (
             <GrantRow
               key={grant.id}
               grant={grant}
@@ -249,6 +290,9 @@ const GrantsView: React.FC<GrantsViewProps> = ({
               isExpanded={expandedGrantId === grant.id}
               onToggle={() => onToggleExpand(grant.id)}
               isEven={idx % 2 === 1}
+              onReceiveInstallment={onReceiveInstallment}
+              receivingInstallmentId={receivingInstallmentId}
+              isReceivingInstallment={isReceivingInstallment}
             />
           ))}
         </tbody>
@@ -264,6 +308,9 @@ interface GrantRowProps {
   isExpanded: boolean;
   onToggle: () => void;
   isEven: boolean;
+  onReceiveInstallment: (grant: Grant, installmentId: string, amount: number) => void;
+  receivingInstallmentId: string | null;
+  isReceivingInstallment: boolean;
 }
 
 const GrantRow: React.FC<GrantRowProps> = ({
@@ -273,6 +320,9 @@ const GrantRow: React.FC<GrantRowProps> = ({
   isExpanded,
   onToggle,
   isEven,
+  onReceiveInstallment,
+  receivingInstallmentId,
+  isReceivingInstallment,
 }) => {
   const progressPercent =
     grant.totalAmount > 0
@@ -369,6 +419,9 @@ const GrantRow: React.FC<GrantRowProps> = ({
                         <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-left">
                           {t('financials.grantsFunds.status')}
                         </th>
+                        <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">
+                          {t('financials.common.actions', 'Actions')}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -393,6 +446,22 @@ const GrantRow: React.FC<GrantRowProps> = ({
                           </td>
                           <td className="px-3 py-2">
                             <StatusBadge status={inst.status} />
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            {inst.status !== 'received' && (
+                              <button
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  onReceiveInstallment(grant, inst.id, inst.amount - inst.receivedAmount);
+                                }}
+                                disabled={isReceivingInstallment}
+                                className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-700"
+                              >
+                                {receivingInstallmentId === inst.id && isReceivingInstallment
+                                  ? t('common.loading', 'Loading...')
+                                  : t('financials.grantsFunds.receiveInstallment', 'Receive')}
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}

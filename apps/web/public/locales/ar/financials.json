@@ -247,6 +247,19 @@
       "medium": "متوسط",
       "low": "منخفض"
     },
+    "addTransaction": {
+      "title": "إضافة معاملة",
+      "descPlaceholder": "مثال: تبرع شهري من...",
+      "descPlaceholderAr": "الوصف بالعربية...",
+      "refPlaceholder": "مثال: INV-2024-001",
+      "noEntity": "بدون",
+      "entityName": "اسم الجهة",
+      "entityNamePlaceholder": "الاسم...",
+      "notes": "ملاحظات",
+      "receipt": "إيصال / مستند",
+      "uploadReceipt": "اضغط لرفع الإيصال",
+      "save": "حفظ المعاملة"
+    },
     "common": {
       "currency": "العملة",
       "actions": "الإجراءات",

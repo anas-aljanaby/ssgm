@@ -8,25 +8,30 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useToast } from '../../../hooks/useToast';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import StatusBadge from './shared/StatusBadge';
 import FinancialKpiCard from './shared/FinancialKpiCard';
-import { MOCK_PLEDGES } from '../../../data/financialsPageData';
 import type { FinancialPledge } from '../../../types/financials';
+import { usePledges, useRecordPledgePayment } from '../../../hooks/usePledges';
 
 const PledgesTab: React.FC = () => {
   const { t, language } = useLocalization();
+  const { showSuccess, showError } = useToast();
+  const { data: pledges = [] } = usePledges();
+  const recordPayment = useRecordPledgePayment();
   const [expandedPledgeId, setExpandedPledgeId] = useState<string | null>(null);
+  const [payingInstallmentId, setPayingInstallmentId] = useState<string | null>(null);
 
   // ─── KPI Computations ───────────────────────────────────────────────
   const kpis = useMemo(() => {
-    const totalPledged = MOCK_PLEDGES.reduce((sum, p) => sum + p.totalAmount, 0);
-    const totalCollected = MOCK_PLEDGES.reduce((sum, p) => sum + p.paidAmount, 0);
-    const overduePledges = MOCK_PLEDGES.filter((p) => p.status === 'overdue').length;
+    const totalPledged = pledges.reduce((sum, p) => sum + p.totalAmount, 0);
+    const totalCollected = pledges.reduce((sum, p) => sum + p.paidAmount, 0);
+    const overduePledges = pledges.filter((p) => p.status === 'overdue').length;
     const fulfillmentRate = totalPledged > 0 ? (totalCollected / totalPledged) * 100 : 0;
 
     return { totalPledged, totalCollected, overduePledges, fulfillmentRate };
-  }, []);
+  }, [pledges]);
 
   // ─── Helpers ────────────────────────────────────────────────────────
   const toggleExpand = (id: string) => {
@@ -44,6 +49,27 @@ const PledgesTab: React.FC = () => {
     return pledge.totalAmount > 0
       ? Math.min((pledge.paidAmount / pledge.totalAmount) * 100, 100)
       : 0;
+  };
+
+  const handleRecordPayment = async (pledge: FinancialPledge, installmentId: string, amount: number) => {
+    if (amount <= 0) {
+      showError(t('common.error', 'Error'));
+      return;
+    }
+
+    setPayingInstallmentId(installmentId);
+    try {
+      await recordPayment.mutateAsync({
+        pledgeId: pledge.id,
+        installmentId,
+        amount: Math.max(amount, 0),
+      });
+      showSuccess(t('financials.pledges.recordPayment', 'Payment recorded'));
+    } catch (error) {
+      showError(error instanceof Error ? error.message : t('common.error', 'Error'));
+    } finally {
+      setPayingInstallmentId(null);
+    }
   };
 
   return (
@@ -110,7 +136,7 @@ const PledgesTab: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {MOCK_PLEDGES.length === 0 ? (
+            {pledges.length === 0 ? (
               <tr>
                 <td
                   colSpan={8}
@@ -120,7 +146,7 @@ const PledgesTab: React.FC = () => {
                 </td>
               </tr>
             ) : (
-              MOCK_PLEDGES.map((pledge, idx) => {
+              pledges.map((pledge, idx) => {
                 const isExpanded = expandedPledgeId === pledge.id;
                 const balance = pledge.totalAmount - pledge.paidAmount;
                 const completionPercent = getCompletionPercent(pledge);
@@ -215,6 +241,9 @@ const PledgesTab: React.FC = () => {
                                     <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                       {t('financials.pledges.status')}
                                     </th>
+                                    <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                      {t('financials.common.actions', 'Actions')}
+                                    </th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -239,6 +268,26 @@ const PledgesTab: React.FC = () => {
                                       </td>
                                       <td className="px-3 py-2">
                                         <StatusBadge status={inst.status} />
+                                      </td>
+                                      <td className="px-3 py-2 text-right">
+                                        {inst.status !== 'paid' && (
+                                          <button
+                                            onClick={(event) => {
+                                              event.stopPropagation();
+                                              handleRecordPayment(
+                                                pledge,
+                                                inst.id,
+                                                inst.amount - inst.paidAmount
+                                              );
+                                            }}
+                                            disabled={recordPayment.isPending}
+                                            className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-700"
+                                          >
+                                            {payingInstallmentId === inst.id && recordPayment.isPending
+                                              ? t('common.loading', 'Loading...')
+                                              : t('financials.pledges.recordPayment', 'Record Payment')}
+                                          </button>
+                                        )}
                                       </td>
                                     </tr>
                                   ))}

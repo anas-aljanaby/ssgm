@@ -30,7 +30,7 @@ const FinancialsPage: React.FC = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewTab />;
+        return <OverviewTab onNavigateToTab={setActiveTab} />;
       case 'transactions':
         return <TransactionsTab />;
       case 'donations':

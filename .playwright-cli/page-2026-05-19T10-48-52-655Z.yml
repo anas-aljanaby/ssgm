@@ -1,0 +1,265 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e868]:
+          - link "Dashboard" [ref=e869] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e871]
+            - generic [ref=e876]: Dashboard
+        - listitem [ref=e877]:
+          - link "Bousala" [ref=e878] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e880]
+            - generic [ref=e883]: Bousala
+        - listitem [ref=e884]:
+          - link "Stakeholder Management" [ref=e885] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e887]
+            - generic [ref=e892]: Stakeholder Management
+        - listitem [ref=e893]:
+          - link "Donor Management" [ref=e894] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e896]
+            - generic [ref=e898]: Donor Management
+        - listitem [ref=e899]:
+          - link "Institutional Donors" [ref=e900] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e902]
+            - generic [ref=e904]: Institutional Donors
+        - listitem [ref=e905]:
+          - link "Beneficiary Management" [ref=e906] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e908]
+            - generic [ref=e913]: Beneficiary Management
+        - listitem [ref=e914]:
+          - link "Project Management" [ref=e915] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e917]
+            - generic [ref=e921]: Project Management
+        - listitem [ref=e922]:
+          - link "Financial Management" [ref=e923] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e925]
+            - generic [ref=e927]: Financial Management
+        - listitem [ref=e928]:
+          - link "Help & Support" [ref=e929] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e931]
+            - generic [ref=e934]: Help & Support
+        - listitem [ref=e935]:
+          - link "Settings" [ref=e936] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e938]
+            - generic [ref=e941]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e942]:
+          - link "Logout" [ref=e943] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e945]
+            - generic [ref=e948]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e949]
+            - button "liveIndicator.live" [ref=e117] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e950]:
+          - generic [ref=e951]:
+            - heading "Financial Management" [level=1] [ref=e952]
+            - paragraph [ref=e953]: Central source of truth for all financial operations
+          - navigation [ref=e955]:
+            - button "Overview" [ref=e956] [cursor=pointer]
+            - button "Transactions" [ref=e957] [cursor=pointer]
+            - button "Donations" [ref=e958] [cursor=pointer]
+            - button "Pledges" [ref=e959] [cursor=pointer]
+            - button "Budgets" [ref=e960] [cursor=pointer]
+            - button "Disbursements" [ref=e961] [cursor=pointer]
+            - button "Grants & Funds" [ref=e962] [cursor=pointer]
+            - button "Approvals" [ref=e963] [cursor=pointer]
+            - button "Reports" [ref=e964] [cursor=pointer]
+          - generic [ref=e965]:
+            - generic [ref=e966]:
+              - generic [ref=e967]:
+                - img [ref=e969]
+                - generic [ref=e971]:
+                  - paragraph [ref=e972]: $194,750
+                  - paragraph [ref=e973]: Total Revenue YTD
+                  - paragraph [ref=e974]: ▲ 12.3%
+              - generic [ref=e975]:
+                - img [ref=e977]
+                - generic [ref=e980]:
+                  - paragraph [ref=e981]: $92,450
+                  - paragraph [ref=e982]: Total Expenses YTD
+                  - paragraph [ref=e983]: ▼ 5.1%
+              - generic [ref=e984]:
+                - img [ref=e986]
+                - generic [ref=e989]:
+                  - paragraph [ref=e990]: $102,300
+                  - paragraph [ref=e991]: Net Income
+              - generic [ref=e992]:
+                - img [ref=e994]
+                - generic [ref=e997]:
+                  - paragraph [ref=e998]: $50,200
+                  - paragraph [ref=e999]: Outstanding Pledges
+            - generic [ref=e1000]:
+              - generic [ref=e1001]:
+                - heading "Revenue vs Expenses" [level=3] [ref=e1002]
+                - application [ref=e1006]:
+                  - generic [ref=e1020]:
+                    - generic [ref=e1021]:
+                      - generic [ref=e1023]: Jan
+                      - generic [ref=e1025]: Feb
+                      - generic [ref=e1027]: Mar
+                      - generic [ref=e1029]: Apr
+                      - generic [ref=e1031]: May
+                      - generic [ref=e1033]: Jun
+                      - generic [ref=e1035]: Jul
+                      - generic [ref=e1037]: Aug
+                      - generic [ref=e1039]: Sep
+                      - generic [ref=e1041]: Oct
+                      - generic [ref=e1043]: Nov
+                      - generic [ref=e1045]: Dec
+                    - generic [ref=e1046]:
+                      - generic [ref=e1048]: $0k
+                      - generic [ref=e1050]: $40k
+                      - generic [ref=e1052]: $80k
+                      - generic [ref=e1054]: $120k
+                      - generic [ref=e1056]: $160k
+              - generic [ref=e1057]:
+                - heading "Fund Balances" [level=3] [ref=e1058]
+                - generic [ref=e1060]:
+                  - generic [ref=e1068]:
+                    - generic [ref=e1069]:
+                      - generic "General Operating Fund" [ref=e1070]
+                      - 'generic "General Operating Fund: $187,500" [ref=e1072]'
+                    - generic [ref=e1073]:
+                      - generic "Education Fund" [ref=e1074]
+                      - 'generic "Education Fund: $92,300" [ref=e1076]'
+                    - generic [ref=e1077]:
+                      - generic "Albania IC Project Fund" [ref=e1078]
+                      - 'generic "Albania IC Project Fund: $38,150" [ref=e1080]'
+                    - generic [ref=e1081]:
+                      - generic "Endowment Fund" [ref=e1082]
+                      - 'generic "Endowment Fund: $154,200" [ref=e1084]'
+                    - generic [ref=e1085]:
+                      - generic "Emergency Relief Fund" [ref=e1086]
+                      - 'generic "Emergency Relief Fund: $15,450" [ref=e1088]'
+                  - generic [ref=e1090]:
+                    - generic [ref=e1091]: $0k
+                    - generic [ref=e1092]: $50k
+                    - generic [ref=e1093]: $100k
+                    - generic [ref=e1094]: $150k
+                    - generic [ref=e1095]: $200k
+                - generic [ref=e1096]:
+                  - generic [ref=e1099]: Unrestricted
+                  - generic [ref=e1102]: Temporarily Restricted
+                  - generic [ref=e1105]: Permanently Restricted
+            - generic [ref=e1106]:
+              - generic [ref=e1107]:
+                - generic [ref=e1108]:
+                  - heading "Recent Transactions" [level=3] [ref=e1109]
+                  - button "View All" [ref=e1110] [cursor=pointer]
+                - table [ref=e1112]:
+                  - rowgroup [ref=e1113]:
+                    - row "Date Description Amount Status" [ref=e1114]:
+                      - columnheader "Date" [ref=e1115]
+                      - columnheader "Description" [ref=e1116]
+                      - columnheader "Amount" [ref=e1117]
+                      - columnheader "Status" [ref=e1118]
+                  - rowgroup [ref=e1119]:
+                    - row "2024-12-16 Pending vendor invoice - catering -$1,200 Pending" [ref=e1120]:
+                      - cell "2024-12-16" [ref=e1121]
+                      - cell "Pending vendor invoice - catering" [ref=e1122]
+                      - cell "-$1,200" [ref=e1123]
+                      - cell "Pending" [ref=e1124]:
+                        - generic [ref=e1125]: Pending
+                    - row "2024-12-16 Draft expense claim - conference -$3,500 Draft" [ref=e1126]:
+                      - cell "2024-12-16" [ref=e1127]
+                      - cell "Draft expense claim - conference" [ref=e1128]
+                      - cell "-$3,500" [ref=e1129]
+                      - cell "Draft" [ref=e1130]:
+                        - generic [ref=e1131]: Draft
+                    - row "2024-12-15 Monthly donation from Aisha Al-Farsi +$1,500 Posted" [ref=e1132]:
+                      - cell "2024-12-15" [ref=e1133]
+                      - cell "Monthly donation from Aisha Al-Farsi" [ref=e1134]
+                      - cell "+$1,500" [ref=e1135]
+                      - cell "Posted" [ref=e1136]:
+                        - generic [ref=e1137]: Posted
+                    - row "2024-12-15 Refund to donor - duplicate payment -$500 Approved" [ref=e1138]:
+                      - cell "2024-12-15" [ref=e1139]
+                      - cell "Refund to donor - duplicate payment" [ref=e1140]
+                      - cell "-$500" [ref=e1141]
+                      - cell "Approved" [ref=e1142]:
+                        - generic [ref=e1143]: Approved
+                    - row "2024-12-14 Construction materials for Albania IC -$12,500 Posted" [ref=e1144]:
+                      - cell "2024-12-14" [ref=e1145]
+                      - cell "Construction materials for Albania IC" [ref=e1146]
+                      - cell "-$12,500" [ref=e1147]
+                      - cell "Posted" [ref=e1148]:
+                        - generic [ref=e1149]: Posted
+              - generic [ref=e1150]:
+                - heading "Financial Alerts" [level=3] [ref=e1151]
+                - generic [ref=e1152]:
+                  - generic [ref=e1153]:
+                    - img [ref=e1154]
+                    - generic [ref=e1156]:
+                      - paragraph [ref=e1157]: Overdue pledge from Fatma Yilmaz — $6,000 outstanding since September
+                      - generic [ref=e1158]:
+                        - generic [ref=e1159]: 2024-12-15
+                        - generic [ref=e1160]: Action Required
+                  - generic [ref=e1161]:
+                    - img [ref=e1162]
+                    - generic [ref=e1164]:
+                      - paragraph [ref=e1165]: Community Outreach Program budget exceeded by 11.2% — review required
+                      - generic [ref=e1166]:
+                        - generic [ref=e1167]: 2024-12-14
+                        - generic [ref=e1168]: Action Required
+                  - generic [ref=e1169]:
+                    - img [ref=e1170]
+                    - generic [ref=e1172]:
+                      - paragraph [ref=e1173]: GPF grant quarterly report due by January 15, 2025
+                      - generic [ref=e1174]:
+                        - generic [ref=e1175]: 2024-12-13
+                        - generic [ref=e1176]: Action Required
+                  - generic [ref=e1177]:
+                    - img [ref=e1178]
+                    - generic [ref=e1180]:
+                      - paragraph [ref=e1181]: Emergency Relief Fund balance below $20,000 threshold
+                      - generic [ref=e1183]: 2024-12-12
+                  - generic [ref=e1184]:
+                    - img [ref=e1185]
+                    - generic [ref=e1187]:
+                      - paragraph [ref=e1188]: Failed disbursement to Ahmad Saleh — mobile money transfer rejected
+                      - generic [ref=e1189]:
+                        - generic [ref=e1190]: 2024-12-10
+                        - generic [ref=e1191]: Action Required
+  - generic [ref=e783]: $0k

@@ -14,8 +14,8 @@ import {
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import { formatDate } from '../../../lib/utils';
-import { MOCK_REPORTS } from '../../../data/financialsPageData';
 import type { FinancialReport, FinancialReportType } from '../../../types/financials';
+import { downloadReportByType, useGenerateReport, useReports } from '../../../hooks/useReports';
 
 const REPORT_ICONS: Record<FinancialReportType, React.FC<{ className?: string }>> = {
   income_statement: TrendingUp,
@@ -41,19 +41,40 @@ const REPORT_ICON_COLORS: Record<FinancialReportType, string> = {
 
 const ReportsTab: React.FC = () => {
   const { t, language } = useLocalization();
-  const { showSuccess } = useToast();
+  const { showSuccess, showError } = useToast();
+  const { data: reports = [] } = useReports();
+  const generateReport = useGenerateReport();
+  const [activeGenerateType, setActiveGenerateType] = React.useState<FinancialReportType | null>(null);
+  const [activeDownloadType, setActiveDownloadType] = React.useState<FinancialReportType | null>(null);
 
-  const handleGenerate = () => {
-    showSuccess(t('financials.reports.generatedSuccess'));
+  const handleGenerate = async (type: FinancialReportType) => {
+    setActiveGenerateType(type);
+    try {
+      await generateReport.mutateAsync({ type });
+      showSuccess(t('financials.reports.generatedSuccess'));
+    } catch (error) {
+      showError(error instanceof Error ? error.message : t('common.error', 'Error'));
+    } finally {
+      setActiveGenerateType(null);
+    }
   };
 
-  const handleDownload = () => {
-    showSuccess(t('financials.reports.downloadStarted'));
+  const handleDownload = async (type: FinancialReportType) => {
+    setActiveDownloadType(type);
+    try {
+      const result = await downloadReportByType(type);
+      window.open(result.url, '_blank', 'noopener,noreferrer');
+      showSuccess(t('financials.reports.downloadStarted'));
+    } catch (error) {
+      showError(error instanceof Error ? error.message : t('common.error', 'Error'));
+    } finally {
+      setActiveDownloadType(null);
+    }
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {MOCK_REPORTS.map((report: FinancialReport) => {
+      {reports.map((report: FinancialReport) => {
         const Icon = REPORT_ICONS[report.type];
         const iconColor = REPORT_ICON_COLORS[report.type];
 
@@ -102,19 +123,25 @@ const ReportsTab: React.FC = () => {
             {/* Action row */}
             <div className="flex items-center gap-3">
               <button
-                onClick={handleGenerate}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-colors"
+                onClick={() => handleGenerate(report.type)}
+                disabled={generateReport.isPending}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <FileText className="w-4 h-4" />
-                {t('financials.reports.generate')}
+                {activeGenerateType === report.type && generateReport.isPending
+                  ? t('common.loading', 'Loading...')
+                  : t('financials.reports.generate')}
               </button>
               {report.lastGenerated && (
                 <button
-                  onClick={handleDownload}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 text-sm font-medium transition-colors"
+                  onClick={() => handleDownload(report.type)}
+                  disabled={activeDownloadType !== null}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Download className="w-4 h-4" />
-                  {t('financials.reports.download')}
+                  {activeDownloadType === report.type
+                    ? t('common.loading', 'Loading...')
+                    : t('financials.reports.download')}
                 </button>
               )}
             </div>

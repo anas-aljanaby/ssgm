@@ -1,0 +1,300 @@
+- generic [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e861]:
+          - link "Dashboard" [ref=e862] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e864]
+            - generic [ref=e869]: Dashboard
+        - listitem [ref=e870]:
+          - link "Bousala" [ref=e871] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e873]
+            - generic [ref=e876]: Bousala
+        - listitem [ref=e877]:
+          - link "Stakeholder Management" [ref=e878] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e880]
+            - generic [ref=e885]: Stakeholder Management
+        - listitem [ref=e886]:
+          - link "Donor Management" [ref=e887] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e889]
+            - generic [ref=e891]: Donor Management
+        - listitem [ref=e892]:
+          - link "Institutional Donors" [ref=e893] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e895]
+            - generic [ref=e897]: Institutional Donors
+        - listitem [ref=e898]:
+          - link "Beneficiary Management" [ref=e899] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e901]
+            - generic [ref=e906]: Beneficiary Management
+        - listitem [ref=e907]:
+          - link "Project Management" [ref=e908] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e910]
+            - generic [ref=e914]: Project Management
+        - listitem [ref=e915]:
+          - link "Financial Management" [ref=e916] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e918]
+            - generic [ref=e920]: Financial Management
+        - listitem [ref=e921]:
+          - link "Help & Support" [ref=e922] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e924]
+            - generic [ref=e927]: Help & Support
+        - listitem [ref=e928]:
+          - link "Settings" [ref=e929] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e931]
+            - generic [ref=e934]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e935]:
+          - link "Logout" [ref=e936] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e938]
+            - generic [ref=e941]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e942]
+            - button "liveIndicator.live" [ref=e2178] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e943]:
+          - generic [ref=e944]:
+            - heading "Financial Management" [level=1] [ref=e945]
+            - paragraph [ref=e946]: Central source of truth for all financial operations
+          - navigation [ref=e948]:
+            - button "Overview" [ref=e949] [cursor=pointer]
+            - button "Transactions" [ref=e950] [cursor=pointer]
+            - button "Donations" [ref=e951] [cursor=pointer]
+            - button "Pledges" [ref=e952] [cursor=pointer]
+            - button "Budgets" [ref=e953] [cursor=pointer]
+            - button "Disbursements" [active] [ref=e954] [cursor=pointer]
+            - button "Grants & Funds" [ref=e955] [cursor=pointer]
+            - button "Approvals" [ref=e956] [cursor=pointer]
+            - button "Reports" [ref=e957] [cursor=pointer]
+          - generic [ref=e2198]:
+            - generic [ref=e2199]:
+              - generic [ref=e2200]:
+                - img [ref=e2202]
+                - generic [ref=e2204]:
+                  - paragraph [ref=e2205]: $7,300
+                  - paragraph [ref=e2206]: Total Disbursed
+              - generic [ref=e2207]:
+                - img [ref=e2209]
+                - generic [ref=e2212]:
+                  - paragraph [ref=e2213]: "3"
+                  - paragraph [ref=e2214]: Pending
+              - generic [ref=e2215]:
+                - img [ref=e2217]
+                - generic [ref=e2219]:
+                  - paragraph [ref=e2220]: "1"
+                  - paragraph [ref=e2221]: Scheduled This Month
+              - generic [ref=e2222]:
+                - img [ref=e2224]
+                - generic [ref=e2226]:
+                  - paragraph [ref=e2227]: "1"
+                  - paragraph [ref=e2228]: Failed
+            - button "Create Disbursement" [ref=e2230] [cursor=pointer]
+            - generic [ref=e2231]:
+              - generic [ref=e2232]:
+                - img
+                - textbox "Search by beneficiary..." [ref=e2233]
+              - combobox [ref=e2234]:
+                - option "All Types" [selected]
+                - option "Aid Payment"
+                - option "Sponsorship"
+                - option "Emergency Relief"
+                - option "Project Grant"
+                - option "Scholarship"
+              - combobox [ref=e2235]:
+                - option "All Statuses" [selected]
+                - option "Scheduled"
+                - option "Pending Approval"
+                - option "Approved"
+                - option "Processing"
+                - option "Completed"
+                - option "Failed"
+                - option "Cancelled"
+            - table [ref=e2237]:
+              - rowgroup [ref=e2238]:
+                - row "Date Beneficiary Type Amount Method Project Status" [ref=e2239]:
+                  - columnheader "Date" [ref=e2240] [cursor=pointer]:
+                    - generic [ref=e2241]: Date
+                  - columnheader "Beneficiary" [ref=e2242]:
+                    - generic [ref=e2243]: Beneficiary
+                  - columnheader "Type" [ref=e2244]:
+                    - generic [ref=e2245]: Type
+                  - columnheader "Amount" [ref=e2246] [cursor=pointer]:
+                    - generic [ref=e2247]: Amount
+                  - columnheader "Method" [ref=e2248]:
+                    - generic [ref=e2249]: Method
+                  - columnheader "Project" [ref=e2250]:
+                    - generic [ref=e2251]: Project
+                  - columnheader "Status" [ref=e2252]:
+                    - generic [ref=e2253]: Status
+              - rowgroup [ref=e2254]:
+                - row "May 19, 2026 Playwright Beneficiary Aid Payment $777 Bank Transfer — Approved" [ref=e2255]:
+                  - cell "May 19, 2026" [ref=e2256]
+                  - cell "Playwright Beneficiary" [ref=e2257]
+                  - cell "Aid Payment" [ref=e2258]:
+                    - generic [ref=e2259]: Aid Payment
+                  - cell "$777" [ref=e2260]
+                  - cell "Bank Transfer" [ref=e2261]
+                  - cell "—" [ref=e2262]
+                  - cell "Approved" [ref=e2263]:
+                    - generic [ref=e2264]: Approved
+                - row "Dec 1, 2024 Yusuf Al-Ahmad Sponsorship $250 Bank Transfer — Completed" [ref=e2265]:
+                  - cell "Dec 1, 2024" [ref=e2266]
+                  - cell "Yusuf Al-Ahmad" [ref=e2267]
+                  - cell "Sponsorship" [ref=e2268]:
+                    - generic [ref=e2269]: Sponsorship
+                  - cell "$250" [ref=e2270]
+                  - cell "Bank Transfer" [ref=e2271]
+                  - cell "—" [ref=e2272]
+                  - cell "Completed" [ref=e2273]:
+                    - generic [ref=e2274]: Completed
+                - row "Dec 5, 2024 Amira Hassan Emergency Relief $1,800 Cash — Completed" [ref=e2275]:
+                  - cell "Dec 5, 2024" [ref=e2276]
+                  - cell "Amira Hassan" [ref=e2277]
+                  - cell "Emergency Relief" [ref=e2278]:
+                    - generic [ref=e2279]: Emergency Relief
+                  - cell "$1,800" [ref=e2280]
+                  - cell "Cash" [ref=e2281]
+                  - cell "—" [ref=e2282]
+                  - cell "Completed" [ref=e2283]:
+                    - generic [ref=e2284]: Completed
+                - row "Nov 25, 2024 Khalid Mahmoud Scholarship $2,000 Bank Transfer Istanbul VTC Completed" [ref=e2285]:
+                  - cell "Nov 25, 2024" [ref=e2286]
+                  - cell "Khalid Mahmoud" [ref=e2287]
+                  - cell "Scholarship" [ref=e2288]:
+                    - generic [ref=e2289]: Scholarship
+                  - cell "$2,000" [ref=e2290]
+                  - cell "Bank Transfer" [ref=e2291]
+                  - cell "Istanbul VTC" [ref=e2292]
+                  - cell "Completed" [ref=e2293]:
+                    - generic [ref=e2294]: Completed
+                - row "Nov 1, 2024 Yusuf Al-Ahmad Sponsorship $250 Bank Transfer — Completed" [ref=e2295]:
+                  - cell "Nov 1, 2024" [ref=e2296]
+                  - cell "Yusuf Al-Ahmad" [ref=e2297]
+                  - cell "Sponsorship" [ref=e2298]:
+                    - generic [ref=e2299]: Sponsorship
+                  - cell "$250" [ref=e2300]
+                  - cell "Bank Transfer" [ref=e2301]
+                  - cell "—" [ref=e2302]
+                  - cell "Completed" [ref=e2303]:
+                    - generic [ref=e2304]: Completed
+                - row "Nov 25, 2024 Layla Ibrahim Scholarship $2,000 Bank Transfer — Completed" [ref=e2305]:
+                  - cell "Nov 25, 2024" [ref=e2306]
+                  - cell "Layla Ibrahim" [ref=e2307]
+                  - cell "Scholarship" [ref=e2308]:
+                    - generic [ref=e2309]: Scholarship
+                  - cell "$2,000" [ref=e2310]
+                  - cell "Bank Transfer" [ref=e2311]
+                  - cell "—" [ref=e2312]
+                  - cell "Completed" [ref=e2313]:
+                    - generic [ref=e2314]: Completed
+                - row "Oct 1, 2024 Yusuf Al-Ahmad Sponsorship $250 Bank Transfer — Completed" [ref=e2315]:
+                  - cell "Oct 1, 2024" [ref=e2316]
+                  - cell "Yusuf Al-Ahmad" [ref=e2317]
+                  - cell "Sponsorship" [ref=e2318]:
+                    - generic [ref=e2319]: Sponsorship
+                  - cell "$250" [ref=e2320]
+                  - cell "Bank Transfer" [ref=e2321]
+                  - cell "—" [ref=e2322]
+                  - cell "Completed" [ref=e2323]:
+                    - generic [ref=e2324]: Completed
+                - row "Oct 15, 2024 Nour Al-Din Aid Payment $500 Cash — Completed" [ref=e2325]:
+                  - cell "Oct 15, 2024" [ref=e2326]
+                  - cell "Nour Al-Din" [ref=e2327]
+                  - cell "Aid Payment" [ref=e2328]:
+                    - generic [ref=e2329]: Aid Payment
+                  - cell "$500" [ref=e2330]
+                  - cell "Cash" [ref=e2331]
+                  - cell "—" [ref=e2332]
+                  - cell "Completed" [ref=e2333]:
+                    - generic [ref=e2334]: Completed
+                - row "Sep 1, 2024 Yusuf Al-Ahmad Sponsorship $250 Bank Transfer — Completed" [ref=e2335]:
+                  - cell "Sep 1, 2024" [ref=e2336]
+                  - cell "Yusuf Al-Ahmad" [ref=e2337]
+                  - cell "Sponsorship" [ref=e2338]:
+                    - generic [ref=e2339]: Sponsorship
+                  - cell "$250" [ref=e2340]
+                  - cell "Bank Transfer" [ref=e2341]
+                  - cell "—" [ref=e2342]
+                  - cell "Completed" [ref=e2343]:
+                    - generic [ref=e2344]: Completed
+                - row "Jan 1, 2025 Yusuf Al-Ahmad Sponsorship $250 Bank Transfer — Scheduled" [ref=e2345]:
+                  - cell "Jan 1, 2025" [ref=e2346]
+                  - cell "Yusuf Al-Ahmad" [ref=e2347]
+                  - cell "Sponsorship" [ref=e2348]:
+                    - generic [ref=e2349]: Sponsorship
+                  - cell "$250" [ref=e2350]
+                  - cell "Bank Transfer" [ref=e2351]
+                  - cell "—" [ref=e2352]
+                  - cell "Scheduled" [ref=e2353]:
+                    - generic [ref=e2354]: Scheduled
+                - row "Dec 20, 2024 Fatima Al-Zahra Project Grant $3,500 Bank Transfer Albania Islamic Center Pending Approval" [ref=e2355]:
+                  - cell "Dec 20, 2024" [ref=e2356]
+                  - cell "Fatima Al-Zahra" [ref=e2357]
+                  - cell "Project Grant" [ref=e2358]:
+                    - generic [ref=e2359]: Project Grant
+                  - cell "$3,500" [ref=e2360]
+                  - cell "Bank Transfer" [ref=e2361]
+                  - cell "Albania Islamic Center" [ref=e2362]
+                  - cell "Pending Approval" [ref=e2363]:
+                    - generic [ref=e2364]: Pending Approval
+                - row "Dec 10, 2024 Ahmad Saleh Emergency Relief $800 Mobile Money — Failed" [ref=e2365]:
+                  - cell "Dec 10, 2024" [ref=e2366]
+                  - cell "Ahmad Saleh" [ref=e2367]
+                  - cell "Emergency Relief" [ref=e2368]:
+                    - generic [ref=e2369]: Emergency Relief
+                  - cell "$800" [ref=e2370]
+                  - cell "Mobile Money" [ref=e2371]
+                  - cell "—" [ref=e2372]
+                  - cell "Failed" [ref=e2373]:
+                    - generic [ref=e2374]: Failed
+                - row "Dec 25, 2024 Khalid Mahmoud Scholarship $2,000 Bank Transfer Istanbul VTC Approved" [ref=e2375]:
+                  - cell "Dec 25, 2024" [ref=e2376]
+                  - cell "Khalid Mahmoud" [ref=e2377]
+                  - cell "Scholarship" [ref=e2378]:
+                    - generic [ref=e2379]: Scholarship
+                  - cell "$2,000" [ref=e2380]
+                  - cell "Bank Transfer" [ref=e2381]
+                  - cell "Istanbul VTC" [ref=e2382]
+                  - cell "Approved" [ref=e2383]:
+                    - generic [ref=e2384]: Approved
+  - generic [ref=e778]: $0k

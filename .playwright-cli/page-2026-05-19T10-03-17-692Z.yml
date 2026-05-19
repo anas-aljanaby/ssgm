@@ -1,0 +1,251 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e861]:
+          - link "Dashboard" [ref=e862] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e864]
+            - generic [ref=e869]: Dashboard
+        - listitem [ref=e870]:
+          - link "Bousala" [ref=e871] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e873]
+            - generic [ref=e876]: Bousala
+        - listitem [ref=e877]:
+          - link "Stakeholder Management" [ref=e878] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e880]
+            - generic [ref=e885]: Stakeholder Management
+        - listitem [ref=e886]:
+          - link "Donor Management" [ref=e887] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e889]
+            - generic [ref=e891]: Donor Management
+        - listitem [ref=e892]:
+          - link "Institutional Donors" [ref=e893] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e895]
+            - generic [ref=e897]: Institutional Donors
+        - listitem [ref=e898]:
+          - link "Beneficiary Management" [ref=e899] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e901]
+            - generic [ref=e906]: Beneficiary Management
+        - listitem [ref=e907]:
+          - link "Project Management" [ref=e908] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e910]
+            - generic [ref=e914]: Project Management
+        - listitem [ref=e915]:
+          - link "Financial Management" [ref=e916] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e918]
+            - generic [ref=e920]: Financial Management
+        - listitem [ref=e921]:
+          - link "Help & Support" [ref=e922] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e924]
+            - generic [ref=e927]: Help & Support
+        - listitem [ref=e928]:
+          - link "Settings" [ref=e929] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e931]
+            - generic [ref=e934]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e935]:
+          - link "Logout" [ref=e936] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e938]
+            - generic [ref=e941]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e942]
+            - button "liveIndicator.offline" [ref=e3151] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e943]:
+          - generic [ref=e944]:
+            - heading "Financial Management" [level=1] [ref=e945]
+            - paragraph [ref=e946]: Central source of truth for all financial operations
+          - navigation [ref=e948]:
+            - button "Overview" [ref=e949] [cursor=pointer]
+            - button "Transactions" [ref=e950] [cursor=pointer]
+            - button "Donations" [ref=e951] [cursor=pointer]
+            - button "Pledges" [ref=e952] [cursor=pointer]
+            - button "Budgets" [ref=e953] [cursor=pointer]
+            - button "Disbursements" [ref=e954] [cursor=pointer]
+            - button "Grants & Funds" [ref=e955] [cursor=pointer]
+            - button "Approvals" [ref=e956] [cursor=pointer]
+            - button "Reports" [ref=e957] [cursor=pointer]
+          - generic [ref=e2949]:
+            - generic [ref=e2950]:
+              - generic [ref=e2951]:
+                - img [ref=e2953]
+                - generic [ref=e2956]:
+                  - heading "Income Statement" [level=3] [ref=e2957]
+                  - paragraph [ref=e2958]: Revenue and expenses summary for the fiscal period
+              - generic [ref=e2959]:
+                - generic [ref=e2960]:
+                  - img [ref=e2961]
+                  - text: "Last generated: May 19, 2026"
+                - generic [ref=e2964]: "Period: Q4 2024"
+              - generic [ref=e2965]:
+                - button "Generate" [ref=e2966] [cursor=pointer]:
+                  - img [ref=e2967]
+                  - text: Generate
+                - button "Download" [ref=e2970] [cursor=pointer]:
+                  - img [ref=e2971]
+                  - text: Download
+            - generic [ref=e2974]:
+              - generic [ref=e2975]:
+                - img [ref=e2977]
+                - generic [ref=e2981]:
+                  - heading "Balance Sheet" [level=3] [ref=e2982]
+                  - paragraph [ref=e2983]: Assets, liabilities, and net assets at a point in time
+              - generic [ref=e2984]:
+                - generic [ref=e2985]:
+                  - img [ref=e2986]
+                  - text: "Last generated: Dec 1, 2024"
+                - generic [ref=e2989]: "Period: Dec 2024"
+              - generic [ref=e2990]:
+                - button "Generate" [ref=e2991] [cursor=pointer]:
+                  - img [ref=e2992]
+                  - text: Generate
+                - button "Download" [ref=e2995] [cursor=pointer]:
+                  - img [ref=e2996]
+                  - text: Download
+            - generic [ref=e2999]:
+              - generic [ref=e3000]:
+                - img [ref=e3002]
+                - generic [ref=e3005]:
+                  - heading "Cash Flow Statement" [level=3] [ref=e3006]
+                  - paragraph [ref=e3007]: Cash inflows and outflows from operations, investing, and financing
+              - generic [ref=e3008]:
+                - generic [ref=e3009]:
+                  - img [ref=e3010]
+                  - text: "Last generated: Nov 30, 2024"
+                - generic [ref=e3013]: "Period: Nov 2024"
+              - generic [ref=e3014]:
+                - button "Generate" [ref=e3015] [cursor=pointer]:
+                  - img [ref=e3016]
+                  - text: Generate
+                - button "Download" [ref=e3019] [cursor=pointer]:
+                  - img [ref=e3020]
+                  - text: Download
+            - generic [ref=e3023]:
+              - generic [ref=e3024]:
+                - img [ref=e3026]
+                - generic [ref=e3028]:
+                  - heading "Donor Giving Report" [level=3] [ref=e3029]
+                  - paragraph [ref=e3030]: Donations breakdown by donor, campaign, period, and fund
+              - generic [ref=e3031]:
+                - generic [ref=e3032]:
+                  - img [ref=e3033]
+                  - text: "Last generated: Dec 5, 2024"
+                - generic [ref=e3036]: "Period: 2024 YTD"
+              - generic [ref=e3037]:
+                - button "Generate" [ref=e3038] [cursor=pointer]:
+                  - img [ref=e3039]
+                  - text: Generate
+                - button "Download" [ref=e3042] [cursor=pointer]:
+                  - img [ref=e3043]
+                  - text: Download
+            - generic [ref=e3046]:
+              - generic [ref=e3047]:
+                - img [ref=e3049]
+                - generic [ref=e3051]:
+                  - heading "Project Financial Report" [level=3] [ref=e3052]
+                  - paragraph [ref=e3053]: Budget vs actuals, burn rate, and cost performance for all projects
+              - generic [ref=e3054]:
+                - generic [ref=e3055]:
+                  - img [ref=e3056]
+                  - text: "Last generated: Dec 10, 2024"
+                - generic [ref=e3059]: "Period: Q4 2024"
+              - generic [ref=e3060]:
+                - button "Generate" [ref=e3061] [cursor=pointer]:
+                  - img [ref=e3062]
+                  - text: Generate
+                - button "Download" [ref=e3065] [cursor=pointer]:
+                  - img [ref=e3066]
+                  - text: Download
+            - generic [ref=e3069]:
+              - generic [ref=e3070]:
+                - img [ref=e3072]
+                - generic [ref=e3075]:
+                  - heading "Fund Utilization Report" [level=3] [ref=e3076]
+                  - paragraph [ref=e3077]: Restricted and unrestricted fund balances, spending, and compliance
+              - generic [ref=e3079]:
+                - img [ref=e3080]
+                - generic [ref=e3083]: Not yet generated
+              - button "Generate" [ref=e3085] [cursor=pointer]:
+                - img [ref=e3086]
+                - text: Generate
+            - generic [ref=e3089]:
+              - generic [ref=e3090]:
+                - img [ref=e3092]
+                - generic [ref=e3094]:
+                  - heading "Budget Variance Analysis" [level=3] [ref=e3095]
+                  - paragraph [ref=e3096]: Planned vs actual analysis across all budget categories
+              - generic [ref=e3097]:
+                - generic [ref=e3098]:
+                  - img [ref=e3099]
+                  - text: "Last generated: Dec 1, 2024"
+                - generic [ref=e3102]: "Period: Nov 2024"
+              - generic [ref=e3103]:
+                - button "Generate" [ref=e3104] [cursor=pointer]:
+                  - img [ref=e3105]
+                  - text: Generate
+                - button "Download" [ref=e3108] [cursor=pointer]:
+                  - img [ref=e3109]
+                  - text: Download
+            - generic [ref=e3112]:
+              - generic [ref=e3113]:
+                - img [ref=e3115]
+                - generic [ref=e3118]:
+                  - heading "Pledge Aging Report" [level=3] [ref=e3119]
+                  - paragraph [ref=e3120]: Overdue pledges and receivables aged by period
+              - generic [ref=e3122]:
+                - img [ref=e3123]
+                - generic [ref=e3126]: Not yet generated
+              - button "Generate" [ref=e3128] [cursor=pointer]:
+                - img [ref=e3129]
+                - text: Generate
+  - alert [ref=e3152]:
+    - generic [ref=e3154]:
+      - img [ref=e3156]
+      - generic [ref=e3159]:
+        - paragraph [ref=e3160]: Success
+        - paragraph [ref=e3161]: Download started
+      - button "Close" [ref=e3163] [cursor=pointer]:
+        - generic [ref=e3164]: Close
+        - img [ref=e3165]
+  - generic [ref=e778]: $0k

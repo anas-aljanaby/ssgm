@@ -1,0 +1,44 @@
+---
+description: Auto-detect frontend work and verify UI via Playwright browser flow
+alwaysApply: false
+---
+# Frontend UI verification (Playwright)
+
+Use this rule in every session, but enforce Playwright verification only when the task is frontend/UI-related.
+
+Treat a task as frontend/UI-related when either is true:
+- The user asks for UI, styling, layout, interactions, browser behavior, pages, components, or UX checks.
+- Planned or actual changes touch frontend files (for example `apps/web/**`, `packages/ui/**`, `*.tsx`, `*.jsx`, `*.css`, `*.scss`, locale files, or client-side hooks).
+
+If frontend/UI-related, verify the result in a real browser before declaring completion.
+
+## Prerequisite
+
+Read and follow `~/.codex/skills/playwright/SKILL.md`.
+Use the Playwright CLI browser flow for verification unless the user explicitly asks for a different approach.
+
+## Verification workflow
+
+1. Start or reuse the required local app servers.
+2. Open the affected route in a browser via Playwright CLI.
+3. Exercise the changed UI flow (clicks, typing, forms, tabs, dialogs, navigation, error/empty states as applicable).
+4. Re-snapshot after significant DOM changes to avoid stale refs.
+5. Capture at least one screenshot when the change is visual or layout-related.
+
+## What to confirm
+
+- Changed UI renders correctly and matches user intent.
+- Primary interactions in the touched area work end-to-end.
+- No obvious regressions are introduced in the same view.
+
+## Report back
+
+When verification applies, include:
+- route(s) opened,
+- key actions performed,
+- verification result (pass/fail),
+- and blocker details if verification could not be completed.
+
+## Exceptions
+
+Skip browser verification only when the change cannot affect runtime UI at all (for example comments, server-only logic, or pure type edits). If uncertain, run Playwright verification.

@@ -5,6 +5,7 @@ import {
   TrendingUp,
   TrendingDown,
   PieChart,
+  Plus,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -17,22 +18,33 @@ import {
   Legend,
 } from 'recharts';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useToast } from '../../../hooks/useToast';
 import { formatCurrency } from '../../../lib/utils';
 import StatusBadge from './shared/StatusBadge';
 import FinancialKpiCard from './shared/FinancialKpiCard';
 import DataTable, { type Column } from './shared/DataTable';
-import { MOCK_BUDGETS } from '../../../data/financialsPageData';
+import { useBudgets, useCreateBudget } from '../../../hooks/useBudgets';
 import type { BudgetLine } from '../../../types/financials';
 
 const BudgetsTab: React.FC = () => {
   const { t, language } = useLocalization();
+  const { showSuccess, showError } = useToast();
+  const { data: budgets = [] } = useBudgets();
+  const createBudget = useCreateBudget();
   const [selectedBudgetId, setSelectedBudgetId] = useState<string>(
-    MOCK_BUDGETS[0]?.id ?? ''
+    ''
   );
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [projectNameEn, setProjectNameEn] = useState('');
+  const [projectNameAr, setProjectNameAr] = useState('');
+  const [fiscalYear, setFiscalYear] = useState(() => `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`);
+  const [totalPlanned, setTotalPlanned] = useState('');
+  const [currency, setCurrency] = useState('USD');
 
+  const normalizedSelectedBudgetId = selectedBudgetId || budgets[0]?.id || '';
   const selectedBudget = useMemo(
-    () => MOCK_BUDGETS.find((b) => b.id === selectedBudgetId) ?? MOCK_BUDGETS[0],
-    [selectedBudgetId]
+    () => budgets.find((b) => b.id === normalizedSelectedBudgetId) ?? budgets[0],
+    [normalizedSelectedBudgetId, budgets]
   );
 
   // ─── KPI Computations ───────────────────────────────────────────────
@@ -200,10 +212,125 @@ const BudgetsTab: React.FC = () => {
     [selectedBudget]
   );
 
+  const resetCreateForm = () => {
+    setProjectNameEn('');
+    setProjectNameAr('');
+    setFiscalYear(`${new Date().getFullYear()}-${new Date().getFullYear() + 1}`);
+    setTotalPlanned('');
+    setCurrency('USD');
+  };
+
+  const handleCreateBudget = async () => {
+    const plannedAmount = Number(totalPlanned);
+    if (!projectNameEn.trim() || !fiscalYear.trim() || !Number.isFinite(plannedAmount) || plannedAmount < 0) {
+      showError(t('common.error', 'Error'));
+      return;
+    }
+
+    try {
+      const created = await createBudget.mutateAsync({
+        projectNameEn: projectNameEn.trim(),
+        projectNameAr: projectNameAr.trim(),
+        fiscalYear: fiscalYear.trim(),
+        totalPlanned: plannedAmount,
+        currency,
+        status: 'draft',
+      });
+      setSelectedBudgetId(created.id);
+      setIsCreateOpen(false);
+      resetCreateForm();
+      showSuccess(t('financials.budgets.createSuccess', 'Budget created'));
+    } catch (error) {
+      showError(error instanceof Error ? error.message : t('common.error', 'Error'));
+    }
+  };
+
   if (!selectedBudget) {
     return (
-      <div className="text-center py-12 text-gray-400 dark:text-gray-500">
-        {t('financials.budgets.noBudgets')}
+      <div className="space-y-6">
+        <div className="flex items-center justify-end">
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            {t('financials.budgets.createBudget', 'Create Budget')}
+          </button>
+        </div>
+        <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+          {t('financials.budgets.noBudgets')}
+        </div>
+
+        {isCreateOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card">
+              <h3 className="mb-4 text-base font-semibold text-foreground dark:text-dark-foreground">
+                {t('financials.budgets.createBudget', 'Create Budget')}
+              </h3>
+              <div className="space-y-3">
+                <input
+                  value={projectNameEn}
+                  onChange={(e) => setProjectNameEn(e.target.value)}
+                  placeholder={t('financials.budgets.projectNameEn', 'Project Name (EN)')}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                />
+                <input
+                  value={projectNameAr}
+                  onChange={(e) => setProjectNameAr(e.target.value)}
+                  placeholder={t('financials.budgets.projectNameAr', 'Project Name (AR)')}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                />
+                <div className="grid grid-cols-3 gap-3">
+                  <input
+                    value={fiscalYear}
+                    onChange={(e) => setFiscalYear(e.target.value)}
+                    placeholder={t('financials.budgets.fiscalYear', 'Fiscal Year')}
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                  />
+                  <input
+                    value={totalPlanned}
+                    onChange={(e) => setTotalPlanned(e.target.value)}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder={t('financials.budgets.totalPlanned', 'Total Planned')}
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                  />
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                  >
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="SAR">SAR</option>
+                    <option value="AED">AED</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-5 flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    if (!createBudget.isPending) setIsCreateOpen(false);
+                  }}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-800"
+                >
+                  {t('common.cancel', 'Cancel')}
+                </button>
+                <button
+                  onClick={handleCreateBudget}
+                  disabled={createBudget.isPending}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {createBudget.isPending
+                    ? t('common.loading', 'Loading...')
+                    : t('financials.budgets.createBudget', 'Create Budget')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -211,25 +338,34 @@ const BudgetsTab: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* ── Budget Selector ────────────────────────────────────────── */}
-      <div>
-        <label
-          htmlFor="budget-select"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <label
+            htmlFor="budget-select"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+          >
+            {t('financials.budgets.selectProject')}
+          </label>
+          <select
+            id="budget-select"
+            value={normalizedSelectedBudgetId}
+            onChange={(e) => setSelectedBudgetId(e.target.value)}
+            className="w-full min-w-[18rem] max-w-md rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-foreground dark:text-dark-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors"
+          >
+            {budgets.map((budget) => (
+              <option key={budget.id} value={budget.id}>
+                {budget.projectName[language]} — {budget.fiscalYear}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
         >
-          {t('financials.budgets.selectProject')}
-        </label>
-        <select
-          id="budget-select"
-          value={selectedBudgetId}
-          onChange={(e) => setSelectedBudgetId(e.target.value)}
-          className="w-full max-w-md rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-foreground dark:text-dark-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors"
-        >
-          {MOCK_BUDGETS.map((budget) => (
-            <option key={budget.id} value={budget.id}>
-              {budget.projectName[language]} — {budget.fiscalYear}
-            </option>
-          ))}
-        </select>
+          <Plus className="h-4 w-4" />
+          {t('financials.budgets.createBudget', 'Create Budget')}
+        </button>
       </div>
 
       {/* ── KPI Cards ──────────────────────────────────────────────── */}
@@ -338,6 +474,77 @@ const BudgetsTab: React.FC = () => {
         data={tableData}
         emptyMessage={t('financials.budgets.noBudgets')}
       />
+
+      {isCreateOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card">
+            <h3 className="mb-4 text-base font-semibold text-foreground dark:text-dark-foreground">
+              {t('financials.budgets.createBudget', 'Create Budget')}
+            </h3>
+            <div className="space-y-3">
+              <input
+                value={projectNameEn}
+                onChange={(e) => setProjectNameEn(e.target.value)}
+                placeholder={t('financials.budgets.projectNameEn', 'Project Name (EN)')}
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+              />
+              <input
+                value={projectNameAr}
+                onChange={(e) => setProjectNameAr(e.target.value)}
+                placeholder={t('financials.budgets.projectNameAr', 'Project Name (AR)')}
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+              />
+              <div className="grid grid-cols-3 gap-3">
+                <input
+                  value={fiscalYear}
+                  onChange={(e) => setFiscalYear(e.target.value)}
+                  placeholder={t('financials.budgets.fiscalYear', 'Fiscal Year')}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                />
+                <input
+                  value={totalPlanned}
+                  onChange={(e) => setTotalPlanned(e.target.value)}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder={t('financials.budgets.totalPlanned', 'Total Planned')}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                />
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800"
+                >
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
+                  <option value="SAR">SAR</option>
+                  <option value="AED">AED</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  if (!createBudget.isPending) setIsCreateOpen(false);
+                }}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-800"
+              >
+                {t('common.cancel', 'Cancel')}
+              </button>
+              <button
+                onClick={handleCreateBudget}
+                disabled={createBudget.isPending}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-60"
+              >
+                {createBudget.isPending
+                  ? t('common.loading', 'Loading...')
+                  : t('financials.budgets.createBudget', 'Create Budget')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

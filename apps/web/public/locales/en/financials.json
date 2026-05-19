@@ -247,6 +247,19 @@
       "medium": "Medium",
       "low": "Low"
     },
+    "addTransaction": {
+      "title": "Add Transaction",
+      "descPlaceholder": "e.g. Monthly donation from...",
+      "descPlaceholderAr": "الوصف بالعربية...",
+      "refPlaceholder": "e.g. INV-2024-001",
+      "noEntity": "None",
+      "entityName": "Entity Name",
+      "entityNamePlaceholder": "Name...",
+      "notes": "Notes",
+      "receipt": "Receipt / Document",
+      "uploadReceipt": "Click to upload receipt",
+      "save": "Save Transaction"
+    },
     "common": {
       "currency": "Currency",
       "actions": "Actions",

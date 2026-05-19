@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
+import { Plus } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import DataTable, { type Column } from './shared/DataTable';
 import FilterBar, { type FilterDef } from './shared/FilterBar';
 import StatusBadge from './shared/StatusBadge';
-import { MOCK_TRANSACTIONS } from '../../../data/financialsPageData';
+import AddTransactionModal from './AddTransactionModal';
+import { useTransactions, useCreateTransaction } from '../../../hooks/useTransactions';
 import type {
   FinancialTransaction,
   TransactionCategory,
@@ -39,11 +41,14 @@ const TRANSACTION_CATEGORIES: TransactionCategory[] = [
 
 const TransactionsTab: React.FC = () => {
   const { t, language } = useLocalization();
+  const { data: transactions = [], isLoading } = useTransactions();
+  const createTransaction = useCreateTransaction();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [directionFilter, setDirectionFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filters: FilterDef[] = useMemo(
     () => [
@@ -82,7 +87,7 @@ const TransactionsTab: React.FC = () => {
   );
 
   const filteredData = useMemo(() => {
-    return MOCK_TRANSACTIONS.filter((txn) => {
+    return transactions.filter((txn) => {
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         const matchesDescription =
@@ -101,7 +106,7 @@ const TransactionsTab: React.FC = () => {
       if (categoryFilter && txn.category !== categoryFilter) return false;
       return true;
     });
-  }, [searchTerm, statusFilter, directionFilter, categoryFilter]);
+  }, [transactions, searchTerm, statusFilter, directionFilter, categoryFilter]);
 
   const columns: Column<FinancialTransaction>[] = useMemo(
     () => [
@@ -192,17 +197,38 @@ const TransactionsTab: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <FilterBar
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder={t('financials.transactions.searchPlaceholder')}
-        filters={filters}
-      />
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <FilterBar
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder={t('financials.transactions.searchPlaceholder')}
+            filters={filters}
+          />
+        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary-dark transition-colors shrink-0"
+        >
+          <Plus className="w-4 h-4" />
+          {t('financials.addTransaction.title', 'Add Transaction')}
+        </button>
+      </div>
 
       <DataTable<FinancialTransaction>
         columns={columns}
         data={filteredData}
-        emptyMessage={t('financials.transactions.noTransactions')}
+        emptyMessage={
+          isLoading
+            ? t('common.loading', 'Loading...')
+            : t('financials.transactions.noTransactions')
+        }
+      />
+
+      <AddTransactionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={(data) => createTransaction.mutate(data)}
       />
     </div>
   );

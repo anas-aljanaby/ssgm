@@ -6,7 +6,7 @@ import DataTable, { type Column } from './shared/DataTable';
 import FilterBar, { type FilterDef } from './shared/FilterBar';
 import StatusBadge from './shared/StatusBadge';
 import FinancialKpiCard from './shared/FinancialKpiCard';
-import { MOCK_DONATIONS } from '../../../data/financialsPageData';
+import { useDonations } from '../../../hooks/useDonations';
 import type {
   DonationRecord,
   DonationMethod,
@@ -31,6 +31,7 @@ const RECEIPT_STATUSES: ReceiptStatus[] = [
 
 const DonationsTab: React.FC = () => {
   const { t, language } = useLocalization();
+  const { data: donations = [] } = useDonations();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [methodFilter, setMethodFilter] = useState('');
@@ -38,22 +39,22 @@ const DonationsTab: React.FC = () => {
 
   // --- KPI calculations ---
   const kpiData = useMemo(() => {
-    const totalDonations = MOCK_DONATIONS.length;
+    const totalDonations = donations.length;
 
-    const totalAmount = MOCK_DONATIONS.reduce((sum, d) => sum + d.amount, 0);
+    const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
     const averageGift = totalDonations > 0 ? totalAmount / totalDonations : 0;
 
-    const receiptsPending = MOCK_DONATIONS.filter(
+    const receiptsPending = donations.filter(
       (d) => d.receiptStatus === 'pending'
     ).length;
 
     const recurringDonorIds = new Set(
-      MOCK_DONATIONS.filter((d) => d.isRecurring).map((d) => d.donorId)
+      donations.filter((d) => d.isRecurring).map((d) => d.donorId)
     );
     const recurringDonors = recurringDonorIds.size;
 
     return { totalDonations, averageGift, receiptsPending, recurringDonors };
-  }, []);
+  }, [donations]);
 
   // --- Filters ---
   const filters: FilterDef[] = useMemo(
@@ -83,7 +84,7 @@ const DonationsTab: React.FC = () => {
   );
 
   const filteredData = useMemo(() => {
-    return MOCK_DONATIONS.filter((don) => {
+    return donations.filter((don) => {
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         const matchesName =
@@ -95,7 +96,7 @@ const DonationsTab: React.FC = () => {
       if (receiptFilter && don.receiptStatus !== receiptFilter) return false;
       return true;
     });
-  }, [searchTerm, methodFilter, receiptFilter]);
+  }, [searchTerm, methodFilter, receiptFilter, donations]);
 
   // --- Table columns ---
   const columns: Column<DonationRecord>[] = useMemo(

@@ -1,0 +1,213 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e861]:
+          - link "Dashboard" [ref=e862] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e864]
+            - generic [ref=e869]: Dashboard
+        - listitem [ref=e870]:
+          - link "Bousala" [ref=e871] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e873]
+            - generic [ref=e876]: Bousala
+        - listitem [ref=e877]:
+          - link "Stakeholder Management" [ref=e878] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e880]
+            - generic [ref=e885]: Stakeholder Management
+        - listitem [ref=e886]:
+          - link "Donor Management" [ref=e887] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e889]
+            - generic [ref=e891]: Donor Management
+        - listitem [ref=e892]:
+          - link "Institutional Donors" [ref=e893] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e895]
+            - generic [ref=e897]: Institutional Donors
+        - listitem [ref=e898]:
+          - link "Beneficiary Management" [ref=e899] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e901]
+            - generic [ref=e906]: Beneficiary Management
+        - listitem [ref=e907]:
+          - link "Project Management" [ref=e908] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e910]
+            - generic [ref=e914]: Project Management
+        - listitem [ref=e915]:
+          - link "Financial Management" [ref=e916] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e918]
+            - generic [ref=e920]: Financial Management
+        - listitem [ref=e921]:
+          - link "Help & Support" [ref=e922] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e924]
+            - generic [ref=e927]: Help & Support
+        - listitem [ref=e928]:
+          - link "Settings" [ref=e929] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e931]
+            - generic [ref=e934]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e935]:
+          - link "Logout" [ref=e936] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e938]
+            - generic [ref=e941]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e942]
+            - button "liveIndicator.live" [ref=e2625] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e943]:
+          - generic [ref=e944]:
+            - heading "Financial Management" [level=1] [ref=e945]
+            - paragraph [ref=e946]: Central source of truth for all financial operations
+          - navigation [ref=e948]:
+            - button "Overview" [ref=e949] [cursor=pointer]
+            - button "Transactions" [ref=e950] [cursor=pointer]
+            - button "Donations" [ref=e951] [cursor=pointer]
+            - button "Pledges" [ref=e952] [cursor=pointer]
+            - button "Budgets" [ref=e953] [cursor=pointer]
+            - button "Disbursements" [ref=e954] [cursor=pointer]
+            - button "Grants & Funds" [ref=e955] [cursor=pointer]
+            - button "Approvals" [ref=e956] [cursor=pointer]
+            - button "Reports" [ref=e957] [cursor=pointer]
+          - generic [ref=e2385]:
+            - generic [ref=e2387]:
+              - button "Funds" [ref=e2388] [cursor=pointer]:
+                - img [ref=e2389]
+                - text: Funds
+              - button "Grants" [ref=e2391] [cursor=pointer]:
+                - img [ref=e2392]
+                - text: Grants
+            - table [ref=e2527]:
+              - rowgroup [ref=e2528]:
+                - 'row "Grant # Grantor Title Total Received Period Status" [ref=e2529]':
+                  - columnheader [ref=e2530]
+                  - 'columnheader "Grant #" [ref=e2531]'
+                  - columnheader "Grantor" [ref=e2532]
+                  - columnheader "Title" [ref=e2533]
+                  - columnheader "Total" [ref=e2534]
+                  - columnheader "Received" [ref=e2535]
+                  - columnheader "Period" [ref=e2536]
+                  - columnheader "Status" [ref=e2537]
+              - rowgroup [ref=e2538]:
+                - row "QC-ALB-2024-001 Qatar Charity Albania Islamic Center Construction Grant $85,000 $85,000 Mar 1, 2024 — Jun 30, 2025 Completed" [ref=e2626] [cursor=pointer]:
+                  - cell [ref=e2540]:
+                    - img [ref=e2575]
+                  - cell "QC-ALB-2024-001" [ref=e2543]
+                  - cell "Qatar Charity" [ref=e2544]
+                  - cell "Albania Islamic Center Construction Grant" [ref=e2545]
+                  - cell "$85,000" [ref=e2546]
+                  - cell "$85,000" [ref=e2627]
+                  - cell "Mar 1, 2024 — Jun 30, 2025" [ref=e2548]
+                  - cell "Completed" [ref=e2628]:
+                    - generic [ref=e2550]: Completed
+                - row "$85,000 of $85,000 100.0% Installment Schedule Due Date Amount Received Date Status Actions Mar 15, 2024 $28,000 $28,000 Mar 18, 2024 Received Sep 15, 2024 $28,000 $28,000 Dec 12, 2024 Received Mar 15, 2025 $29,000 $29,000 May 19, 2026 Received" [ref=e2629]:
+                  - cell "$85,000 of $85,000 100.0% Installment Schedule Due Date Amount Received Date Status Actions Mar 15, 2024 $28,000 $28,000 Mar 18, 2024 Received Sep 15, 2024 $28,000 $28,000 Dec 12, 2024 Received Mar 15, 2025 $29,000 $29,000 May 19, 2026 Received" [ref=e2630]:
+                    - generic [ref=e2579]:
+                      - generic [ref=e2581]:
+                        - generic [ref=e2582]: $85,000 of $85,000
+                        - generic [ref=e2583]: 100.0%
+                      - generic [ref=e2586]:
+                        - heading "Installment Schedule" [level=4] [ref=e2587]
+                        - table [ref=e2589]:
+                          - rowgroup [ref=e2590]:
+                            - row "Due Date Amount Received Date Status Actions" [ref=e2591]:
+                              - columnheader "Due Date" [ref=e2592]
+                              - columnheader "Amount" [ref=e2593]
+                              - columnheader "Received" [ref=e2594]
+                              - columnheader "Date" [ref=e2595]
+                              - columnheader "Status" [ref=e2596]
+                              - columnheader "Actions" [ref=e2597]
+                          - rowgroup [ref=e2598]:
+                            - row "Mar 15, 2024 $28,000 $28,000 Mar 18, 2024 Received" [ref=e2599]:
+                              - cell "Mar 15, 2024" [ref=e2600]
+                              - cell "$28,000" [ref=e2601]
+                              - cell "$28,000" [ref=e2602]
+                              - cell "Mar 18, 2024" [ref=e2603]
+                              - cell "Received" [ref=e2604]:
+                                - generic [ref=e2605]: Received
+                              - cell [ref=e2606]
+                            - row "Sep 15, 2024 $28,000 $28,000 Dec 12, 2024 Received" [ref=e2607]:
+                              - cell "Sep 15, 2024" [ref=e2608]
+                              - cell "$28,000" [ref=e2609]
+                              - cell "$28,000" [ref=e2610]
+                              - cell "Dec 12, 2024" [ref=e2611]
+                              - cell "Received" [ref=e2612]:
+                                - generic [ref=e2613]: Received
+                              - cell [ref=e2614]
+                            - row "Mar 15, 2025 $29,000 $29,000 May 19, 2026 Received" [ref=e2631]:
+                              - cell "Mar 15, 2025" [ref=e2616]
+                              - cell "$29,000" [ref=e2617]
+                              - cell "$29,000" [ref=e2632]
+                              - cell "May 19, 2026" [ref=e2633]
+                              - cell "Received" [ref=e2634]:
+                                - generic [ref=e2621]: Received
+                              - cell [ref=e2635]
+                - row "GPF-EDU-2023-045 Global Philanthropy Foundation Education Programs Support Grant $250,000 $187,500 Jul 1, 2023 — Jun 30, 2025 Active" [ref=e2551] [cursor=pointer]:
+                  - cell [ref=e2552]:
+                    - img [ref=e2553]
+                  - cell "GPF-EDU-2023-045" [ref=e2555]
+                  - cell "Global Philanthropy Foundation" [ref=e2556]
+                  - cell "Education Programs Support Grant" [ref=e2557]
+                  - cell "$250,000" [ref=e2558]
+                  - cell "$187,500" [ref=e2559]
+                  - cell "Jul 1, 2023 — Jun 30, 2025" [ref=e2560]
+                  - cell "Active" [ref=e2561]:
+                    - generic [ref=e2562]: Active
+                - row "IC-STEM-2024-012 Innovate Corp STEM Education Initiative Grant $50,000 $25,000 Jun 1, 2024 — May 31, 2025 Active" [ref=e2563] [cursor=pointer]:
+                  - cell [ref=e2564]:
+                    - img [ref=e2565]
+                  - cell "IC-STEM-2024-012" [ref=e2567]
+                  - cell "Innovate Corp" [ref=e2568]
+                  - cell "STEM Education Initiative Grant" [ref=e2569]
+                  - cell "$50,000" [ref=e2570]
+                  - cell "$25,000" [ref=e2571]
+                  - cell "Jun 1, 2024 — May 31, 2025" [ref=e2572]
+                  - cell "Active" [ref=e2573]:
+                    - generic [ref=e2574]: Active
+  - alert [ref=e2636]:
+    - generic [ref=e2638]:
+      - img [ref=e2640]
+      - generic [ref=e2643]:
+        - paragraph [ref=e2644]: Success
+        - paragraph [ref=e2645]: Received
+      - button "Close" [ref=e2647] [cursor=pointer]:
+        - generic [ref=e2648]: Close
+        - img [ref=e2649]
+  - generic [ref=e778]: $0k
