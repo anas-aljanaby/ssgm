@@ -1,21 +1,21 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { DONOR_STATUSES, DONOR_TIERS } from '@gms/shared';
-import type { IndividualDonor } from '../../../types';
+import type { DonorPipelineLikelihood, DonorProfileInteraction, IndividualDonor, RelationshipHealth } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import { deleteDonorProfileDocument, uploadDonorProfileDocument, useDonorProfileDocuments, useDonorProfileDonations, useDonorProfileInteractions, useDonorProfileRecord, useDonorProfileSummary, useDonorProfileTasks } from '../../../hooks/useDonorProfileSummary';
 import { invalidateDonorsQueries, useDeleteDonor } from '../../../hooks/useDonors';
 import { api } from '../../../lib/api';
-import { formatCurrency, formatDate, formatRelativeTime } from '../../../lib/utils';
+import { formatCurrency, formatDate, formatRelativeFromEvent, occurredAtFromDateInput } from '../../../lib/utils';
 import Tabs from '../../common/Tabs';
 import { ArrowLeft, Check, ExternalLink, FileText, Mail, MapPin, MessageSquare, Pencil, Trash2, Upload, X } from 'lucide-react';
-import LogInteractionModal from './LogInteractionModal';
+import LogInteractionModal, { type LogInteractionFormData } from './LogInteractionModal';
 import SendEmailModal from './SendEmailModal';
 import DonorGivingTab from './tabs/DonorGivingTab';
 import DonorOverviewTab from './tabs/DonorOverviewTab';
 import DonorRelationshipActivityTab from './tabs/DonorRelationshipActivityTab';
-import { Chip, EmptyPanel, InfoRow, RelationshipHealthChip, Section } from './tabs/profileUi';
+import { Chip, EmptyPanel, InfoRow, RelationshipHealthChip, RelationshipLikelihoodChip, Section } from './tabs/profileUi';
 
 interface DonorDetailViewProps {
     donor: IndividualDonor;
@@ -24,9 +24,25 @@ interface DonorDetailViewProps {
 }
 
 const DONOR_TYPES: NonNullable<IndividualDonor['donorType']>[] = ['Individual', 'Company', 'Foundation', 'Major Donor', 'Recurring'];
+const RELATIONSHIP_HEALTH_OPTIONS: RelationshipHealth[] = ['Good', 'Moderate', 'At Risk'];
+const RELATIONSHIP_LIKELIHOOD_OPTIONS: DonorPipelineLikelihood[] = ['High', 'Medium', 'Low'];
+const RELATIONSHIP_FIELD_UNSET = '';
+
+const parseRelationshipHealth = (value: string | null | undefined): HeaderFormState['relationshipHealth'] => (
+    value && RELATIONSHIP_HEALTH_OPTIONS.includes(value as RelationshipHealth)
+        ? value as RelationshipHealth
+        : RELATIONSHIP_FIELD_UNSET
+);
+
+const parseRelationshipLikelihood = (value: string | null | undefined): HeaderFormState['relationshipLikelihood'] => (
+    value && RELATIONSHIP_LIKELIHOOD_OPTIONS.includes(value as DonorPipelineLikelihood)
+        ? value as DonorPipelineLikelihood
+        : RELATIONSHIP_FIELD_UNSET
+);
 
 const MAX_TAG_LEN = 30;
 const MAX_TAGS = 20;
+const INTERACTION_HIGHLIGHT_MS = 2200;
 
 interface HeaderFormState {
     fullNameEn: string;
@@ -38,6 +54,8 @@ interface HeaderFormState {
     tier: IndividualDonor['tier'];
     donorType: NonNullable<IndividualDonor['donorType']>;
     assignedManager: string;
+    relationshipHealth: RelationshipHealth | typeof RELATIONSHIP_FIELD_UNSET;
+    relationshipLikelihood: DonorPipelineLikelihood | typeof RELATIONSHIP_FIELD_UNSET;
 }
 
 const normalizeTag = (raw: string): string | null => {
@@ -63,6 +81,8 @@ const buildHeaderFormState = (donor: IndividualDonor): HeaderFormState => ({
     tier: donor.tier,
     donorType: donor.donorType || 'Individual',
     assignedManager: donor.assignedManager || '',
+    relationshipHealth: parseRelationshipHealth(donor.relationshipHealth),
+    relationshipLikelihood: parseRelationshipLikelihood(donor.relationshipLikelihood),
 });
 
 const toTaskIsoDate = (value: string) => {
@@ -229,6 +249,9 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     const [isSavingHeader, setIsSavingHeader] = useState(false);
     const [isSavingContact, setIsSavingContact] = useState(false);
     const [isSavingPipelineAsk, setIsSavingPipelineAsk] = useState(false);
+    const [optimisticInteractions, setOptimisticInteractions] = useState<DonorProfileInteraction[]>([]);
+    const [highlightedInteractionId, setHighlightedInteractionId] = useState<string | null>(null);
+    const interactionHighlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [headerForm, setHeaderForm] = useState<HeaderFormState>(() => buildHeaderFormState(donor));
     const deleteDonorMutation = useDeleteDonor();
 
@@ -242,6 +265,16 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     const statusKey = (summary?.donor.status || editableDonor.status).replace(/ /g, '');
     const tierKey = (summary?.donor.tier || editableDonor.tier).replace(/ /g, '');
     const visibleTags = useMemo(() => (summary?.donor.tags || editableDonor.tags || []).filter(Boolean).slice(0, 6), [editableDonor.tags, summary?.donor.tags]);
+    const interactions = useMemo(
+        () => [...optimisticInteractions, ...(interactionsQuery.data || [])],
+        [optimisticInteractions, interactionsQuery.data],
+    );
+
+    useEffect(() => {
+        return () => {
+            if (interactionHighlightTimerRef.current) clearTimeout(interactionHighlightTimerRef.current);
+        };
+    }, []);
 
     const invalidateProfile = () => {
         invalidateDonorsQueries(queryClient, editableDonor.id);
@@ -260,6 +293,8 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
             tier: summary?.donor.tier || editableDonor.tier,
             donorType: editableDonor.donorType || 'Individual',
             assignedManager: summary?.donor.assigned_manager || editableDonor.assignedManager,
+            relationshipHealth: parseRelationshipHealth(summary?.relationship.health || editableDonor.relationshipHealth),
+            relationshipLikelihood: parseRelationshipLikelihood(summary?.relationship.likelihood || editableDonor.relationshipLikelihood),
         }));
         setIsHeaderEditing(true);
     };
@@ -288,6 +323,8 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
             custom_fields: {
                 ...(summary?.donor.custom_fields || {}),
                 donor_type: headerForm.donorType,
+                relationship_health: headerForm.relationshipHealth || null,
+                relationship_likelihood: headerForm.relationshipLikelihood || null,
             },
         };
 
@@ -307,6 +344,8 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                 tier: payload.tier,
                 donorType: headerForm.donorType,
                 assignedManager: payload.assigned_manager,
+                relationshipHealth: headerForm.relationshipHealth || undefined,
+                relationshipLikelihood: headerForm.relationshipLikelihood || undefined,
             };
 
             setEditableDonor(updatedDonor);
@@ -327,6 +366,12 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                 relationship: {
                     ...summary.relationship,
                     owner: payload.assigned_manager,
+                    health: headerForm.relationshipHealth || null,
+                    likelihood: headerForm.relationshipLikelihood || null,
+                },
+                computed: {
+                    ...summary.computed,
+                    relationshipHealthSource: headerForm.relationshipHealth ? 'manual_override' : 'unavailable',
                 },
             } : summary);
             invalidateProfile();
@@ -339,22 +384,50 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
         }
     };
 
-    const handleLogInteraction = async (interaction: { type: string; date: string; subject: string; notes: string }) => {
-        try {
-            await api.post(`/donors/${editableDonor.id}/interactions`, {
-                interaction_type: interaction.type.toLowerCase(),
-                occurred_at: new Date(interaction.date).toISOString(),
-                subject: interaction.subject || interaction.type,
-                notes: interaction.notes,
-                status: 'logged',
-            });
+    const handleLogInteraction = (interaction: LogInteractionFormData) => {
+        const optimisticId = `optimistic-interaction-${Date.now()}`;
+        const optimisticInteraction: DonorProfileInteraction = {
+            id: optimisticId,
+            donor_id: editableDonor.id,
+            interaction_type: interaction.type.toLowerCase() as DonorProfileInteraction['interaction_type'],
+            occurred_at: occurredAtFromDateInput(interaction.date),
+            subject: interaction.subject || interaction.type,
+            status: 'logged',
+            notes: interaction.notes,
+        };
+        setOptimisticInteractions((current) => [optimisticInteraction, ...current]);
+
+        api.post<DonorProfileInteraction>(`/donors/${editableDonor.id}/interactions`, {
+            interaction_type: interaction.type.toLowerCase(),
+            occurred_at: occurredAtFromDateInput(interaction.date),
+            subject: interaction.subject || interaction.type,
+            notes: interaction.notes,
+            status: 'logged',
+        }).then((createdInteraction) => {
+            setOptimisticInteractions((current) => current.filter((item) => item.id !== optimisticId));
+            queryClient.setQueryData<DonorProfileInteraction[]>(
+                ['donor-profile-interactions', editableDonor.id],
+                (current = []) => {
+                    const deduped = current.filter((item) => item.id !== createdInteraction.id);
+                    return [createdInteraction, ...deduped];
+                },
+            );
+            if (interactionHighlightTimerRef.current) clearTimeout(interactionHighlightTimerRef.current);
+            setHighlightedInteractionId(createdInteraction.id);
+            interactionHighlightTimerRef.current = setTimeout(
+                () => setHighlightedInteractionId(null),
+                INTERACTION_HIGHLIGHT_MS,
+            );
             invalidateProfile();
-            toast.showSuccess('Interaction logged successfully.');
-        } catch (error) {
-            toast.showError(error instanceof Error ? error.message : 'Unable to log interaction.');
-            return;
-        }
-        setIsLogModalOpen(false);
+            toast.showSuccess(t('individual_donors.detailView.interactionLogged', 'Interaction logged.'));
+        }).catch((error) => {
+            setOptimisticInteractions((current) => current.filter((item) => item.id !== optimisticId));
+            toast.showError(
+                error instanceof Error
+                    ? error.message
+                    : t('individual_donors.detailView.interactionLogFailed', 'Unable to log interaction.'),
+            );
+        });
     };
 
     const handleSendEmail = async (emailData: { to: string; subject: string; body: string }) => {
@@ -524,7 +597,7 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
         try {
             await api.patch(`/donors/${editableDonor.id}/interactions/${interactionId}`, {
                 interaction_type: interaction.type,
-                occurred_at: new Date(interaction.date).toISOString(),
+                occurred_at: occurredAtFromDateInput(interaction.date),
                 subject: interaction.subject,
                 status: interaction.status,
                 notes: interaction.notes,
@@ -603,8 +676,10 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                 return (
                     <DonorRelationshipActivityTab
                         tasks={tasksQuery.data || []}
-                        interactions={interactionsQuery.data || []}
+                        interactions={interactions}
                         isLoading={tasksQuery.isLoading || interactionsQuery.isLoading}
+                        isLoggingInteraction={optimisticInteractions.length > 0}
+                        highlightedInteractionId={highlightedInteractionId}
                         onCreateTask={handleCreateTask}
                         onUpdateTask={handleUpdateTask}
                         onToggleTask={handleToggleTask}
@@ -678,6 +753,32 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                                                 {DONOR_TYPES.map((option) => <option key={option} value={option}>{t(`donors.types.${option.replace(/ /g, '')}`, option)}</option>)}
                                             </select>
                                         </label>
+                                        <label className="min-w-0">
+                                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('individual_donors.columns.relationshipHealth')}</span>
+                                            <select
+                                                value={headerForm.relationshipHealth}
+                                                onChange={(event) => updateHeaderForm('relationshipHealth', event.target.value as HeaderFormState['relationshipHealth'])}
+                                                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold dark:border-slate-600 dark:bg-slate-900"
+                                            >
+                                                <option value={RELATIONSHIP_FIELD_UNSET}>{t('individual_donors.detailView.notSet', 'Not set')}</option>
+                                                {RELATIONSHIP_HEALTH_OPTIONS.map((option) => (
+                                                    <option key={option} value={option}>{t(`donors.health.${option.replace(/ /g, '')}`, option)}</option>
+                                                ))}
+                                            </select>
+                                        </label>
+                                        <label className="min-w-0">
+                                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('individual_donors.columns.relationshipLikelihood', 'Likelihood')}</span>
+                                            <select
+                                                value={headerForm.relationshipLikelihood}
+                                                onChange={(event) => updateHeaderForm('relationshipLikelihood', event.target.value as HeaderFormState['relationshipLikelihood'])}
+                                                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold dark:border-slate-600 dark:bg-slate-900"
+                                            >
+                                                <option value={RELATIONSHIP_FIELD_UNSET}>{t('individual_donors.detailView.notSet', 'Not set')}</option>
+                                                {RELATIONSHIP_LIKELIHOOD_OPTIONS.map((option) => (
+                                                    <option key={option} value={option}>{t(`donors.likelihood.${option}`, option)}</option>
+                                                ))}
+                                            </select>
+                                        </label>
                                         <div className="min-w-0 lg:col-span-2">
                                             <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('individual_donors.columns.tags')}</span>
                                             <div className="mt-1 rounded-lg border border-gray-300 bg-white p-2 dark:border-slate-600 dark:bg-slate-900">
@@ -742,7 +843,14 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                                             <TierBadge tier={tier} label={t(`individual_donors.tiers.${tierKey}`, tier)} />
                                             <StatusBadge status={status} label={t(`individual_donors.statuses.${statusKey}`, status)} />
                                             {summary?.relationship.pipelineStage && <Chip tone="blue">{t(`donors.stages.${summary.relationship.pipelineStage}`, summary.relationship.pipelineStage)}</Chip>}
-                                            <RelationshipHealthChip health={summary?.relationship.health || null} />
+                                            <RelationshipHealthChip
+                                                health={summary?.relationship.health || null}
+                                                label={summary?.relationship.health ? t(`donors.health.${summary.relationship.health.replace(/ /g, '')}`, summary.relationship.health) : undefined}
+                                            />
+                                            <RelationshipLikelihoodChip
+                                                likelihood={summary?.relationship.likelihood || null}
+                                                label={summary?.relationship.likelihood ? t(`donors.likelihood.${summary.relationship.likelihood}`, summary.relationship.likelihood) : undefined}
+                                            />
                                             {visibleTags.map((tag) => <Chip key={tag}>{tag}</Chip>)}
                                         </div>
                                     </>
@@ -789,7 +897,7 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                         <InfoRow label={t('individual_donors.columns.totalDonations')} value={summary ? formatCurrency(summary.giving.lifetimeGiving, language) : 'N/A'} muted />
                         <InfoRow label={t('individual_donors.columns.donorType')} value={donorTypeLabel} />
                         <InfoRow label={t('individual_donors.columns.owner')} value={summary?.relationship.owner || 'Unassigned'} />
-                        <InfoRow label={t('individual_donors.columns.lastContact')} value={summary?.relationship.lastContact?.occurred_at ? formatRelativeTime(summary.relationship.lastContact.occurred_at, language) : 'N/A'} />
+                        <InfoRow label={t('individual_donors.columns.lastContact')} value={summary?.relationship.lastContact?.occurred_at ? formatRelativeFromEvent(summary.relationship.lastContact.occurred_at, language) : 'N/A'} />
                         <InfoRow label={t('individual_donors.columns.openTasks')} value={summary?.relationship.openTaskCount ?? 0} />
                     </div>
                 </section>

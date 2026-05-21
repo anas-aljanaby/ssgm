@@ -1,28 +1,44 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import ModalPortal from '../../common/ModalPortal';
 import { XIcon } from '../../icons/GenericIcons';
 
+export interface LogInteractionFormData {
+    type: string;
+    date: string;
+    subject: string;
+    notes: string;
+}
+
 interface LogInteractionModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onLog: (interaction: any) => void;
+    onLog: (interaction: LogInteractionFormData) => void;
 }
 
 const LogInteractionModal: React.FC<LogInteractionModalProps> = ({ isOpen, onClose, onLog }) => {
-    const { t } = useLocalization(['common', 'individual_donors']);
-    const [type, setType] = useState('Email');
+    const { t, dir } = useLocalization(['common', 'individual_donors']);
+    const [type, setType] = useState('email');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [subject, setSubject] = useState('');
     const [notes, setNotes] = useState('');
 
+    useEffect(() => {
+        if (!isOpen) return;
+        setType('email');
+        setDate(new Date().toISOString().split('T')[0]);
+        setSubject('');
+        setNotes('');
+    }, [isOpen]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onLog({ type, date, subject, notes });
+        onClose();
     };
 
     return (
-        <ModalPortal isOpen={isOpen} onClose={onClose} dir="rtl">
+        <ModalPortal isOpen={isOpen} onClose={onClose} dir={dir}>
             <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold">{t('individual_donors.modals.log_interaction.title')}</h2>
@@ -34,10 +50,10 @@ const LogInteractionModal: React.FC<LogInteractionModalProps> = ({ isOpen, onClo
                             <div>
                                 <label className="block text-sm font-medium">{t('individual_donors.modals.log_interaction.type')}</label>
                                 <select value={type} onChange={e => setType(e.target.value)} className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800 dark:border-slate-700">
-                                    <option value="Email">{t('individual_donors.modals.log_interaction.types.email')}</option>
-                                    <option value="Call">{t('individual_donors.modals.log_interaction.types.call')}</option>
-                                    <option value="Meeting">{t('individual_donors.modals.log_interaction.types.meeting')}</option>
-                                    <option value="Note">{t('individual_donors.modals.log_interaction.types.note')}</option>
+                                    <option value="email">{t('individual_donors.modals.log_interaction.types.email')}</option>
+                                    <option value="call">{t('individual_donors.modals.log_interaction.types.call')}</option>
+                                    <option value="meeting">{t('individual_donors.modals.log_interaction.types.meeting')}</option>
+                                    <option value="note">{t('individual_donors.modals.log_interaction.types.note')}</option>
                                 </select>
                             </div>
                             <div>

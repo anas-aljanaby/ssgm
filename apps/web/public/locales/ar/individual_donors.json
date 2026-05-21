@@ -45,7 +45,8 @@
       "lastContact": "آخر تواصل",
       "openTasks": "المهام المفتوحة",
       "taskState": "حالة المهام",
-      "relationshipHealth": "صحة العلاقة"
+      "relationshipHealth": "صحة العلاقة",
+      "relationshipLikelihood": "الاحتمالية"
     },
     "table": {
       "columns": "الأعمدة",
@@ -121,6 +122,10 @@
       "headerSaveFailed": "تعذر تحديث ملف المانح.",
       "pipelineAskSaved": "تم تحديث المسار والطلب.",
       "pipelineAskSaveFailed": "تعذر تحديث المسار والطلب.",
+      "interactionSaving": "جارٍ الحفظ...",
+      "loggingInteraction": "جارٍ تسجيل التواصل...",
+      "interactionLogged": "تم تسجيل التواصل.",
+      "interactionLogFailed": "تعذر تسجيل التواصل.",
       "askRationale": "الطلب المقترح يحدده المدير.",
       "askUnavailable": "الطلب المقترح غير متاح حتى يتوفر حساب معقول أو تجاوز من المدير.",
       "activityDonation": "تبرع بقيمة {{amount}} إلى {{program}}",
@@ -163,7 +168,8 @@
       "deleteDonor": "حذف المانح",
       "deleteDonorConfirm": "حذف {{name}} نهائياً؟ سيتم إزالة ملف المانح والهبات والمهام والتفاعلات والمستندات. لا يمكن التراجع عن هذا الإجراء.",
       "donorDeleted": "تم حذف ملف المانح.",
-      "donorDeleteFailed": "تعذر حذف ملف المانح."
+      "donorDeleteFailed": "تعذر حذف ملف المانح.",
+      "notSet": "غير محدد"
     },
     "statuses": {
       "Active": "نشط",

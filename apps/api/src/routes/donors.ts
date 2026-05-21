@@ -70,10 +70,16 @@ function getPipelineStage(donor: DonorRow): string {
     return getCustomString(donor, 'pipeline_stage') || 'prospect';
 }
 
+function donationEventSortKey(row: DonationRow): number {
+    const created = row.created_at?.getTime() ?? 0;
+    const dated = row.date?.getTime() ?? 0;
+    return Math.max(created, dated);
+}
+
 function buildGivingSummary(rows: DonationRow[]) {
     const validRows = rows
         .filter((row) => !['void', 'refunded', 'cancelled'].includes((getCustomString(row, 'status') || '').toLowerCase()))
-        .sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
+        .sort((a, b) => donationEventSortKey(b) - donationEventSortKey(a));
     const lifetimeGiving = validRows.reduce((sum, row) => sum + asNumber(row.amount), 0);
     const totalGifts = validRows.length;
     const largestGift = validRows.reduce((largest, row) => Math.max(largest, asNumber(row.amount)), 0);
@@ -85,6 +91,7 @@ function buildGivingSummary(rows: DonationRow[]) {
         totalGifts,
         lastGiftAmount: lastGift ? asNumber(lastGift.amount) : null,
         lastGiftDate: toIso(lastGift?.date),
+        lastGiftRecordedAt: toIso(lastGift?.created_at),
         averageGift: totalGifts > 0 ? lifetimeGiving / totalGifts : null,
         largestGift: totalGifts > 0 ? largestGift : null,
         programsSupported,
@@ -98,6 +105,7 @@ function mapDonation(row: DonationRow) {
         donor_id: row.donor_id,
         amount: asNumber(row.amount),
         date: toIso(row.date),
+        created_at: toIso(row.created_at),
         program: row.program || '',
         campaign: getCustomString(row, 'campaign'),
         designation: getCustomString(row, 'designation') || row.program || '',
@@ -186,7 +194,7 @@ function buildRecentActivity(donationRows: DonationRow[], taskRows: DonorTaskRow
         ...donationRows.map((row) => ({
             id: row.id,
             type: 'donation' as const,
-            occurred_at: toIso(row.date),
+            occurred_at: toIso(row.created_at) || toIso(row.date),
             title: row.program || 'Donation',
             amount: asNumber(row.amount),
             status: getCustomString(row, 'status') || 'posted',
@@ -263,7 +271,7 @@ donorsRouter.get('/:id/profile-summary', async (c) => {
             .select()
             .from(donations)
             .where(and(eq(donations.donor_id, donor.id), eq(donations.org_id, orgId)))
-            .orderBy(desc(donations.date)),
+            .orderBy(desc(donations.date), desc(donations.created_at)),
         db
             .select()
             .from(donor_tasks)
@@ -479,7 +487,8 @@ donorsRouter.get('/:id/donations', async (c) => {
     const rows = await db
         .select()
         .from(donations)
-        .where(and(eq(donations.donor_id, c.req.param('id')), eq(donations.org_id, orgId)));
+        .where(and(eq(donations.donor_id, c.req.param('id')), eq(donations.org_id, orgId)))
+        .orderBy(desc(donations.date), desc(donations.created_at));
 
     return c.json(rows.map(mapDonation));
 });

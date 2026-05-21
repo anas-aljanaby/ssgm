@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Check, CheckCircle2, ClipboardList, Clock, DollarSign, Gift, MessageSquare, Pencil, Phone, Target, X } from 'lucide-react';
 import type { DonorProfileActivity, DonorProfileSummary, DonorProfileTask } from '../../../../types';
 import { useLocalization } from '../../../../hooks/useLocalization';
-import { formatCurrency, formatDate, formatNumber, formatRelativeTime } from '../../../../lib/utils';
+import { formatCurrency, formatDate, formatNumber, formatRelativeFromEvent, formatRelativeTime } from '../../../../lib/utils';
 import { EmptyPanel, InfoRow, MetricCard, Section } from './profileUi';
 
 interface DonorOverviewTabProps {
@@ -41,7 +41,7 @@ const RecentActivityList: React.FC<{ activities: DonorProfileActivity[] }> = ({ 
                                 : activity.title}
                         </p>
                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            {activity.occurred_at ? formatRelativeTime(activity.occurred_at, language) : t('common.unknown', 'Unknown')}
+                            {activity.occurred_at ? formatRelativeFromEvent(activity.occurred_at, language) : t('common.unknown', 'Unknown')}
                             {activity.status ? ` / ${activity.status}` : ''}
                         </p>
                     </div>

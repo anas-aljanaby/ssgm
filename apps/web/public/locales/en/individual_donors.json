@@ -45,7 +45,8 @@
       "lastContact": "Last Contact",
       "openTasks": "Open Tasks",
       "taskState": "Task State",
-      "relationshipHealth": "Relationship Health"
+      "relationshipHealth": "Relationship Health",
+      "relationshipLikelihood": "Likelihood"
     },
     "table": {
       "columns": "Columns",
@@ -121,6 +122,10 @@
       "headerSaveFailed": "Unable to update donor profile.",
       "pipelineAskSaved": "Pipeline and ask updated.",
       "pipelineAskSaveFailed": "Unable to update pipeline and ask.",
+      "interactionSaving": "Saving...",
+      "loggingInteraction": "Logging interaction...",
+      "interactionLogged": "Interaction logged.",
+      "interactionLogFailed": "Unable to log interaction.",
       "askRationale": "Suggested ask is manager-provided.",
       "askUnavailable": "Suggested ask is unavailable until there is a defensible calculation or a manager override.",
       "activityDonation": "{{amount}} donation to {{program}}",
@@ -163,7 +168,8 @@
       "deleteDonor": "Delete donor",
       "deleteDonorConfirm": "Permanently delete {{name}}? This removes the donor profile, gifts, tasks, interactions, and documents. This cannot be undone.",
       "donorDeleted": "Donor profile deleted.",
-      "donorDeleteFailed": "Unable to delete donor profile."
+      "donorDeleteFailed": "Unable to delete donor profile.",
+      "notSet": "Not set"
     },
     "statuses": {
       "Active": "Active",

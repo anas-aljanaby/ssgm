@@ -28,7 +28,7 @@ function buildOptimisticDonation(
   const nameAr = data.description_ar.trim() || nameEn;
   return {
     id: `${OPTIMISTIC_DONATION_ID_PREFIX}${Date.now()}`,
-    donorId: '',
+    donorId: data.related_entity_id || '',
     donorName: { en: nameEn, ar: nameAr },
     donorType: data.related_entity_type === 'institutional_donor' ? 'institutional' : 'individual',
     date: data.date,
@@ -59,6 +59,7 @@ function buildOptimisticTransaction(data: TransactionFormData): FinancialTransac
     category: data.category,
     status: data.status,
     reference: data.reference || '…',
+    relatedEntityId: data.related_entity_id || undefined,
     relatedEntityType: data.related_entity_type as FinancialTransaction['relatedEntityType'],
     relatedEntityName: data.related_entity_name || undefined,
     notes: data.notes || undefined,
@@ -86,7 +87,7 @@ function appendDonationRecordFromTransaction(
   const donorNameAr = data.description_ar || donorNameEn;
   const donation: DonationRecord = {
     id: data.reference || `DON-LOCAL-${Date.now()}`,
-    donorId: data.related_entity_type === 'donor' ? '' : '',
+    donorId: data.related_entity_type === 'donor' ? data.related_entity_id || '' : '',
     donorName: { en: donorNameEn, ar: donorNameAr },
     donorType: data.related_entity_type === 'institutional_donor' ? 'institutional' : 'individual',
     date: data.date,
@@ -131,6 +132,7 @@ async function createTransaction(
       category: data.category,
       status: data.status,
       reference: data.reference || `REF-${Date.now()}`,
+      relatedEntityId: data.related_entity_id || undefined,
       relatedEntityType: data.related_entity_type as FinancialTransaction['relatedEntityType'],
       relatedEntityName: data.related_entity_name || undefined,
       notes: data.notes || undefined,
@@ -155,6 +157,7 @@ async function createTransaction(
   formData.append('category', data.category);
   formData.append('status', data.status);
   if (data.reference) formData.append('reference', data.reference);
+  if (data.related_entity_id) formData.append('related_entity_id', data.related_entity_id);
   if (data.related_entity_type) formData.append('related_entity_type', data.related_entity_type);
   if (data.related_entity_name) formData.append('related_entity_name', data.related_entity_name);
   if (data.notes) formData.append('notes', data.notes);

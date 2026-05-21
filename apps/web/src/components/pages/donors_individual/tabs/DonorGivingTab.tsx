@@ -3,7 +3,7 @@ import { DollarSign, Gift, ReceiptText, Target, TrendingUp } from 'lucide-react'
 import { PIPELINE_STAGES } from '@gms/shared';
 import type { DonorProfileSummary, ProfileDonation } from '../../../../types';
 import { useLocalization } from '../../../../hooks/useLocalization';
-import { formatCurrency, formatDate, formatRelativeTime } from '../../../../lib/utils';
+import { formatCurrency, formatDate, formatRelativeFromEvent } from '../../../../lib/utils';
 import { Chip, EmptyPanel, MetricCard, Section } from './profileUi';
 
 const STAGES_REQUIRING_ASK = new Set(['solicited', 'pledged']);
@@ -78,7 +78,7 @@ const DonorGivingTab: React.FC<DonorGivingTabProps> = ({
         <div className="space-y-5">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <MetricCard title={t('individual_donors.columns.totalDonations')} value={formatCurrency(summary.giving.lifetimeGiving, language)} icon={<DollarSign size={19} />} accent="text-emerald-600 dark:text-emerald-300" />
-                <MetricCard title={t('individual_donors.columns.lastGift')} value={summary.giving.lastGiftAmount !== null ? formatCurrency(summary.giving.lastGiftAmount, language) : 'N/A'} icon={<Gift size={19} />} subtext={summary.giving.lastGiftDate ? formatRelativeTime(summary.giving.lastGiftDate, language) : undefined} accent="text-blue-600 dark:text-blue-300" />
+                <MetricCard title={t('individual_donors.columns.lastGift')} value={summary.giving.lastGiftAmount !== null ? formatCurrency(summary.giving.lastGiftAmount, language) : 'N/A'} icon={<Gift size={19} />} subtext={(summary.giving.lastGiftRecordedAt ?? summary.giving.lastGiftDate) ? formatRelativeFromEvent(summary.giving.lastGiftRecordedAt ?? summary.giving.lastGiftDate!, language) : undefined} accent="text-blue-600 dark:text-blue-300" />
                 <MetricCard title={t('individual_donors.kpi.avgGift')} value={summary.giving.averageGift !== null ? formatCurrency(summary.giving.averageGift, language) : 'N/A'} icon={<TrendingUp size={19} />} accent="text-amber-600 dark:text-amber-300" />
             </div>
 

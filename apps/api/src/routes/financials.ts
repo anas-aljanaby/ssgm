@@ -10,7 +10,7 @@ import {
     financial_pledges, pledge_installments, project_budgets, budget_lines,
     disbursements, funds, grants, grant_installments,
     approval_items, financial_reports, financial_alerts,
-    memberships,
+    memberships, donations, individual_donors,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
 import {
@@ -59,6 +59,36 @@ function sanitizeFilename(v: string): string {
 
 const FINANCIAL_UPLOAD_DIR = process.env.FINANCIAL_UPLOAD_DIR || path.resolve(process.cwd(), 'uploads', 'financial-documents');
 const FINANCIAL_UPLOAD_PUBLIC_PATH = '/uploads/financial-documents';
+
+function getRecord(value: unknown): Record<string, unknown> {
+    return value && typeof value === 'object' && !Array.isArray(value)
+        ? (value as Record<string, unknown>)
+        : {};
+}
+
+function getString(value: unknown): string | null {
+    return typeof value === 'string' && value.trim() ? value : null;
+}
+
+async function refreshDonorGivingCacheFromDonations(orgId: string, donorId: string) {
+    const donationRows = await db
+        .select()
+        .from(donations)
+        .where(and(eq(donations.org_id, orgId), eq(donations.donor_id, donorId)));
+
+    const totalAmount = donationRows.reduce((sum, row) => sum + asNumber(row.amount), 0);
+    const donationCount = donationRows.length;
+    const lastDonationDate = donationRows
+        .map((row) => row.date)
+        .sort((a, b) => b.getTime() - a.getTime())[0] || null;
+
+    await db.update(individual_donors).set({
+        total_donations: totalAmount.toFixed(2),
+        donations_count: donationCount,
+        last_donation_date: lastDonationDate,
+        avg_gift: donationCount > 0 ? (totalAmount / donationCount).toFixed(2) : null,
+    }).where(and(eq(individual_donors.id, donorId), eq(individual_donors.org_id, orgId)));
+}
 
 // ── Mapper functions ───────────────────────────────────────────────────────
 // These convert DB snake_case rows to the camelCase frontend type contract.
@@ -536,6 +566,33 @@ financialsRouter.post('/transactions', async (c) => {
             notes: data.notes,
             transaction_id: txn.id,
         });
+
+        const isLinkedIndividualDonor = data.related_entity_type === 'donor' && !!data.related_entity_id;
+        if (isLinkedIndividualDonor) {
+            const donorId = data.related_entity_id as string;
+            const donorRows = await db
+                .select({ id: individual_donors.id })
+                .from(individual_donors)
+                .where(and(eq(individual_donors.id, donorId), eq(individual_donors.org_id, orgId)))
+                .limit(1);
+
+            if (donorRows.length > 0) {
+                await db.insert(donations).values({
+                    org_id: orgId,
+                    donor_id: donorId,
+                    amount: String(data.amount),
+                    date: new Date(data.date),
+                    program: designation || '',
+                    custom_fields: {
+                        status: data.status,
+                        payment_method: method,
+                        designation: designation || undefined,
+                        transaction_id: txn.id,
+                    },
+                });
+                await refreshDonorGivingCacheFromDonations(orgId, donorId);
+            }
+        }
     }
 
     return c.json(mapTransaction(txn), 201);
@@ -591,11 +648,25 @@ financialsRouter.delete('/transactions/:id', async (c) => {
     if (!existing.length) return c.json({ error: 'Not found' }, 404);
 
     const txnId = c.req.param('id');
+    const legacyDonationRows = await db
+        .select()
+        .from(donations)
+        .where(eq(donations.org_id, orgId));
+    const linkedLegacyDonations = legacyDonationRows.filter((row) => {
+        const customFields = getRecord(row.custom_fields);
+        return getString(customFields.transaction_id) === txnId;
+    });
+    const affectedDonorIds = Array.from(
+        new Set(linkedLegacyDonations.map((row) => row.donor_id).filter((id): id is string => !!id)),
+    );
 
     await db.delete(transaction_attachments).where(eq(transaction_attachments.transaction_id, txnId));
     await db.delete(donation_records).where(
         and(eq(donation_records.org_id, orgId), eq(donation_records.transaction_id, txnId)),
     );
+    for (const row of linkedLegacyDonations) {
+        await db.delete(donations).where(and(eq(donations.org_id, orgId), eq(donations.id, row.id)));
+    }
     await db.update(pledge_installments).set({ transaction_id: null }).where(
         and(eq(pledge_installments.org_id, orgId), eq(pledge_installments.transaction_id, txnId)),
     );
@@ -604,6 +675,10 @@ financialsRouter.delete('/transactions/:id', async (c) => {
     );
     await db.delete(financial_transactions)
         .where(and(eq(financial_transactions.id, txnId), eq(financial_transactions.org_id, orgId)));
+
+    for (const donorId of affectedDonorIds) {
+        await refreshDonorGivingCacheFromDonations(orgId, donorId);
+    }
 
     return c.json({ ok: true });
 });

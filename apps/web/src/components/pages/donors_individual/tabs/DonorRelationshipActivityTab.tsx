@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Check, CheckCircle2, ClipboardList, MessageSquare, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Check, CheckCircle2, ListTodo, MessageSquare, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { INTERACTION_TYPES, TASK_TYPES } from '@gms/shared';
 import type { DonorProfileInteraction, DonorProfileTask } from '../../../../types';
 import { useLocalization } from '../../../../hooks/useLocalization';
-import { formatDate, formatRelativeTime } from '../../../../lib/utils';
+import { formatDate, formatNumber, formatRelativeFromEvent } from '../../../../lib/utils';
 import { EmptyPanel, Section } from './profileUi';
 
 interface DonorRelationshipActivityTabProps {
     tasks: DonorProfileTask[];
     interactions: DonorProfileInteraction[];
     isLoading?: boolean;
+    isLoggingInteraction?: boolean;
+    highlightedInteractionId?: string | null;
     onCreateTask?: (task: { text: string; type: string; assignedTo: string; dueDate: string }) => Promise<void> | void;
     onUpdateTask?: (taskId: string, task: { text: string; type: string; assignedTo: string; dueDate: string }) => Promise<void> | void;
     onToggleTask?: (taskId: string, completed: boolean) => Promise<void> | void;
@@ -55,11 +57,14 @@ const interactionToDraft = (interaction: DonorProfileInteraction): InteractionDr
 });
 
 const iconButtonClass = 'inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 text-gray-500 transition-colors hover:bg-gray-100 hover:text-foreground dark:border-slate-600 dark:hover:bg-slate-700 dark:hover:text-dark-foreground';
+const isOptimisticInteraction = (id: string) => id.startsWith('optimistic-interaction-');
 
 const DonorRelationshipActivityTab: React.FC<DonorRelationshipActivityTabProps> = ({
     tasks,
     interactions,
     isLoading,
+    isLoggingInteraction,
+    highlightedInteractionId,
     onCreateTask,
     onUpdateTask,
     onToggleTask,
@@ -207,9 +212,16 @@ const DonorRelationshipActivityTab: React.FC<DonorRelationshipActivityTabProps> 
         }
 
         return (
-            <div key={task.id} className="flex min-w-0 flex-col justify-between gap-3 rounded-lg border border-gray-200 p-4 dark:border-slate-700 sm:flex-row sm:items-start">
+            <div
+                key={task.id}
+                className={`flex min-w-0 flex-col justify-between gap-3 rounded-lg border p-4 sm:flex-row sm:items-start ${
+                    task.completed
+                        ? 'border-gray-100 bg-gray-50/80 dark:border-slate-800 dark:bg-slate-900/40'
+                        : 'border-gray-200 dark:border-slate-700'
+                }`}
+            >
                 <div className="min-w-0">
-                    <p className="break-words font-bold text-foreground dark:text-dark-foreground">{task.text}</p>
+                    <p className={`break-words font-bold ${task.completed ? 'text-gray-600 dark:text-gray-300' : 'text-foreground dark:text-dark-foreground'}`}>{task.text}</p>
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{task.type} / {task.assigned_to || 'Unassigned'}</p>
                 </div>
                 <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
@@ -239,6 +251,7 @@ const DonorRelationshipActivityTab: React.FC<DonorRelationshipActivityTabProps> 
     const renderInteraction = (interaction: DonorProfileInteraction) => {
         const isEditing = editingInteractionId === interaction.id;
         const isSaving = savingId === interaction.id;
+        const isOptimistic = isOptimisticInteraction(interaction.id);
 
         if (isEditing) {
             return (
@@ -285,20 +298,31 @@ const DonorRelationshipActivityTab: React.FC<DonorRelationshipActivityTabProps> 
         }
 
         return (
-            <div key={interaction.id} className="rounded-lg border border-gray-200 p-4 dark:border-slate-700">
+            <div
+                key={interaction.id}
+                className={`rounded-lg border p-4 ${
+                    isOptimistic
+                        ? 'border-blue-200 bg-blue-50/70 opacity-75 animate-pulse dark:border-blue-800/60 dark:bg-blue-950/20'
+                        : highlightedInteractionId === interaction.id
+                            ? 'border-emerald-200 bg-emerald-50/80 ring-1 ring-inset ring-emerald-200/80 dark:border-emerald-800/60 dark:bg-emerald-950/20 dark:ring-emerald-800/60'
+                            : 'border-gray-200 dark:border-slate-700'
+                }`}
+            >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                         <p className="break-words font-bold text-foreground dark:text-dark-foreground">{interaction.subject}</p>
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{interaction.interaction_type} / {interaction.status}</p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {interaction.interaction_type} / {isOptimistic ? t('individual_donors.detailView.interactionSaving', 'Saving...') : interaction.status}
+                        </p>
                     </div>
                     <div className="flex flex-shrink-0 items-center gap-2">
-                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">{interaction.occurred_at ? formatRelativeTime(interaction.occurred_at, language) : 'N/A'}</span>
-                        {onUpdateInteraction && (
+                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">{interaction.occurred_at ? formatRelativeFromEvent(interaction.occurred_at, language) : 'N/A'}</span>
+                        {onUpdateInteraction && !isOptimistic && (
                             <button onClick={() => startInteractionEdit(interaction)} className={iconButtonClass} aria-label={t('common.edit', 'Edit')}>
                                 <Pencil size={14} />
                             </button>
                         )}
-                        {onDeleteInteraction && (
+                        {onDeleteInteraction && !isOptimistic && (
                             <button onClick={() => deleteInteraction(interaction.id)} className={`${iconButtonClass} hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:hover:border-red-800 dark:hover:bg-red-900/20 dark:hover:text-red-300`} aria-label={t('common.delete', 'Delete')}>
                                 <Trash2 size={14} />
                             </button>
@@ -310,10 +334,23 @@ const DonorRelationshipActivityTab: React.FC<DonorRelationshipActivityTabProps> 
         );
     };
 
+    const hasAnyTasks = openTasks.length > 0 || completedTasks.length > 0;
+    const subsectionTitle = (label: string, count: number) =>
+        count > 0 ? `${label} (${formatNumber(count, language)})` : label;
+
+    const TaskSubsection: React.FC<{ title: string; children: React.ReactNode; showDivider?: boolean }> = ({ title, children, showDivider }) => (
+        <div className={showDivider ? 'border-t border-gray-200 pt-5 dark:border-slate-700' : ''}>
+            <div className="mb-3 flex items-center gap-2">
+                <h4 className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">{title}</h4>
+            </div>
+            {children}
+        </div>
+    );
+
     return (
         <div className="space-y-5">
-            <Section title={t('individual_donors.detailView.openTasks')} icon={<ClipboardList size={18} />}>
-                <div className="space-y-4">
+            <Section title={t('individual_donors.detailView.tasks')} icon={<ListTodo size={18} />}>
+                <div className="space-y-5">
                     {onCreateTask && (
                         <form onSubmit={handleCreateTask} className="grid grid-cols-1 gap-3 rounded-lg border border-dashed border-gray-300 bg-gray-50/70 p-4 dark:border-slate-700 dark:bg-slate-900/30 lg:grid-cols-[minmax(0,1.2fr)_minmax(140px,0.7fr)_minmax(140px,0.7fr)_minmax(140px,0.7fr)_auto]">
                             <label className="min-w-0">
@@ -339,19 +376,40 @@ const DonorRelationshipActivityTab: React.FC<DonorRelationshipActivityTabProps> 
                             </button>
                         </form>
                     )}
+
                     {isLoading ? (
                         <div className="h-24 animate-pulse rounded-lg bg-gray-100 dark:bg-slate-800" />
-                    ) : openTasks.length === 0 ? (
-                        <EmptyPanel text={t('individual_donors.detailView.noOpenTasks')} />
+                    ) : !hasAnyTasks ? (
+                        <EmptyPanel text={t('individual_donors.detailView.noTasks')} />
                     ) : (
-                        <div className="space-y-3">
-                            {openTasks.map(renderTask)}
-                        </div>
+                        <>
+                            <TaskSubsection title={subsectionTitle(t('individual_donors.detailView.openTasks'), openTasks.length)}>
+                                {openTasks.length === 0 ? (
+                                    <p className="rounded-lg border border-dashed border-gray-200 px-4 py-3 text-sm font-semibold text-gray-500 dark:border-slate-700 dark:text-gray-400">
+                                        {t('individual_donors.detailView.noOpenTasks')}
+                                    </p>
+                                ) : (
+                                    <div className="space-y-3">{openTasks.map(renderTask)}</div>
+                                )}
+                            </TaskSubsection>
+
+                            {completedTasks.length > 0 && (
+                                <TaskSubsection
+                                    title={subsectionTitle(t('individual_donors.detailView.completedTasks'), completedTasks.length)}
+                                    showDivider
+                                >
+                                    <div className="space-y-3">{completedTasks.map(renderTask)}</div>
+                                </TaskSubsection>
+                            )}
+                        </>
                     )}
                 </div>
             </Section>
 
             <Section title={t('individual_donors.detailView.communicationHistory')} icon={<MessageSquare size={18} />}>
+                {isLoggingInteraction ? (
+                    <p className="mb-3 text-xs text-blue-600 dark:text-blue-400">{t('individual_donors.detailView.loggingInteraction', 'Logging interaction...')}</p>
+                ) : null}
                 {interactions.length === 0 ? (
                     <EmptyPanel text={t('individual_donors.detailView.noCommunications')} />
                 ) : (
@@ -360,14 +418,6 @@ const DonorRelationshipActivityTab: React.FC<DonorRelationshipActivityTabProps> 
                     </div>
                 )}
             </Section>
-
-            {completedTasks.length > 0 && (
-                <Section title={t('individual_donors.detailView.completedTasks')} icon={<CheckCircle2 size={18} />}>
-                    <div className="space-y-2">
-                        {completedTasks.map(renderTask)}
-                    </div>
-                </Section>
-            )}
         </div>
     );
 };

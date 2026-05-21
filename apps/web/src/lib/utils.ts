@@ -154,21 +154,40 @@ const DIVISIONS: { amount: number; name: Intl.RelativeTimeFormatUnit }[] = [
     { amount: Number.POSITIVE_INFINITY, name: 'years' },
 ];
 
+/** True when the value is an accounting date (no event clock), e.g. `2025-05-21` or midnight UTC ISO. */
+export const isAccountingDateOnly = (dateString: string): boolean => {
+    const trimmed = dateString.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return true;
+    if (!trimmed.includes('T') && !trimmed.includes(' ')) return true;
+    const parsed = new Date(trimmed);
+    if (Number.isNaN(parsed.getTime())) return false;
+    return (
+        parsed.getUTCHours() === 0 &&
+        parsed.getUTCMinutes() === 0 &&
+        parsed.getUTCSeconds() === 0 &&
+        parsed.getUTCMilliseconds() === 0
+    );
+};
+
+const getRelativeTimeFormatter = (language: Language) => {
+    const locale = getLocale(language);
+    const cacheKey = `${locale}-numeric`;
+    if (!relativeTimeFormatCache.has(cacheKey)) {
+        relativeTimeFormatCache.set(cacheKey, new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }));
+    }
+    return relativeTimeFormatCache.get(cacheKey)!;
+};
+
+/** Relative label for a real timestamp (includes hours/minutes when recent). */
 export const formatRelativeTime = (dateString: string, language: Language): string => {
     if (!dateString) return 'N/A';
 
-    const locale = getLocale(language);
     const date = new Date(dateString);
     const now = new Date();
     let duration = (date.getTime() - now.getTime()) / 1000;
 
-    const cacheKey = `${locale}-numeric`;
-
     try {
-        if (!relativeTimeFormatCache.has(cacheKey)) {
-            relativeTimeFormatCache.set(cacheKey, new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }));
-        }
-        const formatter = relativeTimeFormatCache.get(cacheKey)!;
+        const formatter = getRelativeTimeFormatter(language);
 
         for (let i = 0; i < DIVISIONS.length; i++) {
             const division = DIVISIONS[i];
@@ -179,8 +198,61 @@ export const formatRelativeTime = (dateString: string, language: Language): stri
         }
         return date.toLocaleDateString();
     } catch (error) {
-        console.error("Error formatting relative time:", error);
+        console.error('Error formatting relative time:', error);
         return date.toLocaleDateString();
+    }
+};
+
+/**
+ * Relative label for UI events. Accounting dates (donation `date`) use day granularity
+ * (today / yesterday), never hours. Full timestamps use `formatRelativeTime`.
+ */
+/** Convert a date input (`YYYY-MM-DD`) to an ISO timestamp for storage/display. */
+export const occurredAtFromDateInput = (dateInput: string): string => {
+    const trimmed = dateInput.trim();
+    if (!trimmed) return new Date().toISOString();
+
+    const now = new Date();
+    const todayKey = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+        if (trimmed === todayKey) return new Date().toISOString();
+        const [year, month, day] = trimmed.split('-').map(Number);
+        return new Date(year, month - 1, day, 12, 0, 0, 0).toISOString();
+    }
+
+    const parsed = new Date(trimmed);
+    return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+};
+
+export const formatRelativeFromEvent = (dateString: string, language: Language): string => {
+    if (!dateString) return 'N/A';
+    if (!isAccountingDateOnly(dateString)) {
+        return formatRelativeTime(dateString, language);
+    }
+
+    const trimmed = dateString.trim().slice(0, 10);
+    const [year, month, day] = trimmed.split('-').map(Number);
+    if (!year || !month || !day) return 'N/A';
+
+    const eventDay = new Date(year, month - 1, day);
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffDays = Math.round((eventDay.getTime() - todayStart.getTime()) / 86400000);
+
+    try {
+        const formatter = getRelativeTimeFormatter(language);
+        if (Math.abs(diffDays) <= 7) {
+            return formatter.format(diffDays, 'day');
+        }
+        return formatDate(trimmed, language);
+    } catch (error) {
+        console.error('Error formatting relative event time:', error);
+        return formatDate(trimmed, language);
     }
 };
 

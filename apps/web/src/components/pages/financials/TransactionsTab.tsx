@@ -267,6 +267,15 @@ const TransactionsTab: React.FC = () => {
           ),
       },
       {
+        key: 'relatedEntityName',
+        label: t('financials.transactions.relatedEntity', 'Related Entity'),
+        render: (row) => (
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {row.relatedEntityName || '—'}
+          </span>
+        ),
+      },
+      {
         key: 'actions',
         label: t('financials.common.actions', 'Actions'),
         align: 'right',

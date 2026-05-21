@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RelationshipHealth } from '../../../../types';
+import type { DonorPipelineLikelihood, RelationshipHealth } from '../../../../types';
 
 export const EmptyPanel: React.FC<{ text: string; action?: React.ReactNode }> = ({ text, action }) => (
     <div className="rounded-lg border border-dashed border-gray-300 bg-white/70 p-8 text-center dark:border-slate-700 dark:bg-slate-900/30">
@@ -50,8 +50,14 @@ export const Chip: React.FC<{ children: React.ReactNode; tone?: 'neutral' | 'blu
     return <span className={`inline-flex max-w-full items-center rounded-full px-2.5 py-1 text-xs font-bold ${tones[tone]}`}>{children}</span>;
 };
 
-export const RelationshipHealthChip: React.FC<{ health?: RelationshipHealth | null }> = ({ health }) => {
-    if (!health) return <Chip>Not enough data</Chip>;
+export const RelationshipHealthChip: React.FC<{ health?: RelationshipHealth | null; label?: string }> = ({ health, label }) => {
+    if (!health) return <Chip>{label || 'Not enough data'}</Chip>;
     const tone = health === 'Good' ? 'green' : health === 'At Risk' ? 'red' : 'amber';
-    return <Chip tone={tone}>{health}</Chip>;
+    return <Chip tone={tone}>{label || health}</Chip>;
+};
+
+export const RelationshipLikelihoodChip: React.FC<{ likelihood?: DonorPipelineLikelihood | null; label?: string }> = ({ likelihood, label }) => {
+    if (!likelihood) return <Chip>{label || 'Not enough data'}</Chip>;
+    const tone = likelihood === 'High' ? 'green' : likelihood === 'Low' ? 'red' : 'amber';
+    return <Chip tone={tone}>{label || likelihood}</Chip>;
 };

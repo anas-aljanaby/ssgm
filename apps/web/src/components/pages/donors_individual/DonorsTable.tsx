@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import type { DonorStageId, IndividualDonor, SortDirection } from '../../../types';
-import { formatDate, formatCurrency, formatNumber, formatRelativeTime } from '../../../lib/utils';
+import { formatDate, formatCurrency, formatNumber, formatRelativeFromEvent } from '../../../lib/utils';
 import { ChevronDownIcon } from '../../icons/GenericIcons';
 import { StatusBadge } from './DonorBadges';
 import { Columns3, Eye, EyeOff, ArrowLeftToLine, ArrowRightToLine } from 'lucide-react';
@@ -278,7 +278,7 @@ const DonorsTable: React.FC<DonorsTableProps> = ({ donors, onDonorSelect, sortCo
             case 'lastGift':
                 return <td key={colId} className={cellClass(colId)}>{donor.lastDonationDate ? formatDate(donor.lastDonationDate, language) : 'N/A'}</td>;
             case 'lastContact':
-                return <td key={colId} className={cellClass(colId)}>{donor.lastContactDate ? formatRelativeTime(donor.lastContactDate, language) : 'N/A'}</td>;
+                return <td key={colId} className={cellClass(colId)}>{donor.lastContactDate ? formatRelativeFromEvent(donor.lastContactDate, language) : 'N/A'}</td>;
             case 'openTasks':
                 return (
                     <td key={colId} className={cellClass(colId)}>

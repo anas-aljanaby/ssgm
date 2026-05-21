@@ -117,6 +117,7 @@ export interface ProfileDonation {
   donor_id: string;
   amount: number;
   date: string | null;
+  created_at?: string | null;
   program: string;
   campaign?: string | null;
   designation?: string | null;
@@ -194,6 +195,7 @@ export interface DonorProfileSummary {
     totalGifts: number;
     lastGiftAmount: number | null;
     lastGiftDate: string | null;
+    lastGiftRecordedAt?: string | null;
     averageGift: number | null;
     largestGift: number | null;
     programsSupported: string[];
