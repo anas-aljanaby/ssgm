@@ -4,6 +4,7 @@ import { X as XIcon, FileText, Download } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
+import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import Spinner from '../../common/Spinner';
@@ -124,10 +125,8 @@ const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({ isOpen, o
         }
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
+        <ModalPortal isOpen={isOpen} onClose={onClose}>
             <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-4xl m-4 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold">{t('bousala.analytics.title')}</h2>
@@ -195,7 +194,7 @@ const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({ isOpen, o
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

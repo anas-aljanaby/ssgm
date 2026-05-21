@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { X as XIcon } from 'lucide-react';
 
@@ -30,10 +31,8 @@ const AddKpiModal: React.FC<AddKpiModalProps> = ({ isOpen, onClose, onAdd, goalI
         setUnit('');
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in" onClick={onClose} dir="rtl">
+        <ModalPortal isOpen={isOpen} onClose={onClose} dir="rtl">
             <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg m-4" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold">{t('bousala.addKpiModal.title')}</h2>
@@ -66,7 +65,7 @@ const AddKpiModal: React.FC<AddKpiModalProps> = ({ isOpen, onClose, onAdd, goalI
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

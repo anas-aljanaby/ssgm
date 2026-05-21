@@ -7,6 +7,7 @@ import path from 'node:path';
 import { db } from '../db';
 import { donor_documents, donor_interactions, donor_tasks, donations, individual_donors, memberships } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
+import { normalizeDonorTags, validateDonorCustomFieldsPatch, validateDonorTags } from '../lib/donorPatchValidation';
 import { createDonationSchema, createDonorInteractionSchema, createDonorSchema, createDonorTaskSchema, updateDonorInteractionSchema, updateDonorSchema, updateDonorTaskSchema } from '@gms/shared';
 
 type Variables = { user: User };
@@ -349,6 +350,16 @@ donorsRouter.post('/', async (c) => {
     if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
 
     const data = parsed.data;
+
+    if (data.custom_fields !== undefined) {
+        const customFieldsError = validateDonorCustomFieldsPatch(data.custom_fields);
+        if (customFieldsError) return c.json({ error: customFieldsError }, 400);
+    }
+    if (data.tags !== undefined) {
+        const tagsError = validateDonorTags(data.tags);
+        if (tagsError) return c.json({ error: tagsError }, 400);
+    }
+
     const [donor] = await db
         .insert(individual_donors)
         .values({
@@ -360,7 +371,7 @@ donorsRouter.post('/', async (c) => {
             status: data.status,
             tier: data.tier,
             country: data.country,
-            tags: data.tags,
+            tags: normalizeDonorTags(data.tags ?? []),
             assigned_manager: data.assigned_manager,
             avatar: data.avatar,
             donor_since: data.donor_since ? new Date(data.donor_since) : null,
@@ -385,6 +396,18 @@ donorsRouter.patch('/:id', async (c) => {
     if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
 
     const data = parsed.data;
+
+    if (data.custom_fields !== undefined) {
+        const customFieldsError = validateDonorCustomFieldsPatch(data.custom_fields);
+        if (customFieldsError) return c.json({ error: customFieldsError }, 400);
+    }
+    if (data.tags !== undefined) {
+        const tagsError = validateDonorTags(data.tags);
+        if (tagsError) return c.json({ error: tagsError }, 400);
+    }
+
+    const normalizedTags = data.tags !== undefined ? normalizeDonorTags(data.tags) : undefined;
+
     const values: Record<string, unknown> = {};
     if (data.full_name_en !== undefined) values.full_name_en = data.full_name_en;
     if (data.full_name_ar !== undefined) values.full_name_ar = data.full_name_ar;
@@ -393,7 +416,7 @@ donorsRouter.patch('/:id', async (c) => {
     if (data.status !== undefined) values.status = data.status;
     if (data.tier !== undefined) values.tier = data.tier;
     if (data.country !== undefined) values.country = data.country;
-    if (data.tags !== undefined) values.tags = data.tags;
+    if (normalizedTags !== undefined) values.tags = normalizedTags;
     if (data.assigned_manager !== undefined) values.assigned_manager = data.assigned_manager;
     if (data.avatar !== undefined) values.avatar = data.avatar;
     if (data.donor_since !== undefined) values.donor_since = data.donor_since ? new Date(data.donor_since) : null;

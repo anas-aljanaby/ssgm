@@ -121,20 +121,19 @@ const Header: React.FC<HeaderProps> = ({ role, setRole, isMobileMenuOpen, setIsM
   return (
     <>
       <header className="flex-shrink-0 h-20 bg-card/80 dark:bg-dark-card/80 backdrop-blur-xl border-b dark:border-slate-800 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-40 w-full">
-        <div className="flex items-center">
+        <div className="flex items-center min-w-0 flex-1 gap-3 lg:gap-6">
           <button
-            className="md:hidden p-2 rounded-md text-foreground dark:text-dark-foreground -ms-2 me-2"
+            className="md:hidden p-2 rounded-md text-foreground dark:text-dark-foreground -ms-2 me-2 shrink-0"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
               <HamburgerIcon isOpen={isMobileMenuOpen} />
           </button>
-          <div className="hidden lg:flex items-center gap-3">
-            <h1 className="text-xl font-bold text-foreground dark:text-dark-foreground">{pageTitle}</h1>
+          <div className="hidden lg:flex items-center gap-3 shrink-0">
+            <h1 className="text-xl font-bold text-foreground dark:text-dark-foreground whitespace-nowrap">{pageTitle}</h1>
             <LiveIndicator status={dataStatus} lastUpdate={lastUpdate} onRefresh={handleRefresh} />
           </div>
-          {/* Search Bar */}
-          <div className="lg:ms-8 w-full max-w-xs">
+          <div className="min-w-0 flex-1 max-w-xs">
             <GlobalSearch />
           </div>
         </div>

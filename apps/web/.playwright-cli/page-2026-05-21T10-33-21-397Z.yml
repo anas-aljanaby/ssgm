@@ -1,0 +1,413 @@
+- generic [ref=e15]:
+  - navigation [ref=e16]:
+    - button "Collapse sidebar" [expanded] [ref=e17] [cursor=pointer]:
+      - img [ref=e18]
+    - generic [ref=e20]:
+      - generic [ref=e22]: M
+      - heading "MSS.2" [level=1] [ref=e23]
+    - list [ref=e25]:
+      - listitem [ref=e26]:
+        - link "Dashboard" [ref=e27] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e29]
+          - generic [ref=e34]: Dashboard
+      - listitem [ref=e35]:
+        - link "Bousala" [ref=e36] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e38]
+          - generic [ref=e41]: Bousala
+      - listitem [ref=e42]:
+        - link "Stakeholder Management" [ref=e43] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e45]
+          - generic [ref=e50]: Stakeholder Management
+      - listitem [ref=e51]:
+        - link "Donor Management" [ref=e52] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e54]
+          - generic [ref=e56]: Donor Management
+      - listitem [ref=e57]:
+        - link "Institutional Donors" [ref=e58] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e60]
+          - generic [ref=e62]: Institutional Donors
+      - listitem [ref=e63]:
+        - link "Beneficiary Management" [ref=e64] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e66]
+          - generic [ref=e71]: Beneficiary Management
+      - listitem [ref=e72]:
+        - link "Project Management" [ref=e73] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e75]
+          - generic [ref=e79]: Project Management
+      - listitem [ref=e80]:
+        - link "Financial Management" [ref=e81] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e83]
+          - generic [ref=e85]: Financial Management
+      - listitem [ref=e86]:
+        - link "Help & Support" [ref=e87] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e89]
+          - generic [ref=e92]: Help & Support
+      - listitem [ref=e93]:
+        - link "Settings" [ref=e94] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e96]
+          - generic [ref=e99]: Settings
+    - list [ref=e101]:
+      - listitem [ref=e102]:
+        - link "Logout" [ref=e103] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e105]
+          - generic [ref=e108]: Logout
+  - generic [ref=e109]:
+    - banner [ref=e110]:
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - heading "Donor Management" [level=1] [ref=e113]
+          - button "liveIndicator.live" [ref=e115] [cursor=pointer]
+        - generic [ref=e118]:
+          - generic:
+            - img
+          - searchbox "Search everything..." [ref=e119]
+          - button "Search by voice" [ref=e121] [cursor=pointer]:
+            - img [ref=e122]
+      - generic [ref=e125]:
+        - button "Help & Support" [ref=e127] [cursor=pointer]:
+          - img [ref=e128]
+        - button "Change language" [ref=e134] [cursor=pointer]:
+          - img [ref=e135]
+          - img "English (US) Flag" [ref=e138]
+        - button "Switch to dark mode" [ref=e144] [cursor=pointer]:
+          - img [ref=e145]
+        - button "View announcements" [ref=e148] [cursor=pointer]:
+          - img [ref=e149]
+        - button "User Welcome! Admin" [ref=e156] [cursor=pointer]:
+          - img "User" [ref=e157]
+          - generic [ref=e158]:
+            - generic [ref=e159]: Welcome!
+            - generic [ref=e160]: Admin
+          - img [ref=e161]
+    - main [ref=e163]:
+      - generic [ref=e164]:
+        - heading "Donor Management" [level=1] [ref=e165]
+        - navigation [ref=e167]:
+          - button "Registry" [ref=e168] [cursor=pointer]
+          - button "Analytics" [ref=e169] [cursor=pointer]
+        - generic [ref=e171]:
+          - generic [ref=e172]:
+            - generic [ref=e173]:
+              - img [ref=e175]
+              - generic [ref=e180]:
+                - paragraph [ref=e181]: Total Donors
+                - paragraph [ref=e182]: "7"
+            - generic [ref=e183]:
+              - img [ref=e185]
+              - generic [ref=e189]:
+                - paragraph [ref=e190]: Active Donors
+                - paragraph [ref=e191]: "4"
+            - generic [ref=e192]:
+              - img [ref=e194]
+              - generic [ref=e196]:
+                - paragraph [ref=e197]: Total Donated
+                - paragraph [ref=e198]: $144,750
+            - generic [ref=e199]:
+              - img [ref=e201]
+              - generic [ref=e204]:
+                - paragraph [ref=e205]: Average Gift
+                - paragraph [ref=e206]: $9,355.36
+          - generic [ref=e209]:
+            - button "Search" [ref=e210] [cursor=pointer]:
+              - img [ref=e211]
+              - text: Search
+            - button "Filters" [ref=e214] [cursor=pointer]:
+              - img [ref=e215]
+              - text: Filters
+            - generic [ref=e217]:
+              - button "List View" [ref=e218] [cursor=pointer]:
+                - img [ref=e219]
+              - button "Icon View" [ref=e220] [cursor=pointer]:
+                - img [ref=e221]
+            - button "Pipeline Board 7" [ref=e226] [cursor=pointer]:
+              - img [ref=e227]
+              - generic [ref=e232]: Pipeline Board
+              - generic [ref=e233]: "7"
+            - button "Add Donor" [ref=e234] [cursor=pointer]
+          - generic [ref=e235]:
+            - heading "Filters" [level=3] [ref=e236]
+            - generic [ref=e237]:
+              - generic [ref=e238]:
+                - text: Status
+                - combobox "Status" [ref=e239]:
+                  - option "All statuses" [selected]
+                  - option "Active"
+                  - option "Lapsed"
+                  - option "On Hold"
+                  - option "Deceased"
+                  - option "Disqualified"
+              - generic [ref=e240]:
+                - text: Tier
+                - combobox "Tier" [ref=e241]:
+                  - option "All tiers" [selected]
+                  - option "Bronze"
+                  - option "Silver"
+                  - option "Gold"
+                  - option "Platinum"
+                  - option "Major Donor"
+              - generic [ref=e242]:
+                - text: Country
+                - combobox "Country" [ref=e243]:
+                  - option "All countries" [selected]
+                  - option "Canada"
+                  - option "Egypt"
+                  - option "Japan"
+                  - option "Spain"
+                  - option "Turkey"
+                  - option "UAE"
+                  - option "USA"
+              - generic [ref=e244]:
+                - text: Tags
+                - combobox "Tags" [ref=e245]:
+                  - option "Any tag" [selected]
+                  - option "Annual Gala"
+                  - option "Community"
+                  - option "Disaster Relief"
+                  - option "Education"
+                  - option "Endowment"
+                  - option "Healthcare"
+                  - option "Legacy"
+                  - option "Prospect"
+              - generic [ref=e246]:
+                - text: Owner
+                - combobox "Owner" [ref=e247]:
+                  - option "All owners" [selected]
+                  - option "Ali Veli"
+                  - option "Fatma Kaya"
+                  - option "John Doe"
+                  - option "System Admin"
+              - generic [ref=e248]:
+                - text: Pipeline Stage
+                - combobox "Pipeline Stage" [ref=e249]:
+                  - option "All stages" [selected]
+                  - option "Prospect"
+                  - option "Researching"
+                  - option "Contacted"
+                  - option "Cultivating"
+                  - option "Solicited"
+                  - option "Pledged"
+                  - option "Donated"
+                  - option "Dormant"
+              - generic [ref=e250]:
+                - text: Donor Type
+                - combobox "Donor Type" [ref=e251]:
+                  - option "All donor types" [selected]
+                  - option "Major donor"
+                  - option "Recurring"
+                  - option "Individual"
+              - generic [ref=e252]:
+                - text: Task State
+                - combobox "Task State" [ref=e253]:
+                  - option "All task states" [selected]
+                  - option "Overdue"
+                  - option "No open tasks"
+            - generic [ref=e254]:
+              - button "Clear Filters" [ref=e255] [cursor=pointer]
+              - button "Apply Filters" [ref=e256] [cursor=pointer]
+          - generic [ref=e257]:
+            - button "Columns (9/11)" [ref=e260] [cursor=pointer]:
+              - img [ref=e261]
+              - text: Columns (9/11)
+            - generic [ref=e263]:
+              - button "Scroll to last columns" [ref=e264] [cursor=pointer]:
+                - img [ref=e265]
+              - table [ref=e268]:
+                - rowgroup [ref=e269]:
+                  - row "Identity Relationship Ownership Giving History Tasks" [ref=e270]:
+                    - columnheader [ref=e271]
+                    - columnheader "Identity" [ref=e272]:
+                      - generic [ref=e273]: Identity
+                    - columnheader "Relationship Ownership" [ref=e274]:
+                      - generic [ref=e275]: Relationship Ownership
+                    - columnheader "Giving History" [ref=e276]:
+                      - generic [ref=e277]: Giving History
+                    - columnheader "Tasks" [ref=e278]:
+                      - generic [ref=e279]: Tasks
+                  - row "Donor Donor Type Status Pipeline Stage Owner Last Contact Total Donations Last Gift Open Tasks" [ref=e280]:
+                    - columnheader [ref=e281]:
+                      - checkbox [ref=e282]
+                    - columnheader "Donor" [ref=e283]:
+                      - generic [ref=e284] [cursor=pointer]: Donor
+                    - columnheader "Donor Type" [ref=e285]:
+                      - generic [ref=e286] [cursor=pointer]: Donor Type
+                    - columnheader "Status" [ref=e287]:
+                      - generic [ref=e288] [cursor=pointer]: Status
+                    - columnheader "Pipeline Stage" [ref=e289]
+                    - columnheader "Owner" [ref=e290]:
+                      - generic [ref=e291] [cursor=pointer]: Owner
+                    - columnheader "Last Contact" [ref=e292]:
+                      - generic [ref=e293] [cursor=pointer]: Last Contact
+                    - columnheader "Total Donations" [ref=e294]:
+                      - generic [ref=e295] [cursor=pointer]: Total Donations
+                    - columnheader "Last Gift" [ref=e296]:
+                      - generic [ref=e297] [cursor=pointer]:
+                        - text: Last Gift
+                        - img [ref=e298]
+                    - columnheader "Open Tasks" [ref=e300]
+                - rowgroup [ref=e301]:
+                  - row "John Smith John Smith john.smith@example.com Recurring Active Donated Fatma Kaya 2 years ago $750 Apr 21, 2026 0 Open Tasks" [ref=e302]:
+                    - cell [ref=e303]:
+                      - checkbox [ref=e304]
+                    - cell "John Smith John Smith john.smith@example.com" [ref=e305]:
+                      - generic [ref=e306]:
+                        - img "John Smith" [ref=e307]
+                        - generic [ref=e308]:
+                          - button "John Smith" [ref=e309] [cursor=pointer]
+                          - generic [ref=e310]: john.smith@example.com
+                    - cell "Recurring" [ref=e311]
+                    - cell "Active" [ref=e312]
+                    - cell "Donated" [ref=e313]
+                    - cell "Fatma Kaya" [ref=e314]
+                    - cell "2 years ago" [ref=e315]
+                    - cell "$750" [ref=e316]
+                    - cell "Apr 21, 2026" [ref=e317]
+                    - cell "0 Open Tasks" [ref=e318]:
+                      - generic [ref=e320]:
+                        - generic [ref=e321]: "0"
+                        - generic [ref=e322]: Open Tasks
+                  - row "Maria Garcia Maria Garcia maria.g@example.com Individual Active Researching John Doe 2 years ago $500 Mar 21, 2026 0 Open Tasks" [ref=e323]:
+                    - cell [ref=e324]:
+                      - checkbox [ref=e325]
+                    - cell "Maria Garcia Maria Garcia maria.g@example.com" [ref=e326]:
+                      - generic [ref=e327]:
+                        - img "Maria Garcia" [ref=e328]
+                        - generic [ref=e329]:
+                          - button "Maria Garcia" [ref=e330] [cursor=pointer]
+                          - generic [ref=e331]: maria.g@example.com
+                    - cell "Individual" [ref=e332]
+                    - cell "Active" [ref=e333]
+                    - cell "Researching" [ref=e334]
+                    - cell "John Doe" [ref=e335]
+                    - cell "2 years ago" [ref=e336]
+                    - cell "$500" [ref=e337]
+                    - cell "Mar 21, 2026" [ref=e338]
+                    - cell "0 Open Tasks" [ref=e339]:
+                      - generic [ref=e341]:
+                        - generic [ref=e342]: "0"
+                        - generic [ref=e343]: Open Tasks
+                  - row "Aisha Al-Farsi Aisha Al-Farsi aisha.f@example.com Major donor Active Donated Fatma Kaya 2 years ago $16,500 Jul 15, 2024 0 Open Tasks" [ref=e344]:
+                    - cell [ref=e345]:
+                      - checkbox [ref=e346]
+                    - cell "Aisha Al-Farsi Aisha Al-Farsi aisha.f@example.com" [ref=e347]:
+                      - generic [ref=e348]:
+                        - img "Aisha Al-Farsi" [ref=e349]
+                        - generic [ref=e350]:
+                          - button "Aisha Al-Farsi" [ref=e351] [cursor=pointer]
+                          - generic [ref=e352]: aisha.f@example.com
+                    - cell "Major donor" [ref=e353]
+                    - cell "Active" [ref=e354]
+                    - cell "Donated" [ref=e355]
+                    - cell "Fatma Kaya" [ref=e356]
+                    - cell "2 years ago" [ref=e357]
+                    - cell "$16,500" [ref=e358]
+                    - cell "Jul 15, 2024" [ref=e359]
+                    - cell "0 Open Tasks" [ref=e360]:
+                      - generic [ref=e362]:
+                        - generic [ref=e363]: "0"
+                        - generic [ref=e364]: Open Tasks
+                  - row "Kenji Tanaka Kenji Tanaka kenji.t@example.com Individual Lapsed Cultivating Ali Veli 3 years ago $1,200 Jul 5, 2024 1 Open Tasks 1 Overdue" [ref=e365]:
+                    - cell [ref=e366]:
+                      - checkbox [ref=e367]
+                    - cell "Kenji Tanaka Kenji Tanaka kenji.t@example.com" [ref=e368]:
+                      - generic [ref=e369]:
+                        - img "Kenji Tanaka" [ref=e370]
+                        - generic [ref=e371]:
+                          - button "Kenji Tanaka" [ref=e372] [cursor=pointer]
+                          - generic [ref=e373]: kenji.t@example.com
+                    - cell "Individual" [ref=e374]
+                    - cell "Lapsed" [ref=e375]
+                    - cell "Cultivating" [ref=e376]
+                    - cell "Ali Veli" [ref=e377]
+                    - cell "3 years ago" [ref=e378]
+                    - cell "$1,200" [ref=e379]
+                    - cell "Jul 5, 2024" [ref=e380]
+                    - cell "1 Open Tasks 1 Overdue" [ref=e381]:
+                      - generic [ref=e382]:
+                        - generic [ref=e383]:
+                          - generic [ref=e384]: "1"
+                          - generic [ref=e385]: Open Tasks
+                        - paragraph [ref=e386]: 1 Overdue
+                  - row "David Chen David Chen david.chen@example.com Major donor Active Solicited System Admin 2 years ago $125,000 Feb 28, 2024 1 Open Tasks 1 Overdue" [ref=e388]:
+                    - cell [ref=e389]:
+                      - checkbox [ref=e390]
+                    - cell "David Chen David Chen david.chen@example.com" [ref=e391]:
+                      - generic [ref=e392]:
+                        - img "David Chen" [ref=e393]
+                        - generic [ref=e394]:
+                          - button "David Chen" [ref=e395] [cursor=pointer]
+                          - generic [ref=e396]: david.chen@example.com
+                    - cell "Major donor" [ref=e397]
+                    - cell "Active" [ref=e398]
+                    - cell "Solicited" [ref=e399]
+                    - cell "System Admin" [ref=e400]
+                    - cell "2 years ago" [ref=e401]
+                    - cell "$125,000" [ref=e402]
+                    - cell "Feb 28, 2024" [ref=e403]
+                    - cell "1 Open Tasks 1 Overdue" [ref=e404]:
+                      - generic [ref=e405]:
+                        - generic [ref=e406]:
+                          - generic [ref=e407]: "1"
+                          - generic [ref=e408]: Open Tasks
+                        - paragraph [ref=e409]: 1 Overdue
+                  - row "Fatma Yılmaz Fatma Yılmaz fatma.y@example.com Individual Lapsed Dormant Ali Veli 2 years ago $800 Aug 18, 2023 1 Open Tasks 1 Overdue" [ref=e411]:
+                    - cell [ref=e412]:
+                      - checkbox [ref=e413]
+                    - cell "Fatma Yılmaz Fatma Yılmaz fatma.y@example.com" [ref=e414]:
+                      - generic [ref=e415]:
+                        - img "Fatma Yılmaz" [ref=e416]
+                        - generic [ref=e417]:
+                          - button "Fatma Yılmaz" [ref=e418] [cursor=pointer]
+                          - generic [ref=e419]: fatma.y@example.com
+                    - cell "Individual" [ref=e420]
+                    - cell "Lapsed" [ref=e421]
+                    - cell "Dormant" [ref=e422]
+                    - cell "Ali Veli" [ref=e423]
+                    - cell "2 years ago" [ref=e424]
+                    - cell "$800" [ref=e425]
+                    - cell "Aug 18, 2023" [ref=e426]
+                    - cell "1 Open Tasks 1 Overdue" [ref=e427]:
+                      - generic [ref=e428]:
+                        - generic [ref=e429]:
+                          - generic [ref=e430]: "1"
+                          - generic [ref=e431]: Open Tasks
+                        - paragraph [ref=e432]: 1 Overdue
+                  - row "Omar Hassan Omar Hassan omar.h@example.com Individual On Hold Prospect John Doe N/A $0 N/A 1 Open Tasks 1 Overdue" [ref=e434]:
+                    - cell [ref=e435]:
+                      - checkbox [ref=e436]
+                    - cell "Omar Hassan Omar Hassan omar.h@example.com" [ref=e437]:
+                      - generic [ref=e438]:
+                        - img "Omar Hassan" [ref=e439]
+                        - generic [ref=e440]:
+                          - button "Omar Hassan" [ref=e441] [cursor=pointer]
+                          - generic [ref=e442]: omar.h@example.com
+                    - cell "Individual" [ref=e443]
+                    - cell "On Hold" [ref=e444]
+                    - cell "Prospect" [ref=e445]
+                    - cell "John Doe" [ref=e446]
+                    - cell "N/A" [ref=e447]
+                    - cell "$0" [ref=e448]
+                    - cell "N/A" [ref=e449]
+                    - cell "1 Open Tasks 1 Overdue" [ref=e450]:
+                      - generic [ref=e451]:
+                        - generic [ref=e452]:
+                          - generic [ref=e453]: "1"
+                          - generic [ref=e454]: Open Tasks
+                        - paragraph [ref=e455]: 1 Overdue
+            - navigation "Table navigation" [ref=e457]:
+              - generic [ref=e458]: Showing 1-7 of 7
+              - list [ref=e459]:
+                - listitem [ref=e460]:
+                  - button "Previous" [disabled] [ref=e461]
+                - listitem [ref=e462]:
+                  - button "Next" [disabled] [ref=e463]

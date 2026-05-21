@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import ModalPortal from '../../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import { useDropzone } from 'react-dropzone';
@@ -59,8 +60,8 @@ const FilePreviewModal: React.FC<{ item: DocumentItem; onClose: () => void }> = 
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
-            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl m-4 flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+        <ModalPortal isOpen onClose={onClose}>
+            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h3 className="font-bold text-lg flex items-center gap-2">{getFileIcon(item.type)} {item.name}</h3>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"><XIcon /></button>
@@ -84,7 +85,7 @@ const FilePreviewModal: React.FC<{ item: DocumentItem; onClose: () => void }> = 
                     <button onClick={handleDownload} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg"><Download size={16}/> تنزيل</button>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

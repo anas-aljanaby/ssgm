@@ -6,6 +6,7 @@ import { useToast } from '../../../../hooks/useToast';
 import SettingsCard from '../SettingsCard';
 import { IfrsIcon, AaoifiIcon, HybridIcon, CustomIcon } from '../../../icons/FinancialsIcons';
 import { UploadIcon } from '../../../icons/ActionIcons';
+import ModalPortal from '../../../common/ModalPortal';
 import { XIcon } from '../../../icons/GenericIcons';
 
 // Mock data for previews
@@ -76,7 +77,7 @@ const PreviewModal: React.FC<{ isOpen: boolean; onClose: () => void; template: C
     const templateData = coaTemplatesData[template as keyof typeof coaTemplatesData];
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
+        <ModalPortal isOpen={isOpen} onClose={onClose} dir="rtl">
             <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl m-4 flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold">{t('financialSettings.coa.previewTitle', { name: templateData.name })}</h2>
@@ -89,7 +90,7 @@ const PreviewModal: React.FC<{ isOpen: boolean; onClose: () => void; template: C
                     <button onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-slate-700 text-sm font-semibold">{t('common.close')}</button>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

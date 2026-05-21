@@ -1,12 +1,53 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
-import { MOCK_TRANSACTIONS } from '../data/financialsPageData';
-import type { FinancialTransaction } from '../types/financials';
+import { MOCK_TRANSACTIONS, MOCK_DONATIONS } from '../data/financialsPageData';
+import type { DonationRecord, FinancialTransaction } from '../types/financials';
 import type { TransactionFormData } from '../components/pages/financials/AddTransactionModal';
+import { DONATIONS_QUERY_KEY } from './useDonations';
 
 const QUERY_KEY = ['transactions'] as const;
 
 const USE_API = true;
+
+function buildDonationCustomFields(data: TransactionFormData): Record<string, unknown> {
+  if (data.category !== 'donation') return {};
+  return {
+    donation_method: data.donation_method,
+    designation: data.designation || undefined,
+    is_recurring: data.is_recurring,
+    recurring_frequency: data.is_recurring ? data.recurring_frequency || undefined : undefined,
+    donor_type:
+      data.related_entity_type === 'institutional_donor' ? 'institutional' : 'individual',
+  };
+}
+
+function appendDonationRecordFromTransaction(
+  txn: FinancialTransaction,
+  data: TransactionFormData
+): DonationRecord {
+  const donorNameEn = data.related_entity_name || data.description_en;
+  const donorNameAr = data.description_ar || donorNameEn;
+  const donation: DonationRecord = {
+    id: data.reference || `DON-LOCAL-${Date.now()}`,
+    donorId: data.related_entity_type === 'donor' ? '' : '',
+    donorName: { en: donorNameEn, ar: donorNameAr },
+    donorType: data.related_entity_type === 'institutional_donor' ? 'institutional' : 'individual',
+    date: data.date,
+    amount: data.amount,
+    currency: data.currency,
+    method: data.donation_method,
+    designation: data.designation || undefined,
+    receiptStatus: 'pending',
+    isRecurring: data.is_recurring,
+    recurringFrequency: data.is_recurring
+      ? (data.recurring_frequency as DonationRecord['recurringFrequency'])
+      : undefined,
+    notes: data.notes || undefined,
+    transactionId: txn.id,
+  };
+  MOCK_DONATIONS.unshift(donation);
+  return donation;
+}
 
 async function fetchTransactions(): Promise<FinancialTransaction[]> {
   if (!USE_API) return MOCK_TRANSACTIONS;
@@ -20,6 +61,8 @@ async function fetchTransactions(): Promise<FinancialTransaction[]> {
 async function createTransaction(
   data: TransactionFormData
 ): Promise<FinancialTransaction> {
+  const customFields = buildDonationCustomFields(data);
+
   const buildLocalTransaction = (): FinancialTransaction => {
     const newTxn: FinancialTransaction = {
       id: `TXN-LOCAL-${Date.now()}`,
@@ -37,6 +80,9 @@ async function createTransaction(
       attachments: data.receipt ? 1 : 0,
     };
     MOCK_TRANSACTIONS.unshift(newTxn);
+    if (data.category === 'donation') {
+      appendDonationRecordFromTransaction(newTxn, data);
+    }
     return newTxn;
   };
 
@@ -55,6 +101,9 @@ async function createTransaction(
   if (data.related_entity_type) formData.append('related_entity_type', data.related_entity_type);
   if (data.related_entity_name) formData.append('related_entity_name', data.related_entity_name);
   if (data.notes) formData.append('notes', data.notes);
+  if (Object.keys(customFields).length > 0) {
+    formData.append('custom_fields', JSON.stringify(customFields));
+  }
   if (data.receipt) formData.append('receipt', data.receipt);
 
   try {
@@ -76,8 +125,34 @@ export function useCreateTransaction() {
 
   return useMutation({
     mutationFn: createTransaction,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      if (variables.category === 'donation') {
+        queryClient.invalidateQueries({ queryKey: DONATIONS_QUERY_KEY });
+      }
+    },
+  });
+}
+
+async function deleteTransaction(id: string): Promise<void> {
+  if (!USE_API) {
+    const txnIdx = MOCK_TRANSACTIONS.findIndex((t) => t.id === id);
+    if (txnIdx >= 0) MOCK_TRANSACTIONS.splice(txnIdx, 1);
+    const donationIdx = MOCK_DONATIONS.findIndex((d) => d.transactionId === id);
+    if (donationIdx >= 0) MOCK_DONATIONS.splice(donationIdx, 1);
+    return;
+  }
+  await api.delete(`/financials/transactions/${id}`);
+}
+
+export function useDeleteTransaction() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: DONATIONS_QUERY_KEY });
     },
   });
 }

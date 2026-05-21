@@ -39,10 +39,10 @@ export const alertTypeSchema = z.enum(ALERT_TYPES);
 
 // ─── Transaction ────────────────────────────────────────────────────────────
 
-export const createTransactionSchema = z.object({
+const transactionFieldsSchema = z.object({
     date: z.string().min(1),
-    description_en: z.string().min(1),
-    description_ar: z.string().optional().default(''),
+    description_en: z.string().default(''),
+    description_ar: z.string().default(''),
     amount: z.number().positive(),
     currency: z.string().default('USD'),
     direction: transactionDirectionSchema,
@@ -59,7 +59,12 @@ export const createTransactionSchema = z.object({
     custom_fields: z.record(z.string(), z.unknown()).default({}),
 });
 
-export const updateTransactionSchema = createTransactionSchema.partial();
+export const createTransactionSchema = transactionFieldsSchema.refine(
+    (data) => data.description_en.trim().length > 0 || data.description_ar.trim().length > 0,
+    { message: 'At least one description (English or Arabic) is required' },
+);
+
+export const updateTransactionSchema = transactionFieldsSchema.partial();
 
 // ─── Donation Record ────────────────────────────────────────────────────────
 

@@ -1,0 +1,201 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e15]:
+    - navigation [ref=e16]:
+      - button "Collapse sidebar" [expanded] [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+      - generic [ref=e20]:
+        - generic [ref=e22]: M
+        - heading "MSS.2" [level=1] [ref=e23]
+      - list [ref=e25]:
+        - listitem [ref=e873]:
+          - link "Dashboard" [ref=e874] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e876]
+            - generic [ref=e881]: Dashboard
+        - listitem [ref=e882]:
+          - link "Bousala" [ref=e883] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e885]
+            - generic [ref=e888]: Bousala
+        - listitem [ref=e889]:
+          - link "Stakeholder Management" [ref=e890] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e892]
+            - generic [ref=e897]: Stakeholder Management
+        - listitem [ref=e898]:
+          - link "Donor Management" [ref=e899] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e901]
+            - generic [ref=e903]: Donor Management
+        - listitem [ref=e904]:
+          - link "Institutional Donors" [ref=e905] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e907]
+            - generic [ref=e909]: Institutional Donors
+        - listitem [ref=e910]:
+          - link "Beneficiary Management" [ref=e911] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e913]
+            - generic [ref=e918]: Beneficiary Management
+        - listitem [ref=e919]:
+          - link "Project Management" [ref=e920] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e922]
+            - generic [ref=e926]: Project Management
+        - listitem [ref=e927]:
+          - link "Financial Management" [ref=e928] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e930]
+            - generic [ref=e932]: Financial Management
+        - listitem [ref=e933]:
+          - link "Help & Support" [ref=e934] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e936]
+            - generic [ref=e939]: Help & Support
+        - listitem [ref=e940]:
+          - link "Settings" [ref=e941] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e943]
+            - generic [ref=e946]: Settings
+      - list [ref=e101]:
+        - listitem [ref=e947]:
+          - link "Logout" [ref=e948] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e950]
+            - generic [ref=e953]: Logout
+    - generic [ref=e109]:
+      - banner [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - heading "Financial Management" [level=1] [ref=e954]
+            - button "liveIndicator.live" [ref=e955] [cursor=pointer]
+          - generic [ref=e118]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e119]
+            - button "Search by voice" [ref=e121] [cursor=pointer]:
+              - img [ref=e122]
+        - generic [ref=e125]:
+          - button "Help & Support" [ref=e127] [cursor=pointer]:
+            - img [ref=e128]
+          - button "Change language" [ref=e134] [cursor=pointer]:
+            - img [ref=e135]
+            - img "English (US) Flag" [ref=e138]
+          - button "Switch to dark mode" [ref=e144] [cursor=pointer]:
+            - img [ref=e145]
+          - button "View announcements" [ref=e148] [cursor=pointer]:
+            - img [ref=e149]
+          - button "User Welcome! Admin" [ref=e156] [cursor=pointer]:
+            - img "User" [ref=e157]
+            - generic [ref=e158]:
+              - generic [ref=e159]: Welcome!
+              - generic [ref=e160]: Admin
+            - img [ref=e161]
+      - main [ref=e163]:
+        - generic [ref=e956]:
+          - generic [ref=e957]:
+            - heading "Financial Management" [level=1] [ref=e958]
+            - paragraph [ref=e959]: Central source of truth for all financial operations
+          - navigation [ref=e961]:
+            - button "Overview" [ref=e962] [cursor=pointer]
+            - button "Transactions" [ref=e963] [cursor=pointer]
+            - button "Donations" [ref=e964] [cursor=pointer]
+            - button "Pledges" [ref=e965] [cursor=pointer]
+            - button "Budgets" [ref=e966] [cursor=pointer]
+            - button "Disbursements" [ref=e967] [cursor=pointer]
+            - button "Grants & Funds" [ref=e968] [cursor=pointer]
+            - button "Approvals" [ref=e969] [cursor=pointer]
+            - button "Reports" [ref=e970] [cursor=pointer]
+          - generic [ref=e971]:
+            - generic [ref=e972]:
+              - generic [ref=e973]:
+                - img [ref=e975]
+                - generic [ref=e977]:
+                  - paragraph [ref=e978]: $134
+                  - paragraph [ref=e979]: Total Revenue YTD
+                  - paragraph [ref=e980]: ▲ 12.3%
+              - generic [ref=e981]:
+                - img [ref=e983]
+                - generic [ref=e986]:
+                  - paragraph [ref=e987]: $0
+                  - paragraph [ref=e988]: Total Expenses YTD
+                  - paragraph [ref=e989]: ▼ 5.1%
+              - generic [ref=e990]:
+                - img [ref=e992]
+                - generic [ref=e995]:
+                  - paragraph [ref=e996]: $134
+                  - paragraph [ref=e997]: Net Income
+              - generic [ref=e998]:
+                - img [ref=e1000]
+                - generic [ref=e1003]:
+                  - paragraph [ref=e1004]: $0
+                  - paragraph [ref=e1005]: Outstanding Pledges
+            - generic [ref=e1006]:
+              - generic [ref=e1007]:
+                - heading "Revenue vs Expenses" [level=3] [ref=e1008]
+                - application [ref=e1012]:
+                  - generic [ref=e1024]:
+                    - generic [ref=e1025]:
+                      - generic [ref=e1027]: Jun
+                      - generic [ref=e1029]: Jul
+                      - generic [ref=e1031]: Aug
+                      - generic [ref=e1033]: Sep
+                      - generic [ref=e1035]: Oct
+                      - generic [ref=e1037]: Nov
+                      - generic [ref=e1039]: Dec
+                      - generic [ref=e1041]: Jan
+                      - generic [ref=e1043]: Feb
+                      - generic [ref=e1045]: Mar
+                      - generic [ref=e1047]: Apr
+                      - generic [ref=e1049]: May
+                    - generic [ref=e1050]:
+                      - generic [ref=e1052]: $0k
+                      - generic [ref=e1054]: $0k
+                      - generic [ref=e1056]: $0k
+                      - generic [ref=e1058]: $0k
+                      - generic [ref=e1060]: $0k
+              - generic [ref=e1061]:
+                - heading "Fund Balances" [level=3] [ref=e1062]
+                - generic [ref=e1074]:
+                  - generic [ref=e1075]: $0k
+                  - generic [ref=e1076]: $0k
+                  - generic [ref=e1077]: $0k
+                  - generic [ref=e1078]: $0k
+                  - generic [ref=e1079]: $0k
+                - generic [ref=e1080]:
+                  - generic [ref=e1083]: Unrestricted
+                  - generic [ref=e1086]: Temporarily Restricted
+                  - generic [ref=e1089]: Permanently Restricted
+            - generic [ref=e1090]:
+              - generic [ref=e1091]:
+                - generic [ref=e1092]:
+                  - heading "Recent Transactions" [level=3] [ref=e1093]
+                  - button "View All" [ref=e1094] [cursor=pointer]
+                - table [ref=e1096]:
+                  - rowgroup [ref=e1097]:
+                    - row "Date Description Amount Status" [ref=e1098]:
+                      - columnheader "Date" [ref=e1099]
+                      - columnheader "Description" [ref=e1100]
+                      - columnheader "Amount" [ref=e1101]
+                      - columnheader "Status" [ref=e1102]
+                  - rowgroup [ref=e1103]:
+                    - row "2026-05-19T00:00:00.000Z sadf +$12 Draft" [ref=e1104]:
+                      - cell "2026-05-19T00:00:00.000Z" [ref=e1105]
+                      - cell "sadf" [ref=e1106]
+                      - cell "+$12" [ref=e1107]
+                      - cell "Draft" [ref=e1108]:
+                        - generic [ref=e1109]: Draft
+                    - row "2026-05-19T00:00:00.000Z teast +$100 Approved" [ref=e1110]:
+                      - cell "2026-05-19T00:00:00.000Z" [ref=e1111]
+                      - cell "teast" [ref=e1112]
+                      - cell "+$100" [ref=e1113]
+                      - cell "Approved" [ref=e1114]:
+                        - generic [ref=e1115]: Approved
+                    - row "2026-05-19T00:00:00.000Z test +$22 Approved" [ref=e1116]:
+                      - cell "2026-05-19T00:00:00.000Z" [ref=e1117]
+                      - cell "test" [ref=e1118]
+                      - cell "+$22" [ref=e1119]
+                      - cell "Approved" [ref=e1120]:
+                        - generic [ref=e1121]: Approved
+              - heading "Financial Alerts" [level=3] [ref=e1123]
+  - generic [ref=e776]: $0k

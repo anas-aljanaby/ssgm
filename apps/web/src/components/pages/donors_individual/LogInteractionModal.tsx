@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
+import ModalPortal from '../../common/ModalPortal';
 import { XIcon } from '../../icons/GenericIcons';
 
 interface LogInteractionModalProps {
@@ -20,11 +21,9 @@ const LogInteractionModal: React.FC<LogInteractionModalProps> = ({ isOpen, onClo
         onLog({ type, date, subject, notes });
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
-            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg m-4" onClick={e => e.stopPropagation()}>
+        <ModalPortal isOpen={isOpen} onClose={onClose} dir="rtl">
+            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold">{t('individual_donors.modals.log_interaction.title')}</h2>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"><XIcon /></button>
@@ -61,7 +60,7 @@ const LogInteractionModal: React.FC<LogInteractionModalProps> = ({ isOpen, onClo
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

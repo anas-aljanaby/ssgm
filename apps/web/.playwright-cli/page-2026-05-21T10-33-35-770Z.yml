@@ -1,0 +1,223 @@
+- generic [ref=e15]:
+  - navigation [ref=e16]:
+    - button "Collapse sidebar" [expanded] [ref=e17] [cursor=pointer]:
+      - img [ref=e18]
+    - generic [ref=e20]:
+      - generic [ref=e22]: M
+      - heading "MSS.2" [level=1] [ref=e23]
+    - list [ref=e25]:
+      - listitem [ref=e465]:
+        - link "Dashboard" [ref=e466] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e468]
+          - generic [ref=e473]: Dashboard
+      - listitem [ref=e474]:
+        - link "Bousala" [ref=e475] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e477]
+          - generic [ref=e480]: Bousala
+      - listitem [ref=e481]:
+        - link "Stakeholder Management" [ref=e482] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e484]
+          - generic [ref=e489]: Stakeholder Management
+      - listitem [ref=e490]:
+        - link "Donor Management" [ref=e491] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e493]
+          - generic [ref=e495]: Donor Management
+      - listitem [ref=e496]:
+        - link "Institutional Donors" [ref=e497] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e499]
+          - generic [ref=e501]: Institutional Donors
+      - listitem [ref=e502]:
+        - link "Beneficiary Management" [ref=e503] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e505]
+          - generic [ref=e510]: Beneficiary Management
+      - listitem [ref=e511]:
+        - link "Project Management" [ref=e512] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e514]
+          - generic [ref=e518]: Project Management
+      - listitem [ref=e519]:
+        - link "Financial Management" [ref=e520] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e522]
+          - generic [ref=e524]: Financial Management
+      - listitem [ref=e525]:
+        - link "Help & Support" [ref=e526] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e528]
+          - generic [ref=e531]: Help & Support
+      - listitem [ref=e532]:
+        - link "Settings" [ref=e533] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e535]
+          - generic [ref=e538]: Settings
+    - list [ref=e101]:
+      - listitem [ref=e539]:
+        - link "Logout" [ref=e540] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e542]
+          - generic [ref=e545]: Logout
+  - generic [ref=e109]:
+    - banner [ref=e110]:
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - heading "Donor Management" [level=1] [ref=e113]
+          - button "liveIndicator.live" [ref=e546] [cursor=pointer]
+        - generic [ref=e118]:
+          - generic:
+            - img
+          - searchbox "Search everything..." [ref=e119]
+          - button "Search by voice" [ref=e121] [cursor=pointer]:
+            - img [ref=e122]
+      - generic [ref=e125]:
+        - button "Help & Support" [ref=e127] [cursor=pointer]:
+          - img [ref=e128]
+        - button "Change language" [ref=e134] [cursor=pointer]:
+          - img [ref=e135]
+          - img "English (US) Flag" [ref=e138]
+        - button "Switch to dark mode" [ref=e144] [cursor=pointer]:
+          - img [ref=e145]
+        - button "View announcements" [ref=e148] [cursor=pointer]:
+          - img [ref=e149]
+        - button "User Welcome! Admin" [ref=e156] [cursor=pointer]:
+          - img "User" [ref=e157]
+          - generic [ref=e158]:
+            - generic [ref=e159]: Welcome!
+            - generic [ref=e160]: Admin
+          - img [ref=e161]
+    - main [ref=e163]:
+      - generic [ref=e164]:
+        - heading "Donor Management" [level=1] [ref=e165]
+        - navigation [ref=e167]:
+          - button "Registry" [ref=e168] [cursor=pointer]
+          - button "Analytics" [ref=e169] [cursor=pointer]
+        - generic [ref=e547]:
+          - button "Back to Donors List" [ref=e548] [cursor=pointer]:
+            - img [ref=e549]
+            - text: Back to Donors List
+          - generic [ref=e551]:
+            - generic [ref=e552]:
+              - generic [ref=e553]:
+                - img "John Smith" [ref=e554]
+                - generic [ref=e555]:
+                  - heading "John Smith" [level=1] [ref=e556]
+                  - paragraph [ref=e557]:
+                    - img [ref=e558]
+                    - text: USA
+                  - generic [ref=e561]:
+                    - generic [ref=e562]: Silver
+                    - generic [ref=e563]: Active
+                    - generic [ref=e564]: Donated
+                    - generic [ref=e565]: Good
+                    - generic [ref=e566]: Healthcare
+              - generic [ref=e567]:
+                - button "Edit" [ref=e568] [cursor=pointer]:
+                  - img [ref=e569]
+                  - text: Edit
+                - button "Send Email" [ref=e572] [cursor=pointer]:
+                  - img [ref=e573]
+                  - text: Send Email
+                - button "Log Interaction" [ref=e576] [cursor=pointer]:
+                  - img [ref=e577]
+                  - text: Log Interaction
+            - generic [ref=e579]:
+              - generic [ref=e580]:
+                - paragraph [ref=e581]: Total Donations
+                - generic [ref=e582]: $750
+              - generic [ref=e583]:
+                - paragraph [ref=e584]: Donor Type
+                - generic [ref=e585]: Recurring
+              - generic [ref=e586]:
+                - paragraph [ref=e587]: Owner
+                - generic [ref=e588]: Fatma Kaya
+              - generic [ref=e589]:
+                - paragraph [ref=e590]: Last Contact
+                - generic [ref=e591]: 2 years ago
+              - generic [ref=e592]:
+                - paragraph [ref=e593]: Open Tasks
+                - generic [ref=e594]: N/A
+          - generic [ref=e595]:
+            - navigation [ref=e598]:
+              - button "Overview" [ref=e599] [cursor=pointer]
+              - button "Giving" [ref=e600] [cursor=pointer]
+              - button "Relationship / Activity" [ref=e601] [cursor=pointer]
+              - button "Documents" [ref=e602] [cursor=pointer]
+            - generic [ref=e604]:
+              - generic [ref=e605]:
+                - generic [ref=e607]:
+                  - img [ref=e609]
+                  - generic [ref=e611]:
+                    - paragraph [ref=e612]: Total Donations
+                    - generic [ref=e613]: $750
+                - generic [ref=e615]:
+                  - img [ref=e617]
+                  - generic [ref=e621]:
+                    - paragraph [ref=e622]: Total Gifts
+                    - generic [ref=e623]: "4"
+                - generic [ref=e625]:
+                  - img [ref=e627]
+                  - generic [ref=e631]:
+                    - paragraph [ref=e632]: Pipeline Stage
+                    - generic [ref=e633]: Donated
+                    - paragraph [ref=e634]: 2 years ago
+              - generic [ref=e635]:
+                - generic [ref=e636]:
+                  - generic [ref=e637]:
+                    - img [ref=e639]
+                    - heading "Task Summary" [level=3] [ref=e642]
+                  - paragraph [ref=e644]: No tasks yet.
+                - generic [ref=e645]:
+                  - generic [ref=e646]:
+                    - img [ref=e648]
+                    - heading "Contact Information" [level=3] [ref=e650]
+                  - generic [ref=e651]:
+                    - button "Edit" [ref=e653] [cursor=pointer]:
+                      - img [ref=e654]
+                    - generic [ref=e657]:
+                      - paragraph [ref=e658]: Email
+                      - link "john.smith@example.com" [ref=e660] [cursor=pointer]:
+                        - /url: mailto:john.smith@example.com
+                    - generic [ref=e661]:
+                      - paragraph [ref=e662]: Phone
+                      - link "+1 202 555 0191" [ref=e664] [cursor=pointer]:
+                        - /url: tel:+1 202 555 0191
+              - generic [ref=e665]:
+                - generic [ref=e666]:
+                  - img [ref=e668]
+                  - heading "Recent Activity" [level=3] [ref=e671]
+                - generic [ref=e672]:
+                  - generic [ref=e673]:
+                    - img [ref=e675]
+                    - generic [ref=e679]:
+                      - paragraph [ref=e680]: $200 / Healthcare
+                      - paragraph [ref=e681]: 4 weeks ago / posted
+                  - generic [ref=e682]:
+                    - img [ref=e684]
+                    - generic [ref=e688]:
+                      - paragraph [ref=e689]: $200 / Healthcare
+                      - paragraph [ref=e690]: 2 months ago / posted
+                  - generic [ref=e691]:
+                    - img [ref=e693]
+                    - generic [ref=e697]:
+                      - paragraph [ref=e698]: $200 / Community
+                      - paragraph [ref=e699]: 3 months ago / posted
+                  - generic [ref=e700]:
+                    - img [ref=e702]
+                    - generic [ref=e706]:
+                      - paragraph [ref=e707]: $150 / Healthcare
+                      - paragraph [ref=e708]: 4 months ago / posted
+                  - generic [ref=e709]:
+                    - img [ref=e711]
+                    - generic [ref=e713]:
+                      - paragraph [ref=e714]: Monthly Update
+                      - paragraph [ref=e715]: 2 years ago / opened
+                  - generic [ref=e716]:
+                    - img [ref=e718]
+                    - generic [ref=e720]:
+                      - paragraph [ref=e721]: Quick Question
+                      - paragraph [ref=e722]: 2 years ago / responded

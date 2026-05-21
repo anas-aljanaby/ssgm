@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import ModalPortal from '../../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import type { Project, InstitutionalDonor } from '../../../types';
@@ -67,11 +68,9 @@ const DraftApplicationModal: React.FC<DraftApplicationModalProps> = ({ isOpen, o
         toast.showSuccess(t('institutional_donors.opportunities.draftCopied'));
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
-            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-3xl m-4 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+        <ModalPortal isOpen={isOpen} onClose={onClose}>
+            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-3xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold flex items-center gap-2">
                         <SparklesIcon className="w-5 h-5 text-primary" />
@@ -105,7 +104,7 @@ const DraftApplicationModal: React.FC<DraftApplicationModalProps> = ({ isOpen, o
                     </div>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

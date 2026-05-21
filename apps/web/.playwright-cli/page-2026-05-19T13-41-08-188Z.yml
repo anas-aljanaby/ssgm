@@ -1,0 +1,93 @@
+- generic [ref=e17]:
+  - navigation [ref=e18]:
+    - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+      - img [ref=e20]
+    - generic [ref=e22]:
+      - generic [ref=e24]: M
+      - heading "MSS.2" [level=1] [ref=e25]
+    - list [ref=e27]:
+      - listitem [ref=e28]:
+        - link "Dashboard" [ref=e29] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e31]
+          - generic [ref=e36]: Dashboard
+      - listitem [ref=e37]:
+        - link "Bousala" [ref=e38] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e40]
+          - generic [ref=e43]: Bousala
+      - listitem [ref=e44]:
+        - link "Stakeholder Management" [ref=e45] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e47]
+          - generic [ref=e52]: Stakeholder Management
+      - listitem [ref=e53]:
+        - link "Donor Management" [ref=e54] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e56]
+          - generic [ref=e58]: Donor Management
+      - listitem [ref=e59]:
+        - link "Institutional Donors" [ref=e60] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e62]
+          - generic [ref=e64]: Institutional Donors
+      - listitem [ref=e65]:
+        - link "Beneficiary Management" [ref=e66] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e68]
+          - generic [ref=e73]: Beneficiary Management
+      - listitem [ref=e74]:
+        - link "Project Management" [ref=e75] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e77]
+          - generic [ref=e81]: Project Management
+      - listitem [ref=e82]:
+        - link "Financial Management" [ref=e83] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e85]
+          - generic [ref=e87]: Financial Management
+      - listitem [ref=e88]:
+        - link "Help & Support" [ref=e89] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e91]
+          - generic [ref=e94]: Help & Support
+      - listitem [ref=e95]:
+        - link "Settings" [ref=e96] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e98]
+          - generic [ref=e101]: Settings
+    - list [ref=e103]:
+      - listitem [ref=e104]:
+        - link "Logout" [ref=e105] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e107]
+          - generic [ref=e110]: Logout
+  - generic [ref=e111]:
+    - banner [ref=e112]:
+      - generic [ref=e113]:
+        - generic [ref=e114]:
+          - heading "Dashboard" [level=1] [ref=e115]
+          - button "liveIndicator.live" [ref=e117] [cursor=pointer]
+        - generic [ref=e120]:
+          - generic:
+            - img
+          - searchbox "Search everything..." [ref=e121]
+          - button "Search by voice" [ref=e123] [cursor=pointer]:
+            - img [ref=e124]
+      - generic [ref=e127]:
+        - button "Help & Support" [ref=e129] [cursor=pointer]:
+          - img [ref=e130]
+        - button "Change language" [ref=e136] [cursor=pointer]:
+          - img [ref=e137]
+          - img "English (US) Flag" [ref=e140]
+        - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+          - img [ref=e147]
+        - button "View announcements" [ref=e150] [cursor=pointer]:
+          - img [ref=e151]
+        - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+          - img "User" [ref=e159]
+          - generic [ref=e160]:
+            - generic [ref=e161]: Welcome!
+            - generic [ref=e162]: Admin
+          - img [ref=e163]
+    - main [ref=e165]

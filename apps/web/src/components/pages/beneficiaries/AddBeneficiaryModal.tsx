@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalPortal from '../../common/ModalPortal';
 import { XIcon } from '../../icons/GenericIcons';
 import type { Beneficiary, BeneficiaryType, SupportType, BeneficiaryProfile } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
@@ -48,8 +49,8 @@ const AddBeneficiaryModal: React.FC<AddBeneficiaryModalProps> = ({ isOpen, onClo
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in" onClick={onClose} role="dialog" aria-modal="true">
-            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg m-4" onClick={e => e.stopPropagation()}>
+        <ModalPortal isOpen={isOpen} onClose={onClose}>
+            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold text-foreground dark:text-dark-foreground">{t('beneficiaries.addModal.title')}</h2>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700" aria-label={t('common.close')}>
@@ -106,7 +107,7 @@ const AddBeneficiaryModal: React.FC<AddBeneficiaryModalProps> = ({ isOpen, onClo
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

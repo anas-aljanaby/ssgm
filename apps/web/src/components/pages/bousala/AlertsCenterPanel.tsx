@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { formatTime } from '../../../lib/utils';
 import type { BousalaGoal } from '../../../types';
@@ -24,7 +25,7 @@ interface AlertsCenterPanelProps {
 }
 
 const AlertsCenterPanel: React.FC<AlertsCenterPanelProps> = ({ isOpen, onClose, goals, onCreateTask, setNotificationCount }) => {
-    const { t, dir } = useLocalization();
+    const { t, dir, language } = useLocalization();
     const [alerts, setAlerts] = useState<SmartAlert[]>([]);
     const [reviewedAlerts, setReviewedAlerts] = useState<Set<string>>(() => {
         try {
@@ -119,16 +120,18 @@ const AlertsCenterPanel: React.FC<AlertsCenterPanelProps> = ({ isOpen, onClose, 
     }, [alerts, filters]);
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/60" onClick={onClose} />
+        <ModalPortal
+            isOpen={isOpen}
+            onClose={onClose}
+            dir={dir === 'rtl' ? 'rtl' : 'ltr'}
+            containerClassName="relative flex min-h-full w-full items-stretch p-0"
+        >
                     <motion.div
                         initial={{ x: dir === 'rtl' ? '-100%' : '100%' }}
                         animate={{ x: 0 }}
-                        exit={{ x: dir === 'rtl' ? '-100%' : '100%' }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                         className={`fixed top-0 ${dir === 'rtl' ? 'left-0' : 'right-0'} h-full w-full max-w-md bg-card dark:bg-dark-card shadow-2xl flex flex-col`}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <header className="p-4 flex justify-between items-center border-b dark:border-slate-700">
                             <h2 className="text-lg font-bold">{t('bousala.alertsCenter.title')}</h2>
@@ -165,9 +168,7 @@ const AlertsCenterPanel: React.FC<AlertsCenterPanelProps> = ({ isOpen, onClose, 
                             ))}
                         </div>
                     </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
+        </ModalPortal>
     );
 };
 

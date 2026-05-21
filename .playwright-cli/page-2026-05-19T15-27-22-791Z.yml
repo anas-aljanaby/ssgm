@@ -1,0 +1,208 @@
+- generic [ref=e1]:
+  - generic [ref=e15]:
+    - navigation [ref=e16]:
+      - button "Collapse sidebar" [expanded] [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+      - generic [ref=e20]:
+        - generic [ref=e22]: M
+        - heading "MSS.2" [level=1] [ref=e23]
+      - list [ref=e25]:
+        - listitem [ref=e868]:
+          - link "Dashboard" [ref=e869] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e871]
+            - generic [ref=e876]: Dashboard
+        - listitem [ref=e877]:
+          - link "Bousala" [ref=e878] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e880]
+            - generic [ref=e883]: Bousala
+        - listitem [ref=e884]:
+          - link "Stakeholder Management" [ref=e885] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e887]
+            - generic [ref=e892]: Stakeholder Management
+        - listitem [ref=e893]:
+          - link "Donor Management" [ref=e894] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e896]
+            - generic [ref=e898]: Donor Management
+        - listitem [ref=e899]:
+          - link "Institutional Donors" [ref=e900] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e902]
+            - generic [ref=e904]: Institutional Donors
+        - listitem [ref=e905]:
+          - link "Beneficiary Management" [ref=e906] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e908]
+            - generic [ref=e913]: Beneficiary Management
+        - listitem [ref=e914]:
+          - link "Project Management" [ref=e915] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e917]
+            - generic [ref=e921]: Project Management
+        - listitem [ref=e922]:
+          - link "Financial Management" [ref=e923] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e925]
+            - generic [ref=e927]: Financial Management
+        - listitem [ref=e928]:
+          - link "Help & Support" [ref=e929] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e931]
+            - generic [ref=e934]: Help & Support
+        - listitem [ref=e935]:
+          - link "Settings" [ref=e936] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e938]
+            - generic [ref=e941]: Settings
+      - list [ref=e101]:
+        - listitem [ref=e942]:
+          - link "Logout" [ref=e943] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e945]
+            - generic [ref=e948]: Logout
+    - generic [ref=e109]:
+      - banner [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - heading "Financial Management" [level=1] [ref=e949]
+            - button "liveIndicator.offline" [ref=e1117] [cursor=pointer]
+          - generic [ref=e118]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e119]
+            - button "Search by voice" [ref=e121] [cursor=pointer]:
+              - img [ref=e122]
+        - generic [ref=e125]:
+          - button "Help & Support" [ref=e127] [cursor=pointer]:
+            - img [ref=e128]
+          - button "Change language" [ref=e134] [cursor=pointer]:
+            - img [ref=e135]
+            - img "English (US) Flag" [ref=e138]
+          - button "Switch to dark mode" [ref=e144] [cursor=pointer]:
+            - img [ref=e145]
+          - button "View announcements" [ref=e148] [cursor=pointer]:
+            - img [ref=e149]
+          - button "User Welcome! Admin" [ref=e156] [cursor=pointer]:
+            - img "User" [ref=e157]
+            - generic [ref=e158]:
+              - generic [ref=e159]: Welcome!
+              - generic [ref=e160]: Admin
+            - img [ref=e161]
+      - main [ref=e163]:
+        - generic [ref=e951]:
+          - generic [ref=e952]:
+            - heading "Financial Management" [level=1] [ref=e953]
+            - paragraph [ref=e954]: Central source of truth for all financial operations
+          - navigation [ref=e956]:
+            - button "Overview" [ref=e957] [cursor=pointer]
+            - button "Transactions" [active] [ref=e958] [cursor=pointer]
+            - button "Donations" [ref=e959] [cursor=pointer]
+            - button "Pledges" [ref=e960] [cursor=pointer]
+            - button "Budgets" [ref=e961] [cursor=pointer]
+            - button "Disbursements" [ref=e962] [cursor=pointer]
+            - button "Grants & Funds" [ref=e963] [cursor=pointer]
+            - button "Approvals" [ref=e964] [cursor=pointer]
+            - button "Reports" [ref=e965] [cursor=pointer]
+          - generic [ref=e1118]:
+            - generic [ref=e1119]:
+              - generic [ref=e1121]:
+                - generic [ref=e1122]:
+                  - img
+                  - textbox "Search transactions..." [ref=e1123]
+                - combobox [ref=e1124]:
+                  - option "All Statuses" [selected]
+                  - option "Draft"
+                  - option "Pending"
+                  - option "Approved"
+                  - option "Posted"
+                  - option "Reconciled"
+                  - option "Voided"
+                - combobox [ref=e1125]:
+                  - option "All Directions" [selected]
+                  - option "Inflow"
+                  - option "Outflow"
+                - combobox [ref=e1126]:
+                  - option "All Categories" [selected]
+                  - option "Donation"
+                  - option "Grant Income"
+                  - option "Sponsorship"
+                  - option "Investment"
+                  - option "Other Income"
+                  - option "Project Expense"
+                  - option "Operational"
+                  - option "Disbursement"
+                  - option "Payroll"
+                  - option "Procurement"
+                  - option "Refund"
+              - button "Add Transaction" [ref=e1127] [cursor=pointer]:
+                - img [ref=e1128]
+                - text: Add Transaction
+            - table [ref=e1130]:
+              - rowgroup [ref=e1131]:
+                - row "Date Reference Description Category Direction Amount Status Related Entity" [ref=e1132]:
+                  - columnheader "Date" [ref=e1133] [cursor=pointer]:
+                    - generic [ref=e1134]: Date
+                  - columnheader "Reference" [ref=e1135]:
+                    - generic [ref=e1136]: Reference
+                  - columnheader "Description" [ref=e1137]:
+                    - generic [ref=e1138]: Description
+                  - columnheader "Category" [ref=e1139]:
+                    - generic [ref=e1140]: Category
+                  - columnheader "Direction" [ref=e1141]:
+                    - generic [ref=e1142]: Direction
+                  - columnheader "Amount" [ref=e1143] [cursor=pointer]:
+                    - generic [ref=e1144]: Amount
+                  - columnheader "Status" [ref=e1145]:
+                    - generic [ref=e1146]: Status
+                  - columnheader "Related Entity" [ref=e1147]:
+                    - generic [ref=e1148]: Related Entity
+              - rowgroup [ref=e1149]:
+                - row "May 19, 2026 sadf Donation ↑ Inflow +$12 Draft —" [ref=e1150]:
+                  - cell "May 19, 2026" [ref=e1151]
+                  - cell [ref=e1152]
+                  - cell "sadf" [ref=e1153]
+                  - cell "Donation" [ref=e1154]:
+                    - generic [ref=e1155]: Donation
+                  - cell "↑ Inflow" [ref=e1156]:
+                    - generic [ref=e1157]:
+                      - generic [ref=e1158]: ↑
+                      - text: Inflow
+                  - cell "+$12" [ref=e1159]:
+                    - generic [ref=e1160]: +$12
+                  - cell "Draft" [ref=e1161]:
+                    - generic [ref=e1162]: Draft
+                  - cell "—" [ref=e1163]
+                - row "May 19, 2026 teast Donation ↑ Inflow +$100 Approved test" [ref=e1164]:
+                  - cell "May 19, 2026" [ref=e1165]
+                  - cell [ref=e1166]
+                  - cell "teast" [ref=e1167]
+                  - cell "Donation" [ref=e1168]:
+                    - generic [ref=e1169]: Donation
+                  - cell "↑ Inflow" [ref=e1170]:
+                    - generic [ref=e1171]:
+                      - generic [ref=e1172]: ↑
+                      - text: Inflow
+                  - cell "+$100" [ref=e1173]:
+                    - generic [ref=e1174]: +$100
+                  - cell "Approved" [ref=e1175]:
+                    - generic [ref=e1176]: Approved
+                  - cell "test" [ref=e1177]
+                - row "May 19, 2026 test Donation ↑ Inflow +$22 Approved —" [ref=e1178]:
+                  - cell "May 19, 2026" [ref=e1179]
+                  - cell [ref=e1180]
+                  - cell "test" [ref=e1181]
+                  - cell "Donation" [ref=e1182]:
+                    - generic [ref=e1183]: Donation
+                  - cell "↑ Inflow" [ref=e1184]:
+                    - generic [ref=e1185]:
+                      - generic [ref=e1186]: ↑
+                      - text: Inflow
+                  - cell "+$22" [ref=e1187]:
+                    - generic [ref=e1188]: +$22
+                  - cell "Approved" [ref=e1189]:
+                    - generic [ref=e1190]: Approved
+                  - cell "—" [ref=e1191]
+  - generic [ref=e776]: $0k

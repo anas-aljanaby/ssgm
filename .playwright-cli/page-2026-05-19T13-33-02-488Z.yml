@@ -1,0 +1,13 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e923]:
+    - heading "Sign In" [level=1] [ref=e924]
+    - generic [ref=e925]:
+      - generic [ref=e926]:
+        - generic [ref=e927]: Email
+        - textbox [ref=e928]
+      - generic [ref=e929]:
+        - generic [ref=e930]: Password
+        - textbox [ref=e931]
+      - button "Sign In" [ref=e932] [cursor=pointer]
+    - button "Don't have an account? Sign up" [ref=e933] [cursor=pointer]
+  - generic [ref=e408]: $0k

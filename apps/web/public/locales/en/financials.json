@@ -53,7 +53,11 @@
       "amount": "Amount",
       "status": "Status",
       "relatedEntity": "Related Entity",
-      "noTransactions": "No transactions match your filters"
+      "noTransactions": "No transactions match your filters",
+      "delete": "Delete",
+      "deleteConfirm": "Permanently delete \"{{description}}\"? This cannot be undone.",
+      "deleteSuccess": "Transaction deleted",
+      "deleteFailed": "Unable to delete transaction. Please try again."
     },
     "donations": {
       "title": "Donations & Receipts",
@@ -73,7 +77,8 @@
       "recurring": "Recurring",
       "generateReceipt": "Generate Receipt",
       "viewReceipt": "View Receipt",
-      "noDonations": "No donations match your filters"
+      "noDonations": "No donations match your filters",
+      "noDonationsYet": "No donations recorded yet"
     },
     "pledges": {
       "title": "Pledges & Commitments",
@@ -246,6 +251,25 @@
       "high": "High",
       "medium": "Medium",
       "low": "Low"
+    },
+    "entityType": {
+      "donor": "Donor",
+      "project": "Project",
+      "beneficiary": "Beneficiary",
+      "institutional_donor": "Institutional Donor",
+      "vendor": "Vendor"
+    },
+    "addDonation": {
+      "title": "Add Donation",
+      "save": "Save Donation",
+      "addFirst": "Add your first donation",
+      "descPlaceholder": "e.g. Monthly donation from...",
+      "designationPlaceholder": "e.g. Education Fund",
+      "isRecurring": "Recurring donation",
+      "frequency": "Frequency",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "annually": "Annually"
     },
     "addTransaction": {
       "title": "Add Transaction",

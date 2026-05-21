@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import type { BeneficiaryType, NeedsAssessment } from '../../../types';
+import ModalPortal from '../../common/ModalPortal';
 import { XIcon } from '../../icons/GenericIcons';
 import Spinner from '../../common/Spinner';
 import { generateAiContent, parseAiJson } from '../../../lib/ai';
@@ -91,11 +92,9 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({ isOpen, onClose, onSa
         }
     };
     
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in" onClick={onClose}>
-            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl m-4" onClick={e => e.stopPropagation()}>
+        <ModalPortal isOpen={isOpen} onClose={onClose}>
+            <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 className="text-xl font-bold">{t('beneficiaries.assessment.newAssessment')}</h2>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700" aria-label={t('common.close')}><XIcon /></button>
@@ -149,7 +148,7 @@ const AssessmentModal: React.FC<AssessmentModalProps> = ({ isOpen, onClose, onSa
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

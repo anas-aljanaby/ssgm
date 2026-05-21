@@ -8,6 +8,7 @@ import { SunIcon, MoonIcon, ChevronDownIcon } from '../icons/GenericIcons';
 import { SUPPORTED_LANGUAGES } from '../../lib/i18n';
 import { langToFlag } from '../icons/FlagIcons';
 import type { Role } from '../../types';
+import ModalPortal from '../common/ModalPortal';
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -47,14 +48,14 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose, activeMo
   };
 
   return (
-    <div className={`fixed inset-0 z-50 md:hidden ${isOpen ? 'block' : 'hidden'}`} role="dialog" aria-modal="true">
-      <div 
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-400 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0'}`}
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      
-      <nav className={`relative h-full w-4/5 max-w-xs bg-card/85 dark:bg-dark-card/85 backdrop-blur-xl flex flex-col transition-transform duration-500 ease-bounce-out shadow-2xl ltr:rounded-e-2xl rtl:rounded-s-2xl ${isOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'}`}>
+    <ModalPortal
+      isOpen={isOpen}
+      onClose={onClose}
+      dir={dir === 'rtl' ? 'rtl' : 'ltr'}
+      overlayClassName="fixed inset-0 bg-black/60 backdrop-blur-sm modal-overlay animate-fade-in md:hidden transition-opacity duration-400 ease-in-out md:pointer-events-none"
+      containerClassName="relative flex min-h-full w-full items-stretch p-0 md:hidden md:pointer-events-none"
+    >
+      <nav className={`pointer-events-auto relative h-full w-4/5 max-w-xs bg-card/85 dark:bg-dark-card/85 backdrop-blur-xl flex flex-col transition-transform duration-500 ease-bounce-out shadow-2xl ltr:rounded-e-2xl rtl:rounded-s-2xl ${isOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'}`}>
         <div 
             className={`transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 ltr:-translate-x-5 rtl:translate-x-5'}`}
             style={{ transitionDelay: isOpen ? '100ms' : '0ms' }}
@@ -148,8 +149,8 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose, activeMo
             </div>
         </div>
       </nav>
-    </div>
-  )
+    </ModalPortal>
+  );
 };
 
 export default MobileSidebar;

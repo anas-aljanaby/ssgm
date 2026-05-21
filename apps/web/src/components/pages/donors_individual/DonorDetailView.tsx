@@ -25,32 +25,45 @@ interface DonorDetailViewProps {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DONOR_TYPES: NonNullable<IndividualDonor['donorType']>[] = ['Individual', 'Company', 'Foundation', 'Major Donor', 'Recurring'];
 
+const MAX_TAG_LEN = 30;
+const MAX_TAGS = 20;
+
 interface HeaderFormState {
     fullNameEn: string;
     fullNameAr: string;
     country: string;
-    tagsText: string;
+    tags: string[];
+    pendingTagInput: string;
     status: IndividualDonor['status'];
     tier: IndividualDonor['tier'];
     donorType: NonNullable<IndividualDonor['donorType']>;
     assignedManager: string;
 }
 
+const normalizeTag = (raw: string): string | null => {
+    const tag = raw.trim();
+    if (!tag || tag.length > MAX_TAG_LEN) return null;
+    return tag;
+};
+
+const addTag = (tags: string[], raw: string): string[] => {
+    const tag = normalizeTag(raw);
+    if (!tag || tags.includes(tag)) return tags;
+    if (tags.length >= MAX_TAGS) return tags;
+    return [...tags, tag];
+};
+
 const buildHeaderFormState = (donor: IndividualDonor): HeaderFormState => ({
     fullNameEn: donor.fullName.en || '',
     fullNameAr: donor.fullName.ar || '',
     country: donor.country || '',
-    tagsText: (donor.tags || []).join(', '),
+    tags: [...(donor.tags || [])],
+    pendingTagInput: '',
     status: donor.status,
     tier: donor.tier,
     donorType: donor.donorType || 'Individual',
     assignedManager: donor.assignedManager || '',
 });
-
-const parseTags = (value: string) => Array.from(new Set(value
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter(Boolean)));
 
 const toTaskIsoDate = (value: string) => {
     const date = value ? new Date(value) : new Date();
@@ -311,7 +324,7 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
             return;
         }
 
-        const tags = parseTags(headerForm.tagsText);
+        const tags = addTag(headerForm.tags, headerForm.pendingTagInput);
         const payload = {
             full_name_en: fullNameEn,
             full_name_ar: headerForm.fullNameAr.trim(),
@@ -466,12 +479,13 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
 
         setIsSavingPipelineAsk(true);
         try {
+            const stageEnteredAt = summary?.relationship.pipelineStage === pipelineStage
+                ? summary?.relationship.stageEnteredAt || new Date().toISOString()
+                : new Date().toISOString();
             const customFields = {
                 ...(summary?.donor.custom_fields || {}),
                 pipeline_stage: pipelineStage,
-                stage_entered_at: summary?.relationship.pipelineStage === pipelineStage
-                    ? summary?.relationship.stageEnteredAt || new Date().toISOString()
-                    : new Date().toISOString(),
+                stage_entered_at: stageEnteredAt,
                 ask_amount: askAmount,
                 suggested_ask_amount: askAmount,
             };
@@ -482,6 +496,22 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                 relationshipStage: pipelineStage as IndividualDonor['relationshipStage'],
                 suggestedAskAmount: askAmount ?? undefined,
             }));
+            queryClient.setQueryData(['donor-profile-summary', editableDonor.id], summary ? {
+                ...summary,
+                donor: {
+                    ...summary.donor,
+                    custom_fields: customFields,
+                },
+                relationship: {
+                    ...summary.relationship,
+                    pipelineStage,
+                    stageEnteredAt,
+                },
+                computed: {
+                    ...summary.computed,
+                    suggestedAskAmount: askAmount,
+                },
+            } : summary);
             invalidateProfile();
             toast.showSuccess(t('individual_donors.detailView.pipelineAskSaved', 'Pipeline and ask updated.'));
         } catch (error) {
@@ -639,6 +669,7 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                         donations={donationsQuery.data || []}
                         isLoading={donationsQuery.isLoading}
                         onSavePipelineAsk={isApiBackedDonor ? handleSavePipelineAsk : undefined}
+                        saveDisabledReason={!isApiBackedDonor ? t('individual_donors.detailView.pipelineSaveUnavailable') : undefined}
                         isSavingPipelineAsk={isSavingPipelineAsk}
                     />
                 );
@@ -721,10 +752,59 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                                                 {DONOR_TYPES.map((option) => <option key={option} value={option}>{t(`donors.types.${option.replace(/ /g, '')}`, option)}</option>)}
                                             </select>
                                         </label>
-                                        <label className="min-w-0 lg:col-span-2">
+                                        <div className="min-w-0 lg:col-span-2">
                                             <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('individual_donors.columns.tags')}</span>
-                                            <input value={headerForm.tagsText} onChange={(event) => updateHeaderForm('tagsText', event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold dark:border-slate-600 dark:bg-slate-900" placeholder="major donor, qurbani, newsletter" />
-                                        </label>
+                                            <div className="mt-1 rounded-lg border border-gray-300 bg-white p-2 dark:border-slate-600 dark:bg-slate-900">
+                                                {headerForm.tags.length > 0 && (
+                                                    <div className="mb-2 flex flex-wrap gap-2">
+                                                        {headerForm.tags.map((tag, index) => (
+                                                            <span key={`${tag}-${index}`} className="inline-flex max-w-full items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700 dark:bg-slate-800 dark:text-gray-200">
+                                                                <span className="truncate">{tag}</span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => updateHeaderForm('tags', headerForm.tags.filter((_, i) => i !== index))}
+                                                                    className="rounded-full opacity-70 hover:opacity-100"
+                                                                    aria-label={t('common.remove', 'Remove')}
+                                                                >
+                                                                    <X size={12} />
+                                                                </button>
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                <input
+                                                    value={headerForm.pendingTagInput}
+                                                    onChange={(event) => updateHeaderForm('pendingTagInput', event.target.value)}
+                                                    onKeyDown={(event) => {
+                                                        if (event.key === 'Enter' || event.key === ',') {
+                                                            event.preventDefault();
+                                                            const nextTags = addTag(headerForm.tags, headerForm.pendingTagInput);
+                                                            if (nextTags.length === headerForm.tags.length && headerForm.pendingTagInput.trim()) {
+                                                                const trimmed = headerForm.pendingTagInput.trim();
+                                                                if (trimmed.length > MAX_TAG_LEN) {
+                                                                    toast.showError(t('individual_donors.detailView.tagTooLong'));
+                                                                }
+                                                            }
+                                                            setHeaderForm((current) => ({
+                                                                ...current,
+                                                                tags: nextTags,
+                                                                pendingTagInput: '',
+                                                            }));
+                                                            return;
+                                                        }
+                                                        if (event.key === 'Backspace' && !headerForm.pendingTagInput && headerForm.tags.length > 0) {
+                                                            updateHeaderForm('tags', headerForm.tags.slice(0, -1));
+                                                        }
+                                                    }}
+                                                    maxLength={MAX_TAG_LEN}
+                                                    disabled={headerForm.tags.length >= MAX_TAGS}
+                                                    className="w-full rounded-md border-0 bg-transparent px-1 py-1 text-sm font-semibold outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-60"
+                                                    placeholder={headerForm.tags.length >= MAX_TAGS
+                                                        ? t('individual_donors.detailView.tagMaxReached')
+                                                        : t('individual_donors.detailView.tagAddHint')}
+                                                />
+                                            </div>
+                                        </div>
                                     </form>
                                 ) : (
                                     <>

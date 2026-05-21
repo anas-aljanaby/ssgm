@@ -3,7 +3,7 @@ import { api } from '../lib/api';
 import { MOCK_DONATIONS } from '../data/financialsPageData';
 import type { DonationRecord } from '../types/financials';
 
-const QUERY_KEY = ['financial-donations'] as const;
+export const DONATIONS_QUERY_KEY = ['financial-donations'] as const;
 const USE_API = true;
 
 async function fetchDonations(): Promise<DonationRecord[]> {
@@ -18,7 +18,7 @@ async function fetchDonations(): Promise<DonationRecord[]> {
 
 export function useDonations() {
   return useQuery({
-    queryKey: QUERY_KEY,
+    queryKey: DONATIONS_QUERY_KEY,
     queryFn: fetchDonations,
   });
 }

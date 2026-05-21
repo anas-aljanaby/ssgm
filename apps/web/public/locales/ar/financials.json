@@ -53,7 +53,11 @@
       "amount": "المبلغ",
       "status": "الحالة",
       "relatedEntity": "الجهة المرتبطة",
-      "noTransactions": "لا توجد معاملات مطابقة"
+      "noTransactions": "لا توجد معاملات مطابقة",
+      "delete": "حذف",
+      "deleteConfirm": "حذف \"{{description}}\" نهائياً؟ لا يمكن التراجع عن هذا الإجراء.",
+      "deleteSuccess": "تم حذف المعاملة",
+      "deleteFailed": "تعذر حذف المعاملة. يرجى المحاولة مرة أخرى."
     },
     "donations": {
       "title": "التبرعات والإيصالات",
@@ -73,7 +77,8 @@
       "recurring": "متكرر",
       "generateReceipt": "إنشاء إيصال",
       "viewReceipt": "عرض الإيصال",
-      "noDonations": "لا توجد تبرعات مطابقة"
+      "noDonations": "لا توجد تبرعات مطابقة",
+      "noDonationsYet": "لا توجد تبرعات مسجلة بعد"
     },
     "pledges": {
       "title": "التعهدات والالتزامات",
@@ -246,6 +251,25 @@
       "high": "عالي",
       "medium": "متوسط",
       "low": "منخفض"
+    },
+    "entityType": {
+      "donor": "متبرع",
+      "project": "مشروع",
+      "beneficiary": "مستفيد",
+      "institutional_donor": "متبرع مؤسسي",
+      "vendor": "مورد"
+    },
+    "addDonation": {
+      "title": "إضافة تبرع",
+      "save": "حفظ التبرع",
+      "addFirst": "أضف أول تبرع",
+      "descPlaceholder": "مثال: تبرع شهري من...",
+      "designationPlaceholder": "مثال: صندوق التعليم",
+      "isRecurring": "تبرع متكرر",
+      "frequency": "التكرار",
+      "monthly": "شهري",
+      "quarterly": "ربع سنوي",
+      "annually": "سنوي"
     },
     "addTransaction": {
       "title": "إضافة معاملة",

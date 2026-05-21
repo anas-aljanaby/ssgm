@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import ModalPortal from '../../common/ModalPortal';
 import type { Beneficiary } from '../../../types';
 import { X } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
@@ -47,8 +48,12 @@ const BeneficiaryDrawer: React.FC<BeneficiaryDrawerProps> = ({
       : 'translate-x-full';
 
   return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/50 animate-fade-in" onClick={onClose} />
+    <ModalPortal
+      isOpen={isOpen}
+      onClose={onClose}
+      overlayClassName="fixed inset-0 bg-black/50 animate-fade-in"
+      containerClassName="relative min-h-full"
+    >
       <aside
         className={`absolute top-0 ${sideClass} h-full w-full max-w-2xl transform bg-card shadow-2xl transition-transform duration-300 ease-out dark:bg-dark-card ${transformClass}`}
         aria-modal="true"
@@ -75,7 +80,7 @@ const BeneficiaryDrawer: React.FC<BeneficiaryDrawerProps> = ({
           </div>
         </div>
       </aside>
-    </div>
+    </ModalPortal>
   );
 };
 

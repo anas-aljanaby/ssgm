@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalPortal from '../../common/ModalPortal';
 import type { Donor } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { XIcon } from '../../icons/GenericIcons';
@@ -40,18 +41,10 @@ const AddDonorModal: React.FC<AddDonorModalProps> = ({ isOpen, onClose, onAddDon
         onClose();
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div 
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in"
-            onClick={onClose}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="add-donor-title"
-        >
+        <ModalPortal isOpen={isOpen} onClose={onClose} labelledBy="add-donor-title">
             <div 
-                className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-md m-4"
+                className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-md"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
@@ -87,7 +80,7 @@ const AddDonorModal: React.FC<AddDonorModalProps> = ({ isOpen, onClose, onAddDon
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

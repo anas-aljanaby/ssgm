@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useLocalization } from '../../hooks/useLocalization';
 import { XIcon } from '../icons/GenericIcons';
 import { ALL_WIDGETS, PRESET_LAYOUTS, KPI_WIDGETS } from '../pages/Dashboard';
+import ModalPortal from '../common/ModalPortal';
 
 interface LayoutCustomizerProps {
     isOpen: boolean;
@@ -89,23 +90,19 @@ const LayoutCustomizer: React.FC<LayoutCustomizerProps> = ({ isOpen, onClose, la
     const availableWidgets = Object.entries(ALL_WIDGETS).filter(([id]) => !PINNED_WIDGETS.includes(id)); // Pinned widgets are outside grid/kpi system
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                        onClick={onClose}
-                    />
+        <ModalPortal
+            isOpen={isOpen}
+            onClose={onClose}
+            dir={dir === 'rtl' ? 'rtl' : 'ltr'}
+            containerClassName="relative flex min-h-full w-full items-stretch p-0"
+            overlayClassName="fixed inset-0 bg-black/50 backdrop-blur-sm modal-overlay"
+        >
                     <motion.div
                         initial={{ x: dir === 'rtl' ? '-100%' : '100%' }}
                         animate={{ x: 0 }}
-                        exit={{ x: dir === 'rtl' ? '-100%' : '100%' }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                         className={`fixed top-0 ${dir === 'rtl' ? 'left-0' : 'right-0'} h-full w-80 bg-card dark:bg-dark-card shadow-2xl flex flex-col`}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <div className="p-4 flex justify-between items-center border-b dark:border-slate-700">
                             <h2 className="text-lg font-bold">{t('layoutCustomizer.title')}</h2>
@@ -159,9 +156,7 @@ const LayoutCustomizer: React.FC<LayoutCustomizerProps> = ({ isOpen, onClose, la
                             <button onClick={onClose} className="w-full px-4 py-2 bg-secondary text-white font-semibold rounded-lg">{t('layoutCustomizer.done')}</button>
                         </div>
                     </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
+        </ModalPortal>
     );
 };
 

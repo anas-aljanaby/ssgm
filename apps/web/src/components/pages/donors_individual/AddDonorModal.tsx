@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { IndividualDonor } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
+import ModalPortal from '../../common/ModalPortal';
 import { XIcon } from '../../icons/GenericIcons';
 
 interface AddDonorModalProps {
@@ -40,20 +41,12 @@ const AddDonorModal: React.FC<AddDonorModalProps> = ({ isOpen, onClose, onAdd })
         onClose();
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div 
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in"
-            onClick={onClose}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="add-donor-title"
-        >
-            <div 
-                className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg m-4"
-                onClick={(e) => e.stopPropagation()}
-            >
+        <ModalPortal isOpen={isOpen} onClose={onClose} labelledBy="add-donor-title">
+                <div
+                    className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg"
+                    onClick={(e) => e.stopPropagation()}
+                >
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
                     <h2 id="add-donor-title" className="text-xl font-bold text-foreground dark:text-dark-foreground">
                         {t('individual_donors.addDonor')}
@@ -90,8 +83,8 @@ const AddDonorModal: React.FC<AddDonorModalProps> = ({ isOpen, onClose, onAdd })
                         <button type="submit" className="px-4 py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary-dark">{t('individual_donors.modal.saveDonor')}</button>
                     </div>
                 </form>
-            </div>
-        </div>
+                </div>
+        </ModalPortal>
     );
 };
 

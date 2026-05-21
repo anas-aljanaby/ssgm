@@ -1,0 +1,369 @@
+- generic [ref=e1]:
+  - generic [ref=e15]:
+    - navigation [ref=e16]:
+      - button "Collapse sidebar" [expanded] [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+      - generic [ref=e20]:
+        - generic [ref=e22]: M
+        - heading "MSS.2" [level=1] [ref=e23]
+      - list [ref=e25]:
+        - listitem [ref=e26]:
+          - link "Dashboard" [ref=e27] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e29]
+            - generic [ref=e34]: Dashboard
+        - listitem [ref=e35]:
+          - link "Bousala" [ref=e36] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e38]
+            - generic [ref=e41]: Bousala
+        - listitem [ref=e42]:
+          - link "Stakeholder Management" [ref=e43] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e45]
+            - generic [ref=e50]: Stakeholder Management
+        - listitem [ref=e51]:
+          - link "Donor Management" [ref=e52] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e54]
+            - generic [ref=e56]: Donor Management
+        - listitem [ref=e57]:
+          - link "Institutional Donors" [ref=e58] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e60]
+            - generic [ref=e62]: Institutional Donors
+        - listitem [ref=e63]:
+          - link "Beneficiary Management" [ref=e64] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e66]
+            - generic [ref=e71]: Beneficiary Management
+        - listitem [ref=e72]:
+          - link "Project Management" [ref=e73] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e75]
+            - generic [ref=e79]: Project Management
+        - listitem [ref=e80]:
+          - link "Financial Management" [ref=e81] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e83]
+            - generic [ref=e85]: Financial Management
+        - listitem [ref=e86]:
+          - link "Help & Support" [ref=e87] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e89]
+            - generic [ref=e92]: Help & Support
+        - listitem [ref=e93]:
+          - link "Settings" [ref=e94] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e96]
+            - generic [ref=e99]: Settings
+      - list [ref=e101]:
+        - listitem [ref=e102]:
+          - link "Logout" [ref=e103] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e105]
+            - generic [ref=e108]: Logout
+    - generic [ref=e109]:
+      - banner [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - heading "Financial Management" [level=1] [ref=e113]
+            - button "liveIndicator.live" [ref=e115] [cursor=pointer]
+          - generic [ref=e118]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e119]
+            - button "Search by voice" [ref=e121] [cursor=pointer]:
+              - img [ref=e122]
+        - generic [ref=e125]:
+          - button "Help & Support" [ref=e127] [cursor=pointer]:
+            - img [ref=e128]
+          - button "Change language" [ref=e134] [cursor=pointer]:
+            - img [ref=e135]
+            - img "English (US) Flag" [ref=e138]
+          - button "Switch to dark mode" [ref=e144] [cursor=pointer]:
+            - img [ref=e145]
+          - button "View announcements" [ref=e148] [cursor=pointer]:
+            - img [ref=e149]
+          - button "User Welcome! Admin" [ref=e156] [cursor=pointer]:
+            - img "User" [ref=e157]
+            - generic [ref=e158]:
+              - generic [ref=e159]: Welcome!
+              - generic [ref=e160]: Admin
+            - img [ref=e161]
+      - main [ref=e163]:
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - heading "Financial Management" [level=1] [ref=e166]
+            - paragraph [ref=e167]: Central source of truth for all financial operations
+          - navigation [ref=e169]:
+            - button "Overview" [ref=e170] [cursor=pointer]
+            - button "Transactions" [ref=e171] [cursor=pointer]
+            - button "Donations" [active] [ref=e172] [cursor=pointer]
+            - button "Pledges" [ref=e173] [cursor=pointer]
+            - button "Budgets" [ref=e174] [cursor=pointer]
+            - button "Disbursements" [ref=e175] [cursor=pointer]
+            - button "Grants & Funds" [ref=e176] [cursor=pointer]
+            - button "Approvals" [ref=e177] [cursor=pointer]
+            - button "Reports" [ref=e178] [cursor=pointer]
+          - generic [ref=e434]:
+            - generic [ref=e435]:
+              - generic [ref=e436]:
+                - img [ref=e438]
+                - generic [ref=e440]:
+                  - paragraph [ref=e441]: "18"
+                  - paragraph [ref=e442]: Total Donations
+              - generic [ref=e443]:
+                - img [ref=e445]
+                - generic [ref=e448]:
+                  - paragraph [ref=e449]: $11,266.67
+                  - paragraph [ref=e450]: Average Gift
+              - generic [ref=e451]:
+                - img [ref=e453]
+                - generic [ref=e456]:
+                  - paragraph [ref=e457]: "2"
+                  - paragraph [ref=e458]: Receipts Pending
+              - generic [ref=e459]:
+                - img [ref=e461]
+                - generic [ref=e466]:
+                  - paragraph [ref=e467]: "2"
+                  - paragraph [ref=e468]: Recurring Donors
+            - generic [ref=e469]:
+              - generic [ref=e471]:
+                - generic [ref=e472]:
+                  - img
+                  - textbox "Search by donor name..." [ref=e473]
+                - combobox [ref=e474]:
+                  - option "All Methods" [selected]
+                  - option "Bank Transfer"
+                  - option "Credit Card"
+                  - option "Cash"
+                  - option "Check"
+                  - option "Online"
+                  - option "In-Kind"
+                - combobox [ref=e475]:
+                  - option "All Receipt Statuses" [selected]
+                  - option "Pending"
+                  - option "Generated"
+                  - option "Sent"
+                  - option "Voided"
+              - button "Add Donation" [ref=e476] [cursor=pointer]:
+                - img [ref=e477]
+                - text: Add Donation
+            - table [ref=e479]:
+              - rowgroup [ref=e480]:
+                - row "Date Donor Amount Method Designation Receipt Recurring" [ref=e481]:
+                  - columnheader "Date" [ref=e482] [cursor=pointer]:
+                    - generic [ref=e483]: Date
+                  - columnheader "Donor" [ref=e484]:
+                    - generic [ref=e485]: Donor
+                  - columnheader "Amount" [ref=e486] [cursor=pointer]:
+                    - generic [ref=e487]: Amount
+                  - columnheader "Method" [ref=e488]:
+                    - generic [ref=e489]: Method
+                  - columnheader "Designation" [ref=e490]:
+                    - generic [ref=e491]: Designation
+                  - columnheader "Receipt" [ref=e492]:
+                    - generic [ref=e493]: Receipt
+                  - columnheader "Recurring" [ref=e494]:
+                    - generic [ref=e495]: Recurring
+              - rowgroup [ref=e496]:
+                - row "Dec 15, 2024 Aisha Al-Farsi $1,500 Bank Transfer Education Fund Generated RCT-2024-0042 Monthly" [ref=e497]:
+                  - cell "Dec 15, 2024" [ref=e498]
+                  - cell "Aisha Al-Farsi" [ref=e499]
+                  - cell "$1,500" [ref=e500]
+                  - cell "Bank Transfer" [ref=e501]
+                  - cell "Education Fund" [ref=e502]
+                  - cell "Generated RCT-2024-0042" [ref=e503]:
+                    - generic [ref=e504]:
+                      - generic [ref=e505]: Generated
+                      - generic [ref=e506]: RCT-2024-0042
+                  - cell "Monthly" [ref=e507]:
+                    - generic [ref=e508]: Monthly
+                - row "Dec 13, 2024 David Chen $50,000 Bank Transfer Endowment Fund Sent RCT-2024-0041 —" [ref=e510]:
+                  - cell "Dec 13, 2024" [ref=e511]
+                  - cell "David Chen" [ref=e512]
+                  - cell "$50,000" [ref=e513]
+                  - cell "Bank Transfer" [ref=e514]
+                  - cell "Endowment Fund" [ref=e515]
+                  - cell "Sent RCT-2024-0041" [ref=e516]:
+                    - generic [ref=e517]:
+                      - generic [ref=e518]: Sent
+                      - generic [ref=e519]: RCT-2024-0041
+                  - cell "—" [ref=e520]
+                - row "Dec 9, 2024 Hassan Ibrahim $500 Online General Fund Pending —" [ref=e521]:
+                  - cell "Dec 9, 2024" [ref=e522]
+                  - cell "Hassan Ibrahim" [ref=e523]
+                  - cell "$500" [ref=e524]
+                  - cell "Online" [ref=e525]
+                  - cell "General Fund" [ref=e526]
+                  - cell "Pending" [ref=e527]:
+                    - generic [ref=e529]: Pending
+                  - cell "—" [ref=e530]
+                - row "Dec 6, 2024 Fatma Yilmaz $2,000 Credit Card — Generated RCT-2024-0039 —" [ref=e531]:
+                  - cell "Dec 6, 2024" [ref=e532]
+                  - cell "Fatma Yilmaz" [ref=e533]
+                  - cell "$2,000" [ref=e534]
+                  - cell "Credit Card" [ref=e535]
+                  - cell "—" [ref=e536]
+                  - cell "Generated RCT-2024-0039" [ref=e537]:
+                    - generic [ref=e538]:
+                      - generic [ref=e539]: Generated
+                      - generic [ref=e540]: RCT-2024-0039
+                  - cell "—" [ref=e541]
+                - row "Dec 2, 2024 Anonymous $750 Cash — Pending —" [ref=e542]:
+                  - cell "Dec 2, 2024" [ref=e543]
+                  - cell "Anonymous" [ref=e544]
+                  - cell "$750" [ref=e545]
+                  - cell "Cash" [ref=e546]
+                  - cell "—" [ref=e547]
+                  - cell "Pending" [ref=e548]:
+                    - generic [ref=e550]: Pending
+                  - cell "—" [ref=e551]
+                - row "Nov 20, 2024 Sarah Johnson $10,000 Bank Transfer — Sent RCT-2024-0037 —" [ref=e552]:
+                  - cell "Nov 20, 2024" [ref=e553]
+                  - cell "Sarah Johnson" [ref=e554]
+                  - cell "$10,000" [ref=e555]
+                  - cell "Bank Transfer" [ref=e556]
+                  - cell "—" [ref=e557]
+                  - cell "Sent RCT-2024-0037" [ref=e558]:
+                    - generic [ref=e559]:
+                      - generic [ref=e560]: Sent
+                      - generic [ref=e561]: RCT-2024-0037
+                  - cell "—" [ref=e562]
+                - row "Nov 15, 2024 Mohammed Al-Sayed $200 Online — Generated RCT-2024-0036 Monthly" [ref=e563]:
+                  - cell "Nov 15, 2024" [ref=e564]
+                  - cell "Mohammed Al-Sayed" [ref=e565]
+                  - cell "$200" [ref=e566]
+                  - cell "Online" [ref=e567]
+                  - cell "—" [ref=e568]
+                  - cell "Generated RCT-2024-0036" [ref=e569]:
+                    - generic [ref=e570]:
+                      - generic [ref=e571]: Generated
+                      - generic [ref=e572]: RCT-2024-0036
+                  - cell "Monthly" [ref=e573]:
+                    - generic [ref=e574]: Monthly
+                - row "Oct 25, 2024 Aisha Al-Farsi $1,500 Bank Transfer Education Fund Sent RCT-2024-0035 Monthly" [ref=e576]:
+                  - cell "Oct 25, 2024" [ref=e577]
+                  - cell "Aisha Al-Farsi" [ref=e578]
+                  - cell "$1,500" [ref=e579]
+                  - cell "Bank Transfer" [ref=e580]
+                  - cell "Education Fund" [ref=e581]
+                  - cell "Sent RCT-2024-0035" [ref=e582]:
+                    - generic [ref=e583]:
+                      - generic [ref=e584]: Sent
+                      - generic [ref=e585]: RCT-2024-0035
+                  - cell "Monthly" [ref=e586]:
+                    - generic [ref=e587]: Monthly
+                - row "Oct 1, 2024 Omar Al-Rashid $5,000 Bank Transfer — Sent RCT-2024-0034 —" [ref=e589]:
+                  - cell "Oct 1, 2024" [ref=e590]
+                  - cell "Omar Al-Rashid" [ref=e591]
+                  - cell "$5,000" [ref=e592]
+                  - cell "Bank Transfer" [ref=e593]
+                  - cell "—" [ref=e594]
+                  - cell "Sent RCT-2024-0034" [ref=e595]:
+                    - generic [ref=e596]:
+                      - generic [ref=e597]: Sent
+                      - generic [ref=e598]: RCT-2024-0034
+                  - cell "—" [ref=e599]
+                - row "Sep 15, 2024 Aisha Al-Farsi $1,500 Bank Transfer Education Fund Sent RCT-2024-0033 Monthly" [ref=e600]:
+                  - cell "Sep 15, 2024" [ref=e601]
+                  - cell "Aisha Al-Farsi" [ref=e602]
+                  - cell "$1,500" [ref=e603]
+                  - cell "Bank Transfer" [ref=e604]
+                  - cell "Education Fund" [ref=e605]
+                  - cell "Sent RCT-2024-0033" [ref=e606]:
+                    - generic [ref=e607]:
+                      - generic [ref=e608]: Sent
+                      - generic [ref=e609]: RCT-2024-0033
+                  - cell "Monthly" [ref=e610]:
+                    - generic [ref=e611]: Monthly
+                - row "Aug 10, 2024 David Chen $25,000 Bank Transfer Endowment Fund Sent RCT-2024-0032 —" [ref=e613]:
+                  - cell "Aug 10, 2024" [ref=e614]
+                  - cell "David Chen" [ref=e615]
+                  - cell "$25,000" [ref=e616]
+                  - cell "Bank Transfer" [ref=e617]
+                  - cell "Endowment Fund" [ref=e618]
+                  - cell "Sent RCT-2024-0032" [ref=e619]:
+                    - generic [ref=e620]:
+                      - generic [ref=e621]: Sent
+                      - generic [ref=e622]: RCT-2024-0032
+                  - cell "—" [ref=e623]
+                - row "Jul 20, 2024 Omar Al-Rashid $3,000 Check — Sent RCT-2024-0031 —" [ref=e624]:
+                  - cell "Jul 20, 2024" [ref=e625]
+                  - cell "Omar Al-Rashid" [ref=e626]
+                  - cell "$3,000" [ref=e627]
+                  - cell "Check" [ref=e628]
+                  - cell "—" [ref=e629]
+                  - cell "Sent RCT-2024-0031" [ref=e630]:
+                    - generic [ref=e631]:
+                      - generic [ref=e632]: Sent
+                      - generic [ref=e633]: RCT-2024-0031
+                  - cell "—" [ref=e634]
+                - row "Jul 5, 2024 Hassan Ibrahim $350 Online — Sent RCT-2024-0030 —" [ref=e635]:
+                  - cell "Jul 5, 2024" [ref=e636]
+                  - cell "Hassan Ibrahim" [ref=e637]
+                  - cell "$350" [ref=e638]
+                  - cell "Online" [ref=e639]
+                  - cell "—" [ref=e640]
+                  - cell "Sent RCT-2024-0030" [ref=e641]:
+                    - generic [ref=e642]:
+                      - generic [ref=e643]: Sent
+                      - generic [ref=e644]: RCT-2024-0030
+                  - cell "—" [ref=e645]
+                - row "Jun 15, 2024 Sarah Johnson $5,000 Bank Transfer Albania Islamic Center Sent RCT-2024-0029 —" [ref=e646]:
+                  - cell "Jun 15, 2024" [ref=e647]
+                  - cell "Sarah Johnson" [ref=e648]
+                  - cell "$5,000" [ref=e649]
+                  - cell "Bank Transfer" [ref=e650]
+                  - cell "Albania Islamic Center" [ref=e651]
+                  - cell "Sent RCT-2024-0029" [ref=e652]:
+                    - generic [ref=e653]:
+                      - generic [ref=e654]: Sent
+                      - generic [ref=e655]: RCT-2024-0029
+                  - cell "—" [ref=e656]
+                - row "May 1, 2024 Fatma Yilmaz $1,000 Credit Card — Sent RCT-2024-0028 —" [ref=e657]:
+                  - cell "May 1, 2024" [ref=e658]
+                  - cell "Fatma Yilmaz" [ref=e659]
+                  - cell "$1,000" [ref=e660]
+                  - cell "Credit Card" [ref=e661]
+                  - cell "—" [ref=e662]
+                  - cell "Sent RCT-2024-0028" [ref=e663]:
+                    - generic [ref=e664]:
+                      - generic [ref=e665]: Sent
+                      - generic [ref=e666]: RCT-2024-0028
+                  - cell "—" [ref=e667]
+                - row "Apr 20, 2024 Anonymous $5,000 Cash — Voided RCT-2024-0027 —" [ref=e668]:
+                  - cell "Apr 20, 2024" [ref=e669]
+                  - cell "Anonymous" [ref=e670]
+                  - cell "$5,000" [ref=e671]
+                  - cell "Cash" [ref=e672]
+                  - cell "—" [ref=e673]
+                  - cell "Voided RCT-2024-0027" [ref=e674]:
+                    - generic [ref=e675]:
+                      - generic [ref=e676]: Voided
+                      - generic [ref=e677]: RCT-2024-0027
+                  - cell "—" [ref=e678]
+                - row "Dec 12, 2024 Qatar Charity $28,000 Bank Transfer Albania Islamic Center Sent RCT-INST-2024-001 —" [ref=e679]:
+                  - cell "Dec 12, 2024" [ref=e680]
+                  - cell "Qatar Charity" [ref=e681]
+                  - cell "$28,000" [ref=e682]
+                  - cell "Bank Transfer" [ref=e683]
+                  - cell "Albania Islamic Center" [ref=e684]
+                  - cell "Sent RCT-INST-2024-001" [ref=e685]:
+                    - generic [ref=e686]:
+                      - generic [ref=e687]: Sent
+                      - generic [ref=e688]: RCT-INST-2024-001
+                  - cell "—" [ref=e689]
+                - row "Dec 8, 2024 Global Philanthropy Foundation $62,500 Bank Transfer Education Programs Sent RCT-INST-2024-002 —" [ref=e690]:
+                  - cell "Dec 8, 2024" [ref=e691]
+                  - cell "Global Philanthropy Foundation" [ref=e692]
+                  - cell "$62,500" [ref=e693]
+                  - cell "Bank Transfer" [ref=e694]
+                  - cell "Education Programs" [ref=e695]
+                  - cell "Sent RCT-INST-2024-002" [ref=e696]:
+                    - generic [ref=e697]:
+                      - generic [ref=e698]: Sent
+                      - generic [ref=e699]: RCT-INST-2024-002
+                  - cell "—" [ref=e700]
+  - generic [ref=e410]: $0k

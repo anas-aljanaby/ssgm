@@ -3,6 +3,7 @@ import React from 'react';
 import { useLocalization } from '../../hooks/useLocalization';
 import { XIcon } from '../icons/GenericIcons';
 import { WarningTriangleIcon } from '../icons/UtilityIcons';
+import ModalPortal from './ModalPortal';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -38,15 +39,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirmation-title"
-    >
+    <ModalPortal isOpen={isOpen} onClose={onClose} labelledBy="confirmation-title">
       <div
-        className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-md m-4"
+        className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">
@@ -83,7 +78,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 };
 

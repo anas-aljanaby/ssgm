@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { Heart, TrendingUp, FileText, Repeat } from 'lucide-react';
+import { Heart, TrendingUp, FileText, Repeat, Plus } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import DataTable, { type Column } from './shared/DataTable';
 import FilterBar, { type FilterDef } from './shared/FilterBar';
 import StatusBadge from './shared/StatusBadge';
 import FinancialKpiCard from './shared/FinancialKpiCard';
+import AddTransactionModal from './AddTransactionModal';
 import { useDonations } from '../../../hooks/useDonations';
+import { useCreateTransaction } from '../../../hooks/useTransactions';
 import type {
   DonationRecord,
   DonationMethod,
@@ -31,13 +33,16 @@ const RECEIPT_STATUSES: ReceiptStatus[] = [
 
 const DonationsTab: React.FC = () => {
   const { t, language } = useLocalization();
-  const { data: donations = [] } = useDonations();
+  const { data: donations = [], isLoading } = useDonations();
+  const createTransaction = useCreateTransaction();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [methodFilter, setMethodFilter] = useState('');
   const [receiptFilter, setReceiptFilter] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // --- KPI calculations ---
+  const hasActiveFilters = Boolean(searchTerm || methodFilter || receiptFilter);
+
   const kpiData = useMemo(() => {
     const totalDonations = donations.length;
 
@@ -56,7 +61,6 @@ const DonationsTab: React.FC = () => {
     return { totalDonations, averageGift, receiptsPending, recurringDonors };
   }, [donations]);
 
-  // --- Filters ---
   const filters: FilterDef[] = useMemo(
     () => [
       {
@@ -98,7 +102,16 @@ const DonationsTab: React.FC = () => {
     });
   }, [searchTerm, methodFilter, receiptFilter, donations]);
 
-  // --- Table columns ---
+  const emptyMessage = useMemo(() => {
+    if (isLoading) return t('common.loading', 'Loading...');
+    if (donations.length === 0 && !hasActiveFilters) {
+      return t('financials.donations.noDonationsYet', 'No donations recorded yet');
+    }
+    return t('financials.donations.noDonations', 'No donations match your filters');
+  }, [donations.length, hasActiveFilters, isLoading, t]);
+
+  const showEmptyAction = donations.length === 0 && !hasActiveFilters && !isLoading;
+
   const columns: Column<DonationRecord>[] = useMemo(
     () => [
       {
@@ -187,7 +200,6 @@ const DonationsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <FinancialKpiCard
           title={t('financials.donations.totalDonations')}
@@ -219,19 +231,42 @@ const DonationsTab: React.FC = () => {
         />
       </div>
 
-      {/* Filters */}
-      <FilterBar
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder={t('financials.donations.searchPlaceholder')}
-        filters={filters}
-      />
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <FilterBar
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder={t('financials.donations.searchPlaceholder')}
+            filters={filters}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary-dark transition-colors shrink-0"
+        >
+          <Plus className="w-4 h-4" />
+          {t('financials.addDonation.title', 'Add Donation')}
+        </button>
+      </div>
 
-      {/* Table */}
       <DataTable<DonationRecord>
         columns={columns}
         data={filteredData}
-        emptyMessage={t('financials.donations.noDonations')}
+        emptyMessage={emptyMessage}
+        emptyActionLabel={
+          showEmptyAction
+            ? t('financials.addDonation.addFirst', 'Add your first donation')
+            : undefined
+        }
+        onEmptyAction={showEmptyAction ? () => setIsModalOpen(true) : undefined}
+      />
+
+      <AddTransactionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={(data) => createTransaction.mutate(data)}
+        preset="donation"
       />
     </div>
   );

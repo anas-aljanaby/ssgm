@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import type { Project, Language, ProjectKPI } from '../../../types';
+import ModalPortal from '../../common/ModalPortal';
 import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import WizardStepper from './wizard/WizardStepper';
 import Step1_ProjectInfo from './wizard/Step1_ProjectInfo';
@@ -58,12 +59,7 @@ const CreateProjectWizard: React.FC<CreateProjectWizardProps> = ({ isOpen, onClo
     };
 
     return (
-        <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in"
-            onClick={onClose}
-            role="dialog"
-            aria-modal="true"
-        >
+        <ModalPortal isOpen={isOpen} onClose={onClose}>
             <div
                 className="bg-card dark:bg-dark-card rounded-xl shadow-2xl w-full max-w-3xl m-4 flex flex-col max-h-[90vh] border border-gray-200 dark:border-slate-700/50"
                 onClick={(e) => e.stopPropagation()}
@@ -110,7 +106,7 @@ const CreateProjectWizard: React.FC<CreateProjectWizardProps> = ({ isOpen, onClo
                     </div>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 

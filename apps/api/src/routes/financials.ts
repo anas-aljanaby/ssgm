@@ -468,11 +468,13 @@ financialsRouter.post('/transactions', async (c) => {
     if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
 
     const data = parsed.data;
+    const descriptionEn = data.description_en.trim();
+    const descriptionAr = data.description_ar.trim();
     const [txn] = await db.insert(financial_transactions).values({
         org_id: orgId,
         date: new Date(data.date),
-        description_en: data.description_en,
-        description_ar: data.description_ar,
+        description_en: descriptionEn,
+        description_ar: descriptionAr,
         amount: String(data.amount),
         currency: data.currency,
         direction: data.direction,
@@ -505,6 +507,35 @@ financialsRouter.post('/transactions', async (c) => {
         });
         await db.update(financial_transactions).set({ attachments_count: 1 }).where(eq(financial_transactions.id, txn.id));
         txn.attachments_count = 1;
+    }
+
+    if (data.category === 'donation') {
+        const cf = (data.custom_fields ?? {}) as Record<string, unknown>;
+        const method = typeof cf.donation_method === 'string' ? cf.donation_method : 'bank_transfer';
+        const donorType = cf.donor_type === 'institutional' ? 'institutional' : 'individual';
+        const isRecurring = cf.is_recurring === true;
+        const recurringFrequency =
+            isRecurring && typeof cf.recurring_frequency === 'string' ? cf.recurring_frequency : null;
+        const designation = typeof cf.designation === 'string' ? cf.designation : null;
+
+        await db.insert(donation_records).values({
+            org_id: orgId,
+            donor_id: data.related_entity_id || '',
+            donor_name_en: data.related_entity_name || descriptionEn || descriptionAr,
+            donor_name_ar: descriptionAr || data.related_entity_name || descriptionEn,
+            donor_type: donorType,
+            date: new Date(data.date),
+            amount: String(data.amount),
+            currency: data.currency,
+            method,
+            designation,
+            fund_id: data.fund_id,
+            receipt_status: 'pending',
+            is_recurring: isRecurring,
+            recurring_frequency: recurringFrequency,
+            notes: data.notes,
+            transaction_id: txn.id,
+        });
     }
 
     return c.json(mapTransaction(txn), 201);
@@ -559,9 +590,20 @@ financialsRouter.delete('/transactions/:id', async (c) => {
         .where(and(eq(financial_transactions.id, c.req.param('id')), eq(financial_transactions.org_id, orgId)));
     if (!existing.length) return c.json({ error: 'Not found' }, 404);
 
-    await db.delete(transaction_attachments).where(eq(transaction_attachments.transaction_id, c.req.param('id')));
+    const txnId = c.req.param('id');
+
+    await db.delete(transaction_attachments).where(eq(transaction_attachments.transaction_id, txnId));
+    await db.delete(donation_records).where(
+        and(eq(donation_records.org_id, orgId), eq(donation_records.transaction_id, txnId)),
+    );
+    await db.update(pledge_installments).set({ transaction_id: null }).where(
+        and(eq(pledge_installments.org_id, orgId), eq(pledge_installments.transaction_id, txnId)),
+    );
+    await db.update(disbursements).set({ transaction_id: null }).where(
+        and(eq(disbursements.org_id, orgId), eq(disbursements.transaction_id, txnId)),
+    );
     await db.delete(financial_transactions)
-        .where(and(eq(financial_transactions.id, c.req.param('id')), eq(financial_transactions.org_id, orgId)));
+        .where(and(eq(financial_transactions.id, txnId), eq(financial_transactions.org_id, orgId)));
 
     return c.json({ ok: true });
 });

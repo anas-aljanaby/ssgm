@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { DollarSign, Gift, ReceiptText, Target, TrendingUp } from 'lucide-react';
 import { PIPELINE_STAGES } from '@gms/shared';
 import type { DonorProfileSummary, ProfileDonation } from '../../../../types';
@@ -6,34 +6,73 @@ import { useLocalization } from '../../../../hooks/useLocalization';
 import { formatCurrency, formatDate, formatRelativeTime } from '../../../../lib/utils';
 import { Chip, EmptyPanel, MetricCard, Section } from './profileUi';
 
+const STAGES_REQUIRING_ASK = new Set(['solicited', 'pledged']);
+
 interface DonorGivingTabProps {
     summary: DonorProfileSummary;
     donations: ProfileDonation[];
     isLoading?: boolean;
     onSavePipelineAsk?: (data: { pipelineStage: string; askAmount: number | null }) => Promise<void> | void;
+    saveDisabledReason?: string;
     isSavingPipelineAsk?: boolean;
 }
 
-const DonorGivingTab: React.FC<DonorGivingTabProps> = ({ summary, donations, isLoading, onSavePipelineAsk, isSavingPipelineAsk }) => {
+const DonorGivingTab: React.FC<DonorGivingTabProps> = ({
+    summary,
+    donations,
+    isLoading,
+    onSavePipelineAsk,
+    saveDisabledReason,
+    isSavingPipelineAsk,
+}) => {
     const { t, language } = useLocalization(['common', 'individual_donors', 'donors']);
     const suggestedAsk = summary.computed.suggestedAskAmount;
     const askAvailable = suggestedAsk !== null && suggestedAsk > 0;
     const [pipelineStage, setPipelineStage] = useState(summary.relationship.pipelineStage || 'prospect');
     const [askAmount, setAskAmount] = useState(askAvailable ? String(suggestedAsk) : '');
+    const [askError, setAskError] = useState<string | null>(null);
 
     useEffect(() => {
         setPipelineStage(summary.relationship.pipelineStage || 'prospect');
         setAskAmount(summary.computed.suggestedAskAmount !== null ? String(summary.computed.suggestedAskAmount) : '');
     }, [summary.computed.suggestedAskAmount, summary.relationship.pipelineStage]);
 
+    const validateAsk = useMemo(() => {
+        const trimmed = askAmount.trim();
+        if (!trimmed) {
+            if (STAGES_REQUIRING_ASK.has(pipelineStage)) {
+                return t('individual_donors.detailView.askRequired');
+            }
+            return null;
+        }
+        const parsed = Number(askAmount);
+        if (!Number.isFinite(parsed) || parsed < 0) {
+            return t('individual_donors.detailView.askInvalid');
+        }
+        if (STAGES_REQUIRING_ASK.has(pipelineStage) && parsed <= 0) {
+            return t('individual_donors.detailView.askRequired');
+        }
+        return null;
+    }, [askAmount, pipelineStage, t]);
+
+    useEffect(() => {
+        setAskError(validateAsk);
+    }, [validateAsk]);
+
     const handlePipelineAskSubmit = (event: React.FormEvent) => {
         event.preventDefault();
+        if (validateAsk) {
+            setAskError(validateAsk);
+            return;
+        }
         const parsedAskAmount = askAmount.trim() ? Number(askAmount) : null;
         onSavePipelineAsk?.({
             pipelineStage,
             askAmount: parsedAskAmount !== null && Number.isFinite(parsedAskAmount) ? parsedAskAmount : null,
         });
     };
+
+    const canSave = Boolean(onSavePipelineAsk) && !validateAsk && !isSavingPipelineAsk;
 
     return (
         <div className="space-y-5">
@@ -57,6 +96,7 @@ const DonorGivingTab: React.FC<DonorGivingTabProps> = ({ summary, donations, isL
                         <label className="block">
                             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t('donors.kanban.suggestedAsk')}</span>
                             <input type="number" min="0" step="0.01" value={askAmount} onChange={(event) => setAskAmount(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold dark:border-slate-600 dark:bg-slate-900" />
+                            {askError && <p className="mt-1 text-xs font-semibold text-red-600 dark:text-red-400">{askError}</p>}
                         </label>
                         <div className="rounded-lg bg-gray-50 p-4 text-sm font-semibold leading-6 text-gray-600 dark:bg-slate-900/40 dark:text-gray-300">
                             {askAvailable
@@ -64,10 +104,15 @@ const DonorGivingTab: React.FC<DonorGivingTabProps> = ({ summary, donations, isL
                                 : t('individual_donors.detailView.askUnavailable', { defaultValue: 'Suggested ask is unavailable until there is a defensible calculation or a manager override.' })}
                         </div>
                         {!askAvailable && <Chip>Not enough data</Chip>}
-                        {onSavePipelineAsk && (
-                            <button type="submit" disabled={isSavingPipelineAsk} className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60">
-                                {isSavingPipelineAsk ? t('common.loading') : t('common.save')}
-                            </button>
+                        {(onSavePipelineAsk || saveDisabledReason) && (
+                            <>
+                                <button type="submit" disabled={!canSave} className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60">
+                                    {isSavingPipelineAsk ? t('common.loading') : t('common.save')}
+                                </button>
+                                {saveDisabledReason && (
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">{saveDisabledReason}</p>
+                                )}
+                            </>
                         )}
                     </form>
                 </Section>

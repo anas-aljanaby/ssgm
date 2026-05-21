@@ -6,6 +6,7 @@ import { BousalaIcon } from '../icons/ModuleIcons';
 import { Bell, ChevronDown, CheckCircle, Clock, Loader, Bot, Sparkles, BrainCircuit, ShieldAlert, BarChart3, Target, Briefcase, CheckSquare, GripVertical, Zap, Settings, Volume2, VolumeX, TrendingUp, TrendingDown, Minus, PlusCircle, AlertCircle as AlertCircleIcon, ArrowRightCircle, XCircle, ClipboardList, Link2 } from 'lucide-react';
 import AiCard from './ai/AiCard';
 import Spinner from '../../common/Spinner';
+import ModalPortal from '../../common/ModalPortal';
 import { formatCurrency, formatDate, formatNumber } from '../../lib/utils';
 import type { Project as MainProject, HrData, Role, BousalaGoal, BousalaProject, BousalaTask, BousalaKpi } from '../../types';
 import {
@@ -112,7 +113,16 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
     }, [onFinish]);
 
     return (
-        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-b from-cyan-100 to-white dark:from-cyan-900 dark:to-dark-background transition-opacity duration-300 ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}>
+        <ModalPortal
+            isOpen={true}
+            onClose={() => {}}
+            overlayClassName="fixed inset-0 bg-transparent pointer-events-none"
+            containerClassName="relative flex min-h-full w-full items-center justify-center p-0"
+        >
+            <div
+                className={`min-h-[100vh] w-full flex items-center justify-center bg-gradient-to-b from-cyan-100 to-white dark:from-cyan-900 dark:to-dark-background transition-opacity duration-300 ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}
+                onClick={(e) => e.stopPropagation()}
+            >
             <div className="text-center animate-fade-in-scale">
                  <div className="flex items-center justify-center mx-auto w-24 h-24 bg-white/50 dark:bg-dark-card/50 rounded-full shadow-lg mb-6">
                     {/* Placeholder Logo */}
@@ -121,7 +131,8 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
                 <h1 className="text-3xl font-bold text-cyan-700 dark:text-cyan-300">{t('bousala.splash.title')}</h1>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">{t('bousala.splash.subtitle')}</p>
             </div>
-        </div>
+            </div>
+        </ModalPortal>
     );
 };
 

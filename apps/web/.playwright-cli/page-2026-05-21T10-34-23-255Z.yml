@@ -1,0 +1,278 @@
+- generic [ref=e15]:
+  - navigation [ref=e16]:
+    - button "Collapse sidebar" [expanded] [ref=e17] [cursor=pointer]:
+      - img [ref=e18]
+    - generic [ref=e20]:
+      - generic [ref=e22]: M
+      - heading "MSS.2" [level=1] [ref=e23]
+    - list [ref=e25]:
+      - listitem [ref=e465]:
+        - link "Dashboard" [ref=e466] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e468]
+          - generic [ref=e473]: Dashboard
+      - listitem [ref=e474]:
+        - link "Bousala" [ref=e475] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e477]
+          - generic [ref=e480]: Bousala
+      - listitem [ref=e481]:
+        - link "Stakeholder Management" [ref=e482] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e484]
+          - generic [ref=e489]: Stakeholder Management
+      - listitem [ref=e490]:
+        - link "Donor Management" [ref=e491] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e493]
+          - generic [ref=e495]: Donor Management
+      - listitem [ref=e496]:
+        - link "Institutional Donors" [ref=e497] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e499]
+          - generic [ref=e501]: Institutional Donors
+      - listitem [ref=e502]:
+        - link "Beneficiary Management" [ref=e503] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e505]
+          - generic [ref=e510]: Beneficiary Management
+      - listitem [ref=e511]:
+        - link "Project Management" [ref=e512] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e514]
+          - generic [ref=e518]: Project Management
+      - listitem [ref=e519]:
+        - link "Financial Management" [ref=e520] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e522]
+          - generic [ref=e524]: Financial Management
+      - listitem [ref=e525]:
+        - link "Help & Support" [ref=e526] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e528]
+          - generic [ref=e531]: Help & Support
+      - listitem [ref=e532]:
+        - link "Settings" [ref=e533] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e535]
+          - generic [ref=e538]: Settings
+    - list [ref=e101]:
+      - listitem [ref=e539]:
+        - link "Logout" [ref=e540] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e542]
+          - generic [ref=e545]: Logout
+  - generic [ref=e109]:
+    - banner [ref=e110]:
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - heading "Donor Management" [level=1] [ref=e113]
+          - button "liveIndicator.live" [ref=e765] [cursor=pointer]
+        - generic [ref=e118]:
+          - generic:
+            - img
+          - searchbox "Search everything..." [ref=e119]
+          - button "Search by voice" [ref=e121] [cursor=pointer]:
+            - img [ref=e122]
+      - generic [ref=e125]:
+        - button "Help & Support" [ref=e127] [cursor=pointer]:
+          - img [ref=e128]
+        - button "Change language" [ref=e134] [cursor=pointer]:
+          - img [ref=e135]
+          - img "English (US) Flag" [ref=e138]
+        - button "Switch to dark mode" [ref=e144] [cursor=pointer]:
+          - img [ref=e145]
+        - button "View announcements" [ref=e148] [cursor=pointer]:
+          - img [ref=e149]
+        - button "User Welcome! Admin" [ref=e156] [cursor=pointer]:
+          - img "User" [ref=e157]
+          - generic [ref=e158]:
+            - generic [ref=e159]: Welcome!
+            - generic [ref=e160]: Admin
+          - img [ref=e161]
+    - main [ref=e163]:
+      - generic [ref=e164]:
+        - heading "Donor Management" [level=1] [ref=e165]
+        - navigation [ref=e167]:
+          - button "Registry" [ref=e168] [cursor=pointer]
+          - button "Analytics" [ref=e169] [cursor=pointer]
+        - generic [ref=e547]:
+          - button "Back to Donors List" [ref=e548] [cursor=pointer]:
+            - img [ref=e549]
+            - text: Back to Donors List
+          - generic [ref=e551]:
+            - generic [ref=e552]:
+              - generic [ref=e553]:
+                - img "John Smith" [ref=e554]
+                - generic [ref=e725]:
+                  - generic [ref=e726]:
+                    - text: Full Name (English)
+                    - textbox "Full Name (English)" [ref=e727]: John Smith
+                  - generic [ref=e728]:
+                    - text: Full Name (Arabic)
+                    - textbox "Full Name (Arabic)" [ref=e729]: جون سميث
+                  - generic [ref=e730]:
+                    - text: Country
+                    - textbox "Country" [ref=e731]: USA
+                  - generic [ref=e732]:
+                    - text: Owner
+                    - textbox "Owner" [ref=e733]: Fatma Kaya
+                  - generic [ref=e734]:
+                    - text: Status
+                    - combobox "Status" [ref=e735]:
+                      - option "Active" [selected]
+                      - option "Lapsed"
+                      - option "On Hold"
+                      - option "Deceased"
+                      - option "Disqualified"
+                  - generic [ref=e736]:
+                    - text: Tier
+                    - combobox "Tier" [ref=e737]:
+                      - option "Bronze"
+                      - option "Silver" [selected]
+                      - option "Gold"
+                      - option "Platinum"
+                      - option "Major Donor"
+                  - generic [ref=e738]:
+                    - text: Donor Type
+                    - combobox "Donor Type" [ref=e739]:
+                      - option "Individual"
+                      - option "Company"
+                      - option "Foundation"
+                      - option "Major donor"
+                      - option "Recurring" [selected]
+                  - generic [ref=e740]:
+                    - text: Tags
+                    - generic [ref=e741]:
+                      - generic [ref=e742]:
+                        - generic [ref=e743]:
+                          - generic [ref=e744]: Healthcare
+                          - button "Remove" [ref=e745] [cursor=pointer]:
+                            - img [ref=e746]
+                        - generic [ref=e766]:
+                          - generic [ref=e767]: pwchip2026
+                          - button "Remove" [ref=e768] [cursor=pointer]:
+                            - img [ref=e769]
+                      - textbox "Press Enter or comma to add a tag" [ref=e749]
+              - generic [ref=e567]:
+                - generic [ref=e750]:
+                  - button "Save" [ref=e751] [cursor=pointer]:
+                    - img [ref=e752]
+                    - text: Save
+                  - button "Cancel" [ref=e754] [cursor=pointer]:
+                    - img [ref=e755]
+                    - text: Cancel
+                - button "Send Email" [ref=e572] [cursor=pointer]:
+                  - img [ref=e573]
+                  - text: Send Email
+                - button "Log Interaction" [ref=e576] [cursor=pointer]:
+                  - img [ref=e577]
+                  - text: Log Interaction
+            - generic [ref=e579]:
+              - generic [ref=e580]:
+                - paragraph [ref=e581]: Total Donations
+                - generic [ref=e582]: $750
+              - generic [ref=e583]:
+                - paragraph [ref=e584]: Donor Type
+                - generic [ref=e585]: Recurring
+              - generic [ref=e586]:
+                - paragraph [ref=e587]: Owner
+                - generic [ref=e588]: Fatma Kaya
+              - generic [ref=e589]:
+                - paragraph [ref=e590]: Last Contact
+                - generic [ref=e591]: 2 years ago
+              - generic [ref=e592]:
+                - paragraph [ref=e593]: Open Tasks
+                - generic [ref=e594]: N/A
+          - generic [ref=e595]:
+            - navigation [ref=e598]:
+              - button "Overview" [ref=e599] [cursor=pointer]
+              - button "Giving" [active] [ref=e600] [cursor=pointer]
+              - button "Relationship / Activity" [ref=e601] [cursor=pointer]
+              - button "Documents" [ref=e602] [cursor=pointer]
+            - generic [ref=e772]:
+              - generic [ref=e773]:
+                - generic [ref=e775]:
+                  - img [ref=e777]
+                  - generic [ref=e779]:
+                    - paragraph [ref=e780]: Total Donations
+                    - generic [ref=e781]: $750
+                - generic [ref=e783]:
+                  - img [ref=e785]
+                  - generic [ref=e789]:
+                    - paragraph [ref=e790]: Last Gift
+                    - generic [ref=e791]: $200
+                    - paragraph [ref=e792]: 4 weeks ago
+                - generic [ref=e794]:
+                  - img [ref=e796]
+                  - generic [ref=e799]:
+                    - paragraph [ref=e800]: Average Gift
+                    - generic [ref=e801]: $187.50
+              - generic [ref=e802]:
+                - generic [ref=e803]:
+                  - generic [ref=e804]:
+                    - img [ref=e806]
+                    - heading "Pipeline & Ask" [level=3] [ref=e810]
+                  - generic [ref=e811]:
+                    - generic [ref=e812]:
+                      - text: Pipeline Stage
+                      - combobox "Pipeline Stage" [ref=e813]:
+                        - option "Prospect"
+                        - option "Researching"
+                        - option "Contacted"
+                        - option "Cultivating"
+                        - option "Solicited"
+                        - option "Pledged"
+                        - option "Donated" [selected]
+                        - option "Dormant"
+                    - generic [ref=e814]:
+                      - text: Ask
+                      - spinbutton "Ask" [ref=e815]: "2000"
+                    - generic [ref=e816]: Suggested ask is manager-provided.
+                    - button "Save" [disabled] [ref=e817]
+                    - paragraph [ref=e818]: Save is available only for synced donor profiles
+                - generic [ref=e819]:
+                  - generic [ref=e820]:
+                    - img [ref=e822]
+                    - heading "Donation History" [level=3] [ref=e824]
+                  - table [ref=e826]:
+                    - rowgroup [ref=e827]:
+                      - row "Date Program Payment Status Amount" [ref=e828]:
+                        - columnheader "Date" [ref=e829]
+                        - columnheader "Program" [ref=e830]
+                        - columnheader "Payment" [ref=e831]
+                        - columnheader "Status" [ref=e832]
+                        - columnheader "Amount" [ref=e833]
+                    - rowgroup [ref=e834]:
+                      - row "Apr 21, 2026 Healthcare N/A posted $200" [ref=e835]:
+                        - cell "Apr 21, 2026" [ref=e836]
+                        - cell "Healthcare" [ref=e837]:
+                          - paragraph [ref=e838]: Healthcare
+                        - cell "N/A" [ref=e839]
+                        - cell "posted" [ref=e840]:
+                          - generic [ref=e842]: posted
+                        - cell "$200" [ref=e843]
+                      - row "Mar 21, 2026 Healthcare N/A posted $200" [ref=e844]:
+                        - cell "Mar 21, 2026" [ref=e845]
+                        - cell "Healthcare" [ref=e846]:
+                          - paragraph [ref=e847]: Healthcare
+                        - cell "N/A" [ref=e848]
+                        - cell "posted" [ref=e849]:
+                          - generic [ref=e851]: posted
+                        - cell "$200" [ref=e852]
+                      - row "Feb 21, 2026 Community N/A posted $200" [ref=e853]:
+                        - cell "Feb 21, 2026" [ref=e854]
+                        - cell "Community" [ref=e855]:
+                          - paragraph [ref=e856]: Community
+                        - cell "N/A" [ref=e857]
+                        - cell "posted" [ref=e858]:
+                          - generic [ref=e860]: posted
+                        - cell "$200" [ref=e861]
+                      - row "Jan 21, 2026 Healthcare N/A posted $150" [ref=e862]:
+                        - cell "Jan 21, 2026" [ref=e863]
+                        - cell "Healthcare" [ref=e864]:
+                          - paragraph [ref=e865]: Healthcare
+                        - cell "N/A" [ref=e866]
+                        - cell "posted" [ref=e867]:
+                          - generic [ref=e869]: posted
+                        - cell "$150" [ref=e870]

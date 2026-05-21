@@ -1,0 +1,4 @@
+- generic [ref=e16]:
+  - heading "Something went wrong." [level=1] [ref=e17]
+  - paragraph [ref=e18]: An unexpected error occurred. Please try refreshing the page.
+  - button "Refresh Page" [ref=e19] [cursor=pointer]

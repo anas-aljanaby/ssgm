@@ -13,6 +13,8 @@ interface DataTableProps<T extends Record<string, any>> {
   data: T[];
   onRowClick?: (row: T) => void;
   emptyMessage?: string;
+  emptyActionLabel?: string;
+  onEmptyAction?: () => void;
 }
 
 type SortDir = 'asc' | 'desc';
@@ -22,6 +24,8 @@ function DataTable<T extends Record<string, any>>({
   data,
   onRowClick,
   emptyMessage = 'No data available',
+  emptyActionLabel,
+  onEmptyAction,
 }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>('asc');
@@ -98,7 +102,18 @@ function DataTable<T extends Record<string, any>>({
                 colSpan={columns.length}
                 className="px-4 py-12 text-center text-gray-400 dark:text-gray-500"
               >
-                {emptyMessage}
+                <div className="flex flex-col items-center gap-3">
+                  <p>{emptyMessage}</p>
+                  {onEmptyAction && emptyActionLabel ? (
+                    <button
+                      type="button"
+                      onClick={onEmptyAction}
+                      className="px-4 py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary-dark transition-colors"
+                    >
+                      {emptyActionLabel}
+                    </button>
+                  ) : null}
+                </div>
               </td>
             </tr>
           ) : (

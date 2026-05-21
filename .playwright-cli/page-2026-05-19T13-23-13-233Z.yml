@@ -1,0 +1,288 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e15]:
+    - navigation [ref=e16]:
+      - button "Collapse sidebar" [expanded] [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+      - generic [ref=e20]:
+        - generic [ref=e22]: M
+        - heading "MSS.2" [level=1] [ref=e23]
+      - list [ref=e25]:
+        - listitem [ref=e1293]:
+          - link "لوحة القيادة" [ref=e1294] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1296]
+            - generic [ref=e1301]: لوحة القيادة
+        - listitem [ref=e1302]:
+          - link "بوصلة" [ref=e1303] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1305]
+            - generic [ref=e1308]: بوصلة
+        - listitem [ref=e1309]:
+          - link "إدارة أصحاب المصلحة" [ref=e1310] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1312]
+            - generic [ref=e1317]: إدارة أصحاب المصلحة
+        - listitem [ref=e1318]:
+          - link "إدارة المانحين" [ref=e1319] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1321]
+            - generic [ref=e1323]: إدارة المانحين
+        - listitem [ref=e1324]:
+          - link "المؤسسات المانحة" [ref=e1325] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1327]
+            - generic [ref=e1329]: المؤسسات المانحة
+        - listitem [ref=e1330]:
+          - link "إدارة المستفيدين" [ref=e1331] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1333]
+            - generic [ref=e1338]: إدارة المستفيدين
+        - listitem [ref=e1339]:
+          - link "إدارة المشاريع" [ref=e1340] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1342]
+            - generic [ref=e1346]: إدارة المشاريع
+        - listitem [ref=e1347]:
+          - link "الإدارة المالية" [ref=e1348] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1350]
+            - generic [ref=e1352]: الإدارة المالية
+        - listitem [ref=e1353]:
+          - link "المساعدة والدعم" [ref=e1354] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1356]
+            - generic [ref=e1359]: المساعدة والدعم
+        - listitem [ref=e1360]:
+          - link "الإعدادات" [ref=e1361] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1363]
+            - generic [ref=e1366]: الإعدادات
+      - list [ref=e101]:
+        - listitem [ref=e1367]:
+          - link "تسجيل الخروج" [ref=e1368] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1370]
+            - generic [ref=e1373]: تسجيل الخروج
+    - generic [ref=e109]:
+      - banner [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - heading "الإدارة المالية" [level=1] [ref=e1374]
+            - button "liveIndicator.live" [ref=e1375] [cursor=pointer]
+          - generic [ref=e118]:
+            - generic:
+              - img
+            - searchbox "ابحث في كل شيء..." [ref=e1376]
+            - button "بحث صوتي" [ref=e1377] [cursor=pointer]:
+              - img [ref=e122]
+        - generic [ref=e125]:
+          - button "المساعدة والدعم" [ref=e1378] [cursor=pointer]:
+            - img [ref=e128]
+          - button "Change language" [ref=e134] [cursor=pointer]:
+            - img [ref=e135]
+            - img "Arabic (Saudi Arabia) Flag" [ref=e1379]:
+              - generic [ref=e1382]: لَا إِلٰهَ إِلَّا الله، مُحَمَّدٌ رَسُولُ الله
+          - button "Switch to dark mode" [ref=e144] [cursor=pointer]:
+            - img [ref=e145]
+          - button "View announcements" [ref=e148] [cursor=pointer]:
+            - img [ref=e149]
+          - button "User مرحباً! Admin" [ref=e1384] [cursor=pointer]:
+            - img "User" [ref=e157]
+            - generic [ref=e158]:
+              - generic [ref=e159]: مرحباً!
+              - generic [ref=e160]: Admin
+            - img [ref=e161]
+      - main [ref=e163]:
+        - generic [ref=e956]:
+          - generic [ref=e957]:
+            - heading "الإدارة المالية" [level=1] [ref=e1385]
+            - paragraph [ref=e959]: المصدر المركزي لجميع العمليات المالية
+          - navigation [ref=e961]:
+            - button "نظرة عامة" [ref=e1386] [cursor=pointer]
+            - button "المعاملات" [ref=e1387] [cursor=pointer]
+            - button "التبرعات" [ref=e1388] [cursor=pointer]
+            - button "التعهدات" [ref=e1389] [cursor=pointer]
+            - button "الميزانيات" [ref=e1390] [cursor=pointer]
+            - button "المصروفات" [ref=e1391] [cursor=pointer]
+            - button "المنح والصناديق" [ref=e1392] [cursor=pointer]
+            - button "الموافقات" [ref=e1393] [cursor=pointer]
+            - button "التقارير" [ref=e1394] [cursor=pointer]
+          - generic [ref=e1134]:
+            - generic [ref=e1135]:
+              - generic [ref=e1137]:
+                - generic [ref=e1138]:
+                  - img
+                  - textbox "البحث في المعاملات..." [ref=e1395]
+                - combobox [ref=e1140]:
+                  - option "جميع الحالات" [selected]
+                  - option "مسودة"
+                  - option "معلق"
+                  - option "معتمد"
+                  - option "مرحّل"
+                  - option "مطابق"
+                  - option "ملغي"
+                - combobox [ref=e1141]:
+                  - option "جميع الاتجاهات" [selected]
+                  - option "وارد"
+                  - option "صادر"
+                - combobox [ref=e1142]:
+                  - option "جميع الفئات" [selected]
+                  - option "تبرع"
+                  - option "دخل منحة"
+                  - option "كفالة"
+                  - option "استثمار"
+                  - option "دخل آخر"
+                  - option "مصروف مشروع"
+                  - option "تشغيلي"
+                  - option "صرف"
+                  - option "رواتب"
+                  - option "مشتريات"
+                  - option "استرداد"
+              - button "إضافة معاملة" [ref=e1396] [cursor=pointer]:
+                - img [ref=e1144]
+                - text: إضافة معاملة
+            - table [ref=e1146]:
+              - rowgroup [ref=e1147]:
+                - row "التاريخ المرجع الوصف الفئة الاتجاه المبلغ الحالة الجهة المرتبطة" [ref=e1397]:
+                  - columnheader "التاريخ" [ref=e1398] [cursor=pointer]:
+                    - generic [ref=e1150]: التاريخ
+                  - columnheader "المرجع" [ref=e1399]:
+                    - generic [ref=e1152]: المرجع
+                  - columnheader "الوصف" [ref=e1400]:
+                    - generic [ref=e1154]: الوصف
+                  - columnheader "الفئة" [ref=e1401]:
+                    - generic [ref=e1156]: الفئة
+                  - columnheader "الاتجاه" [ref=e1402]:
+                    - generic [ref=e1158]: الاتجاه
+                  - columnheader "المبلغ" [ref=e1403] [cursor=pointer]:
+                    - generic [ref=e1160]: المبلغ
+                  - columnheader "الحالة" [ref=e1404]:
+                    - generic [ref=e1162]: الحالة
+                  - columnheader "الجهة المرتبطة" [ref=e1405]:
+                    - generic [ref=e1164]: الجهة المرتبطة
+              - rowgroup [ref=e1165]:
+                - row "19 مايو 2026 Donation ↑ وارد +‏12 US$ Draft —" [ref=e1406]:
+                  - cell "19 مايو 2026" [ref=e1407]
+                  - cell [ref=e1168]
+                  - cell [ref=e1408]
+                  - cell "Donation" [ref=e1170]:
+                    - generic [ref=e1171]: Donation
+                  - cell "↑ وارد" [ref=e1409]:
+                    - generic [ref=e1173]:
+                      - generic [ref=e1174]: ↑
+                      - text: وارد
+                  - cell "+‏12 US$" [ref=e1410]:
+                    - generic [ref=e1176]: +‏12 US$
+                  - cell "Draft" [ref=e1177]:
+                    - generic [ref=e1178]: Draft
+                  - cell "—" [ref=e1179]
+                - row "19 مايو 2026 Donation ↑ وارد +‏100 US$ Approved test" [ref=e1411]:
+                  - cell "19 مايو 2026" [ref=e1412]
+                  - cell [ref=e1182]
+                  - cell [ref=e1413]
+                  - cell "Donation" [ref=e1184]:
+                    - generic [ref=e1185]: Donation
+                  - cell "↑ وارد" [ref=e1414]:
+                    - generic [ref=e1187]:
+                      - generic [ref=e1188]: ↑
+                      - text: وارد
+                  - cell "+‏100 US$" [ref=e1415]:
+                    - generic [ref=e1190]: +‏100 US$
+                  - cell "Approved" [ref=e1191]:
+                    - generic [ref=e1192]: Approved
+                  - cell "test" [ref=e1193]
+                - row "19 مايو 2026 Donation ↑ وارد +‏22 US$ Approved —" [ref=e1416]:
+                  - cell "19 مايو 2026" [ref=e1417]
+                  - cell [ref=e1196]
+                  - cell [ref=e1418]
+                  - cell "Donation" [ref=e1198]:
+                    - generic [ref=e1199]: Donation
+                  - cell "↑ وارد" [ref=e1419]:
+                    - generic [ref=e1201]:
+                      - generic [ref=e1202]: ↑
+                      - text: وارد
+                  - cell "+‏22 US$" [ref=e1420]:
+                    - generic [ref=e1204]: +‏22 US$
+                  - cell "Approved" [ref=e1205]:
+                    - generic [ref=e1206]: Approved
+                  - cell "—" [ref=e1207]
+            - dialog "إضافة معاملة" [ref=e1421]:
+              - generic [ref=e1211]:
+                - generic [ref=e1212]:
+                  - heading "إضافة معاملة" [level=2] [ref=e1422]
+                  - button "إغلاق" [ref=e1423] [cursor=pointer]:
+                    - img [ref=e1215]
+                - generic [ref=e1218]:
+                  - generic [ref=e1219]:
+                    - generic [ref=e1220]:
+                      - generic [ref=e1221]: الاتجاه
+                      - generic [ref=e1222]:
+                        - button "وارد" [ref=e1424] [cursor=pointer]
+                        - button "صادر" [ref=e1425] [cursor=pointer]
+                    - generic [ref=e1225]:
+                      - generic [ref=e1226]:
+                        - generic [ref=e1227]: التاريخ
+                        - textbox "التاريخ" [ref=e1426]: 2026-05-19
+                      - generic [ref=e1229]:
+                        - generic [ref=e1230]: المبلغ
+                        - spinbutton "المبلغ" [ref=e1427]
+                      - generic [ref=e1232]:
+                        - generic [ref=e1233]: العملة
+                        - combobox "العملة" [ref=e1428]:
+                          - option "USD" [selected]
+                          - option "EUR"
+                          - option "GBP"
+                          - option "SAR"
+                          - option "AED"
+                          - option "QAR"
+                          - option "TRY"
+                    - generic [ref=e1235]:
+                      - generic [ref=e1236]:
+                        - generic [ref=e1237]: الفئة
+                        - combobox "الفئة" [ref=e1429]:
+                          - option "تبرع" [selected]
+                          - option "دخل منحة"
+                          - option "كفالة"
+                          - option "استثمار"
+                          - option "دخل آخر"
+                      - generic [ref=e1239]:
+                        - generic [ref=e1240]: الحالة
+                        - combobox "الحالة" [ref=e1430]:
+                          - option "مسودة" [selected]
+                          - option "معلق"
+                          - option "معتمد"
+                          - option "مرحّل"
+                    - generic [ref=e1242]:
+                      - generic [ref=e1243]: الوصف (EN)
+                      - textbox "الوصف (EN)" [ref=e1431]:
+                        - /placeholder: "مثال: تبرع شهري من..."
+                    - generic [ref=e1245]:
+                      - generic [ref=e1246]: الوصف (AR)
+                      - textbox "الوصف (AR)" [ref=e1432]:
+                        - /placeholder: الوصف بالعربية...
+                    - generic [ref=e1248]:
+                      - generic [ref=e1249]: المرجع
+                      - textbox "المرجع" [ref=e1433]:
+                        - /placeholder: "مثال: INV-2024-001"
+                    - generic [ref=e1251]:
+                      - generic [ref=e1252]: الجهة المرتبطة
+                      - combobox "الجهة المرتبطة" [ref=e1434]:
+                        - option "بدون" [selected]
+                        - option "donor"
+                        - option "project"
+                        - option "beneficiary"
+                        - option "institutional donor"
+                        - option "vendor"
+                    - generic [ref=e1254]:
+                      - generic [ref=e1255]: ملاحظات
+                      - textbox "ملاحظات" [ref=e1435]
+                    - generic [ref=e1257]:
+                      - generic [ref=e1258]: إيصال / مستند
+                      - generic [ref=e1259] [cursor=pointer]:
+                        - img [ref=e1260]
+                        - generic [ref=e1263]: اضغط لرفع الإيصال
+                        - generic [ref=e1264]: PDF, JPG, PNG (max 10MB)
+                  - generic [ref=e1265]:
+                    - button "إلغاء" [ref=e1436] [cursor=pointer]
+                    - button "حفظ المعاملة" [ref=e1437] [cursor=pointer]
+  - generic [ref=e776]: $0k

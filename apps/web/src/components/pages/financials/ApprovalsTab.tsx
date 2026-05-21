@@ -5,6 +5,7 @@ import { useToast } from '../../../hooks/useToast';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import type { ApprovalItem, ApprovalItemType } from '../../../types/financials';
 import { useApproveItem, useApprovals, useRejectItem } from '../../../hooks/useApprovals';
+import ModalPortal from '../../common/ModalPortal';
 
 const TYPE_COLORS: Record<ApprovalItemType, string> = {
   expense: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
@@ -252,8 +253,8 @@ const ApprovalsTab: React.FC = () => {
       </div>
 
       {viewingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card">
+      <ModalPortal isOpen={true} onClose={() => setViewingItem(null)} overlayClassName="fixed inset-0 bg-black/40 modal-overlay animate-fade-in">
+          <div className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card" onClick={(e) => e.stopPropagation()}>
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-base font-semibold text-foreground dark:text-dark-foreground">
@@ -293,7 +294,7 @@ const ApprovalsTab: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
+      </ModalPortal>
       )}
     </div>
   );

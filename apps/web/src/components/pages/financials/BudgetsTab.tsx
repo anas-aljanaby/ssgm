@@ -25,6 +25,7 @@ import FinancialKpiCard from './shared/FinancialKpiCard';
 import DataTable, { type Column } from './shared/DataTable';
 import { useBudgets, useCreateBudget } from '../../../hooks/useBudgets';
 import type { BudgetLine } from '../../../types/financials';
+import ModalPortal from '../../common/ModalPortal';
 
 const BudgetsTab: React.FC = () => {
   const { t, language } = useLocalization();
@@ -261,9 +262,17 @@ const BudgetsTab: React.FC = () => {
           {t('financials.budgets.noBudgets')}
         </div>
 
-        {isCreateOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card">
+        <ModalPortal
+          isOpen={isCreateOpen}
+          onClose={() => {
+            if (!createBudget.isPending) setIsCreateOpen(false);
+          }}
+          overlayClassName="fixed inset-0 bg-black/40 modal-overlay animate-fade-in"
+        >
+          <div
+            className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card"
+            onClick={(e) => e.stopPropagation()}
+          >
               <h3 className="mb-4 text-base font-semibold text-foreground dark:text-dark-foreground">
                 {t('financials.budgets.createBudget', 'Create Budget')}
               </h3>
@@ -329,8 +338,7 @@ const BudgetsTab: React.FC = () => {
                 </button>
               </div>
             </div>
-          </div>
-        )}
+        </ModalPortal>
       </div>
     );
   }
@@ -475,9 +483,17 @@ const BudgetsTab: React.FC = () => {
         emptyMessage={t('financials.budgets.noBudgets')}
       />
 
-      {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card">
+      <ModalPortal
+        isOpen={isCreateOpen}
+        onClose={() => {
+          if (!createBudget.isPending) setIsCreateOpen(false);
+        }}
+        overlayClassName="fixed inset-0 bg-black/40 modal-overlay animate-fade-in"
+      >
+        <div
+          className="w-full max-w-xl rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card"
+          onClick={(e) => e.stopPropagation()}
+        >
             <h3 className="mb-4 text-base font-semibold text-foreground dark:text-dark-foreground">
               {t('financials.budgets.createBudget', 'Create Budget')}
             </h3>
@@ -542,9 +558,8 @@ const BudgetsTab: React.FC = () => {
                   : t('financials.budgets.createBudget', 'Create Budget')}
               </button>
             </div>
-          </div>
         </div>
-      )}
+      </ModalPortal>
     </div>
   );
 };

@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useToast } from '../../hooks/useToast';
 import { Mail, Link2, CalendarPlus, X, Send } from 'lucide-react';
 import Spinner from '../common/Spinner';
+import ModalPortal from '../common/ModalPortal';
 
 interface ShareMenuProps {
     dashboardId: string;
@@ -17,39 +18,13 @@ const ShareMenu: React.FC<ShareMenuProps> = ({ dashboardId }) => {
     const handleOpen = () => setIsOpen(true);
     const handleClose = () => setIsOpen(false);
 
-    const ModalContent = () => (
-        <div 
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in"
-            onClick={handleClose}
-        >
-            <div 
-                className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg m-4 flex flex-col max-h-[90vh]"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
-                    <h2 className="text-xl font-bold">{t('shareMenu.modalTitle')}</h2>
-                    <button onClick={handleClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"><X /></button>
-                </div>
-                
-                <div className="p-4 border-b dark:border-slate-700">
-                    <div className="flex justify-center bg-gray-100 dark:bg-slate-800 rounded-lg p-1">
-                        <TabButton id="email" icon={<Mail size={16} />} label={t('shareMenu.tabs.email')} />
-                        <TabButton id="link" icon={<Link2 size={16} />} label={t('shareMenu.tabs.link')} />
-                        <TabButton id="schedule" icon={<CalendarPlus size={16} />} label={t('shareMenu.tabs.schedule')} />
-                    </div>
-                </div>
-
-                <div className="p-6 overflow-y-auto">
-                    {activeTab === 'email' && <EmailTab onClose={handleClose} />}
-                    {activeTab === 'link' && <LinkTab dashboardId={dashboardId} />}
-                    {activeTab === 'schedule' && <ScheduleTab onClose={handleClose} />}
-                </div>
-            </div>
-        </div>
-    );
-    
-    const TabButton: React.FC<{id: 'email' | 'link' | 'schedule', icon: React.ReactNode, label: string}> = ({id, icon, label}) => (
+    const TabButton: React.FC<{ id: 'email' | 'link' | 'schedule'; icon: React.ReactNode; label: string }> = ({
+        id,
+        icon,
+        label,
+    }) => (
         <button
+            type="button"
             onClick={() => setActiveTab(id)}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
                 activeTab === id ? 'bg-white dark:bg-slate-700 shadow' : 'text-gray-500 hover:bg-white/50'
@@ -67,7 +42,37 @@ const ShareMenu: React.FC<ShareMenuProps> = ({ dashboardId }) => {
             >
                 <Mail size={16} /> {t('shareMenu.share')}
             </button>
-            {isOpen && <ModalContent />}
+            <ModalPortal
+                isOpen={isOpen}
+                onClose={handleClose}
+                dir={dir === 'rtl' ? 'rtl' : 'ltr'}
+            >
+                <div
+                    className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg m-4 flex flex-col max-h-[90vh]"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
+                        <h2 className="text-xl font-bold">{t('shareMenu.modalTitle')}</h2>
+                        <button type="button" onClick={handleClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700">
+                            <X />
+                        </button>
+                    </div>
+
+                    <div className="p-4 border-b dark:border-slate-700">
+                        <div className="flex justify-center bg-gray-100 dark:bg-slate-800 rounded-lg p-1">
+                            <TabButton id="email" icon={<Mail size={16} />} label={t('shareMenu.tabs.email')} />
+                            <TabButton id="link" icon={<Link2 size={16} />} label={t('shareMenu.tabs.link')} />
+                            <TabButton id="schedule" icon={<CalendarPlus size={16} />} label={t('shareMenu.tabs.schedule')} />
+                        </div>
+                    </div>
+
+                    <div className="p-6 overflow-y-auto">
+                        {activeTab === 'email' && <EmailTab onClose={handleClose} />}
+                        {activeTab === 'link' && <LinkTab dashboardId={dashboardId} />}
+                        {activeTab === 'schedule' && <ScheduleTab onClose={handleClose} />}
+                    </div>
+                </div>
+            </ModalPortal>
         </>
     );
 };

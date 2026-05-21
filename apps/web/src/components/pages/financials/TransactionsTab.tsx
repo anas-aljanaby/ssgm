@@ -6,7 +6,8 @@ import DataTable, { type Column } from './shared/DataTable';
 import FilterBar, { type FilterDef } from './shared/FilterBar';
 import StatusBadge from './shared/StatusBadge';
 import AddTransactionModal from './AddTransactionModal';
-import { useTransactions, useCreateTransaction } from '../../../hooks/useTransactions';
+import { useTransactions, useCreateTransaction, useDeleteTransaction } from '../../../hooks/useTransactions';
+import TransactionRowActions from './TransactionRowActions';
 import type {
   FinancialTransaction,
   TransactionCategory,
@@ -43,6 +44,7 @@ const TransactionsTab: React.FC = () => {
   const { t, language } = useLocalization();
   const { data: transactions = [], isLoading } = useTransactions();
   const createTransaction = useCreateTransaction();
+  const deleteTransaction = useDeleteTransaction();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -91,8 +93,8 @@ const TransactionsTab: React.FC = () => {
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         const matchesDescription =
-          txn.description.en.toLowerCase().includes(term) ||
-          txn.description.ar.includes(term);
+          txn.description.en?.toLowerCase().includes(term) ||
+          txn.description.ar?.includes(term);
         const matchesReference = txn.reference.toLowerCase().includes(term);
         const matchesEntity = txn.relatedEntityName
           ?.toLowerCase()
@@ -132,11 +134,15 @@ const TransactionsTab: React.FC = () => {
       {
         key: 'description',
         label: t('financials.transactions.description'),
-        render: (row) => (
-          <span className="text-sm text-foreground dark:text-dark-foreground">
-            {row.description[language]}
-          </span>
-        ),
+        render: (row) => {
+          const desc =
+            row.description[language]?.trim() ||
+            row.description[language === 'en' ? 'ar' : 'en']?.trim() ||
+            '—';
+          return (
+            <span className="text-sm text-foreground dark:text-dark-foreground">{desc}</span>
+          );
+        },
       },
       {
         key: 'category',
@@ -191,8 +197,20 @@ const TransactionsTab: React.FC = () => {
           </span>
         ),
       },
+      {
+        key: 'actions',
+        label: t('financials.common.actions', 'Actions'),
+        align: 'right',
+        render: (row) => (
+          <TransactionRowActions
+            transaction={row}
+            isDeleting={deleteTransaction.isPending}
+            onDelete={() => deleteTransaction.mutateAsync(row.id)}
+          />
+        ),
+      },
     ],
-    [t, language]
+    [t, language, deleteTransaction.isPending]
   );
 
   return (

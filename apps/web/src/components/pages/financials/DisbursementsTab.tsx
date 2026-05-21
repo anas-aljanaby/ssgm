@@ -13,6 +13,7 @@ import type {
   DisbursementType,
   DisbursementStatus,
 } from '../../../types/financials';
+import ModalPortal from '../../common/ModalPortal';
 
 const DISBURSEMENT_TYPES: DisbursementType[] = [
   'aid_payment',
@@ -275,9 +276,14 @@ const DisbursementsTab: React.FC = () => {
         emptyMessage={t('financials.disbursements.noDisbursements')}
       />
 
-      {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card">
+      <ModalPortal
+        isOpen={isCreateOpen}
+        onClose={() => {
+          if (!createDisbursement.isPending) setIsCreateOpen(false);
+        }}
+        overlayClassName="fixed inset-0 bg-black/40 modal-overlay animate-fade-in"
+      >
+          <div className="w-full max-w-lg rounded-xl border border-gray-200 bg-card p-5 dark:border-slate-700/50 dark:bg-dark-card" onClick={(e) => e.stopPropagation()}>
             <h3 className="mb-4 text-base font-semibold text-foreground dark:text-dark-foreground">
               {t('financials.disbursements.create', 'Create Disbursement')}
             </h3>
@@ -347,9 +353,8 @@ const DisbursementsTab: React.FC = () => {
                   : t('financials.disbursements.create', 'Create Disbursement')}
               </button>
             </div>
-          </div>
         </div>
-      )}
+      </ModalPortal>
     </div>
   );
 };

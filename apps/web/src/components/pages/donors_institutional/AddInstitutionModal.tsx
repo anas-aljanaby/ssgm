@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import type { InstitutionalDonor, InstitutionType, GrantmakerRelationshipStatus, PriorityLevel } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
+import ModalPortal from '../../common/ModalPortal';
 import { XIcon } from '../../icons/GenericIcons';
 
 interface AddInstitutionModalProps {
@@ -54,17 +55,10 @@ const AddInstitutionModal: React.FC<AddInstitutionModalProps> = ({ isOpen, onClo
         onClose();
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div 
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in"
-            onClick={onClose}
-            role="dialog"
-            aria-modal="true"
-        >
+        <ModalPortal isOpen={isOpen} onClose={onClose}>
             <div 
-                className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl m-4"
+                className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
@@ -146,7 +140,7 @@ const AddInstitutionModal: React.FC<AddInstitutionModalProps> = ({ isOpen, onClo
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalPortal>
     );
 };
 
