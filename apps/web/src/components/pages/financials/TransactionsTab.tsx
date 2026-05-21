@@ -23,11 +23,7 @@ import type {
 
 const TRANSACTION_STATUSES: TransactionStatus[] = [
   'draft',
-  'pending',
-  'approved',
   'posted',
-  'reconciled',
-  'voided',
 ];
 
 const TRANSACTION_DIRECTIONS: TransactionDirection[] = ['inflow', 'outflow'];
@@ -93,8 +89,17 @@ const TransactionsTab: React.FC = () => {
   );
 
   const handleDelete = useCallback(
-    (id: string) => {
+    (id: string, status: TransactionStatus) => {
       if (isOptimisticTransaction(id)) return;
+      if (status !== 'draft') {
+        toast.showError(
+          t(
+            'financials.transactions.deleteDraftOnly',
+            'Only draft transactions can be deleted in MVP mode.'
+          )
+        );
+        return;
+      }
       deleteTransaction.mutate(id, {
         onSuccess: () => {
           toast.showSuccess(t('financials.transactions.deleteSuccess', 'Transaction deleted'));
@@ -262,20 +267,11 @@ const TransactionsTab: React.FC = () => {
           ),
       },
       {
-        key: 'relatedEntityName',
-        label: t('financials.transactions.relatedEntity'),
-        render: (row) => (
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            {row.relatedEntityName || '—'}
-          </span>
-        ),
-      },
-      {
         key: 'actions',
         label: t('financials.common.actions', 'Actions'),
         align: 'right',
         render: (row) =>
-          isOptimisticTransaction(row.id) ? (
+          isOptimisticTransaction(row.id) || row.status !== 'draft' ? (
             <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
           ) : (
             <TransactionRowActions
@@ -283,7 +279,7 @@ const TransactionsTab: React.FC = () => {
               isDeleting={
                 deleteTransaction.isPending && deleteTransaction.variables === row.id
               }
-              onDelete={() => handleDelete(row.id)}
+              onDelete={() => handleDelete(row.id, row.status)}
             />
           ),
       },

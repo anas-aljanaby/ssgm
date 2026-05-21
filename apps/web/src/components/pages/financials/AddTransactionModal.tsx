@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Upload, FileText } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import ModalPortal from '../../common/ModalPortal';
 import type {
@@ -49,13 +49,6 @@ const INITIAL_FORM: TransactionFormData = {
   recurring_frequency: '',
 };
 
-const DONATION_INITIAL: TransactionFormData = {
-  ...INITIAL_FORM,
-  direction: 'inflow',
-  category: 'donation',
-  related_entity_type: 'donor',
-};
-
 const CATEGORIES: { value: TransactionCategory; direction: TransactionDirection }[] = [
   { value: 'donation', direction: 'inflow' },
   { value: 'grant_income', direction: 'inflow' },
@@ -70,16 +63,7 @@ const CATEGORIES: { value: TransactionCategory; direction: TransactionDirection 
   { value: 'refund', direction: 'outflow' },
 ];
 
-const DONATION_METHODS: DonationMethod[] = [
-  'bank_transfer',
-  'credit_card',
-  'cash',
-  'check',
-  'online_gateway',
-  'in_kind',
-];
-
-const STATUSES: TransactionStatus[] = ['draft', 'pending', 'approved', 'posted'];
+const STATUSES: TransactionStatus[] = ['draft', 'posted'];
 
 export type TransactionModalPreset = 'default' | 'donation';
 
@@ -120,14 +104,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   preset = 'default',
 }) => {
   const { t, dir } = useLocalization(['common', 'financials']);
-  const isDonationPreset = preset === 'donation';
   const [form, setForm] = useState<TransactionFormData>({ ...INITIAL_FORM });
 
   useEffect(() => {
     if (isOpen) {
-      setForm(isDonationPreset ? { ...DONATION_INITIAL } : { ...INITIAL_FORM });
+      setForm({ ...INITIAL_FORM });
     }
-  }, [isOpen, isDonationPreset]);
+  }, [isOpen, preset]);
 
   const set = <K extends keyof TransactionFormData>(key: K, value: TransactionFormData[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -150,18 +133,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    set('receipt', file);
-  };
-
-  const removeFile = () => set('receipt', null);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (form.amount <= 0) return;
     onSubmit(form);
-    setForm(isDonationPreset ? { ...DONATION_INITIAL } : { ...INITIAL_FORM });
+    setForm({ ...INITIAL_FORM });
     onClose();
   };
 
@@ -170,12 +146,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const amountInputClass = `${inputClass} text-end tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`;
   const selectClass = `${inputClass} appearance-none`;
 
-  const modalTitle = isDonationPreset
-    ? t('financials.addDonation.title', 'Add Donation')
-    : t('financials.addTransaction.title', 'Add Transaction');
-  const saveLabel = isDonationPreset
-    ? t('financials.addDonation.save', 'Save Donation')
-    : t('financials.addTransaction.save', 'Save Transaction');
+  const modalTitle = t('financials.addTransaction.title', 'Add Transaction');
+  const saveLabel = t('financials.addTransaction.save', 'Save Transaction');
   const canSubmit = form.amount > 0;
 
   return (
@@ -203,34 +175,32 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
           <div className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
-            {!isDonationPreset ? (
-              <Field label={t('financials.transactions.direction', 'Direction')}>
-                <div className="flex rounded-lg border dark:border-slate-600 overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => handleDirectionChange('inflow')}
-                    className={`flex-1 py-2 text-sm font-semibold transition-colors ${
-                      form.direction === 'inflow'
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    {t('financials.transactions.inflow', 'Inflow')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectionChange('outflow')}
-                    className={`flex-1 py-2 text-sm font-semibold transition-colors ${
-                      form.direction === 'outflow'
-                        ? 'bg-red-500 text-white'
-                        : 'bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    {t('financials.transactions.outflow', 'Outflow')}
-                  </button>
-                </div>
-              </Field>
-            ) : null}
+            <Field label={t('financials.transactions.direction', 'Direction')}>
+              <div className="flex rounded-lg border dark:border-slate-600 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => handleDirectionChange('inflow')}
+                  className={`flex-1 py-2 text-sm font-semibold transition-colors ${
+                    form.direction === 'inflow'
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {t('financials.transactions.inflow', 'Inflow')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDirectionChange('outflow')}
+                  className={`flex-1 py-2 text-sm font-semibold transition-colors ${
+                    form.direction === 'outflow'
+                      ? 'bg-red-500 text-white'
+                      : 'bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {t('financials.transactions.outflow', 'Outflow')}
+                </button>
+              </div>
+            </Field>
 
             <div
               data-testid="txn-form-grid"
@@ -289,45 +259,24 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   <option value="TRY">TRY</option>
                 </select>
               </Field>
-              {!isDonationPreset ? (
-                <Field
-                  label={t('financials.transactions.category', 'Category')}
-                  htmlFor="txn-category"
-                  className="sm:col-span-2"
+              <Field
+                label={t('financials.transactions.category', 'Category')}
+                htmlFor="txn-category"
+                className="sm:col-span-2"
+              >
+                <select
+                  id="txn-category"
+                  value={form.category}
+                  onChange={(e) => handleCategoryChange(e.target.value as TransactionCategory)}
+                  className={selectClass}
                 >
-                  <select
-                    id="txn-category"
-                    value={form.category}
-                    onChange={(e) => handleCategoryChange(e.target.value as TransactionCategory)}
-                    className={selectClass}
-                  >
-                    {filteredCategories.map((c) => (
-                      <option key={c.value} value={c.value}>
-                        {t(`financials.category.${c.value}`, c.value)}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-              ) : (
-                <Field
-                  label={t('financials.donations.method', 'Method')}
-                  htmlFor="donation-method"
-                  className="sm:col-span-2"
-                >
-                  <select
-                    id="donation-method"
-                    value={form.donation_method}
-                    onChange={(e) => set('donation_method', e.target.value as DonationMethod)}
-                    className={selectClass}
-                  >
-                    {DONATION_METHODS.map((m) => (
-                      <option key={m} value={m}>
-                        {t(`financials.method.${m}`, m)}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-              )}
+                  {filteredCategories.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {t(`financials.category.${c.value}`, c.value)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
               <Field
                 label={t('financials.transactions.status', 'Status')}
                 htmlFor="txn-status"
@@ -349,25 +298,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               <div className="hidden sm:block sm:col-span-2" aria-hidden="true" />
             </div>
 
-            {isDonationPreset ? (
-              <Field
-                label={t('financials.donations.designation', 'Designation')}
-                htmlFor="donation-designation"
-              >
-                <input
-                  type="text"
-                  id="donation-designation"
-                  value={form.designation}
-                  onChange={(e) => set('designation', e.target.value)}
-                  placeholder={t(
-                    'financials.addDonation.designationPlaceholder',
-                    'e.g. Education Fund'
-                  )}
-                  className={inputClass}
-                />
-              </Field>
-            ) : null}
-
             <Field
               label={`${t('financials.transactions.description', 'Description')} (EN)`}
               htmlFor="txn-desc-en"
@@ -377,11 +307,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 id="txn-desc-en"
                 value={form.description_en}
                 onChange={(e) => set('description_en', e.target.value)}
-                placeholder={
-                  isDonationPreset
-                    ? t('financials.addDonation.descPlaceholder', 'e.g. Monthly donation from...')
-                    : t('financials.addTransaction.descPlaceholder', 'e.g. Monthly donation from...')
-                }
+                placeholder={t('financials.addTransaction.descPlaceholder', 'e.g. Monthly donation from...')}
                 className={inputClass}
               />
             </Field>
@@ -412,74 +338,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               />
             </Field>
 
-            <Field label={t('financials.transactions.relatedEntity', 'Related Entity')}>
-              <div
-                data-testid="txn-related-entity-coming-soon"
-                className="rounded-lg border border-dashed border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 px-4 py-3 text-center"
-              >
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  {t('financials.addTransaction.relatedEntityComingSoon', 'Coming soon')}
-                </p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                  {t(
-                    'financials.addTransaction.relatedEntityComingSoonHint',
-                    'Attach and link donors, projects, beneficiaries, and other entities.'
-                  )}
-                </p>
-              </div>
-            </Field>
-
-            {isDonationPreset ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label={t('financials.donations.recurring', 'Recurring')}>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.is_recurring}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setForm((prev) => ({
-                          ...prev,
-                          is_recurring: checked,
-                          recurring_frequency: checked ? prev.recurring_frequency || 'monthly' : '',
-                        }));
-                      }}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {t('financials.addDonation.isRecurring', 'Recurring donation')}
-                    </span>
-                  </label>
-                </Field>
-                {form.is_recurring ? (
-                  <Field
-                    label={t('financials.addDonation.frequency', 'Frequency')}
-                    htmlFor="donation-frequency"
-                  >
-                    <select
-                      id="donation-frequency"
-                      value={form.recurring_frequency}
-                      onChange={(e) =>
-                        set(
-                          'recurring_frequency',
-                          e.target.value as TransactionFormData['recurring_frequency']
-                        )
-                      }
-                      className={selectClass}
-                    >
-                      <option value="monthly">{t('financials.addDonation.monthly', 'Monthly')}</option>
-                      <option value="quarterly">
-                        {t('financials.addDonation.quarterly', 'Quarterly')}
-                      </option>
-                      <option value="annually">
-                        {t('financials.addDonation.annually', 'Annually')}
-                      </option>
-                    </select>
-                  </Field>
-                ) : null}
-              </div>
-            ) : null}
-
             <Field label={t('financials.addTransaction.notes', 'Notes')} htmlFor="txn-notes">
               <textarea
                 id="txn-notes"
@@ -488,43 +346,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 rows={2}
                 className={`${inputClass} resize-none`}
               />
-            </Field>
-
-            <Field label={t('financials.addTransaction.receipt', 'Receipt / Document')}>
-              {form.receipt ? (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg border dark:border-slate-600">
-                  <FileText className="w-8 h-8 text-blue-500 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground dark:text-dark-foreground truncate">
-                      {form.receipt.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {(form.receipt.size / 1024).toFixed(1)} KB
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={removeFile}
-                    className="p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30"
-                  >
-                    <X className="w-4 h-4 text-red-500" />
-                  </button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center gap-1.5 p-3 border-2 border-dashed rounded-lg cursor-pointer border-gray-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 transition-colors bg-gray-50 dark:bg-slate-800">
-                  <Upload className="w-5 h-5 text-gray-400" />
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('financials.addTransaction.uploadReceipt', 'Click to upload receipt')}
-                  </span>
-                  <span className="text-xs text-gray-400">PDF, JPG, PNG (max 10MB)</span>
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".pdf,.jpg,.jpeg,.png,.webp"
-                    className="hidden"
-                  />
-                </label>
-              )}
             </Field>
           </div>
 
