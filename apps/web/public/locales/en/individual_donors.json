@@ -159,7 +159,11 @@
       "noCommunications": "No communication history recorded yet.",
       "noTasks": "No tasks recorded for this donor.",
       "noOpenTasks": "No open tasks.",
-      "noDocuments": "No documents attached."
+      "noDocuments": "No documents attached.",
+      "deleteDonor": "Delete donor",
+      "deleteDonorConfirm": "Permanently delete {{name}}? This removes the donor profile, gifts, tasks, interactions, and documents. This cannot be undone.",
+      "donorDeleted": "Donor profile deleted.",
+      "donorDeleteFailed": "Unable to delete donor profile."
     },
     "statuses": {
       "Active": "Active",

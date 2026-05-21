@@ -2,7 +2,7 @@ import type { Donor } from '../types';
 
 export const MOCK_DONORS: Donor[] = [
   {
-    id: 1,
+    id: 'mock-1',
     name: 'Aisha Al-Farsi',
     email: 'aisha.f@example.com',
     totalDonated: 15250,
@@ -26,7 +26,7 @@ export const MOCK_DONORS: Donor[] = [
     ],
   },
   {
-    id: 2,
+    id: 'mock-2',
     name: 'John Smith',
     email: 'john.smith@example.com',
     totalDonated: 7800,
@@ -48,7 +48,7 @@ export const MOCK_DONORS: Donor[] = [
     tasks: [],
   },
   {
-    id: 3,
+    id: 'mock-3',
     name: 'Fatma Yılmaz',
     email: 'fatma.y@example.com',
     totalDonated: 3200,
@@ -72,7 +72,7 @@ export const MOCK_DONORS: Donor[] = [
     ],
   },
   {
-    id: 4,
+    id: 'mock-4',
     name: 'David Chen',
     email: 'david.chen@example.com',
     totalDonated: 25000,
@@ -96,7 +96,7 @@ export const MOCK_DONORS: Donor[] = [
     ],
   },
   {
-    id: 5,
+    id: 'mock-5',
     name: 'Maria Garcia',
     email: 'maria.g@example.com',
     totalDonated: 500,
@@ -118,7 +118,7 @@ export const MOCK_DONORS: Donor[] = [
     tasks: [],
   },
   {
-    id: 6,
+    id: 'mock-6',
     name: 'Kenji Tanaka',
     email: 'kenji.t@example.com',
     totalDonated: 1200,
@@ -142,7 +142,7 @@ export const MOCK_DONORS: Donor[] = [
     ],
   },
   {
-    id: 7,
+    id: 'mock-7',
     name: 'Omar Hassan',
     email: 'omar.h@example.com',
     totalDonated: 0,
@@ -166,7 +166,7 @@ export const MOCK_DONORS: Donor[] = [
     ],
   },
    {
-    id: 8,
+    id: 'mock-8',
     name: 'Emily White',
     email: 'emily.w@example.com',
     totalDonated: 9500,
@@ -190,7 +190,7 @@ export const MOCK_DONORS: Donor[] = [
     ],
   },
   {
-    id: 9,
+    id: 'mock-9',
     name: 'Mehmet Öztürk',
     email: 'mehmet.o@example.com',
     totalDonated: 4800,
@@ -214,7 +214,7 @@ export const MOCK_DONORS: Donor[] = [
     ],
   },
   {
-    id: 10,
+    id: 'mock-10',
     name: 'Abdullah Al-Jaber',
     email: 'abdullah.j@example.com',
     totalDonated: 35000,
@@ -238,7 +238,7 @@ export const MOCK_DONORS: Donor[] = [
     ],
   },
   {
-    id: 11,
+    id: 'mock-11',
     name: 'New Prospect Inc.',
     email: 'contact@prospect.com',
     totalDonated: 0,

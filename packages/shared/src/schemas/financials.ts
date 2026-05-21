@@ -59,10 +59,7 @@ const transactionFieldsSchema = z.object({
     custom_fields: z.record(z.string(), z.unknown()).default({}),
 });
 
-export const createTransactionSchema = transactionFieldsSchema.refine(
-    (data) => data.description_en.trim().length > 0 || data.description_ar.trim().length > 0,
-    { message: 'At least one description (English or Arabic) is required' },
-);
+export const createTransactionSchema = transactionFieldsSchema;
 
 export const updateTransactionSchema = transactionFieldsSchema.partial();
 

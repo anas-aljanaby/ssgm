@@ -84,7 +84,7 @@ interface KanbanCardProps {
     donor: Donor;
     density?: KanbanDensity;
     stages?: DonorKanbanStage[];
-    onMoveDonor?: (donorId: number, targetStageId: DonorStageId) => void;
+    onMoveDonor?: (donorId: string, targetStageId: DonorStageId) => void;
 }
 
 interface KanbanCardShellProps extends KanbanCardProps {

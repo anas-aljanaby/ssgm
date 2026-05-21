@@ -6,8 +6,65 @@ import type { TransactionFormData } from '../components/pages/financials/AddTran
 import { DONATIONS_QUERY_KEY } from './useDonations';
 
 const QUERY_KEY = ['transactions'] as const;
+const OPTIMISTIC_ID_PREFIX = 'optimistic-';
+const OPTIMISTIC_DONATION_ID_PREFIX = 'optimistic-donation-';
 
 const USE_API = true;
+
+export function isOptimisticTransaction(id: string): boolean {
+  return id.startsWith(OPTIMISTIC_ID_PREFIX);
+}
+
+export function isOptimisticDonation(id: string): boolean {
+  return id.startsWith(OPTIMISTIC_DONATION_ID_PREFIX);
+}
+
+function buildOptimisticDonation(
+  data: TransactionFormData,
+  transactionId: string
+): DonationRecord {
+  const nameEn =
+    data.related_entity_name || data.description_en.trim() || data.description_ar.trim();
+  const nameAr = data.description_ar.trim() || nameEn;
+  return {
+    id: `${OPTIMISTIC_DONATION_ID_PREFIX}${Date.now()}`,
+    donorId: '',
+    donorName: { en: nameEn, ar: nameAr },
+    donorType: data.related_entity_type === 'institutional_donor' ? 'institutional' : 'individual',
+    date: data.date,
+    amount: data.amount,
+    currency: data.currency,
+    method: data.donation_method,
+    designation: data.designation || undefined,
+    receiptStatus: 'pending',
+    isRecurring: data.is_recurring,
+    recurringFrequency: data.is_recurring
+      ? (data.recurring_frequency as DonationRecord['recurringFrequency'])
+      : undefined,
+    notes: data.notes || undefined,
+    transactionId,
+  };
+}
+
+function buildOptimisticTransaction(data: TransactionFormData): FinancialTransaction {
+  const descEn = data.description_en.trim();
+  const descAr = data.description_ar.trim();
+  return {
+    id: `${OPTIMISTIC_ID_PREFIX}${Date.now()}`,
+    date: data.date,
+    description: { en: descEn, ar: descAr },
+    amount: data.amount,
+    currency: data.currency,
+    direction: data.direction,
+    category: data.category,
+    status: data.status,
+    reference: data.reference || '…',
+    relatedEntityType: data.related_entity_type as FinancialTransaction['relatedEntityType'],
+    relatedEntityName: data.related_entity_name || undefined,
+    notes: data.notes || undefined,
+    attachments: data.receipt ? 1 : 0,
+  };
+}
 
 function buildDonationCustomFields(data: TransactionFormData): Record<string, unknown> {
   if (data.category !== 'donation') return {};
@@ -120,15 +177,74 @@ export function useTransactions() {
   });
 }
 
+type CreateTransactionContext = {
+  previous?: FinancialTransaction[];
+  previousDonations?: DonationRecord[];
+  optimisticId: string;
+  optimisticDonationId?: string;
+};
+
 export function useCreateTransaction() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createTransaction,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previous = queryClient.getQueryData<FinancialTransaction[]>(QUERY_KEY);
+      const optimistic = buildOptimisticTransaction(variables);
+
+      let previousDonations: DonationRecord[] | undefined;
+      let optimisticDonationId: string | undefined;
+
       if (variables.category === 'donation') {
+        await queryClient.cancelQueries({ queryKey: DONATIONS_QUERY_KEY });
+        previousDonations = queryClient.getQueryData<DonationRecord[]>(DONATIONS_QUERY_KEY);
+        const optimisticDonation = buildOptimisticDonation(variables, optimistic.id);
+        optimisticDonationId = optimisticDonation.id;
+        queryClient.setQueryData<DonationRecord[]>(DONATIONS_QUERY_KEY, (old) => [
+          optimisticDonation,
+          ...(old ?? []),
+        ]);
+      }
+
+      queryClient.setQueryData<FinancialTransaction[]>(QUERY_KEY, (old) => [
+        optimistic,
+        ...(old ?? []),
+      ]);
+      return {
+        previous,
+        previousDonations,
+        optimisticId: optimistic.id,
+        optimisticDonationId,
+      } satisfies CreateTransactionContext;
+    },
+    onSuccess: (created, _variables, context) => {
+      queryClient.setQueryData<FinancialTransaction[]>(QUERY_KEY, (old) => {
+        if (!old) return [created];
+        const optimisticId = context?.optimisticId;
+        const hasOptimistic = optimisticId && old.some((txn) => txn.id === optimisticId);
+        if (hasOptimistic) {
+          return old.map((txn) => (txn.id === optimisticId ? created : txn));
+        }
+        if (old.some((txn) => txn.id === created.id)) return old;
+        return [created, ...old];
+      });
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(QUERY_KEY, context.previous);
+      }
+      if (context?.previousDonations) {
+        queryClient.setQueryData(DONATIONS_QUERY_KEY, context.previousDonations);
+      }
+    },
+    onSettled: (_data, error, variables) => {
+      if (variables?.category === 'donation') {
         queryClient.invalidateQueries({ queryKey: DONATIONS_QUERY_KEY });
+      }
+      if (error) {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       }
     },
   });
@@ -145,14 +261,54 @@ async function deleteTransaction(id: string): Promise<void> {
   await api.delete(`/financials/transactions/${id}`);
 }
 
+type DeleteTransactionContext = {
+  previous?: FinancialTransaction[];
+  previousDonations?: DonationRecord[];
+};
+
 export function useDeleteTransaction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteTransaction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: DONATIONS_QUERY_KEY });
+    mutationFn: (id: string) => {
+      if (isOptimisticTransaction(id)) {
+        return Promise.reject(new Error('Cannot delete pending transaction'));
+      }
+      return deleteTransaction(id);
+    },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previous = queryClient.getQueryData<FinancialTransaction[]>(QUERY_KEY);
+      const txn = previous?.find((t) => t.id === id);
+
+      queryClient.setQueryData<FinancialTransaction[]>(QUERY_KEY, (old) =>
+        (old ?? []).filter((t) => t.id !== id)
+      );
+
+      let previousDonations: DonationRecord[] | undefined;
+      if (txn?.category === 'donation') {
+        await queryClient.cancelQueries({ queryKey: DONATIONS_QUERY_KEY });
+        previousDonations = queryClient.getQueryData<DonationRecord[]>(DONATIONS_QUERY_KEY);
+        queryClient.setQueryData<DonationRecord[]>(DONATIONS_QUERY_KEY, (old) =>
+          (old ?? []).filter((d) => d.transactionId !== id)
+        );
+      }
+
+      return { previous, previousDonations } satisfies DeleteTransactionContext;
+    },
+    onError: (_error, _id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(QUERY_KEY, context.previous);
+      }
+      if (context?.previousDonations) {
+        queryClient.setQueryData(DONATIONS_QUERY_KEY, context.previousDonations);
+      }
+    },
+    onSettled: (_data, error) => {
+      if (error) {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+        queryClient.invalidateQueries({ queryKey: DONATIONS_QUERY_KEY });
+      }
     },
   });
 }

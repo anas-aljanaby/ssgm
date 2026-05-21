@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { DONOR_STATUSES, DONOR_TIERS } from '@gms/shared';
-import type { DonorProfileTask, IndividualDonor, Role } from '../../../types';
+import type { IndividualDonor } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import { deleteDonorProfileDocument, uploadDonorProfileDocument, useDonorProfileDocuments, useDonorProfileDonations, useDonorProfileInteractions, useDonorProfileRecord, useDonorProfileSummary, useDonorProfileTasks } from '../../../hooks/useDonorProfileSummary';
+import { invalidateDonorsQueries, useDeleteDonor } from '../../../hooks/useDonors';
 import { api } from '../../../lib/api';
 import { formatCurrency, formatDate, formatRelativeTime } from '../../../lib/utils';
 import Tabs from '../../common/Tabs';
@@ -22,7 +23,6 @@ interface DonorDetailViewProps {
     onDonorUpdated?: (donor: IndividualDonor) => void;
 }
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DONOR_TYPES: NonNullable<IndividualDonor['donorType']>[] = ['Individual', 'Company', 'Foundation', 'Major Donor', 'Recurring'];
 
 const MAX_TAG_LEN = 30;
@@ -108,8 +108,7 @@ const DonorDocumentsTab: React.FC<{ donor: IndividualDonor; onChanged: () => voi
     const [label, setLabel] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const isApiBackedDonor = UUID_RE.test(donor.id);
-    const documentsQuery = useDonorProfileDocuments(donor.id, donor);
+    const documentsQuery = useDonorProfileDocuments(donor.id);
     const documents = documentsQuery.data || [];
     const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -117,7 +116,7 @@ const DonorDocumentsTab: React.FC<{ donor: IndividualDonor; onChanged: () => voi
 
     const handleUpload = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!file || !isApiBackedDonor) return;
+        if (!file) return;
 
         setIsUploading(true);
         try {
@@ -135,8 +134,6 @@ const DonorDocumentsTab: React.FC<{ donor: IndividualDonor; onChanged: () => voi
     };
 
     const handleDelete = async (documentId: string) => {
-        if (!isApiBackedDonor) return;
-
         try {
             await deleteDonorProfileDocument(donor.id, documentId);
             await queryClient.invalidateQueries({ queryKey: ['donor-profile-documents', donor.id] });
@@ -150,8 +147,7 @@ const DonorDocumentsTab: React.FC<{ donor: IndividualDonor; onChanged: () => voi
     return (
         <Section title={t('individual_donors.detailView.documents')} icon={<FileText size={18} />}>
             <div className="space-y-4">
-                {isApiBackedDonor && (
-                    <form onSubmit={handleUpload} className="grid grid-cols-1 gap-3 rounded-lg border border-dashed border-gray-300 bg-gray-50/70 p-4 dark:border-slate-700 dark:bg-slate-900/30 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+                <form onSubmit={handleUpload} className="grid grid-cols-1 gap-3 rounded-lg border border-dashed border-gray-300 bg-gray-50/70 p-4 dark:border-slate-700 dark:bg-slate-900/30 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
                         <label className="min-w-0">
                             <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('individual_donors.detailView.documentLabel', 'Label')}</span>
                             <input value={label} onChange={(event) => setLabel(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold dark:border-slate-600 dark:bg-slate-900" placeholder="Tax receipt" />
@@ -163,8 +159,7 @@ const DonorDocumentsTab: React.FC<{ donor: IndividualDonor; onChanged: () => voi
                         <button type="submit" disabled={!file || isUploading} className="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-secondary-dark disabled:cursor-not-allowed disabled:opacity-60 md:self-end">
                             <Upload size={16} /> {isUploading ? t('common.loading') : t('individual_donors.detailView.uploadDocument', 'Upload')}
                         </button>
-                    </form>
-                )}
+                </form>
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                     {documentsQuery.isLoading ? (
@@ -186,11 +181,9 @@ const DonorDocumentsTab: React.FC<{ donor: IndividualDonor; onChanged: () => voi
                             <a href={getDocumentUrl(document.file_url)} target="_blank" rel="noreferrer" className="rounded-lg p-2 text-gray-500 hover:bg-white hover:text-primary dark:hover:bg-slate-800 dark:hover:text-secondary" aria-label={t('common.open', 'Open')}>
                                 <ExternalLink size={16} />
                             </a>
-                            {isApiBackedDonor && (
-                                <button onClick={() => handleDelete(document.id)} className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-300" aria-label={t('common.delete', 'Delete')}>
-                                    <Trash2 size={16} />
-                                </button>
-                            )}
+                            <button onClick={() => handleDelete(document.id)} className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-300" aria-label={t('common.delete', 'Delete')}>
+                                <Trash2 size={16} />
+                            </button>
                         </div>
                     </div>
                     )) : <div className="md:col-span-2 xl:col-span-3"><EmptyPanel text={t('individual_donors.detailView.noDocuments')} /></div>}
@@ -237,62 +230,21 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     const [isSavingContact, setIsSavingContact] = useState(false);
     const [isSavingPipelineAsk, setIsSavingPipelineAsk] = useState(false);
     const [headerForm, setHeaderForm] = useState<HeaderFormState>(() => buildHeaderFormState(donor));
+    const deleteDonorMutation = useDeleteDonor();
 
-    const summaryQuery = useDonorProfileSummary(editableDonor.id, editableDonor);
+    const summaryQuery = useDonorProfileSummary(editableDonor.id);
     const donationsQuery = useDonorProfileDonations(editableDonor.id);
-    const tasksQuery = useDonorProfileTasks(editableDonor.id, editableDonor);
+    const tasksQuery = useDonorProfileTasks(editableDonor.id);
     const interactionsQuery = useDonorProfileInteractions(editableDonor.id);
 
     const summary = summaryQuery.data;
     const donorName = summary ? (language === 'ar' && summary.donor.full_name_ar ? summary.donor.full_name_ar : summary.donor.full_name_en) : (editableDonor.fullName[language] || editableDonor.fullName.en);
     const statusKey = (summary?.donor.status || editableDonor.status).replace(/ /g, '');
     const tierKey = (summary?.donor.tier || editableDonor.tier).replace(/ /g, '');
-    const isApiBackedDonor = UUID_RE.test(editableDonor.id);
     const visibleTags = useMemo(() => (summary?.donor.tags || editableDonor.tags || []).filter(Boolean).slice(0, 6), [editableDonor.tags, summary?.donor.tags]);
 
     const invalidateProfile = () => {
-        void queryClient.invalidateQueries({ queryKey: ['donor-profile-record', editableDonor.id] });
-        void queryClient.invalidateQueries({ queryKey: ['donor-profile-summary', editableDonor.id] });
-        void queryClient.invalidateQueries({ queryKey: ['donor-profile-donations', editableDonor.id] });
-        void queryClient.invalidateQueries({ queryKey: ['donor-profile-tasks', editableDonor.id] });
-        void queryClient.invalidateQueries({ queryKey: ['donor-profile-interactions', editableDonor.id] });
-        void queryClient.invalidateQueries({ queryKey: ['donor-profile-documents', editableDonor.id] });
-        void queryClient.invalidateQueries({ queryKey: ['donors'] });
-    };
-
-    const getCachedProfileTasks = () => (
-        queryClient.getQueryData<DonorProfileTask[]>(['donor-profile-tasks', editableDonor.id])
-        || tasksQuery.data
-        || []
-    );
-
-    const syncLocalTasks = (tasks: DonorProfileTask[]) => {
-        const openTasks = tasks
-            .filter((task) => !task.completed)
-            .sort((a, b) => new Date(a.due_date || '').getTime() - new Date(b.due_date || '').getTime());
-        const relationshipTasks = tasks.map((task) => ({
-            id: task.id,
-            text: task.text,
-            type: task.type,
-            assignedTo: (task.assigned_to || editableDonor.assignedManager || 'Staff') as Role,
-            dueDate: task.due_date || new Date().toISOString(),
-            completed: task.completed,
-        }));
-        const updatedDonor: IndividualDonor = {
-            ...editableDonor,
-            relationshipTasks,
-        };
-
-        setEditableDonor(updatedDonor);
-        onDonorUpdated?.(updatedDonor);
-        queryClient.setQueryData(['donor-profile-tasks', editableDonor.id], tasks);
-        queryClient.setQueryData(['donor-profile-summary', editableDonor.id], summary ? {
-            ...summary,
-            relationship: {
-                ...summary.relationship,
-                openTaskCount: openTasks.length,
-            },
-        } : summary);
+        invalidateDonorsQueries(queryClient, editableDonor.id);
     };
 
     const startHeaderEdit = () => {
@@ -341,9 +293,7 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
 
         setIsSavingHeader(true);
         try {
-            if (isApiBackedDonor) {
-                await api.patch(`/donors/${editableDonor.id}`, payload);
-            }
+            await api.patch(`/donors/${editableDonor.id}`, payload);
 
             const updatedDonor: IndividualDonor = {
                 ...editableDonor,
@@ -390,43 +340,38 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     };
 
     const handleLogInteraction = async (interaction: { type: string; date: string; subject: string; notes: string }) => {
-        if (isApiBackedDonor) {
-            try {
-                await api.post(`/donors/${editableDonor.id}/interactions`, {
-                    interaction_type: interaction.type.toLowerCase(),
-                    occurred_at: new Date(interaction.date).toISOString(),
-                    subject: interaction.subject || interaction.type,
-                    notes: interaction.notes,
-                    status: 'logged',
-                });
-                invalidateProfile();
-            } catch (error) {
-                toast.showError(error instanceof Error ? error.message : 'Unable to log interaction.');
-                return;
-            }
+        try {
+            await api.post(`/donors/${editableDonor.id}/interactions`, {
+                interaction_type: interaction.type.toLowerCase(),
+                occurred_at: new Date(interaction.date).toISOString(),
+                subject: interaction.subject || interaction.type,
+                notes: interaction.notes,
+                status: 'logged',
+            });
+            invalidateProfile();
+            toast.showSuccess('Interaction logged successfully.');
+        } catch (error) {
+            toast.showError(error instanceof Error ? error.message : 'Unable to log interaction.');
+            return;
         }
-
-        toast.showSuccess('Interaction logged successfully.');
         setIsLogModalOpen(false);
     };
 
     const handleSendEmail = async (emailData: { to: string; subject: string; body: string }) => {
-        if (isApiBackedDonor) {
-            try {
-                await api.post(`/donors/${editableDonor.id}/interactions`, {
-                    interaction_type: 'email',
-                    occurred_at: new Date().toISOString(),
-                    subject: emailData.subject || 'Email sent',
-                    notes: emailData.body,
-                    status: 'sent',
-                });
-                invalidateProfile();
-            } catch {
-                // Sending email is still a UI-only workflow in this MVP; keep the user moving.
-            }
+        try {
+            await api.post(`/donors/${editableDonor.id}/interactions`, {
+                interaction_type: 'email',
+                occurred_at: new Date().toISOString(),
+                subject: emailData.subject || 'Email sent',
+                notes: emailData.body,
+                status: 'sent',
+            });
+            invalidateProfile();
+            toast.showSuccess(`Email logged for ${emailData.to}.`);
+        } catch (error) {
+            toast.showError(error instanceof Error ? error.message : 'Unable to log email interaction.');
+            return;
         }
-
-        toast.showSuccess(`Email sent to ${emailData.to}.`);
         setIsEmailModalOpen(false);
     };
 
@@ -441,12 +386,10 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
 
         setIsSavingContact(true);
         try {
-            if (isApiBackedDonor) {
-                await api.patch(`/donors/${editableDonor.id}`, {
-                    email: nextEmail,
-                    phone: nextPhone,
-                });
-            }
+            await api.patch(`/donors/${editableDonor.id}`, {
+                email: nextEmail,
+                phone: nextPhone,
+            });
 
             const updatedDonor: IndividualDonor = {
                 ...editableDonor,
@@ -475,8 +418,6 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     };
 
     const handleSavePipelineAsk = async ({ pipelineStage, askAmount }: { pipelineStage: string; askAmount: number | null }) => {
-        if (!isApiBackedDonor) return;
-
         setIsSavingPipelineAsk(true);
         try {
             const stageEnteredAt = summary?.relationship.pipelineStage === pipelineStage
@@ -491,11 +432,14 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
             };
 
             await api.patch(`/donors/${editableDonor.id}`, { custom_fields: customFields });
-            setEditableDonor((current) => ({
-                ...current,
+            const updatedDonor: IndividualDonor = {
+                ...editableDonor,
                 relationshipStage: pipelineStage as IndividualDonor['relationshipStage'],
                 suggestedAskAmount: askAmount ?? undefined,
-            }));
+                stageEnteredAt,
+            };
+            setEditableDonor(updatedDonor);
+            onDonorUpdated?.(updatedDonor);
             queryClient.setQueryData(['donor-profile-summary', editableDonor.id], summary ? {
                 ...summary,
                 donor: {
@@ -532,24 +476,8 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                 custom_fields: {},
             };
 
-            if (isApiBackedDonor) {
-                await api.post(`/donors/${editableDonor.id}/tasks`, payload);
-                invalidateProfile();
-            } else {
-                syncLocalTasks([
-                    ...getCachedProfileTasks(),
-                    {
-                        id: `local-task-${Date.now()}`,
-                        donor_id: editableDonor.id,
-                        text: payload.text,
-                        type: payload.type as DonorProfileTask['type'],
-                        assigned_to: payload.assigned_to,
-                        due_date: payload.due_date,
-                        completed: false,
-                        custom_fields: {},
-                    },
-                ]);
-            }
+            await api.post(`/donors/${editableDonor.id}/tasks`, payload);
+            invalidateProfile();
             toast.showSuccess(t('individual_donors.detailView.taskCreated', 'Task created.'));
         } catch (error) {
             toast.showError(error instanceof Error ? error.message : t('individual_donors.detailView.taskCreateFailed', 'Unable to create task.'));
@@ -558,12 +486,8 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
 
     const handleToggleTask = async (taskId: string, completed: boolean) => {
         try {
-            if (isApiBackedDonor) {
-                await api.patch(`/donors/${editableDonor.id}/tasks/${taskId}`, { completed });
-                invalidateProfile();
-            } else {
-                syncLocalTasks(getCachedProfileTasks().map((task) => task.id === taskId ? { ...task, completed } : task));
-            }
+            await api.patch(`/donors/${editableDonor.id}/tasks/${taskId}`, { completed });
+            invalidateProfile();
         } catch (error) {
             toast.showError(error instanceof Error ? error.message : t('individual_donors.detailView.taskUpdateFailed', 'Unable to update task.'));
         }
@@ -578,18 +502,8 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                 due_date: toTaskIsoDate(task.dueDate),
             };
 
-            if (isApiBackedDonor) {
-                await api.patch(`/donors/${editableDonor.id}/tasks/${taskId}`, payload);
-                invalidateProfile();
-            } else {
-                syncLocalTasks(getCachedProfileTasks().map((currentTask) => currentTask.id === taskId ? {
-                    ...currentTask,
-                    text: payload.text,
-                    type: payload.type as DonorProfileTask['type'],
-                    assigned_to: payload.assigned_to,
-                    due_date: payload.due_date,
-                } : currentTask));
-            }
+            await api.patch(`/donors/${editableDonor.id}/tasks/${taskId}`, payload);
+            invalidateProfile();
             toast.showSuccess(t('individual_donors.detailView.taskUpdated', 'Task updated.'));
         } catch (error) {
             toast.showError(error instanceof Error ? error.message : t('individual_donors.detailView.taskUpdateFailed', 'Unable to update task.'));
@@ -598,12 +512,8 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
 
     const handleDeleteTask = async (taskId: string) => {
         try {
-            if (isApiBackedDonor) {
-                await api.delete(`/donors/${editableDonor.id}/tasks/${taskId}`);
-                invalidateProfile();
-            } else {
-                syncLocalTasks(getCachedProfileTasks().filter((task) => task.id !== taskId));
-            }
+            await api.delete(`/donors/${editableDonor.id}/tasks/${taskId}`);
+            invalidateProfile();
             toast.showSuccess(t('individual_donors.detailView.taskDeleted', 'Task deleted.'));
         } catch (error) {
             toast.showError(error instanceof Error ? error.message : t('individual_donors.detailView.taskDeleteFailed', 'Unable to delete task.'));
@@ -611,8 +521,6 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     };
 
     const handleUpdateInteraction = async (interactionId: string, interaction: { type: string; date: string; subject: string; status: string; notes: string }) => {
-        if (!isApiBackedDonor) return;
-
         try {
             await api.patch(`/donors/${editableDonor.id}/interactions/${interactionId}`, {
                 interaction_type: interaction.type,
@@ -629,14 +537,30 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     };
 
     const handleDeleteInteraction = async (interactionId: string) => {
-        if (!isApiBackedDonor) return;
-
         try {
             await api.delete(`/donors/${editableDonor.id}/interactions/${interactionId}`);
             invalidateProfile();
             toast.showSuccess(t('individual_donors.detailView.interactionDeleted', 'Interaction deleted.'));
         } catch (error) {
             toast.showError(error instanceof Error ? error.message : t('individual_donors.detailView.interactionDeleteFailed', 'Unable to delete interaction.'));
+        }
+    };
+
+    const handleDeleteDonor = async () => {
+        const confirmMessage = t(
+            'individual_donors.detailView.deleteDonorConfirm',
+            'Permanently delete {{name}}? This removes the donor profile, gifts, tasks, interactions, and documents. This cannot be undone.',
+            { name: donorName },
+        );
+        if (!window.confirm(confirmMessage)) return;
+
+        try {
+            await deleteDonorMutation.mutateAsync(editableDonor.id);
+            toast.showSuccess(t('individual_donors.detailView.donorDeleted', 'Donor profile deleted.'));
+            window.location.hash = 'donors';
+            onBack();
+        } catch (error) {
+            toast.showError(error instanceof Error ? error.message : t('individual_donors.detailView.donorDeleteFailed', 'Unable to delete donor profile.'));
         }
     };
 
@@ -648,7 +572,10 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     ];
 
     const renderTabContent = () => {
-        if (!summary) return <LoadingProfile />;
+        if (summaryQuery.isLoading && !summary) return <LoadingProfile />;
+        if (!summary) {
+            return <EmptyPanel text={t('individual_donors.detailView.summaryLoadFailed', 'Unable to load profile summary.')} />;
+        }
 
         switch (activeTab) {
             case 'overview':
@@ -668,8 +595,7 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                         summary={summary}
                         donations={donationsQuery.data || []}
                         isLoading={donationsQuery.isLoading}
-                        onSavePipelineAsk={isApiBackedDonor ? handleSavePipelineAsk : undefined}
-                        saveDisabledReason={!isApiBackedDonor ? t('individual_donors.detailView.pipelineSaveUnavailable') : undefined}
+                        onSavePipelineAsk={handleSavePipelineAsk}
                         isSavingPipelineAsk={isSavingPipelineAsk}
                     />
                 );
@@ -683,14 +609,14 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                         onUpdateTask={handleUpdateTask}
                         onToggleTask={handleToggleTask}
                         onDeleteTask={handleDeleteTask}
-                        onUpdateInteraction={isApiBackedDonor ? handleUpdateInteraction : undefined}
-                        onDeleteInteraction={isApiBackedDonor ? handleDeleteInteraction : undefined}
+                        onUpdateInteraction={handleUpdateInteraction}
+                        onDeleteInteraction={handleDeleteInteraction}
                     />
                 );
             case 'documents':
                 return <DonorDocumentsTab donor={editableDonor} onChanged={invalidateProfile} />;
             default:
-                return <div className="p-8 text-center">{t('placeholder.underConstruction')}</div>;
+                return null;
         }
     };
 
@@ -845,6 +771,17 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                             <button onClick={() => setIsLogModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-bold transition-colors hover:bg-gray-100 dark:border-slate-600 dark:hover:bg-slate-700">
                                 <MessageSquare size={16} /> {t('individual_donors.detailView.logInteraction')}
                             </button>
+                            <button
+                                type="button"
+                                onClick={() => void handleDeleteDonor()}
+                                disabled={deleteDonorMutation.isPending || isHeaderEditing}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-700 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/40"
+                            >
+                                <Trash2 size={16} />
+                                {deleteDonorMutation.isPending
+                                    ? t('common.loading')
+                                    : t('individual_donors.detailView.deleteDonor', 'Delete donor')}
+                            </button>
                         </div>
                     </div>
 
@@ -858,8 +795,8 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                 </section>
 
                 {summaryQuery.isError && (
-                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-800 dark:border-amber-800/60 dark:bg-amber-900/20 dark:text-amber-200">
-                        {t('individual_donors.detailView.summaryFallback', 'Profile summary is using local fallback data because the API summary is unavailable.')}
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-800 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-200">
+                        {t('individual_donors.detailView.summaryLoadFailed', 'Unable to load profile summary.')}
                     </div>
                 )}
 

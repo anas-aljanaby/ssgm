@@ -1,12 +1,18 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Plus } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useToast } from '../../../hooks/useToast';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import DataTable, { type Column } from './shared/DataTable';
 import FilterBar, { type FilterDef } from './shared/FilterBar';
 import StatusBadge from './shared/StatusBadge';
-import AddTransactionModal from './AddTransactionModal';
-import { useTransactions, useCreateTransaction, useDeleteTransaction } from '../../../hooks/useTransactions';
+import AddTransactionModal, { type TransactionFormData } from './AddTransactionModal';
+import {
+  useTransactions,
+  useCreateTransaction,
+  useDeleteTransaction,
+  isOptimisticTransaction,
+} from '../../../hooks/useTransactions';
 import TransactionRowActions from './TransactionRowActions';
 import type {
   FinancialTransaction,
@@ -40,8 +46,11 @@ const TRANSACTION_CATEGORIES: TransactionCategory[] = [
   'refund',
 ];
 
+const HIGHLIGHT_MS = 2200;
+
 const TransactionsTab: React.FC = () => {
   const { t, language } = useLocalization();
+  const toast = useToast();
   const { data: transactions = [], isLoading } = useTransactions();
   const createTransaction = useCreateTransaction();
   const deleteTransaction = useDeleteTransaction();
@@ -51,6 +60,57 @@ const TransactionsTab: React.FC = () => {
   const [directionFilter, setDirectionFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+    };
+  }, []);
+
+  const flashHighlight = useCallback((id: string) => {
+    if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+    setHighlightedId(id);
+    highlightTimerRef.current = setTimeout(() => setHighlightedId(null), HIGHLIGHT_MS);
+  }, []);
+
+  const handleCreate = useCallback(
+    (data: TransactionFormData) => {
+      createTransaction.mutate(data, {
+        onSuccess: (txn) => {
+          toast.showSuccess(t('financials.transactions.addSuccess', 'Transaction added'));
+          flashHighlight(txn.id);
+        },
+        onError: () => {
+          toast.showError(
+            t('financials.transactions.addFailed', 'Unable to add transaction. Please try again.')
+          );
+        },
+      });
+    },
+    [createTransaction, flashHighlight, t, toast]
+  );
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      if (isOptimisticTransaction(id)) return;
+      deleteTransaction.mutate(id, {
+        onSuccess: () => {
+          toast.showSuccess(t('financials.transactions.deleteSuccess', 'Transaction deleted'));
+        },
+        onError: () => {
+          toast.showError(
+            t(
+              'financials.transactions.deleteFailed',
+              'Unable to delete transaction. Please try again.'
+            )
+          );
+        },
+      });
+    },
+    [deleteTransaction, t, toast]
+  );
 
   const filters: FilterDef[] = useMemo(
     () => [
@@ -88,17 +148,15 @@ const TransactionsTab: React.FC = () => {
     [t, statusFilter, directionFilter, categoryFilter]
   );
 
-  const filteredData = useMemo(() => {
-    return transactions.filter((txn) => {
+  const matchesFilters = useCallback(
+    (txn: FinancialTransaction) => {
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         const matchesDescription =
           txn.description.en?.toLowerCase().includes(term) ||
           txn.description.ar?.includes(term);
         const matchesReference = txn.reference.toLowerCase().includes(term);
-        const matchesEntity = txn.relatedEntityName
-          ?.toLowerCase()
-          .includes(term);
+        const matchesEntity = txn.relatedEntityName?.toLowerCase().includes(term);
         if (!matchesDescription && !matchesReference && !matchesEntity) {
           return false;
         }
@@ -107,8 +165,16 @@ const TransactionsTab: React.FC = () => {
       if (directionFilter && txn.direction !== directionFilter) return false;
       if (categoryFilter && txn.category !== categoryFilter) return false;
       return true;
-    });
-  }, [transactions, searchTerm, statusFilter, directionFilter, categoryFilter]);
+    },
+    [searchTerm, statusFilter, directionFilter, categoryFilter]
+  );
+
+  const filteredData = useMemo(() => {
+    const optimistic = transactions.filter((txn) => isOptimisticTransaction(txn.id));
+    const rest = transactions.filter((txn) => !isOptimisticTransaction(txn.id));
+    const filtered = rest.filter(matchesFilters);
+    return [...optimistic, ...filtered];
+  }, [transactions, matchesFilters]);
 
   const columns: Column<FinancialTransaction>[] = useMemo(
     () => [
@@ -186,7 +252,14 @@ const TransactionsTab: React.FC = () => {
       {
         key: 'status',
         label: t('financials.transactions.status'),
-        render: (row) => <StatusBadge status={row.status} />,
+        render: (row) =>
+          isOptimisticTransaction(row.id) ? (
+            <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+              {t('financials.transactions.saving', 'Saving…')}
+            </span>
+          ) : (
+            <StatusBadge status={row.status} />
+          ),
       },
       {
         key: 'relatedEntityName',
@@ -201,16 +274,34 @@ const TransactionsTab: React.FC = () => {
         key: 'actions',
         label: t('financials.common.actions', 'Actions'),
         align: 'right',
-        render: (row) => (
-          <TransactionRowActions
-            transaction={row}
-            isDeleting={deleteTransaction.isPending}
-            onDelete={() => deleteTransaction.mutateAsync(row.id)}
-          />
-        ),
+        render: (row) =>
+          isOptimisticTransaction(row.id) ? (
+            <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
+          ) : (
+            <TransactionRowActions
+              transaction={row}
+              isDeleting={
+                deleteTransaction.isPending && deleteTransaction.variables === row.id
+              }
+              onDelete={() => handleDelete(row.id)}
+            />
+          ),
       },
     ],
-    [t, language, deleteTransaction.isPending]
+    [t, language, deleteTransaction.isPending, deleteTransaction.variables, handleDelete]
+  );
+
+  const getRowClassName = useCallback(
+    (row: FinancialTransaction) => {
+      if (isOptimisticTransaction(row.id)) {
+        return 'opacity-70 animate-pulse bg-blue-50/60 dark:bg-blue-950/30';
+      }
+      if (highlightedId === row.id) {
+        return 'bg-emerald-50 dark:bg-emerald-950/40 ring-1 ring-inset ring-emerald-200/80 dark:ring-emerald-800/60';
+      }
+      return '';
+    },
+    [highlightedId]
   );
 
   return (
@@ -233,9 +324,21 @@ const TransactionsTab: React.FC = () => {
         </button>
       </div>
 
+      {createTransaction.isPending && createTransaction.variables ? (
+        <p
+          className="text-xs text-blue-600 dark:text-blue-400 -mt-2"
+          role="status"
+          aria-live="polite"
+        >
+          {t('financials.transactions.addingBanner', 'Adding transaction…')}
+        </p>
+      ) : null}
+
       <DataTable<FinancialTransaction>
         columns={columns}
         data={filteredData}
+        getRowKey={(row) => row.id}
+        getRowClassName={getRowClassName}
         emptyMessage={
           isLoading
             ? t('common.loading', 'Loading...')
@@ -246,7 +349,7 @@ const TransactionsTab: React.FC = () => {
       <AddTransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={(data) => createTransaction.mutate(data)}
+        onSubmit={handleCreate}
       />
     </div>
   );

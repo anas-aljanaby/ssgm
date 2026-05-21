@@ -57,7 +57,11 @@
       "delete": "Delete",
       "deleteConfirm": "Permanently delete \"{{description}}\"? This cannot be undone.",
       "deleteSuccess": "Transaction deleted",
-      "deleteFailed": "Unable to delete transaction. Please try again."
+      "deleteFailed": "Unable to delete transaction. Please try again.",
+      "saving": "Saving…",
+      "addingBanner": "Adding transaction…",
+      "addSuccess": "Transaction added",
+      "addFailed": "Unable to add transaction. Please try again."
     },
     "donations": {
       "title": "Donations & Receipts",
@@ -78,7 +82,8 @@
       "generateReceipt": "Generate Receipt",
       "viewReceipt": "View Receipt",
       "noDonations": "No donations match your filters",
-      "noDonationsYet": "No donations recorded yet"
+      "noDonationsYet": "No donations recorded yet",
+      "addingBanner": "Adding donation…"
     },
     "pledges": {
       "title": "Pledges & Commitments",
@@ -277,6 +282,8 @@
       "descPlaceholderAr": "الوصف بالعربية...",
       "refPlaceholder": "e.g. INV-2024-001",
       "noEntity": "None",
+      "relatedEntityComingSoon": "Coming soon",
+      "relatedEntityComingSoonHint": "Attach and link donors, projects, beneficiaries, and other entities.",
       "entityName": "Entity Name",
       "entityNamePlaceholder": "Name...",
       "notes": "Notes",

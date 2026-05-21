@@ -1,14 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Heart, TrendingUp, FileText, Repeat, Plus } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useToast } from '../../../hooks/useToast';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import DataTable, { type Column } from './shared/DataTable';
 import FilterBar, { type FilterDef } from './shared/FilterBar';
 import StatusBadge from './shared/StatusBadge';
 import FinancialKpiCard from './shared/FinancialKpiCard';
-import AddTransactionModal from './AddTransactionModal';
+import AddTransactionModal, { type TransactionFormData } from './AddTransactionModal';
 import { useDonations } from '../../../hooks/useDonations';
-import { useCreateTransaction } from '../../../hooks/useTransactions';
+import { useCreateTransaction, isOptimisticDonation } from '../../../hooks/useTransactions';
 import type {
   DonationRecord,
   DonationMethod,
@@ -31,8 +32,11 @@ const RECEIPT_STATUSES: ReceiptStatus[] = [
   'voided',
 ];
 
+const HIGHLIGHT_MS = 2200;
+
 const DonationsTab: React.FC = () => {
   const { t, language } = useLocalization();
+  const toast = useToast();
   const { data: donations = [], isLoading } = useDonations();
   const createTransaction = useCreateTransaction();
 
@@ -40,26 +44,68 @@ const DonationsTab: React.FC = () => {
   const [methodFilter, setMethodFilter] = useState('');
   const [receiptFilter, setReceiptFilter] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+    };
+  }, []);
+
+  const flashHighlight = useCallback((id: string) => {
+    if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+    setHighlightedId(id);
+    highlightTimerRef.current = setTimeout(() => setHighlightedId(null), HIGHLIGHT_MS);
+  }, []);
+
+  const pendingDonationIdRef = useRef<string | null>(null);
+
+  const handleCreate = useCallback(
+    (data: TransactionFormData) => {
+      createTransaction.mutate(data, {
+        onSuccess: () => {
+          toast.showSuccess(t('financials.addDonation.save', 'Save Donation'));
+          if (pendingDonationIdRef.current) {
+            flashHighlight(pendingDonationIdRef.current);
+            pendingDonationIdRef.current = null;
+          }
+        },
+        onError: () => {
+          pendingDonationIdRef.current = null;
+          toast.showError(
+            t('financials.transactions.addFailed', 'Unable to add transaction. Please try again.')
+          );
+        },
+      });
+    },
+    [createTransaction, flashHighlight, t, toast]
+  );
 
   const hasActiveFilters = Boolean(searchTerm || methodFilter || receiptFilter);
 
-  const kpiData = useMemo(() => {
-    const totalDonations = donations.length;
+  const confirmedDonations = useMemo(
+    () => donations.filter((d) => !isOptimisticDonation(d.id)),
+    [donations]
+  );
 
-    const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+  const kpiData = useMemo(() => {
+    const totalDonations = confirmedDonations.length;
+
+    const totalAmount = confirmedDonations.reduce((sum, d) => sum + d.amount, 0);
     const averageGift = totalDonations > 0 ? totalAmount / totalDonations : 0;
 
-    const receiptsPending = donations.filter(
+    const receiptsPending = confirmedDonations.filter(
       (d) => d.receiptStatus === 'pending'
     ).length;
 
     const recurringDonorIds = new Set(
-      donations.filter((d) => d.isRecurring).map((d) => d.donorId)
+      confirmedDonations.filter((d) => d.isRecurring).map((d) => d.donorId)
     );
     const recurringDonors = recurringDonorIds.size;
 
     return { totalDonations, averageGift, receiptsPending, recurringDonors };
-  }, [donations]);
+  }, [confirmedDonations]);
 
   const filters: FilterDef[] = useMemo(
     () => [
@@ -87,8 +133,8 @@ const DonationsTab: React.FC = () => {
     [t, methodFilter, receiptFilter]
   );
 
-  const filteredData = useMemo(() => {
-    return donations.filter((don) => {
+  const matchesFilters = useCallback(
+    (don: DonationRecord) => {
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         const matchesName =
@@ -99,8 +145,21 @@ const DonationsTab: React.FC = () => {
       if (methodFilter && don.method !== methodFilter) return false;
       if (receiptFilter && don.receiptStatus !== receiptFilter) return false;
       return true;
-    });
-  }, [searchTerm, methodFilter, receiptFilter, donations]);
+    },
+    [searchTerm, methodFilter, receiptFilter]
+  );
+
+  useEffect(() => {
+    const optimistic = donations.find((d) => isOptimisticDonation(d.id));
+    if (optimistic) pendingDonationIdRef.current = optimistic.id;
+  }, [donations]);
+
+  const filteredData = useMemo(() => {
+    const optimistic = donations.filter((d) => isOptimisticDonation(d.id));
+    const rest = donations.filter((d) => !isOptimisticDonation(d.id));
+    const filtered = rest.filter(matchesFilters);
+    return [...optimistic, ...filtered];
+  }, [donations, matchesFilters]);
 
   const emptyMessage = useMemo(() => {
     if (isLoading) return t('common.loading', 'Loading...');
@@ -165,16 +224,21 @@ const DonationsTab: React.FC = () => {
       {
         key: 'receiptStatus',
         label: t('financials.donations.receiptStatus'),
-        render: (row) => (
-          <div className="flex flex-col gap-0.5">
-            <StatusBadge status={row.receiptStatus} />
-            {row.receiptNumber && (
-              <span className="text-[11px] text-gray-500 dark:text-gray-400 font-mono">
-                {row.receiptNumber}
-              </span>
-            )}
-          </div>
-        ),
+        render: (row) =>
+          isOptimisticDonation(row.id) ? (
+            <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+              {t('financials.transactions.saving', 'Saving…')}
+            </span>
+          ) : (
+            <div className="flex flex-col gap-0.5">
+              <StatusBadge status={row.receiptStatus} />
+              {row.receiptNumber && (
+                <span className="text-[11px] text-gray-500 dark:text-gray-400 font-mono">
+                  {row.receiptNumber}
+                </span>
+              )}
+            </div>
+          ),
       },
       {
         key: 'isRecurring',
@@ -196,6 +260,19 @@ const DonationsTab: React.FC = () => {
       },
     ],
     [t, language]
+  );
+
+  const getRowClassName = useCallback(
+    (row: DonationRecord) => {
+      if (isOptimisticDonation(row.id)) {
+        return 'opacity-70 animate-pulse bg-blue-50/60 dark:bg-blue-950/30';
+      }
+      if (highlightedId === row.id) {
+        return 'bg-emerald-50 dark:bg-emerald-950/40 ring-1 ring-inset ring-emerald-200/80 dark:ring-emerald-800/60';
+      }
+      return '';
+    },
+    [highlightedId]
   );
 
   return (
@@ -250,9 +327,21 @@ const DonationsTab: React.FC = () => {
         </button>
       </div>
 
+      {createTransaction.isPending && createTransaction.variables ? (
+        <p
+          className="text-xs text-blue-600 dark:text-blue-400 -mt-4"
+          role="status"
+          aria-live="polite"
+        >
+          {t('financials.donations.addingBanner', 'Adding donation…')}
+        </p>
+      ) : null}
+
       <DataTable<DonationRecord>
         columns={columns}
         data={filteredData}
+        getRowKey={(row) => row.id}
+        getRowClassName={getRowClassName}
         emptyMessage={emptyMessage}
         emptyActionLabel={
           showEmptyAction
@@ -265,7 +354,7 @@ const DonationsTab: React.FC = () => {
       <AddTransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={(data) => createTransaction.mutate(data)}
+        onSubmit={handleCreate}
         preset="donation"
       />
     </div>

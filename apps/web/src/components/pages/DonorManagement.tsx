@@ -1,17 +1,15 @@
-
-
-
-
-
-import React, { useState, useReducer, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useToast } from '../../hooks/useToast';
 import { useDonorIntelligenceData } from '../../hooks/useDonorIntelligenceData';
-import { MOCK_DONORS } from '../../data/mockData';
-import { MOCK_INDIVIDUAL_DONORS } from '../../data/individualDonorsData';
-import { MOCK_DONATIONS } from '../../data/donationsData';
-import { MOCK_COMMUNICATIONS } from '../../data/communicationsData';
-import { classifyAndEnrichDonor } from '../../lib/donorIntelligence';
+import {
+    DONORS_QUERY_KEY,
+    useCreateDonor,
+    useDonors,
+    useUpdateDonorPipelineStage,
+} from '../../hooks/useDonors';
+import { individualDonorToKanbanDonor } from '../../lib/individualDonorPipeline';
 
 import type { Donor, DonorPipelineType, DonorStageId, IndividualDonor, Role, SortDirection } from '../../types';
 import KanbanBoard, { type DonorKanbanStage, type KanbanDensity } from './donors/KanbanBoard';
@@ -27,8 +25,6 @@ import DonorDetailView, { DonorProfileRoute } from './donors_individual/DonorDet
 import { MicrophoneIcon } from '../icons/AiIcons';
 import AdvancedFilterPanel, { type DonorFilters } from './donors_individual/AdvancedFilterPanel';
 
-
-// Add SpeechRecognition type definition
 interface SpeechRecognition extends EventTarget {
   lang: string;
   continuous: boolean;
@@ -47,19 +43,6 @@ declare global {
     }
 }
 
-
-// --- REDUCER FOR KANBAN/PIPELINE ---
-type DonorsState = { donors: Donor[] };
-type DonorsAction =
-    | { type: 'MOVE_DONOR'; payload: { donorId: number; targetStageId: DonorStageId } }
-    | { type: 'ADD_DONOR'; payload: Omit<Donor, 'id' | 'tasks' | 'totalDonated' | 'donationCount' | 'firstDonation' | 'lastDonation' | 'lastContact' | 'relationshipHealth' | 'stage'> }
-    | { type: 'SET_TASK_COMPLETED'; payload: { donorId: number; taskId: string; completed: boolean } };
-
-const LOCAL_STORAGE_KEY = 'mss2-erp-donors-data';
-const validPipelineStages: DonorStageId[] = ['prospect', 'researching', 'contacted', 'cultivating', 'solicited', 'pledged', 'donated', 'dormant'];
-const legacyStageMap: Record<string, DonorStageId> = {
-    stewardship: 'donated',
-};
 const DEFAULT_DONOR_FILTERS: DonorFilters = {
     status: 'all',
     tier: 'all',
@@ -71,156 +54,6 @@ const DEFAULT_DONOR_FILTERS: DonorFilters = {
     taskState: 'all',
 };
 
-const normalizePipelineDonor = (donor: Donor): Donor => {
-    const tasks = donor.tasks || [];
-    const stage = validPipelineStages.includes(donor.stage)
-        ? donor.stage
-        : legacyStageMap[String(donor.stage)] || 'prospect';
-
-    return {
-        ...donor,
-        stage,
-        stageEnteredAt: donor.stageEnteredAt || donor.lastContact || donor.firstDonation || new Date().toISOString(),
-        assignedOwner: donor.assignedOwner || String(tasks.find(task => !task.completed)?.assignedTo || 'Unassigned'),
-        donorType: donor.donorType || (donor.totalDonated >= 10000 ? 'Major Donor' : donor.donationCount > 2 ? 'Recurring' : 'Individual'),
-        likelihood: donor.likelihood || (donor.relationshipHealth === 'Good' ? 'High' : donor.relationshipHealth === 'At Risk' ? 'Low' : 'Medium'),
-        suggestedAskAmount: donor.suggestedAskAmount ?? donor.potentialGift,
-        interestTags: donor.interestTags || [],
-        tasks,
-    };
-};
-
-const getLatestContactDate = (donorId: string): string => {
-    const latestCommunication = MOCK_COMMUNICATIONS
-        .filter(communication => communication.donor_id === donorId)
-        .sort((a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime())[0];
-
-    return latestCommunication?.sent_at || '';
-};
-
-const getDefaultDonorType = (donor: IndividualDonor): DonorPipelineType => {
-    if (donor.donorType) return donor.donorType;
-    if (donor.tier === 'Major Donor') return 'Major Donor';
-    if (donor.donorCategory === 'Recurring Donor') return 'Recurring';
-    return 'Individual';
-};
-
-const enrichProfileDonors = (donors: IndividualDonor[], pipelineDonors: Donor[]): IndividualDonor[] => {
-    const pipelineByEmail = new Map(pipelineDonors.map(donor => [donor.email.toLowerCase(), donor]));
-
-    return donors.map(donor => {
-        const pipelineDonor = pipelineByEmail.get(donor.email.toLowerCase());
-        const donorDonations = MOCK_DONATIONS.filter(donation => donation.donorId === donor.id);
-        const largestGift = donorDonations.reduce((largest, donation) => Math.max(largest, donation.amount), 0);
-        const programsSupported = Array.from(new Set(donorDonations.map(donation => donation.program)));
-        const relationshipTasks = pipelineDonor?.tasks || donor.relationshipTasks || [];
-        const stage = pipelineDonor?.stage || donor.relationshipStage || 'prospect';
-        const stageEnteredAt = pipelineDonor?.stageEnteredAt || donor.stageEnteredAt || donor.donorSince;
-        const lastContactDate = pipelineDonor?.lastContact || donor.lastContactDate || getLatestContactDate(donor.id) || donor.lastDonationDate;
-        const relationshipHealth = pipelineDonor?.relationshipHealth || donor.relationshipHealth || (donor.status === 'Lapsed' ? 'At Risk' : 'Moderate');
-        const relationshipLikelihood = pipelineDonor?.likelihood || donor.relationshipLikelihood || (relationshipHealth === 'Good' ? 'High' : relationshipHealth === 'At Risk' ? 'Low' : 'Medium');
-        const donorType = pipelineDonor?.donorType || getDefaultDonorType(donor);
-        const potentialGift = pipelineDonor?.potentialGift ?? donor.potentialGift ?? donor.next_predicted_amount ?? 0;
-        const suggestedAskAmount = pipelineDonor?.suggestedAskAmount ?? donor.suggestedAskAmount ?? donor.next_predicted_amount ?? potentialGift;
-        const openTasks = relationshipTasks.filter(task => !task.completed);
-        const nextTask = openTasks.slice().sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
-
-        return {
-            ...donor,
-            donorType,
-            relationshipStage: stage,
-            relationshipHealth,
-            relationshipLikelihood,
-            stageEnteredAt,
-            lastContactDate,
-            potentialGift,
-            suggestedAskAmount,
-            relationshipTasks,
-            largestGift,
-            programsSupported,
-            recurringGiftStatus: donor.recurringGiftStatus || (donor.donorCategory === 'Recurring Donor' ? 'Active' : 'None'),
-            stageHistory: donor.stageHistory || [
-                { stage: 'prospect', enteredAt: donor.donorSince, exitedAt: stageEnteredAt !== donor.donorSince ? stageEnteredAt : undefined },
-                { stage, enteredAt: stageEnteredAt },
-            ],
-            currentProposal: donor.currentProposal || (stage === 'solicited' ? 'Active giving proposal' : undefined),
-            askDate: donor.askDate || (stage === 'solicited' ? stageEnteredAt : undefined),
-            pledgeAmount: donor.pledgeAmount || (stage === 'pledged' ? suggestedAskAmount : undefined),
-            pledgeStatus: donor.pledgeStatus || (stage === 'pledged' ? 'Pledged' : stage === 'donated' ? 'Paid' : 'None'),
-            expectedCloseDate: donor.expectedCloseDate || nextTask?.dueDate,
-            relationshipNotes: donor.relationshipNotes || `${donor.fullName.en} is primarily connected to ${donor.primaryProgramInterest || donor.tags[0] || 'general giving'}.`,
-            aiInsights: donor.aiInsights || [
-                relationshipHealth === 'At Risk'
-                    ? 'Relationship needs a timely follow-up before the donor becomes harder to re-engage.'
-                    : 'Keep open tasks current so the relationship keeps moving.',
-            ],
-            riskSignals: donor.riskSignals || (relationshipHealth === 'At Risk' ? ['Long gap since last contact or gift'] : []),
-            documents: donor.documents || [
-                ...(donor.totalDonations > 0 ? [{ id: `${donor.id}-receipt`, title: 'Latest donation receipt', type: 'Receipt' as const, date: donor.lastDonationDate || donor.donorSince }] : []),
-                ...(stage === 'solicited' ? [{ id: `${donor.id}-proposal`, title: 'Current funding proposal', type: 'Proposal' as const, date: stageEnteredAt }] : []),
-            ],
-        };
-    });
-};
-
-const buildPipelineDonorsFromProfiles = (profileDonors: IndividualDonor[], pipelineDonors: Donor[]): Donor[] => {
-    const pipelineByEmail = new Map(pipelineDonors.map(donor => [donor.email.toLowerCase(), donor]));
-
-    return profileDonors.map((donor, index) => {
-        const pipelineDonor = pipelineByEmail.get(donor.email.toLowerCase());
-
-        return normalizePipelineDonor({
-            id: pipelineDonor?.id ?? index + 1,
-            name: donor.fullName.en,
-            email: donor.email,
-            totalDonated: donor.totalDonations,
-            donationCount: donor.donationsCount || 0,
-            firstDonation: donor.donorSince,
-            lastDonation: donor.lastDonationDate,
-            country: donor.country,
-            avatar: donor.avatar,
-            stage: donor.relationshipStage || pipelineDonor?.stage || 'prospect',
-            potentialGift: donor.potentialGift ?? pipelineDonor?.potentialGift ?? 0,
-            suggestedAskAmount: donor.suggestedAskAmount ?? pipelineDonor?.suggestedAskAmount,
-            relationshipHealth: donor.relationshipHealth || pipelineDonor?.relationshipHealth || 'Moderate',
-            lastContact: donor.lastContactDate || pipelineDonor?.lastContact || '',
-            stageEnteredAt: donor.stageEnteredAt || pipelineDonor?.stageEnteredAt,
-            assignedOwner: donor.assignedManager,
-            donorType: donor.donorType || pipelineDonor?.donorType,
-            likelihood: donor.relationshipLikelihood || pipelineDonor?.likelihood,
-            interestTags: donor.tags,
-            tasks: donor.relationshipTasks || pipelineDonor?.tasks || [],
-            donorCategory: donor.donorCategory,
-        });
-    });
-};
-
-const getInitialState = (): DonorsState => {
-  try {
-    const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const parsedState = storedData ? JSON.parse(storedData) : { donors: MOCK_DONORS };
-    return {
-        donors: (parsedState.donors || MOCK_DONORS).map(normalizePipelineDonor),
-    };
-  } catch (error) {
-    console.error("Failed to load donors data from localStorage:", error);
-    return { donors: MOCK_DONORS.map(normalizePipelineDonor) };
-  }
-};
-
-const donorsReducer = (state: DonorsState, action: DonorsAction): DonorsState => {
-    switch (action.type) {
-        case 'MOVE_DONOR':
-            return { ...state, donors: state.donors.map(d => d.id === action.payload.donorId ? { ...d, stage: action.payload.targetStageId, stageEnteredAt: new Date().toISOString() } : d) };
-        case 'ADD_DONOR':
-            const newDonor: Donor = normalizePipelineDonor({ ...action.payload, id: Math.max(0, ...state.donors.map(d => d.id)) + 1, stage: 'prospect', totalDonated: 0, donationCount: 0, firstDonation: '', lastDonation: '', lastContact: '', relationshipHealth: 'Moderate', tasks: [] });
-            return { ...state, donors: [newDonor, ...state.donors] };
-        case 'SET_TASK_COMPLETED':
-            return { ...state, donors: state.donors.map(donor => donor.id === action.payload.donorId ? { ...donor, tasks: donor.tasks.map(task => task.id === action.payload.taskId ? { ...task, completed: action.payload.completed } : task) } : donor) };
-        default: return state;
-    }
-};
-
 const CategoryCard: React.FC<{ category: string; count: number }> = ({ category, count }) => {
     const { t } = useLocalization();
     return (
@@ -230,9 +63,6 @@ const CategoryCard: React.FC<{ category: string; count: number }> = ({ category,
         </div>
     );
 };
-
-
-// --- TAB COMPONENTS ---
 
 const RegistryMetricCard: React.FC<{ title: string; value: string; icon: React.ReactNode; }> = ({ title, value, icon }) => (
     <div className="bg-card dark:bg-dark-card p-4 rounded-xl shadow-soft border dark:border-slate-700/50 flex items-center gap-4">
@@ -247,15 +77,15 @@ const RegistryMetricCard: React.FC<{ title: string; value: string; icon: React.R
 );
 
 const RegistryTab: React.FC<{
-    pipelineDonors: Donor[];
-    dispatch: React.Dispatch<DonorsAction>;
     deepLinkTarget?: { id?: string; tab?: string } | null;
-}> = ({ pipelineDonors, dispatch, deepLinkTarget }) => {
+}> = ({ deepLinkTarget }) => {
     const { t, language, dir } = useLocalization(['common', 'donors', 'individual_donors', 'misc']);
-    const enrichedDonors = useMemo(() =>
-        MOCK_INDIVIDUAL_DONORS.map(donor => classifyAndEnrichDonor(donor, MOCK_DONATIONS)),
-    []);
-    const [donors, setDonors] = useState<IndividualDonor[]>(enrichedDonors);
+    const toast = useToast();
+    const queryClient = useQueryClient();
+    const { data: donors = [], isLoading, isError, refetch } = useDonors();
+    const createDonorMutation = useCreateDonor();
+    const updatePipelineMutation = useUpdateDonorPipelineStage();
+
     const [searchTerm, setSearchTerm] = useState('');
     const [sortColumn, setSortColumn] = useState<keyof IndividualDonor | null>('lastDonationDate');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -269,11 +99,9 @@ const RegistryTab: React.FC<{
     const [kanbanDensity, setKanbanDensity] = useState<KanbanDensity>('compact');
     const [pipelineOwnerFilter, setPipelineOwnerFilter] = useState('all');
 
-    // Voice Search State
     const [isListening, setIsListening] = useState(false);
     const [micError, setMicError] = useState<string | null>(null);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
-    const toast = useToast();
 
     const handleDonorSelect = useCallback((donor: IndividualDonor) => {
         setSelectedDonor(donor);
@@ -288,44 +116,35 @@ const RegistryTab: React.FC<{
     }, []);
 
     const handleDonorUpdated = useCallback((updatedDonor: IndividualDonor) => {
-        setDonors(prev => prev.map(donor => donor.id === updatedDonor.id ? { ...donor, ...updatedDonor } : donor));
+        queryClient.setQueryData(DONORS_QUERY_KEY, (current: IndividualDonor[] | undefined) =>
+            (current || []).map((donor) => donor.id === updatedDonor.id ? { ...donor, ...updatedDonor } : donor),
+        );
         setSelectedDonor(updatedDonor);
         setSelectedDonorId(updatedDonor.id);
-    }, []);
-
-    const profileDonors = useMemo(
-        () => enrichProfileDonors(donors, pipelineDonors),
-        [donors, pipelineDonors]
-    );
-
-    const pipelineViewDonors = useMemo(
-        () => buildPipelineDonorsFromProfiles(profileDonors, pipelineDonors),
-        [pipelineDonors, profileDonors]
-    );
+    }, [queryClient]);
 
     useEffect(() => {
-        if (deepLinkTarget?.id && profileDonors.length > 0) {
-            const donor = profileDonors.find(d => d.id === deepLinkTarget.id);
+        if (deepLinkTarget?.id && donors.length > 0) {
+            const donor = donors.find((d) => d.id === deepLinkTarget.id);
             setSelectedDonor(donor || null);
             setSelectedDonorId(deepLinkTarget.id);
         } else if (!deepLinkTarget?.id) {
             setSelectedDonor(null);
             setSelectedDonorId(null);
         }
-    }, [deepLinkTarget, profileDonors]);
+    }, [deepLinkTarget, donors]);
 
-    // Speech Recognition Setup Effect
     useEffect(() => {
         const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognitionAPI) {
             setMicError(t('donorManagement.voice.notSupported'));
             return;
         }
-        
+
         const recognition = new SpeechRecognitionAPI();
         recognition.continuous = false;
         recognition.interimResults = true;
-        
+
         recognition.onstart = () => setIsListening(true);
         recognition.onend = () => setIsListening(false);
         recognition.onerror = (event) => {
@@ -338,14 +157,14 @@ const RegistryTab: React.FC<{
         };
         recognition.onresult = (event) => {
             const transcript = Array.from(event.results)
-                .map(result => result[0])
-                .map(result => result.transcript)
+                .map((result) => result[0])
+                .map((result) => result.transcript)
                 .join('');
             setSearchTerm(transcript);
         };
-        
+
         recognitionRef.current = recognition;
-    }, [toast]);
+    }, [toast, t]);
 
     const handleListen = useCallback(() => {
         if (!recognitionRef.current) return;
@@ -353,13 +172,13 @@ const RegistryTab: React.FC<{
             recognitionRef.current.stop();
             return;
         }
-        setMicError(null); // Reset error on new attempt
+        setMicError(null);
         const langCode = { en: 'en-US', ar: 'ar-SA' }[language];
         recognitionRef.current.lang = langCode;
         try {
             recognitionRef.current.start();
         } catch (e) {
-            console.error("Speech recognition start error:", e);
+            console.error('Speech recognition start error:', e);
             const errorMsg = t('donorManagement.voice.startError');
             setMicError(errorMsg);
             toast.showError(errorMsg);
@@ -368,10 +187,10 @@ const RegistryTab: React.FC<{
 
     const filteredAndSortedDonors = useMemo(() => {
         const searchLower = searchTerm.trim().toLowerCase();
-        let filtered = profileDonors.filter(donor => {
-            const openTasks = donor.relationshipTasks?.filter(task => !task.completed) || [];
+        let filtered = donors.filter((donor) => {
+            const openTasks = donor.relationshipTasks?.filter((task) => !task.completed) || [];
             const today = new Date().toISOString().split('T')[0];
-            const hasOverdueTask = openTasks.some(task => task.dueDate < today);
+            const hasOverdueTask = openTasks.some((task) => task.dueDate < today);
             const hasNoOpenTasks = openTasks.length === 0;
             const searchableText = [
                 donor.fullName[language],
@@ -406,7 +225,7 @@ const RegistryTab: React.FC<{
 
             return matchesSearch && matchesStatus && matchesTier && matchesCountry && matchesTag && matchesOwner && matchesStage && matchesDonorType && matchesTaskState;
         });
-        
+
         if (sortColumn) {
             filtered.sort((a, b) => {
                 const aVal = a[sortColumn];
@@ -415,66 +234,66 @@ const RegistryTab: React.FC<{
                 if (typeof aVal === 'number' && typeof bVal === 'number') {
                     return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
                 }
-                
+
                 if (typeof aVal === 'string' && typeof bVal === 'string') {
-                     if (sortColumn === 'lastDonationDate' || sortColumn === 'donorSince') {
-                         if (!aVal) return 1;
-                         if (!bVal) return -1;
-                        return sortDirection === 'asc' ? new Date(aVal).getTime() - new Date(bVal).getTime() : new Date(bVal).getTime() - new Date(aVal).getTime();
+                    if (sortColumn === 'lastDonationDate' || sortColumn === 'donorSince') {
+                        if (!aVal) return 1;
+                        if (!bVal) return -1;
+                        return sortDirection === 'asc'
+                            ? new Date(aVal).getTime() - new Date(bVal).getTime()
+                            : new Date(bVal).getTime() - new Date(aVal).getTime();
                     }
                     return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
                 }
 
                 if (sortColumn === 'fullName') {
-                     const aName = a.fullName[language] || a.fullName.en;
-                     const bName = b.fullName[language] || b.fullName.en;
-                     return sortDirection === 'asc' ? aName.localeCompare(bName) : bName.localeCompare(aName);
+                    const aName = a.fullName[language] || a.fullName.en;
+                    const bName = b.fullName[language] || b.fullName.en;
+                    return sortDirection === 'asc' ? aName.localeCompare(bName) : bName.localeCompare(aName);
                 }
 
                 return 0;
             });
         }
-        
+
         return filtered;
-    }, [filters, profileDonors, searchTerm, sortColumn, sortDirection, language]);
+    }, [donors, filters, searchTerm, sortColumn, sortDirection, language]);
 
     const filteredPipelineDonors = useMemo(() => {
         const searchLower = searchTerm.toLowerCase();
-        const visibleEmails = new Set(filteredAndSortedDonors.map(donor => donor.email.toLowerCase()));
+        return filteredAndSortedDonors
+            .map(individualDonorToKanbanDonor)
+            .filter((donor) => {
+                const matchesOwner = pipelineOwnerFilter === 'all' || (donor.assignedOwner || 'Unassigned') === pipelineOwnerFilter;
+                const matchesSearch =
+                    donor.name.toLowerCase().includes(searchLower) ||
+                    donor.email.toLowerCase().includes(searchLower) ||
+                    donor.country.toLowerCase().includes(searchLower);
+                return matchesSearch && matchesOwner;
+            });
+    }, [filteredAndSortedDonors, pipelineOwnerFilter, searchTerm]);
 
-        return buildPipelineDonorsFromProfiles(filteredAndSortedDonors, pipelineViewDonors).filter(donor => {
-            const matchesOwner = pipelineOwnerFilter === 'all' || (donor.assignedOwner || 'Unassigned') === pipelineOwnerFilter;
-            const matchesSearch =
-                donor.name.toLowerCase().includes(searchLower) ||
-                donor.email.toLowerCase().includes(searchLower) ||
-                donor.country.toLowerCase().includes(searchLower);
-
-            return visibleEmails.has(donor.email.toLowerCase()) && matchesSearch && matchesOwner;
-        });
-    }, [filteredAndSortedDonors, pipelineOwnerFilter, pipelineViewDonors, searchTerm]);
-
-    const stageByEmail = useMemo(() => {
-        return new Map(profileDonors.map(donor => [donor.email.toLowerCase(), donor.relationshipStage || 'prospect']));
-    }, [profileDonors]);
+    const stageByEmail = useMemo(
+        () => new Map(filteredAndSortedDonors.map((donor) => [donor.email.toLowerCase(), donor.relationshipStage || 'prospect'])),
+        [filteredAndSortedDonors],
+    );
 
     const registryStats = useMemo(() => {
-        const totalDonations = profileDonors.reduce((sum, donor) => sum + donor.totalDonations, 0);
-        const activeDonors = profileDonors.filter(donor => donor.status === 'Active').length;
-        const avgGift = profileDonors.length > 0
-            ? profileDonors.reduce((sum, donor) => sum + (donor.avgGift || 0), 0) / profileDonors.length
+        const totalDonations = donors.reduce((sum, donor) => sum + donor.totalDonations, 0);
+        const activeDonors = donors.filter((donor) => donor.status === 'Active').length;
+        const avgGift = donors.length > 0
+            ? donors.reduce((sum, donor) => sum + (donor.avgGift || 0), 0) / donors.length
             : 0;
-
         return { totalDonations, activeDonors, avgGift };
-    }, [profileDonors]);
+    }, [donors]);
 
     const filterOptions = useMemo(() => {
-        const countries = Array.from(new Set(profileDonors.map(donor => donor.country).filter(Boolean))).sort();
-        const tags = Array.from(new Set(profileDonors.flatMap(donor => donor.tags))).sort();
-        const owners = Array.from(new Set(profileDonors.map(donor => donor.assignedManager).filter(Boolean))).sort();
-        const donorTypes = Array.from(new Set(profileDonors.map(donor => donor.donorType).filter(Boolean))) as DonorPipelineType[];
-
+        const countries = Array.from(new Set(donors.map((donor) => donor.country).filter(Boolean))).sort();
+        const tags = Array.from(new Set(donors.flatMap((donor) => donor.tags))).sort();
+        const owners = Array.from(new Set(donors.map((donor) => donor.assignedManager).filter(Boolean))).sort();
+        const donorTypes = Array.from(new Set(donors.map((donor) => donor.donorType).filter(Boolean))) as DonorPipelineType[];
         return { countries, tags, owners, donorTypes };
-    }, [profileDonors]);
+    }, [donors]);
 
     const hasActiveFilters = useMemo(() => (
         filters.status !== 'all' ||
@@ -502,78 +321,62 @@ const RegistryTab: React.FC<{
         { id: 'dormant', titleKey: 'donors.stages.dormant', color: 'bg-rose-50 dark:bg-rose-950/30', border: 'border-rose-500', railColor: '#ef4444' },
     ];
 
-    const pipelineOwners = useMemo(() => {
-        return Array.from(new Set(pipelineViewDonors.map(donor => donor.assignedOwner || 'Unassigned'))).sort();
-    }, [pipelineViewDonors]);
+    const pipelineOwners = useMemo(
+        () => Array.from(new Set(donors.map((donor) => donor.assignedManager || 'Unassigned'))).sort(),
+        [donors],
+    );
 
-    const pipelineStats = useMemo(() => {
-        const pipelineValue = filteredPipelineDonors.reduce((sum, donor) => sum + donor.potentialGift, 0);
+    const pipelineStats = useMemo(() => ({
+        pipelineValue: filteredPipelineDonors.reduce((sum, donor) => sum + donor.potentialGift, 0),
+    }), [filteredPipelineDonors]);
 
-        return { pipelineValue };
-    }, [filteredPipelineDonors]);
+    const handleDragEnd = useCallback(async (donorId: string, targetStageId: DonorStageId) => {
+        const donor = donors.find((d) => d.id === donorId);
+        if (!donor) return;
 
-    const handleDragEnd = useCallback((donorId: number, targetStageId: DonorStageId) => {
-        dispatch({ type: 'MOVE_DONOR', payload: { donorId, targetStageId } });
-    }, [dispatch]);
+        try {
+            await updatePipelineMutation.mutateAsync({
+                donorId,
+                pipelineStage: targetStageId,
+                currentStage: donor.relationshipStage,
+            });
+            if (selectedDonor?.id === donorId) {
+                setSelectedDonor((current) => current ? { ...current, relationshipStage: targetStageId, stageEnteredAt: new Date().toISOString() } : current);
+            }
+        } catch (error) {
+            toast.showError(error instanceof Error ? error.message : t('individual_donors.detailView.pipelineAskSaveFailed'));
+        }
+    }, [donors, selectedDonor?.id, t, toast, updatePipelineMutation]);
 
-    const handleAddDonor = (newDonorData: Omit<IndividualDonor, 'id' | 'totalDonations' | 'lastDonationDate' | 'status' | 'tier' | 'tags' | 'assignedManager' | 'avatar' | 'donorSince'>) => {
-        const newDonor: IndividualDonor = {
-            ...newDonorData,
-            id: `IDN-${String(donors.length + 1).padStart(4, '0')}`,
-            totalDonations: 0,
-            lastDonationDate: '',
-            status: 'Active',
-            tier: 'Bronze',
-            tags: [],
-            assignedManager: 'Unassigned',
-            avatar: `https://i.pravatar.cc/150?u=${encodeURIComponent(newDonorData.email)}`,
-            donorSince: new Date().toISOString(),
-            donationsCount: 0,
-            avgGift: 0,
-            donorCategory: 'New Donor',
-            donorType: 'Individual',
-            relationshipStage: 'prospect',
-            relationshipHealth: 'Moderate',
-            relationshipLikelihood: 'Medium',
-            stageEnteredAt: new Date().toISOString(),
-            potentialGift: 0,
-            suggestedAskAmount: 0,
-            relationshipTasks: [],
-            lastContactDate: '',
-            pledgeStatus: 'None',
-        };
-        setDonors(prev => [newDonor, ...prev]);
-        dispatch({
-            type: 'ADD_DONOR',
-            payload: {
-                name: newDonor.fullName.en,
-                email: newDonor.email,
-                country: newDonor.country,
-                potentialGift: 0,
-                suggestedAskAmount: 0,
-                avatar: newDonor.avatar,
-                assignedOwner: newDonor.assignedManager,
-                donorType: 'Individual',
-                likelihood: 'Medium',
-                interestTags: newDonor.tags,
-            },
-        });
+    const handleAddDonor = async (newDonorData: Omit<IndividualDonor, 'id' | 'totalDonations' | 'lastDonationDate' | 'status' | 'tier' | 'tags' | 'assignedManager' | 'avatar' | 'donorSince'>) => {
+        try {
+            const created = await createDonorMutation.mutateAsync({
+                fullName: newDonorData.fullName,
+                email: newDonorData.email,
+                phone: newDonorData.phone,
+                country: newDonorData.country,
+            });
+            toast.showSuccess(t('individual_donors.modal.saveDonor'));
+            handleDonorSelect(created);
+        } catch (error) {
+            toast.showError(error instanceof Error ? error.message : t('individual_donors.detailView.headerSaveFailed'));
+        }
     };
 
-     const handleSort = useCallback((column: keyof IndividualDonor) => {
+    const handleSort = useCallback((column: keyof IndividualDonor) => {
         if (sortColumn === column) {
-            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+            setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
         } else {
             setSortColumn(column);
             setSortDirection('asc');
         }
     }, [sortColumn]);
 
-    const getButtonClass = (buttonView: 'list' | 'card') => {
-        return view === buttonView
-            ? "p-2 bg-primary text-white rounded-md"
-            : "p-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-md";
-    };
+    const getButtonClass = (buttonView: 'list' | 'card') => (
+        view === buttonView
+            ? 'p-2 bg-primary text-white rounded-md'
+            : 'p-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-md'
+    );
 
     if (selectedDonor) {
         return <DonorDetailView donor={selectedDonor} onBack={handleDonorBack} onDonorUpdated={handleDonorUpdated} />;
@@ -592,17 +395,26 @@ const RegistryTab: React.FC<{
             />
             <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <RegistryMetricCard title={t('donors.registry.metrics.totalDonors')} value={formatNumber(profileDonors.length, language)} icon={<Users size={20} />} />
+                    <RegistryMetricCard title={t('donors.registry.metrics.totalDonors')} value={formatNumber(donors.length, language)} icon={<Users size={20} />} />
                     <RegistryMetricCard title={t('donors.registry.metrics.activeDonors')} value={formatNumber(registryStats.activeDonors, language)} icon={<UserCheck size={20} />} />
                     <RegistryMetricCard title={t('donors.registry.metrics.totalDonated')} value={formatCurrency(registryStats.totalDonations, language)} icon={<DollarSign size={20} />} />
                     <RegistryMetricCard title={t('donors.registry.metrics.averageGift')} value={formatCurrency(registryStats.avgGift, language)} icon={<Clock size={20} />} />
                 </div>
 
+                {isError && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800/60 dark:bg-red-900/20 dark:text-red-200">
+                        {t('individual_donors.registry.loadFailed', 'Unable to load donors.')}
+                        <button type="button" onClick={() => void refetch()} className="ml-2 font-semibold underline">
+                            {t('common.retry', 'Retry')}
+                        </button>
+                    </div>
+                )}
+
                 <div className="p-4 bg-card dark:bg-dark-card rounded-xl shadow-soft border dark:border-slate-700/50">
                     <div className="flex flex-col gap-3">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-3">
                             <button
-                                onClick={() => setIsSearchOpen(prev => !prev)}
+                                onClick={() => setIsSearchOpen((prev) => !prev)}
                                 className={`flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium border rounded-lg transition-colors ${
                                     isSearchOpen || searchTerm
                                         ? 'border-primary bg-primary-light text-primary dark:bg-primary/20 dark:text-secondary'
@@ -615,7 +427,7 @@ const RegistryTab: React.FC<{
                                 {searchTerm && <span className="h-2 w-2 rounded-full bg-primary dark:bg-secondary" aria-hidden="true" />}
                             </button>
                             <button
-                                onClick={() => setFiltersOpen(prev => !prev)}
+                                onClick={() => setFiltersOpen((prev) => !prev)}
                                 className={`flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium border rounded-lg transition-colors ${
                                     filtersOpen || hasActiveFilters
                                         ? 'border-primary bg-primary-light text-primary dark:bg-primary/20 dark:text-secondary'
@@ -653,7 +465,8 @@ const RegistryTab: React.FC<{
                             </button>
                             <button
                                 onClick={() => setIsAddModalOpen(true)}
-                                className="px-4 py-2 text-sm font-medium text-white bg-secondary hover:bg-secondary-dark rounded-lg transition-colors"
+                                disabled={createDonorMutation.isPending}
+                                className="px-4 py-2 text-sm font-medium text-white bg-secondary hover:bg-secondary-dark rounded-lg transition-colors disabled:opacity-60"
                             >
                                 {t('individual_donors.addDonor')}
                             </button>
@@ -665,11 +478,11 @@ const RegistryTab: React.FC<{
                                         <span className="mb-1 block font-semibold text-gray-600 dark:text-gray-300">{t('donors.kanban.owner')}</span>
                                         <select
                                             value={pipelineOwnerFilter}
-                                            onChange={e => setPipelineOwnerFilter(e.target.value)}
+                                            onChange={(e) => setPipelineOwnerFilter(e.target.value)}
                                             className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
                                         >
                                             <option value="all">{t('donors.kanban.allOwners')}</option>
-                                            {pipelineOwners.map(owner => (
+                                            {pipelineOwners.map((owner) => (
                                                 <option key={owner} value={owner}>{owner}</option>
                                             ))}
                                         </select>
@@ -707,10 +520,10 @@ const RegistryTab: React.FC<{
                         )}
                         {isSearchOpen && (
                             <div className="relative">
-                                <input 
-                                    type="text" 
-                                    value={searchTerm} 
-                                    onChange={e => setSearchTerm(e.target.value)} 
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder={isListening ? t('common.listening') : t('donors.registry.searchPlaceholder')}
                                     className={`w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary ${dir === 'ltr' ? 'pl-12 pr-12' : 'pr-12 pl-12'}`}
                                     autoFocus
@@ -744,52 +557,91 @@ const RegistryTab: React.FC<{
                     tags={filterOptions.tags}
                     owners={filterOptions.owners}
                     donorTypes={filterOptions.donorTypes}
-                    stages={stages.map(stage => stage.id)}
+                    stages={stages.map((stage) => stage.id)}
                     onApply={setFilters}
                     onClear={clearFilters}
                 />
 
-                {view === 'list' && (
-                    <DonorsTable
-                        donors={filteredAndSortedDonors}
-                        onDonorSelect={handleDonorSelect}
-                        sortColumn={sortColumn}
-                        sortDirection={sortDirection}
-                        onSort={handleSort}
-                        stageByEmail={stageByEmail}
-                    />
-                )}
-                {view === 'card' && (
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,23rem),1fr))] items-start gap-5">
-                        {filteredAndSortedDonors.map(donor => (
-                            <DonorCard key={donor.id} donor={donor} onClick={() => handleDonorSelect(donor)} />
-                        ))}
+                {isLoading ? (
+                    <div className="rounded-xl border border-gray-200 bg-card p-8 text-center text-sm text-gray-500 dark:border-slate-700 dark:bg-dark-card">
+                        {t('common.loading')}
                     </div>
-                )}
-                {view === 'kanban' && (
-                    <KanbanBoard
-                        donors={filteredPipelineDonors}
-                        stages={stages}
-                        density={kanbanDensity}
-                        onDragEnd={handleDragEnd}
-                    />
+                ) : (
+                    <>
+                        {view === 'list' && (
+                            <DonorsTable
+                                donors={filteredAndSortedDonors}
+                                onDonorSelect={handleDonorSelect}
+                                sortColumn={sortColumn}
+                                sortDirection={sortDirection}
+                                onSort={handleSort}
+                                stageByEmail={stageByEmail}
+                            />
+                        )}
+                        {view === 'card' && (
+                            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,23rem),1fr))] items-start gap-5">
+                                {filteredAndSortedDonors.map((donor) => (
+                                    <DonorCard key={donor.id} donor={donor} onClick={() => handleDonorSelect(donor)} />
+                                ))}
+                            </div>
+                        )}
+                        {view === 'kanban' && (
+                            <KanbanBoard
+                                donors={filteredPipelineDonors}
+                                stages={stages}
+                                density={kanbanDensity}
+                                onDragEnd={handleDragEnd}
+                            />
+                        )}
+                        {!isLoading && filteredAndSortedDonors.length === 0 && !isError && (
+                            <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-slate-600">
+                                {t('individual_donors.registry.empty', 'No donors match your filters yet.')}
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </>
     );
 };
 
-const AnalyticsTab: React.FC<{ role: Role }> = ({ role }) => {
-    const { t, language, dir } = useLocalization();
+const AnalyticsTab: React.FC<{ role: Role }> = () => {
+    const { t } = useLocalization();
     const { donors, isLoading } = useDonorIntelligenceData();
-    const [filters, setFilters] = useState({ search: '', category: 'all', program: 'all' });
-    
-    const CATEGORY_COLORS: Record<string, string> = { 'Hero Donor': '#FFD700', 'Recurring Donor': '#10B981', 'Seasonal Donor': '#3B82F6', 'Event Donor': '#F59E0B', 'Dormant Donor': '#6B7280', 'General Donor': '#9CA3AF', 'New Donor': '#A1A1AA' };
-    const categoryCounts = useMemo(() => donors.reduce((acc, donor) => { if(donor.donorCategory) { acc[donor.donorCategory] = (acc[donor.donorCategory] || 0) + 1; } return acc; }, {} as Record<string, number>), [donors]);
-    const pieChartData = useMemo(() => Object.entries(categoryCounts).map(([name, value]) => ({ name: getDonorCategoryLabel(name, t), value })), [categoryCounts, t]);
+
+    const CATEGORY_COLORS: Record<string, string> = {
+        'Hero Donor': '#FFD700',
+        'Recurring Donor': '#10B981',
+        'Seasonal Donor': '#3B82F6',
+        'Event Donor': '#F59E0B',
+        'Dormant Donor': '#6B7280',
+        'General Donor': '#9CA3AF',
+        'New Donor': '#A1A1AA',
+    };
+    const categoryCounts = useMemo(
+        () => donors.reduce((acc, donor) => {
+            if (donor.donorCategory) {
+                acc[donor.donorCategory] = (acc[donor.donorCategory] || 0) + 1;
+            }
+            return acc;
+        }, {} as Record<string, number>),
+        [donors],
+    );
+    const pieChartData = useMemo(
+        () => Object.entries(categoryCounts).map(([name, value]) => ({ name: getDonorCategoryLabel(name, t), value })),
+        [categoryCounts, t],
+    );
+
+    if (isLoading) {
+        return (
+            <div className="rounded-xl border border-gray-200 bg-card p-8 text-center text-sm text-gray-500 dark:border-slate-700 dark:bg-dark-card">
+                {t('common.loading')}
+            </div>
+        );
+    }
 
     return (
-         <div className="space-y-6">
+        <div className="space-y-6">
             <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
                 <div className="xl:col-span-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -799,10 +651,21 @@ const AnalyticsTab: React.FC<{ role: Role }> = ({ role }) => {
                     </div>
                 </div>
                 <div className="xl:col-span-2 bg-card dark:bg-dark-card rounded-2xl shadow-soft p-4 border dark:border-slate-700/50">
-                     <h3 className="text-lg font-bold mb-2 text-center">{t('donorIntelligence.distributionChart')}</h3>
-                     <div className="h-64 w-full">
+                    <h3 className="text-lg font-bold mb-2 text-center">{t('donorIntelligence.distributionChart')}</h3>
+                    <div className="h-64 w-full">
                         <ResponsiveContainer>
-                             <PieChart><Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>{pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[Object.keys(CATEGORY_COLORS).find(key => getDonorCategoryLabel(key, t) === entry.name) || '']} />)}</Pie><Tooltip /><Legend /></PieChart>
+                            <PieChart>
+                                <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                                    {pieChartData.map((entry, index) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={CATEGORY_COLORS[Object.keys(CATEGORY_COLORS).find((key) => getDonorCategoryLabel(key, t) === entry.name) || '']}
+                                        />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend />
+                            </PieChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
@@ -811,16 +674,9 @@ const AnalyticsTab: React.FC<{ role: Role }> = ({ role }) => {
     );
 };
 
-// --- MAIN HUB COMPONENT ---
-
 const DonorHub: React.FC<{ role: Role; deepLinkTarget?: { id?: string; tab?: string } | null }> = ({ role, deepLinkTarget }) => {
     const { t } = useLocalization(['common', 'donors', 'individual_donors', 'misc']);
-    const [state, dispatch] = useReducer(donorsReducer, getInitialState());
     const [activeTab, setActiveTab] = useState('registry');
-
-    useEffect(() => {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-    }, [state]);
 
     const tabs = [
         { id: 'registry', label: t('donors.tabs.registry') },
@@ -828,20 +684,18 @@ const DonorHub: React.FC<{ role: Role; deepLinkTarget?: { id?: string; tab?: str
     ];
 
     return (
-        <>
-            <div className="flex flex-col h-full animate-fade-in">
-                <h1 className="text-3xl font-bold text-foreground dark:text-dark-foreground mb-4">
-                    {t('donors.hubTitle')}
-                </h1>
+        <div className="flex flex-col h-full animate-fade-in">
+            <h1 className="text-3xl font-bold text-foreground dark:text-dark-foreground mb-4">
+                {t('donors.hubTitle')}
+            </h1>
 
-                <Tabs tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
-                
-                <div className="mt-6 flex-grow">
-                    {activeTab === 'registry' && <RegistryTab pipelineDonors={state.donors} dispatch={dispatch} deepLinkTarget={deepLinkTarget} />}
-                    {activeTab === 'analytics' && <AnalyticsTab role={role} />}
-                </div>
+            <Tabs tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
+
+            <div className="mt-6 flex-grow">
+                {activeTab === 'registry' && <RegistryTab deepLinkTarget={deepLinkTarget} />}
+                {activeTab === 'analytics' && <AnalyticsTab role={role} />}
             </div>
-        </>
+        </div>
     );
 };
 

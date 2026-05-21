@@ -57,7 +57,11 @@
       "delete": "حذف",
       "deleteConfirm": "حذف \"{{description}}\" نهائياً؟ لا يمكن التراجع عن هذا الإجراء.",
       "deleteSuccess": "تم حذف المعاملة",
-      "deleteFailed": "تعذر حذف المعاملة. يرجى المحاولة مرة أخرى."
+      "deleteFailed": "تعذر حذف المعاملة. يرجى المحاولة مرة أخرى.",
+      "saving": "جاري الحفظ…",
+      "addingBanner": "جاري إضافة المعاملة…",
+      "addSuccess": "تمت إضافة المعاملة",
+      "addFailed": "تعذر إضافة المعاملة. يرجى المحاولة مرة أخرى."
     },
     "donations": {
       "title": "التبرعات والإيصالات",
@@ -78,7 +82,8 @@
       "generateReceipt": "إنشاء إيصال",
       "viewReceipt": "عرض الإيصال",
       "noDonations": "لا توجد تبرعات مطابقة",
-      "noDonationsYet": "لا توجد تبرعات مسجلة بعد"
+      "noDonationsYet": "لا توجد تبرعات مسجلة بعد",
+      "addingBanner": "جاري إضافة التبرع…"
     },
     "pledges": {
       "title": "التعهدات والالتزامات",
@@ -277,6 +282,8 @@
       "descPlaceholderAr": "الوصف بالعربية...",
       "refPlaceholder": "مثال: INV-2024-001",
       "noEntity": "بدون",
+      "relatedEntityComingSoon": "قريبًا",
+      "relatedEntityComingSoonHint": "ستتمكن من ربط المتبرعين والمشاريع والمستفيدين والجهات الأخرى من هنا.",
       "entityName": "اسم الجهة",
       "entityNamePlaceholder": "الاسم...",
       "notes": "ملاحظات",

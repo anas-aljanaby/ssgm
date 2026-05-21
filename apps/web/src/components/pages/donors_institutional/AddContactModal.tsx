@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import ModalPortal from '../../../common/ModalPortal';
+import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import { useDropzone } from 'react-dropzone';

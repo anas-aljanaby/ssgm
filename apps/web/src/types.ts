@@ -60,7 +60,7 @@ export interface DonorTask {
 }
 
 export interface Donor {
-  id: number;
+  id: string;
   name: string;
   email: string;
   totalDonated: number;

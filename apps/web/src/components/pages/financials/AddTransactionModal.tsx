@@ -81,8 +81,6 @@ const DONATION_METHODS: DonationMethod[] = [
 
 const STATUSES: TransactionStatus[] = ['draft', 'pending', 'approved', 'posted'];
 
-const ENTITY_TYPES = ['donor', 'project', 'beneficiary', 'institutional_donor', 'vendor'] as const;
-
 export type TransactionModalPreset = 'default' | 'donation';
 
 interface AddTransactionModalProps {
@@ -159,12 +157,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   const removeFile = () => set('receipt', null);
 
-  const hasDescription =
-    Boolean(form.description_en.trim()) || Boolean(form.description_ar.trim());
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hasDescription || form.amount <= 0) return;
+    if (form.amount <= 0) return;
     onSubmit(form);
     setForm(isDonationPreset ? { ...DONATION_INITIAL } : { ...INITIAL_FORM });
     onClose();
@@ -181,7 +176,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const saveLabel = isDonationPreset
     ? t('financials.addDonation.save', 'Save Donation')
     : t('financials.addTransaction.save', 'Save Transaction');
-  const canSubmit = hasDescription && form.amount > 0;
+  const canSubmit = form.amount > 0;
 
   return (
     <ModalPortal isOpen={isOpen} onClose={onClose} labelledBy="add-transaction-title" dir={dir}>
@@ -417,41 +412,22 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               />
             </Field>
 
-            <Field
-              label={t('financials.transactions.relatedEntity', 'Related Entity')}
-              htmlFor="txn-entity-type"
-            >
-              <select
-                id="txn-entity-type"
-                value={form.related_entity_type}
-                onChange={(e) => set('related_entity_type', e.target.value)}
-                className={selectClass}
-                disabled={isDonationPreset}
+            <Field label={t('financials.transactions.relatedEntity', 'Related Entity')}>
+              <div
+                data-testid="txn-related-entity-coming-soon"
+                className="rounded-lg border border-dashed border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 px-4 py-3 text-center"
               >
-                <option value="">{t('financials.addTransaction.noEntity', 'None')}</option>
-                {ENTITY_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {t(`financials.entityType.${type}`, type.replace(/_/g, ' '))}
-                  </option>
-                ))}
-              </select>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  {t('financials.addTransaction.relatedEntityComingSoon', 'Coming soon')}
+                </p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                  {t(
+                    'financials.addTransaction.relatedEntityComingSoonHint',
+                    'Attach and link donors, projects, beneficiaries, and other entities.'
+                  )}
+                </p>
+              </div>
             </Field>
-
-            {form.related_entity_type ? (
-              <Field
-                label={t('financials.addTransaction.entityName', 'Entity Name')}
-                htmlFor="txn-entity-name"
-              >
-                <input
-                  type="text"
-                  id="txn-entity-name"
-                  value={form.related_entity_name}
-                  onChange={(e) => set('related_entity_name', e.target.value)}
-                  placeholder={t('financials.addTransaction.entityNamePlaceholder', 'Name...')}
-                  className={inputClass}
-                />
-              </Field>
-            ) : null}
 
             {isDonationPreset ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

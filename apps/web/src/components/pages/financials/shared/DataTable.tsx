@@ -12,6 +12,8 @@ interface DataTableProps<T extends Record<string, any>> {
   columns: Column<T>[];
   data: T[];
   onRowClick?: (row: T) => void;
+  getRowKey?: (row: T) => string;
+  getRowClassName?: (row: T, index: number) => string;
   emptyMessage?: string;
   emptyActionLabel?: string;
   onEmptyAction?: () => void;
@@ -23,6 +25,8 @@ function DataTable<T extends Record<string, any>>({
   columns,
   data,
   onRowClick,
+  getRowKey,
+  getRowClassName,
   emptyMessage = 'No data available',
   emptyActionLabel,
   onEmptyAction,
@@ -117,12 +121,21 @@ function DataTable<T extends Record<string, any>>({
               </td>
             </tr>
           ) : (
-            sortedData.map((row, rowIdx) => (
+            sortedData.map((row, rowIdx) => {
+              const customClass = getRowClassName?.(row, rowIdx) ?? '';
+              const zebra =
+                customClass.includes('bg-emerald') || customClass.includes('animate-pulse')
+                  ? ''
+                  : rowIdx % 2 === 1
+                    ? 'bg-gray-50/50 dark:bg-slate-800/25'
+                    : '';
+
+              return (
               <tr
-                key={rowIdx}
-                className={`border-b border-gray-100 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors ${
-                  rowIdx % 2 === 1 ? 'bg-gray-50/50 dark:bg-slate-800/25' : ''
-                } ${onRowClick ? 'cursor-pointer' : ''}`}
+                key={getRowKey ? getRowKey(row) : rowIdx}
+                className={`border-b border-gray-100 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors duration-500 ${zebra} ${customClass} ${
+                  onRowClick ? 'cursor-pointer' : ''
+                }`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((col) => (
@@ -134,7 +147,8 @@ function DataTable<T extends Record<string, any>>({
                   </td>
                 ))}
               </tr>
-            ))
+            );
+            })
           )}
         </tbody>
       </table>

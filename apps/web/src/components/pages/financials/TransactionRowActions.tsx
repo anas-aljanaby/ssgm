@@ -2,12 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MoreHorizontal, Trash2 } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import ConfirmationModal from '../../common/ConfirmationModal';
-import { useToast } from '../../../hooks/useToast';
 import type { FinancialTransaction } from '../../../types/financials';
 
 interface TransactionRowActionsProps {
   transaction: FinancialTransaction;
-  onDelete: () => Promise<void>;
+  onDelete: () => void;
   isDeleting?: boolean;
 }
 
@@ -17,8 +16,8 @@ const TransactionRowActions: React.FC<TransactionRowActionsProps> = ({
   isDeleting = false,
 }) => {
   const { t, language } = useLocalization(['common', 'financials']);
-  const toast = useToast();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const deleteTriggeredRef = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
@@ -38,18 +37,18 @@ const TransactionRowActions: React.FC<TransactionRowActionsProps> = ({
     transaction.description[language === 'en' ? 'ar' : 'en']?.trim() ||
     transaction.reference;
 
-  const handleDeleteConfirm = async () => {
-    try {
-      await onDelete();
-      toast.showSuccess(t('financials.transactions.deleteSuccess', 'Transaction deleted'));
-    } catch {
-      toast.showError(
-        t('financials.transactions.deleteFailed', 'Unable to delete transaction. Please try again.')
-      );
-    } finally {
-      setIsConfirmOpen(false);
-      setIsOpen(false);
+  useEffect(() => {
+    if (!isConfirmOpen) {
+      deleteTriggeredRef.current = false;
     }
+  }, [isConfirmOpen]);
+
+  const handleDeleteConfirm = () => {
+    if (deleteTriggeredRef.current || isDeleting) return;
+    deleteTriggeredRef.current = true;
+    setIsConfirmOpen(false);
+    setIsOpen(false);
+    onDelete();
   };
 
   return (

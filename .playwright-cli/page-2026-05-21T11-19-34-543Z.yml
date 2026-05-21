@@ -1,0 +1,732 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e28]:
+          - link "Dashboard" [ref=e29] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e31]
+            - generic [ref=e36]: Dashboard
+        - listitem [ref=e37]:
+          - link "Bousala" [ref=e38] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e40]
+            - generic [ref=e43]: Bousala
+        - listitem [ref=e44]:
+          - link "Stakeholder Management" [ref=e45] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e47]
+            - generic [ref=e52]: Stakeholder Management
+        - listitem [ref=e53]:
+          - link "Donor Management" [ref=e54] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e56]
+            - generic [ref=e58]: Donor Management
+        - listitem [ref=e59]:
+          - link "Institutional Donors" [ref=e60] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e62]
+            - generic [ref=e64]: Institutional Donors
+        - listitem [ref=e65]:
+          - link "Beneficiary Management" [ref=e66] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e68]
+            - generic [ref=e73]: Beneficiary Management
+        - listitem [ref=e74]:
+          - link "Project Management" [ref=e75] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e77]
+            - generic [ref=e81]: Project Management
+        - listitem [ref=e82]:
+          - link "Financial Management" [ref=e83] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e85]
+            - generic [ref=e87]: Financial Management
+        - listitem [ref=e88]:
+          - link "Help & Support" [ref=e89] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e91]
+            - generic [ref=e94]: Help & Support
+        - listitem [ref=e95]:
+          - link "Settings" [ref=e96] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e98]
+            - generic [ref=e101]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e104]:
+          - link "Logout" [ref=e105] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e107]
+            - generic [ref=e110]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e115]
+            - button "liveIndicator.delayed" [ref=e1152] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e166]:
+          - generic [ref=e167]:
+            - heading "Financial Management" [level=1] [ref=e168]
+            - paragraph [ref=e169]: Central source of truth for all financial operations
+          - navigation [ref=e171]:
+            - button "Overview" [ref=e172] [cursor=pointer]
+            - button "Transactions" [ref=e173] [cursor=pointer]
+            - button "Donations" [ref=e174] [cursor=pointer]
+            - button "Pledges" [ref=e175] [cursor=pointer]
+            - button "Budgets" [ref=e176] [cursor=pointer]
+            - button "Disbursements" [ref=e177] [cursor=pointer]
+            - button "Grants & Funds" [ref=e178] [cursor=pointer]
+            - button "Approvals" [ref=e179] [cursor=pointer]
+            - button "Reports" [ref=e180] [cursor=pointer]
+          - generic [ref=e422]:
+            - generic [ref=e423]:
+              - generic [ref=e425]:
+                - generic [ref=e426]:
+                  - img
+                  - textbox "Search transactions..." [ref=e427]
+                - combobox [ref=e428]:
+                  - option "All Statuses" [selected]
+                  - option "Draft"
+                  - option "Pending"
+                  - option "Approved"
+                  - option "Posted"
+                  - option "Reconciled"
+                  - option "Voided"
+                - combobox [ref=e429]:
+                  - option "All Directions" [selected]
+                  - option "Inflow"
+                  - option "Outflow"
+                - combobox [ref=e430]:
+                  - option "All Categories" [selected]
+                  - option "Donation"
+                  - option "Grant Income"
+                  - option "Sponsorship"
+                  - option "Investment"
+                  - option "Other Income"
+                  - option "Project Expense"
+                  - option "Operational"
+                  - option "Disbursement"
+                  - option "Payroll"
+                  - option "Procurement"
+                  - option "Refund"
+              - button "Add Transaction" [ref=e431] [cursor=pointer]:
+                - img [ref=e432]
+                - text: Add Transaction
+            - table [ref=e434]:
+              - rowgroup [ref=e435]:
+                - row "Date Reference Description Category Direction Amount Status Related Entity Actions" [ref=e436]:
+                  - columnheader "Date" [ref=e437] [cursor=pointer]:
+                    - generic [ref=e438]: Date
+                  - columnheader "Reference" [ref=e439]:
+                    - generic [ref=e440]: Reference
+                  - columnheader "Description" [ref=e441]:
+                    - generic [ref=e442]: Description
+                  - columnheader "Category" [ref=e443]:
+                    - generic [ref=e444]: Category
+                  - columnheader "Direction" [ref=e445]:
+                    - generic [ref=e446]: Direction
+                  - columnheader "Amount" [ref=e447] [cursor=pointer]:
+                    - generic [ref=e448]: Amount
+                  - columnheader "Status" [ref=e449]:
+                    - generic [ref=e450]: Status
+                  - columnheader "Related Entity" [ref=e451]:
+                    - generic [ref=e452]: Related Entity
+                  - columnheader "Actions" [ref=e453]:
+                    - generic [ref=e454]: Actions
+              - rowgroup [ref=e455]:
+                - row "May 21, 2026 REF-1779362372116 Playwright optimistic test Donation ↑ Inflow +$99 Draft — Actions" [ref=e1153]:
+                  - cell "May 21, 2026" [ref=e1154]
+                  - cell "REF-1779362372116" [ref=e1155]
+                  - cell "Playwright optimistic test" [ref=e1156]
+                  - cell "Donation" [ref=e1157]:
+                    - generic [ref=e1158]: Donation
+                  - cell "↑ Inflow" [ref=e1159]:
+                    - generic [ref=e1160]:
+                      - generic [ref=e1161]: ↑
+                      - text: Inflow
+                  - cell "+$99" [ref=e1162]:
+                    - generic [ref=e1163]: +$99
+                  - cell "Draft" [ref=e1164]:
+                    - generic [ref=e1165]: Draft
+                  - cell "—" [ref=e1166]
+                  - cell "Actions" [ref=e1167]:
+                    - button "Actions" [ref=e1169] [cursor=pointer]:
+                      - img [ref=e1170]
+                - row "Dec 15, 2024 DON-2024-0042 Monthly donation from Aisha Al-Farsi Donation ↑ Inflow +$1,500 Posted Aisha Al-Farsi Actions" [ref=e456]:
+                  - cell "Dec 15, 2024" [ref=e457]
+                  - cell "DON-2024-0042" [ref=e458]
+                  - cell "Monthly donation from Aisha Al-Farsi" [ref=e459]
+                  - cell "Donation" [ref=e460]:
+                    - generic [ref=e461]: Donation
+                  - cell "↑ Inflow" [ref=e462]:
+                    - generic [ref=e463]:
+                      - generic [ref=e464]: ↑
+                      - text: Inflow
+                  - cell "+$1,500" [ref=e465]:
+                    - generic [ref=e466]: +$1,500
+                  - cell "Posted" [ref=e467]:
+                    - generic [ref=e468]: Posted
+                  - cell "Aisha Al-Farsi" [ref=e469]
+                  - cell "Actions" [ref=e470]:
+                    - button "Actions" [ref=e472] [cursor=pointer]:
+                      - img [ref=e473]
+                - row "Dec 14, 2024 EXP-2024-0118 Construction materials for Albania IC Project Expense ↓ Outflow -$12,500 Posted Albania Islamic Center Actions" [ref=e477]:
+                  - cell "Dec 14, 2024" [ref=e478]
+                  - cell "EXP-2024-0118" [ref=e479]
+                  - cell "Construction materials for Albania IC" [ref=e480]
+                  - cell "Project Expense" [ref=e481]:
+                    - generic [ref=e482]: Project Expense
+                  - cell "↓ Outflow" [ref=e483]:
+                    - generic [ref=e484]:
+                      - generic [ref=e485]: ↓
+                      - text: Outflow
+                  - cell "-$12,500" [ref=e486]:
+                    - generic [ref=e487]: "-$12,500"
+                  - cell "Posted" [ref=e488]:
+                    - generic [ref=e489]: Posted
+                  - cell "Albania Islamic Center" [ref=e490]
+                  - cell "Actions" [ref=e491]:
+                    - button "Actions" [ref=e493] [cursor=pointer]:
+                      - img [ref=e494]
+                - row "Dec 13, 2024 DON-2024-0041 Major gift from David Chen Donation ↑ Inflow +$50,000 Posted David Chen Actions" [ref=e498]:
+                  - cell "Dec 13, 2024" [ref=e499]
+                  - cell "DON-2024-0041" [ref=e500]
+                  - cell "Major gift from David Chen" [ref=e501]
+                  - cell "Donation" [ref=e502]:
+                    - generic [ref=e503]: Donation
+                  - cell "↑ Inflow" [ref=e504]:
+                    - generic [ref=e505]:
+                      - generic [ref=e506]: ↑
+                      - text: Inflow
+                  - cell "+$50,000" [ref=e507]:
+                    - generic [ref=e508]: +$50,000
+                  - cell "Posted" [ref=e509]:
+                    - generic [ref=e510]: Posted
+                  - cell "David Chen" [ref=e511]
+                  - cell "Actions" [ref=e512]:
+                    - button "Actions" [ref=e514] [cursor=pointer]:
+                      - img [ref=e515]
+                - row "Dec 12, 2024 GRT-2024-0012 Qatar Charity grant installment Q4 Grant Income ↑ Inflow +$28,000 Posted Qatar Charity Actions" [ref=e519]:
+                  - cell "Dec 12, 2024" [ref=e520]
+                  - cell "GRT-2024-0012" [ref=e521]
+                  - cell "Qatar Charity grant installment Q4" [ref=e522]
+                  - cell "Grant Income" [ref=e523]:
+                    - generic [ref=e524]: Grant Income
+                  - cell "↑ Inflow" [ref=e525]:
+                    - generic [ref=e526]:
+                      - generic [ref=e527]: ↑
+                      - text: Inflow
+                  - cell "+$28,000" [ref=e528]:
+                    - generic [ref=e529]: +$28,000
+                  - cell "Posted" [ref=e530]:
+                    - generic [ref=e531]: Posted
+                  - cell "Qatar Charity" [ref=e532]
+                  - cell "Actions" [ref=e533]:
+                    - button "Actions" [ref=e535] [cursor=pointer]:
+                      - img [ref=e536]
+                - row "Dec 11, 2024 DIS-2024-0067 Monthly stipend for Yusuf Al-Ahmad Disbursement ↓ Outflow -$250 Posted Yusuf Al-Ahmad Actions" [ref=e540]:
+                  - cell "Dec 11, 2024" [ref=e541]
+                  - cell "DIS-2024-0067" [ref=e542]
+                  - cell "Monthly stipend for Yusuf Al-Ahmad" [ref=e543]
+                  - cell "Disbursement" [ref=e544]:
+                    - generic [ref=e545]: Disbursement
+                  - cell "↓ Outflow" [ref=e546]:
+                    - generic [ref=e547]:
+                      - generic [ref=e548]: ↓
+                      - text: Outflow
+                  - cell "-$250" [ref=e549]:
+                    - generic [ref=e550]: "-$250"
+                  - cell "Posted" [ref=e551]:
+                    - generic [ref=e552]: Posted
+                  - cell "Yusuf Al-Ahmad" [ref=e553]
+                  - cell "Actions" [ref=e554]:
+                    - button "Actions" [ref=e556] [cursor=pointer]:
+                      - img [ref=e557]
+                - row "Dec 10, 2024 EXP-2024-0117 Office rent payment - December Operational Expense ↓ Outflow -$3,200 Posted — Actions" [ref=e561]:
+                  - cell "Dec 10, 2024" [ref=e562]
+                  - cell "EXP-2024-0117" [ref=e563]
+                  - cell "Office rent payment - December" [ref=e564]
+                  - cell "Operational Expense" [ref=e565]:
+                    - generic [ref=e566]: Operational Expense
+                  - cell "↓ Outflow" [ref=e567]:
+                    - generic [ref=e568]:
+                      - generic [ref=e569]: ↓
+                      - text: Outflow
+                  - cell "-$3,200" [ref=e570]:
+                    - generic [ref=e571]: "-$3,200"
+                  - cell "Posted" [ref=e572]:
+                    - generic [ref=e573]: Posted
+                  - cell "—" [ref=e574]
+                  - cell "Actions" [ref=e575]:
+                    - button "Actions" [ref=e577] [cursor=pointer]:
+                      - img [ref=e578]
+                - row "Dec 9, 2024 DON-2024-0040 Online donation via Stripe Donation ↑ Inflow +$500 Posted Hassan Ibrahim Actions" [ref=e582]:
+                  - cell "Dec 9, 2024" [ref=e583]
+                  - cell "DON-2024-0040" [ref=e584]
+                  - cell "Online donation via Stripe" [ref=e585]
+                  - cell "Donation" [ref=e586]:
+                    - generic [ref=e587]: Donation
+                  - cell "↑ Inflow" [ref=e588]:
+                    - generic [ref=e589]:
+                      - generic [ref=e590]: ↑
+                      - text: Inflow
+                  - cell "+$500" [ref=e591]:
+                    - generic [ref=e592]: +$500
+                  - cell "Posted" [ref=e593]:
+                    - generic [ref=e594]: Posted
+                  - cell "Hassan Ibrahim" [ref=e595]
+                  - cell "Actions" [ref=e596]:
+                    - button "Actions" [ref=e598] [cursor=pointer]:
+                      - img [ref=e599]
+                - row "Dec 8, 2024 GRT-2024-0011 GPF education program grant Grant Income ↑ Inflow +$62,500 Reconciled Global Philanthropy Foundation Actions" [ref=e603]:
+                  - cell "Dec 8, 2024" [ref=e604]
+                  - cell "GRT-2024-0011" [ref=e605]
+                  - cell "GPF education program grant" [ref=e606]
+                  - cell "Grant Income" [ref=e607]:
+                    - generic [ref=e608]: Grant Income
+                  - cell "↑ Inflow" [ref=e609]:
+                    - generic [ref=e610]:
+                      - generic [ref=e611]: ↑
+                      - text: Inflow
+                  - cell "+$62,500" [ref=e612]:
+                    - generic [ref=e613]: +$62,500
+                  - cell "Reconciled" [ref=e614]:
+                    - generic [ref=e615]: Reconciled
+                  - cell "Global Philanthropy Foundation" [ref=e616]
+                  - cell "Actions" [ref=e617]:
+                    - button "Actions" [ref=e619] [cursor=pointer]:
+                      - img [ref=e620]
+                - row "Dec 7, 2024 DIS-2024-0066 Emergency relief supplies Disbursement ↓ Outflow -$8,750 Approved — Actions" [ref=e624]:
+                  - cell "Dec 7, 2024" [ref=e625]
+                  - cell "DIS-2024-0066" [ref=e626]
+                  - cell "Emergency relief supplies" [ref=e627]
+                  - cell "Disbursement" [ref=e628]:
+                    - generic [ref=e629]: Disbursement
+                  - cell "↓ Outflow" [ref=e630]:
+                    - generic [ref=e631]:
+                      - generic [ref=e632]: ↓
+                      - text: Outflow
+                  - cell "-$8,750" [ref=e633]:
+                    - generic [ref=e634]: "-$8,750"
+                  - cell "Approved" [ref=e635]:
+                    - generic [ref=e636]: Approved
+                  - cell "—" [ref=e637]
+                  - cell "Actions" [ref=e638]:
+                    - button "Actions" [ref=e640] [cursor=pointer]:
+                      - img [ref=e641]
+                - row "Dec 6, 2024 DON-2024-0039 Donation from Fatma Yilmaz Donation ↑ Inflow +$2,000 Posted Fatma Yilmaz Actions" [ref=e645]:
+                  - cell "Dec 6, 2024" [ref=e646]
+                  - cell "DON-2024-0039" [ref=e647]
+                  - cell "Donation from Fatma Yilmaz" [ref=e648]
+                  - cell "Donation" [ref=e649]:
+                    - generic [ref=e650]: Donation
+                  - cell "↑ Inflow" [ref=e651]:
+                    - generic [ref=e652]:
+                      - generic [ref=e653]: ↑
+                      - text: Inflow
+                  - cell "+$2,000" [ref=e654]:
+                    - generic [ref=e655]: +$2,000
+                  - cell "Posted" [ref=e656]:
+                    - generic [ref=e657]: Posted
+                  - cell "Fatma Yilmaz" [ref=e658]
+                  - cell "Actions" [ref=e659]:
+                    - button "Actions" [ref=e661] [cursor=pointer]:
+                      - img [ref=e662]
+                - row "Dec 5, 2024 EXP-2024-0116 Software subscriptions Operational Expense ↓ Outflow -$1,850 Posted — Actions" [ref=e666]:
+                  - cell "Dec 5, 2024" [ref=e667]
+                  - cell "EXP-2024-0116" [ref=e668]
+                  - cell "Software subscriptions" [ref=e669]
+                  - cell "Operational Expense" [ref=e670]:
+                    - generic [ref=e671]: Operational Expense
+                  - cell "↓ Outflow" [ref=e672]:
+                    - generic [ref=e673]:
+                      - generic [ref=e674]: ↓
+                      - text: Outflow
+                  - cell "-$1,850" [ref=e675]:
+                    - generic [ref=e676]: "-$1,850"
+                  - cell "Posted" [ref=e677]:
+                    - generic [ref=e678]: Posted
+                  - cell "—" [ref=e679]
+                  - cell "Actions" [ref=e680]:
+                    - button "Actions" [ref=e682] [cursor=pointer]:
+                      - img [ref=e683]
+                - row "Dec 4, 2024 SPO-2024-0023 Sponsorship payment received Sponsorship Income ↑ Inflow +$3,600 Posted Omar Al-Rashid Actions" [ref=e687]:
+                  - cell "Dec 4, 2024" [ref=e688]
+                  - cell "SPO-2024-0023" [ref=e689]
+                  - cell "Sponsorship payment received" [ref=e690]
+                  - cell "Sponsorship Income" [ref=e691]:
+                    - generic [ref=e692]: Sponsorship Income
+                  - cell "↑ Inflow" [ref=e693]:
+                    - generic [ref=e694]:
+                      - generic [ref=e695]: ↑
+                      - text: Inflow
+                  - cell "+$3,600" [ref=e696]:
+                    - generic [ref=e697]: +$3,600
+                  - cell "Posted" [ref=e698]:
+                    - generic [ref=e699]: Posted
+                  - cell "Omar Al-Rashid" [ref=e700]
+                  - cell "Actions" [ref=e701]:
+                    - button "Actions" [ref=e703] [cursor=pointer]:
+                      - img [ref=e704]
+                - row "Dec 3, 2024 EXP-2024-0115 Staff training workshop expenses Operational Expense ↓ Outflow -$4,200 Posted — Actions" [ref=e708]:
+                  - cell "Dec 3, 2024" [ref=e709]
+                  - cell "EXP-2024-0115" [ref=e710]
+                  - cell "Staff training workshop expenses" [ref=e711]
+                  - cell "Operational Expense" [ref=e712]:
+                    - generic [ref=e713]: Operational Expense
+                  - cell "↓ Outflow" [ref=e714]:
+                    - generic [ref=e715]:
+                      - generic [ref=e716]: ↓
+                      - text: Outflow
+                  - cell "-$4,200" [ref=e717]:
+                    - generic [ref=e718]: "-$4,200"
+                  - cell "Posted" [ref=e719]:
+                    - generic [ref=e720]: Posted
+                  - cell "—" [ref=e721]
+                  - cell "Actions" [ref=e722]:
+                    - button "Actions" [ref=e724] [cursor=pointer]:
+                      - img [ref=e725]
+                - row "Dec 2, 2024 DON-2024-0038 Anonymous cash donation Donation ↑ Inflow +$750 Posted — Actions" [ref=e729]:
+                  - cell "Dec 2, 2024" [ref=e730]
+                  - cell "DON-2024-0038" [ref=e731]
+                  - cell "Anonymous cash donation" [ref=e732]
+                  - cell "Donation" [ref=e733]:
+                    - generic [ref=e734]: Donation
+                  - cell "↑ Inflow" [ref=e735]:
+                    - generic [ref=e736]:
+                      - generic [ref=e737]: ↑
+                      - text: Inflow
+                  - cell "+$750" [ref=e738]:
+                    - generic [ref=e739]: +$750
+                  - cell "Posted" [ref=e740]:
+                    - generic [ref=e741]: Posted
+                  - cell "—" [ref=e742]
+                  - cell "Actions" [ref=e743]:
+                    - button "Actions" [ref=e745] [cursor=pointer]:
+                      - img [ref=e746]
+                - row "Dec 1, 2024 PO-2024-0034 Equipment purchase for VTC Istanbul Procurement ↓ Outflow -$15,800 Posted Istanbul VTC Actions" [ref=e750]:
+                  - cell "Dec 1, 2024" [ref=e751]
+                  - cell "PO-2024-0034" [ref=e752]
+                  - cell "Equipment purchase for VTC Istanbul" [ref=e753]
+                  - cell "Procurement" [ref=e754]:
+                    - generic [ref=e755]: Procurement
+                  - cell "↓ Outflow" [ref=e756]:
+                    - generic [ref=e757]:
+                      - generic [ref=e758]: ↓
+                      - text: Outflow
+                  - cell "-$15,800" [ref=e759]:
+                    - generic [ref=e760]: "-$15,800"
+                  - cell "Posted" [ref=e761]:
+                    - generic [ref=e762]: Posted
+                  - cell "Istanbul VTC" [ref=e763]
+                  - cell "Actions" [ref=e764]:
+                    - button "Actions" [ref=e766] [cursor=pointer]:
+                      - img [ref=e767]
+                - row "Nov 28, 2024 GRT-2024-0010 Innovate Corp STEM grant installment Grant Income ↑ Inflow +$25,000 Posted Innovate Corp Actions" [ref=e771]:
+                  - cell "Nov 28, 2024" [ref=e772]
+                  - cell "GRT-2024-0010" [ref=e773]
+                  - cell "Innovate Corp STEM grant installment" [ref=e774]
+                  - cell "Grant Income" [ref=e775]:
+                    - generic [ref=e776]: Grant Income
+                  - cell "↑ Inflow" [ref=e777]:
+                    - generic [ref=e778]:
+                      - generic [ref=e779]: ↑
+                      - text: Inflow
+                  - cell "+$25,000" [ref=e780]:
+                    - generic [ref=e781]: +$25,000
+                  - cell "Posted" [ref=e782]:
+                    - generic [ref=e783]: Posted
+                  - cell "Innovate Corp" [ref=e784]
+                  - cell "Actions" [ref=e785]:
+                    - button "Actions" [ref=e787] [cursor=pointer]:
+                      - img [ref=e788]
+                - row "Nov 25, 2024 DIS-2024-0065 Scholarship disbursement batch Disbursement ↓ Outflow -$6,000 Posted — Actions" [ref=e792]:
+                  - cell "Nov 25, 2024" [ref=e793]
+                  - cell "DIS-2024-0065" [ref=e794]
+                  - cell "Scholarship disbursement batch" [ref=e795]
+                  - cell "Disbursement" [ref=e796]:
+                    - generic [ref=e797]: Disbursement
+                  - cell "↓ Outflow" [ref=e798]:
+                    - generic [ref=e799]:
+                      - generic [ref=e800]: ↓
+                      - text: Outflow
+                  - cell "-$6,000" [ref=e801]:
+                    - generic [ref=e802]: "-$6,000"
+                  - cell "Posted" [ref=e803]:
+                    - generic [ref=e804]: Posted
+                  - cell "—" [ref=e805]
+                  - cell "Actions" [ref=e806]:
+                    - button "Actions" [ref=e808] [cursor=pointer]:
+                      - img [ref=e809]
+                - row "Nov 20, 2024 DON-2024-0037 Annual donation from Sarah Johnson Donation ↑ Inflow +$10,000 Posted Sarah Johnson Actions" [ref=e813]:
+                  - cell "Nov 20, 2024" [ref=e814]
+                  - cell "DON-2024-0037" [ref=e815]
+                  - cell "Annual donation from Sarah Johnson" [ref=e816]
+                  - cell "Donation" [ref=e817]:
+                    - generic [ref=e818]: Donation
+                  - cell "↑ Inflow" [ref=e819]:
+                    - generic [ref=e820]:
+                      - generic [ref=e821]: ↑
+                      - text: Inflow
+                  - cell "+$10,000" [ref=e822]:
+                    - generic [ref=e823]: +$10,000
+                  - cell "Posted" [ref=e824]:
+                    - generic [ref=e825]: Posted
+                  - cell "Sarah Johnson" [ref=e826]
+                  - cell "Actions" [ref=e827]:
+                    - button "Actions" [ref=e829] [cursor=pointer]:
+                      - img [ref=e830]
+                - row "Nov 18, 2024 EXP-2024-0114 Travel expenses - field visit Project Expense ↓ Outflow -$2,300 Posted Albania Islamic Center Actions" [ref=e834]:
+                  - cell "Nov 18, 2024" [ref=e835]
+                  - cell "EXP-2024-0114" [ref=e836]
+                  - cell "Travel expenses - field visit" [ref=e837]
+                  - cell "Project Expense" [ref=e838]:
+                    - generic [ref=e839]: Project Expense
+                  - cell "↓ Outflow" [ref=e840]:
+                    - generic [ref=e841]:
+                      - generic [ref=e842]: ↓
+                      - text: Outflow
+                  - cell "-$2,300" [ref=e843]:
+                    - generic [ref=e844]: "-$2,300"
+                  - cell "Posted" [ref=e845]:
+                    - generic [ref=e846]: Posted
+                  - cell "Albania Islamic Center" [ref=e847]
+                  - cell "Actions" [ref=e848]:
+                    - button "Actions" [ref=e850] [cursor=pointer]:
+                      - img [ref=e851]
+                - row "Nov 15, 2024 DON-2024-0036 Recurring donation from Mohammed Al-Sayed Donation ↑ Inflow +$200 Posted Mohammed Al-Sayed Actions" [ref=e855]:
+                  - cell "Nov 15, 2024" [ref=e856]
+                  - cell "DON-2024-0036" [ref=e857]
+                  - cell "Recurring donation from Mohammed Al-Sayed" [ref=e858]
+                  - cell "Donation" [ref=e859]:
+                    - generic [ref=e860]: Donation
+                  - cell "↑ Inflow" [ref=e861]:
+                    - generic [ref=e862]:
+                      - generic [ref=e863]: ↑
+                      - text: Inflow
+                  - cell "+$200" [ref=e864]:
+                    - generic [ref=e865]: +$200
+                  - cell "Posted" [ref=e866]:
+                    - generic [ref=e867]: Posted
+                  - cell "Mohammed Al-Sayed" [ref=e868]
+                  - cell "Actions" [ref=e869]:
+                    - button "Actions" [ref=e871] [cursor=pointer]:
+                      - img [ref=e872]
+                - row "Dec 16, 2024 PO-2024-0035 Pending vendor invoice - catering Procurement ↓ Outflow -$1,200 Pending — Actions" [ref=e876]:
+                  - cell "Dec 16, 2024" [ref=e877]
+                  - cell "PO-2024-0035" [ref=e878]
+                  - cell "Pending vendor invoice - catering" [ref=e879]
+                  - cell "Procurement" [ref=e880]:
+                    - generic [ref=e881]: Procurement
+                  - cell "↓ Outflow" [ref=e882]:
+                    - generic [ref=e883]:
+                      - generic [ref=e884]: ↓
+                      - text: Outflow
+                  - cell "-$1,200" [ref=e885]:
+                    - generic [ref=e886]: "-$1,200"
+                  - cell "Pending" [ref=e887]:
+                    - generic [ref=e888]: Pending
+                  - cell "—" [ref=e889]
+                  - cell "Actions" [ref=e890]:
+                    - button "Actions" [ref=e892] [cursor=pointer]:
+                      - img [ref=e893]
+                - row "Dec 16, 2024 EXP-2024-0119 Draft expense claim - conference Operational Expense ↓ Outflow -$3,500 Draft — Actions" [ref=e897]:
+                  - cell "Dec 16, 2024" [ref=e898]
+                  - cell "EXP-2024-0119" [ref=e899]
+                  - cell "Draft expense claim - conference" [ref=e900]
+                  - cell "Operational Expense" [ref=e901]:
+                    - generic [ref=e902]: Operational Expense
+                  - cell "↓ Outflow" [ref=e903]:
+                    - generic [ref=e904]:
+                      - generic [ref=e905]: ↓
+                      - text: Outflow
+                  - cell "-$3,500" [ref=e906]:
+                    - generic [ref=e907]: "-$3,500"
+                  - cell "Draft" [ref=e908]:
+                    - generic [ref=e909]: Draft
+                  - cell "—" [ref=e910]
+                  - cell "Actions" [ref=e911]:
+                    - button "Actions" [ref=e913] [cursor=pointer]:
+                      - img [ref=e914]
+                - row "Dec 15, 2024 REF-2024-0003 Refund to donor - duplicate payment Refund ↓ Outflow -$500 Approved Hassan Ibrahim Actions" [ref=e918]:
+                  - cell "Dec 15, 2024" [ref=e919]
+                  - cell "REF-2024-0003" [ref=e920]
+                  - cell "Refund to donor - duplicate payment" [ref=e921]
+                  - cell "Refund" [ref=e922]:
+                    - generic [ref=e923]: Refund
+                  - cell "↓ Outflow" [ref=e924]:
+                    - generic [ref=e925]:
+                      - generic [ref=e926]: ↓
+                      - text: Outflow
+                  - cell "-$500" [ref=e927]:
+                    - generic [ref=e928]: "-$500"
+                  - cell "Approved" [ref=e929]:
+                    - generic [ref=e930]: Approved
+                  - cell "Hassan Ibrahim" [ref=e931]
+                  - cell "Actions" [ref=e932]:
+                    - button "Actions" [ref=e934] [cursor=pointer]:
+                      - img [ref=e935]
+                - row "Dec 14, 2024 EXP-2024-0113 Voided check - wrong amount Project Expense ↓ Outflow -$5,000 Voided Albania Islamic Center Actions" [ref=e939]:
+                  - cell "Dec 14, 2024" [ref=e940]
+                  - cell "EXP-2024-0113" [ref=e941]
+                  - cell "Voided check - wrong amount" [ref=e942]
+                  - cell "Project Expense" [ref=e943]:
+                    - generic [ref=e944]: Project Expense
+                  - cell "↓ Outflow" [ref=e945]:
+                    - generic [ref=e946]:
+                      - generic [ref=e947]: ↓
+                      - text: Outflow
+                  - cell "-$5,000" [ref=e948]:
+                    - generic [ref=e949]: "-$5,000"
+                  - cell "Voided" [ref=e950]:
+                    - generic [ref=e951]: Voided
+                  - cell "Albania Islamic Center" [ref=e952]
+                  - cell "Actions" [ref=e953]:
+                    - button "Actions" [ref=e955] [cursor=pointer]:
+                      - img [ref=e956]
+                - row "Nov 10, 2024 INV-2024-0008 Investment income - endowment fund Investment Income ↑ Inflow +$4,200 Reconciled — Actions" [ref=e960]:
+                  - cell "Nov 10, 2024" [ref=e961]
+                  - cell "INV-2024-0008" [ref=e962]
+                  - cell "Investment income - endowment fund" [ref=e963]
+                  - cell "Investment Income" [ref=e964]:
+                    - generic [ref=e965]: Investment Income
+                  - cell "↑ Inflow" [ref=e966]:
+                    - generic [ref=e967]:
+                      - generic [ref=e968]: ↑
+                      - text: Inflow
+                  - cell "+$4,200" [ref=e969]:
+                    - generic [ref=e970]: +$4,200
+                  - cell "Reconciled" [ref=e971]:
+                    - generic [ref=e972]: Reconciled
+                  - cell "—" [ref=e973]
+                  - cell "Actions" [ref=e974]:
+                    - button "Actions" [ref=e976] [cursor=pointer]:
+                      - img [ref=e977]
+                - row "Nov 5, 2024 PAY-2024-0011 Payroll - November Payroll ↓ Outflow -$28,500 Reconciled — Actions" [ref=e981]:
+                  - cell "Nov 5, 2024" [ref=e982]
+                  - cell "PAY-2024-0011" [ref=e983]
+                  - cell "Payroll - November" [ref=e984]
+                  - cell "Payroll" [ref=e985]:
+                    - generic [ref=e986]: Payroll
+                  - cell "↓ Outflow" [ref=e987]:
+                    - generic [ref=e988]:
+                      - generic [ref=e989]: ↓
+                      - text: Outflow
+                  - cell "-$28,500" [ref=e990]:
+                    - generic [ref=e991]: "-$28,500"
+                  - cell "Reconciled" [ref=e992]:
+                    - generic [ref=e993]: Reconciled
+                  - cell "—" [ref=e994]
+                  - cell "Actions" [ref=e995]:
+                    - button "Actions" [ref=e997] [cursor=pointer]:
+                      - img [ref=e998]
+                - row "Oct 25, 2024 DON-2024-0035 Donation from Aisha Al-Farsi Donation ↑ Inflow +$1,500 Reconciled Aisha Al-Farsi Actions" [ref=e1002]:
+                  - cell "Oct 25, 2024" [ref=e1003]
+                  - cell "DON-2024-0035" [ref=e1004]
+                  - cell "Donation from Aisha Al-Farsi" [ref=e1005]
+                  - cell "Donation" [ref=e1006]:
+                    - generic [ref=e1007]: Donation
+                  - cell "↑ Inflow" [ref=e1008]:
+                    - generic [ref=e1009]:
+                      - generic [ref=e1010]: ↑
+                      - text: Inflow
+                  - cell "+$1,500" [ref=e1011]:
+                    - generic [ref=e1012]: +$1,500
+                  - cell "Reconciled" [ref=e1013]:
+                    - generic [ref=e1014]: Reconciled
+                  - cell "Aisha Al-Farsi" [ref=e1015]
+                  - cell "Actions" [ref=e1016]:
+                    - button "Actions" [ref=e1018] [cursor=pointer]:
+                      - img [ref=e1019]
+                - row "Oct 15, 2024 DIS-2024-0060 Beneficiary aid - emergency housing Disbursement ↓ Outflow -$1,800 Reconciled Yusuf Al-Ahmad Actions" [ref=e1023]:
+                  - cell "Oct 15, 2024" [ref=e1024]
+                  - cell "DIS-2024-0060" [ref=e1025]
+                  - cell "Beneficiary aid - emergency housing" [ref=e1026]
+                  - cell "Disbursement" [ref=e1027]:
+                    - generic [ref=e1028]: Disbursement
+                  - cell "↓ Outflow" [ref=e1029]:
+                    - generic [ref=e1030]:
+                      - generic [ref=e1031]: ↓
+                      - text: Outflow
+                  - cell "-$1,800" [ref=e1032]:
+                    - generic [ref=e1033]: "-$1,800"
+                  - cell "Reconciled" [ref=e1034]:
+                    - generic [ref=e1035]: Reconciled
+                  - cell "Yusuf Al-Ahmad" [ref=e1036]
+                  - cell "Actions" [ref=e1037]:
+                    - button "Actions" [ref=e1039] [cursor=pointer]:
+                      - img [ref=e1040]
+                - row "Oct 1, 2024 DON-2024-0034 Donation from Omar Al-Rashid Donation ↑ Inflow +$5,000 Reconciled Omar Al-Rashid Actions" [ref=e1044]:
+                  - cell "Oct 1, 2024" [ref=e1045]
+                  - cell "DON-2024-0034" [ref=e1046]
+                  - cell "Donation from Omar Al-Rashid" [ref=e1047]
+                  - cell "Donation" [ref=e1048]:
+                    - generic [ref=e1049]: Donation
+                  - cell "↑ Inflow" [ref=e1050]:
+                    - generic [ref=e1051]:
+                      - generic [ref=e1052]: ↑
+                      - text: Inflow
+                  - cell "+$5,000" [ref=e1053]:
+                    - generic [ref=e1054]: +$5,000
+                  - cell "Reconciled" [ref=e1055]:
+                    - generic [ref=e1056]: Reconciled
+                  - cell "Omar Al-Rashid" [ref=e1057]
+                  - cell "Actions" [ref=e1058]:
+                    - button "Actions" [ref=e1060] [cursor=pointer]:
+                      - img [ref=e1061]
+                - row "Sep 20, 2024 EXP-2024-0100 Printing and marketing materials Operational Expense ↓ Outflow -$2,100 Reconciled — Actions" [ref=e1065]:
+                  - cell "Sep 20, 2024" [ref=e1066]
+                  - cell "EXP-2024-0100" [ref=e1067]
+                  - cell "Printing and marketing materials" [ref=e1068]
+                  - cell "Operational Expense" [ref=e1069]:
+                    - generic [ref=e1070]: Operational Expense
+                  - cell "↓ Outflow" [ref=e1071]:
+                    - generic [ref=e1072]:
+                      - generic [ref=e1073]: ↓
+                      - text: Outflow
+                  - cell "-$2,100" [ref=e1074]:
+                    - generic [ref=e1075]: "-$2,100"
+                  - cell "Reconciled" [ref=e1076]:
+                    - generic [ref=e1077]: Reconciled
+                  - cell "—" [ref=e1078]
+                  - cell "Actions" [ref=e1079]:
+                    - button "Actions" [ref=e1081] [cursor=pointer]:
+                      - img [ref=e1082]
+  - alert [ref=e1174]:
+    - generic [ref=e1176]:
+      - img [ref=e1178]
+      - generic [ref=e1181]:
+        - paragraph [ref=e1182]: Success
+        - paragraph [ref=e1183]: Transaction added
+      - button "Close" [ref=e1185] [cursor=pointer]:
+        - generic [ref=e1186]: Close
+        - img [ref=e1187]
+  - generic [ref=e412]: $0k

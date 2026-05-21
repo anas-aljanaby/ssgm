@@ -10,7 +10,7 @@ import { Plus } from 'lucide-react';
 interface KanbanColumnProps {
     stage: DonorKanbanStage;
     donors: Donor[];
-    onDragEnd: (donorId: number, targetStageId: DonorStageId) => void;
+    onDragEnd: (donorId: string, targetStageId: DonorStageId) => void;
     stages: DonorKanbanStage[];
     density: KanbanDensity;
 }

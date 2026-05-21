@@ -35,7 +35,7 @@ export type KanbanDensity = 'compact' | 'comfortable';
 interface KanbanBoardProps {
     donors: Donor[];
     stages: DonorKanbanStage[];
-    onDragEnd: (donorId: number, targetStageId: DonorStageId) => void;
+    onDragEnd: (donorId: string, targetStageId: DonorStageId) => void;
     density: KanbanDensity;
 }
 
@@ -115,7 +115,7 @@ const StageRailTarget: React.FC<StageRailTargetProps> = ({ stage, donors, isActi
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ donors, stages, onDragEnd, density }) => {
     const { t, language, dir } = useLocalization(['common', 'donors']);
-    const [activeDonorId, setActiveDonorId] = useState<number | null>(null);
+    const [activeDonorId, setActiveDonorId] = useState<string | null>(null);
     const [activeStageId, setActiveStageId] = useState<DonorStageId | null>(null);
     const [canScrollRailStart, setCanScrollRailStart] = useState(false);
     const [canScrollRailEnd, setCanScrollRailEnd] = useState(false);
@@ -239,7 +239,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ donors, stages, onDragEnd, de
 
     const handleDragStart = useCallback((event: DragStartEvent) => {
         const donorId = event.active.data.current?.donorId;
-        setActiveDonorId(typeof donorId === 'number' ? donorId : null);
+        setActiveDonorId(typeof donorId === 'string' ? donorId : null);
     }, []);
 
     const handleDragOver = useCallback((event: DragOverEvent) => {
@@ -255,7 +255,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ donors, stages, onDragEnd, de
         const donorId = event.active.data.current?.donorId;
         const targetStageId = getStageIdFromEvent(event);
 
-        if (typeof donorId === 'number' && targetStageId) {
+        if (typeof donorId === 'string' && targetStageId) {
             onDragEnd(donorId, targetStageId);
         }
 

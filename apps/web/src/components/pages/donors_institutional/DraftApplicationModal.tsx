@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import ModalPortal from '../../../common/ModalPortal';
+import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import type { Project, InstitutionalDonor } from '../../../types';
