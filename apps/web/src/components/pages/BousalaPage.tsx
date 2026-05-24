@@ -1,5 +1,6 @@
 // FIX: Added 'useCallback' to the import statement from 'react' to resolve 'Cannot find name' errors.
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { useTabParam } from '../../hooks/useTabParam';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalization } from '../../hooks/useLocalization';
 import { BousalaIcon } from '../icons/ModuleIcons';
@@ -1011,6 +1012,8 @@ const InPresentationAlert: React.FC<{ alert: { message: string; icon: React.Reac
 
 // --- MAIN PAGE COMPONENT ---
 
+const BOUSALA_VIEW_TABS = ['dashboard', 'predictive'] as const;
+
 const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrData, role }) => {
     const { t, language, dir } = useLocalization(['common', 'bousala', 'projects', 'misc']);
     const toast = useToast();
@@ -1020,7 +1023,7 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
         [apiProjects, mainProjects],
     );
     const [aiAnalyticsSummary, setAiAnalyticsSummary] = useState('');
-    const [activeView, setActiveView] = useState('dashboard');
+    const [activeView, setActiveView] = useTabParam('tab', 'dashboard', BOUSALA_VIEW_TABS);
     const [presentationAlert, setPresentationAlert] = useState<{ message: string; icon: React.ReactNode } | null>(null);
 
 

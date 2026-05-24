@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useTabParam } from '../../../hooks/useTabParam';
 import { useLocalization } from '../../../hooks/useLocalization';
 import type { Project } from '../../../types';
 import { formatCurrency } from '../../../lib/utils';
@@ -40,9 +41,35 @@ const progressColor = (progress: number) => {
     return 'bg-gray-300 dark:bg-slate-600';
 };
 
+const PROJECT_DETAIL_TABS = [
+    'overview',
+    'monitoring',
+    'scope',
+    'schedule',
+    'cost',
+    'hr',
+    'risks',
+    'beneficiaries',
+    'documents',
+    'reports',
+] as const;
+
 const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ project, onBack, onUpdate, initialTab, existingCountries = [] }) => {
     const { t, language, dir } = useLocalization(['common', 'projects']);
-    const [activeTab, setActiveTab] = useState(initialTab || 'overview');
+    const [activeTab, setActiveTab] = useTabParam('projectTab', 'overview', PROJECT_DETAIL_TABS);
+    const syncedProjectIdRef = useRef<string | null>(null);
+
+    // Apply deep-link / list-open intent once per project; do not reset on tab clicks.
+    useEffect(() => {
+        if (syncedProjectIdRef.current === project.id) return;
+        syncedProjectIdRef.current = project.id;
+
+        const tab =
+            initialTab && (PROJECT_DETAIL_TABS as readonly string[]).includes(initialTab)
+                ? initialTab
+                : 'overview';
+        setActiveTab(tab as (typeof PROJECT_DETAIL_TABS)[number]);
+    }, [project.id, initialTab, setActiveTab]);
 
     const stage = stageConfig[project.stage] || stageConfig.design;
 

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 
 function isValidTab<T extends string>(value: string, validTabs: readonly T[]): value is T {
   return (validTabs as readonly string[]).includes(value);
@@ -10,7 +10,9 @@ export function useTabParam<T extends string>(
   defaultTab: T,
   validTabs: readonly T[],
 ): [T, (tab: T) => void] {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const activeTab = useMemo(() => {
     const raw = searchParams.get(paramName);
@@ -22,16 +24,19 @@ export function useTabParam<T extends string>(
 
   const setTab = useCallback(
     (tab: T) => {
-      setSearchParams(
-        (prev) => {
-          const next = new URLSearchParams(prev);
-          next.set(paramName, tab);
-          return next;
+      const next = new URLSearchParams(searchParams);
+      next.set(paramName, tab);
+      const search = next.toString();
+      navigate(
+        {
+          pathname: location.pathname,
+          search: search ? `?${search}` : '',
+          hash: location.hash,
         },
         { replace: true },
       );
     },
-    [setSearchParams, paramName],
+    [navigate, location.pathname, location.hash, searchParams, paramName],
   );
 
   return [activeTab, setTab];

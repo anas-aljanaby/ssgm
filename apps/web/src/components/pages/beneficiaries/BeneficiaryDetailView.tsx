@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect } from 'react';
+import { useTabParam } from '../../../hooks/useTabParam';
 import type { Beneficiary, BeneficiaryType, Language, ProgramProject } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { formatCurrency, formatNumber } from '../../../lib/utils';
@@ -126,19 +127,13 @@ export const BeneficiaryProfileRoute: React.FC<{
 const BeneficiaryDetailView: React.FC<BeneficiaryDetailViewProps> = ({ beneficiary, onBack, onUpdate, projects, existingCountries, initialTab }) => {
     const { t, language } = useLocalization(['common', 'beneficiaries']);
     const tabIds = TAB_CONFIG[beneficiary.beneficiaryType] || TAB_CONFIG.student;
-    const [activeTab, setActiveTab] = useState(() =>
-        initialTab && tabIds.includes(initialTab) ? initialTab : 'overview',
-    );
+    const [activeTab, setActiveTab] = useTabParam('tab', 'overview', tabIds);
 
     useEffect(() => {
         if (initialTab && tabIds.includes(initialTab)) {
             setActiveTab(initialTab);
         }
-    }, [initialTab, tabIds]);
-
-    useEffect(() => {
-        setActiveTab('overview');
-    }, [beneficiary.id]);
+    }, [initialTab, tabIds, setActiveTab]);
     const tabs = useMemo(() => tabIds.map(id => ({
         id,
         label: t(`beneficiaries.tabs.${id}`),

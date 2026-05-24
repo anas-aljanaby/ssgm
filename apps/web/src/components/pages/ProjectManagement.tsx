@@ -10,7 +10,10 @@ import { formatCurrency } from '../../lib/utils';
 import { isOptimisticProject } from '../../lib/projectOptimistic';
 import { OPTIMISTIC_HIGHLIGHT_MS } from '../../lib/optimisticSubmit';
 import { List, Target, PlusCircle, FolderKanban, DollarSign, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import { useCreateProject, useProject, useProjects, useUpdateProject } from '../../hooks/useProjects';
+import EmptyState from '../common/EmptyState';
+import { useTabParam } from '../../hooks/useTabParam';
 
 const STAT_CARD_SKELETON_COUNT = 4;
 
@@ -67,17 +70,27 @@ interface ProjectManagementProps {
   deepLinkTarget?: { id?: string; tab?: string } | null;
 }
 
+const PROJECT_VIEW_TABS = ['list', 'sdg'] as const;
+
 const ProjectManagement: React.FC<ProjectManagementProps> = ({ deepLinkTarget }) => {
     const { t, language } = useLocalization(['common', 'projects', 'beneficiaries', 'misc']);
     const toast = useToast();
-    const { data: projects = [], isLoading: isProjectsLoading } = useProjects();
+    const { session } = useAuth();
+    const {
+        data: projects = [],
+        isLoading: isProjectsLoading,
+        isError: isProjectsError,
+        error: projectsError,
+        refetch: refetchProjects,
+        isFetching: isProjectsFetching,
+    } = useProjects();
     const createProject = useCreateProject();
     const updateProject = useUpdateProject();
     const [isWizardOpen, setIsWizardOpen] = useState(false);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
     const [selectedInitialTab, setSelectedInitialTab] = useState<string | undefined>(undefined);
     const { data: selectedProject, isLoading: isSelectedProjectLoading } = useProject(selectedProjectId);
-    const [activeView, setActiveView] = useState('list');
+    const [activeView, setActiveView] = useTabParam('tab', 'list', PROJECT_VIEW_TABS);
     const [highlightedId, setHighlightedId] = useState<string | null>(null);
     const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -134,6 +147,46 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({ deepLinkTarget })
             toast.showError(t('projects.updateFailed', 'Unable to update project. Please try again.'));
         });
     };
+
+    if (!session?.access_token) {
+        return (
+            <div className="space-y-6 animate-fade-in">
+                <h1 className="text-2xl font-bold text-foreground dark:text-dark-foreground">
+                    {t('projects.title')}
+                </h1>
+                <EmptyState type="NoPermission" />
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-md mx-auto">
+                    {t('projects.signInRequired', 'Sign in with your organization account to load projects from the server.')}
+                </p>
+            </div>
+        );
+    }
+
+    if (isProjectsError) {
+        return (
+            <div className="space-y-6 animate-fade-in">
+                <h1 className="text-2xl font-bold text-foreground dark:text-dark-foreground">
+                    {t('projects.title')}
+                </h1>
+                <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 p-6 text-center space-y-3">
+                    <p className="text-red-700 dark:text-red-300">
+                        {t('projects.loadFailed', 'Unable to load projects.')}
+                    </p>
+                    <p className="text-sm text-red-600/80 dark:text-red-400/80">
+                        {projectsError instanceof Error ? projectsError.message : ''}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => void refetchProjects()}
+                        disabled={isProjectsFetching}
+                        className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:opacity-90 disabled:opacity-50"
+                    >
+                        {t('common.retry', 'Retry')}
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (selectedProjectId) {
         if (isSelectedProjectLoading || !selectedProject) {

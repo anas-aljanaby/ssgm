@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocalization } from '../../hooks/useLocalization';
+import { useTabParam } from '../../hooks/useTabParam';
 import OrganizationSettings from './settings/OrganizationSettings';
 import UserManagement from './settings/UserManagement';
 import FinancialSettings from './settings/FinancialSettings';
@@ -28,9 +29,23 @@ interface SettingsPageProps {
     onEnabledLanguagesChange: (langs: Language[]) => void;
 }
 
+const SETTINGS_TABS: readonly SettingsCategory[] = [
+    'organization',
+    'users',
+    'translations',
+    'financials',
+    'hr',
+    'projects',
+    'documents',
+    'system',
+    'reporting',
+    'notifications',
+    'advanced',
+];
+
 const SettingsPage: React.FC<SettingsPageProps> = ({ enabledLanguages, onEnabledLanguagesChange }) => {
     const { t, dir } = useLocalization(['common', 'settings', 'misc']);
-    const [activeCategory, setActiveCategory] = useState<SettingsCategory>('organization');
+    const [activeCategory, setActiveCategory] = useTabParam('tab', 'organization', SETTINGS_TABS);
 
     const categories: { id: SettingsCategory; icon: React.FC<{className?: string}> }[] = [
         { id: 'organization', icon: OrganizationIcon },

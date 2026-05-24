@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useTabParam } from '../../../hooks/useTabParam';
 import { MOCK_ROLES, MOCK_USERS } from '../../../data/userData';
 import { SIDEBAR_MODULES_FOR_PERMISSIONS } from '../../../constants';
 import type { AppRole, RolePermissions, AppUser, UserStatus } from '../../../types';
@@ -236,9 +237,11 @@ const AuthenticationTab: React.FC = () => {
     )
 }
 
+const USER_MANAGEMENT_TABS = ['accessControl', 'userProvisioning', 'authentication'] as const;
+
 const UserManagement: React.FC = () => {
     const { t } = useLocalization();
-    const [activeTab, setActiveTab] = useState('accessControl');
+    const [activeTab, setActiveTab] = useTabParam('usersTab', 'accessControl', USER_MANAGEMENT_TABS);
 
     const tabs = [
         { id: 'accessControl', label: t('settings.users.tabAccessControl') },

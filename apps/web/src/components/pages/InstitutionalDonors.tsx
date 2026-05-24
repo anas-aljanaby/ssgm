@@ -4,6 +4,7 @@ import { OPTIMISTIC_HIGHLIGHT_MS, simulateLocalPersist } from '../../lib/optimis
 import { buildOptimisticInstitution, isOptimisticInstitution } from '../../lib/institutionOptimistic';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useToast } from '../../hooks/useToast';
+import { useTabParam } from '../../hooks/useTabParam';
 import { MOCK_INSTITUTIONAL_DONORS } from '../../data/institutionalDonorsData';
 import type { InstitutionalDonor, SortDirection, InstitutionType } from '../../types';
 import InstitutionalDonorsControls from './donors_institutional/InstitutionalDonorsControls';
@@ -104,12 +105,13 @@ const SmartAnalyticsDashboard: React.FC<{donors: InstitutionalDonor[]}> = ({dono
     );
 };
 
+const INSTITUTIONAL_DONOR_VIEW_TABS = ['list', 'card', 'map', 'opportunities'] as const;
 
 const InstitutionalDonors: React.FC = () => {
     const { t, language } = useLocalization(['common', 'donors', 'institutional_donors', 'misc']);
     const toast = useToast();
     const [donors, setDonors] = useState<InstitutionalDonor[]>(MOCK_INSTITUTIONAL_DONORS);
-    const [view, setView] = useState<'list' | 'card' | 'map' | 'opportunities'>('list');
+    const [view, setView] = useTabParam('tab', 'list', INSTITUTIONAL_DONOR_VIEW_TABS);
     const [selectedDonor, setSelectedDonor] = useState<InstitutionalDonor | null>(null);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useTabParam } from '../../../hooks/useTabParam';
 import type { DocumentType, FolderTemplate, MetadataTag, RetentionPolicy } from '../../../types';
 import { MOCK_DOCUMENT_TYPES, MOCK_FOLDER_TEMPLATES, MOCK_METADATA_TAGS, MOCK_RETENTION_POLICIES } from '../../../data/documentData';
 import Tabs from '../../common/Tabs';
@@ -80,9 +81,11 @@ const VersioningRetentionConfig: React.FC = () => {
     return <SettingsCard title={t('settings.documents.versioning.title')} description={t('settings.documents.versioning.desc')}><p>{t('settings.documents.versioning.placeholder')}</p></SettingsCard>
 };
 
+const DOCUMENT_SETTINGS_TABS = ['types', 'templates', 'metadata', 'versioning'] as const;
+
 const DocumentSettings: React.FC = () => {
     const { t } = useLocalization();
-    const [activeTab, setActiveTab] = useState('metadata');
+    const [activeTab, setActiveTab] = useTabParam('documentsTab', 'metadata', DOCUMENT_SETTINGS_TABS);
     
     const tabs = [
         { id: 'types', label: t('settings.documents.tabs.types') },

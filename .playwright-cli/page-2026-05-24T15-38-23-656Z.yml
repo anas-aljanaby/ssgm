@@ -1,0 +1,426 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e1257]:
+          - link "Dashboard" [ref=e1258] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1260]
+            - generic [ref=e1265]: Dashboard
+        - listitem [ref=e1266]:
+          - link "Bousala" [ref=e1267] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1269]
+            - generic [ref=e1272]: Bousala
+        - listitem [ref=e1273]:
+          - link "Stakeholder Management" [ref=e1274] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1276]
+            - generic [ref=e1281]: Stakeholder Management
+        - listitem [ref=e1282]:
+          - link "Donor Management" [ref=e1283] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1285]
+            - generic [ref=e1287]: Donor Management
+        - listitem [ref=e1288]:
+          - link "Institutional Donors" [ref=e1289] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1291]
+            - generic [ref=e1293]: Institutional Donors
+        - listitem [ref=e1294]:
+          - link "Beneficiary Management" [ref=e1295] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1297]
+            - generic [ref=e1302]: Beneficiary Management
+        - listitem [ref=e1303]:
+          - link "Project Management" [ref=e1304] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1306]
+            - generic [ref=e1310]: Project Management
+        - listitem [ref=e1311]:
+          - link "Financial Management" [ref=e1312] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1314]
+            - generic [ref=e1316]: Financial Management
+        - listitem [ref=e1317]:
+          - link "Help & Support" [ref=e1318] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1320]
+            - generic [ref=e1323]: Help & Support
+        - listitem [ref=e1324]:
+          - link "Settings" [ref=e1325] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1327]
+            - generic [ref=e1330]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e1331]:
+          - link "Logout" [ref=e1332] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1334]
+            - generic [ref=e1337]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Dashboard" [level=1] [ref=e115]
+            - button "liveIndicator.live" [ref=e1338] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e944]:
+          - heading "Donor Management" [level=1] [ref=e945]
+          - navigation [ref=e947]:
+            - button "Registry" [ref=e948] [cursor=pointer]
+            - button "Analytics" [ref=e949] [cursor=pointer]
+          - generic [ref=e951]:
+            - generic [ref=e952]:
+              - generic [ref=e953]:
+                - img [ref=e955]
+                - generic [ref=e960]:
+                  - paragraph [ref=e961]: Total Donors
+                  - paragraph [ref=e962]: "8"
+              - generic [ref=e963]:
+                - img [ref=e965]
+                - generic [ref=e969]:
+                  - paragraph [ref=e970]: Active Donors
+                  - paragraph [ref=e971]: "6"
+              - generic [ref=e972]:
+                - img [ref=e974]
+                - generic [ref=e976]:
+                  - paragraph [ref=e977]: Total Donated
+                  - paragraph [ref=e978]: $403,850
+              - generic [ref=e979]:
+                - img [ref=e981]
+                - generic [ref=e984]:
+                  - paragraph [ref=e985]: Average Gift
+                  - paragraph [ref=e986]: $1,962.48
+            - generic [ref=e989]:
+              - button "Search" [ref=e990] [cursor=pointer]:
+                - img [ref=e991]
+                - text: Search
+              - button "Filters" [ref=e994] [cursor=pointer]:
+                - img [ref=e995]
+                - text: Filters
+              - generic [ref=e997]:
+                - button "List View" [ref=e998] [cursor=pointer]:
+                  - img [ref=e999]
+                - button "Icon View" [ref=e1000] [cursor=pointer]:
+                  - img [ref=e1001]
+              - button "Pipeline Board 8" [ref=e1006] [cursor=pointer]:
+                - img [ref=e1007]
+                - generic [ref=e1012]: Pipeline Board
+                - generic [ref=e1013]: "8"
+              - button "Add Donor" [ref=e1014] [cursor=pointer]
+            - generic [ref=e1015]:
+              - heading "Filters" [level=3] [ref=e1016]
+              - generic [ref=e1017]:
+                - generic [ref=e1018]:
+                  - text: Status
+                  - combobox "Status" [ref=e1019]:
+                    - option "All statuses" [selected]
+                    - option "Active"
+                    - option "Lapsed"
+                    - option "On Hold"
+                    - option "Deceased"
+                    - option "Disqualified"
+                - generic [ref=e1020]:
+                  - text: Tier
+                  - combobox "Tier" [ref=e1021]:
+                    - option "All tiers" [selected]
+                    - option "Bronze"
+                    - option "Silver"
+                    - option "Gold"
+                    - option "Platinum"
+                    - option "Major Donor"
+                - generic [ref=e1022]:
+                  - text: Country
+                  - combobox "Country" [ref=e1023]:
+                    - option "All countries" [selected]
+                    - option "Egypt"
+                    - option "Jordan"
+                    - option "Saudi Arabia"
+                    - option "Turkey"
+                    - option "UAE"
+                    - option "UK"
+                    - option "USA"
+                - generic [ref=e1024]:
+                  - text: Tags
+                  - combobox "Tags" [ref=e1025]:
+                    - option "Any tag" [selected]
+                    - option "Annual Gala"
+                    - option "Board Member"
+                    - option "Education"
+                    - option "Emergency Relief"
+                    - option "Healthcare"
+                    - option "Orphan Care"
+                    - option "Ramadan Campaign"
+                    - option "Seasonal"
+                    - option "Water Projects"
+                - generic [ref=e1026]:
+                  - text: Owner
+                  - combobox "Owner" [ref=e1027]:
+                    - option "All owners" [selected]
+                    - option "Ahmad Noor"
+                    - option "Fatma Kaya"
+                - generic [ref=e1028]:
+                  - text: Pipeline Stage
+                  - combobox "Pipeline Stage" [ref=e1029]:
+                    - option "All stages" [selected]
+                    - option "Prospect"
+                    - option "Researching"
+                    - option "Contacted"
+                    - option "Cultivating"
+                    - option "Solicited"
+                    - option "Pledged"
+                    - option "Donated"
+                    - option "Dormant"
+                - generic [ref=e1030]:
+                  - text: Donor Type
+                  - combobox "Donor Type" [ref=e1031]:
+                    - option "All donor types" [selected]
+                    - option "Recurring"
+                    - option "Individual"
+                    - option "Major donor"
+                - generic [ref=e1032]:
+                  - text: Task State
+                  - combobox "Task State" [ref=e1033]:
+                    - option "All task states" [selected]
+                    - option "Overdue"
+                    - option "No open tasks"
+              - generic [ref=e1034]:
+                - button "Clear Filters" [ref=e1035] [cursor=pointer]
+                - button "Apply Filters" [ref=e1036] [cursor=pointer]
+            - generic [ref=e1037]:
+              - button "Columns (9/11)" [ref=e1040] [cursor=pointer]:
+                - img [ref=e1041]
+                - text: Columns (9/11)
+              - generic [ref=e1043]:
+                - button "Scroll to last columns" [ref=e1044] [cursor=pointer]:
+                  - img [ref=e1045]
+                - table [ref=e1048]:
+                  - rowgroup [ref=e1049]:
+                    - row "Identity Relationship Ownership Giving History Tasks" [ref=e1050]:
+                      - columnheader [ref=e1051]
+                      - columnheader "Identity" [ref=e1052]:
+                        - generic [ref=e1053]: Identity
+                      - columnheader "Relationship Ownership" [ref=e1054]:
+                        - generic [ref=e1055]: Relationship Ownership
+                      - columnheader "Giving History" [ref=e1056]:
+                        - generic [ref=e1057]: Giving History
+                      - columnheader "Tasks" [ref=e1058]:
+                        - generic [ref=e1059]: Tasks
+                    - row "Donor Donor Type Status Pipeline Stage Owner Last Contact Total Donations Last Gift Open Tasks" [ref=e1060]:
+                      - columnheader [ref=e1061]:
+                        - checkbox [ref=e1062]
+                      - columnheader "Donor" [ref=e1339]:
+                        - generic [ref=e1340] [cursor=pointer]: Donor
+                      - columnheader "Donor Type" [ref=e1341]:
+                        - generic [ref=e1342] [cursor=pointer]: Donor Type
+                      - columnheader "Status" [ref=e1343]:
+                        - generic [ref=e1344] [cursor=pointer]: Status
+                      - columnheader "Pipeline Stage" [ref=e1345]
+                      - columnheader "Owner" [ref=e1346]:
+                        - generic [ref=e1347] [cursor=pointer]: Owner
+                      - columnheader "Last Contact" [ref=e1348]:
+                        - generic [ref=e1349] [cursor=pointer]: Last Contact
+                      - columnheader "Total Donations" [ref=e1350]:
+                        - generic [ref=e1351] [cursor=pointer]: Total Donations
+                      - columnheader "Last Gift" [ref=e1352]:
+                        - generic [ref=e1353] [cursor=pointer]:
+                          - text: Last Gift
+                          - img [ref=e1354]
+                      - columnheader "Open Tasks" [ref=e1356]
+                  - rowgroup [ref=e1081]:
+                    - row "Omar Khalil Omar Khalil omar.k@example.com Individual Lapsed Prospect Ahmad Noor N/A $500 N/A 0 Open Tasks" [ref=e1082]:
+                      - cell [ref=e1083]:
+                        - checkbox [ref=e1084]
+                      - cell "Omar Khalil Omar Khalil omar.k@example.com" [ref=e1085]:
+                        - generic [ref=e1086]:
+                          - img "Omar Khalil" [ref=e1087]
+                          - generic [ref=e1088]:
+                            - button "Omar Khalil" [ref=e1089] [cursor=pointer]
+                            - generic [ref=e1090]: omar.k@example.com
+                      - cell "Individual" [ref=e1091]
+                      - cell "Lapsed" [ref=e1092]
+                      - cell "Prospect" [ref=e1093]
+                      - cell "Ahmad Noor" [ref=e1094]
+                      - cell "N/A" [ref=e1095]
+                      - cell "$500" [ref=e1096]
+                      - cell "N/A" [ref=e1097]
+                      - cell "0 Open Tasks" [ref=e1098]:
+                        - generic [ref=e1100]:
+                          - generic [ref=e1101]: "0"
+                          - generic [ref=e1102]: Open Tasks
+                    - row "Layla Hassan Layla Hassan layla.h@example.com Individual On Hold Prospect Fatma Kaya N/A $4,200 N/A 0 Open Tasks" [ref=e1103]:
+                      - cell [ref=e1104]:
+                        - checkbox [ref=e1105]
+                      - cell "Layla Hassan Layla Hassan layla.h@example.com" [ref=e1106]:
+                        - generic [ref=e1107]:
+                          - img "Layla Hassan" [ref=e1108]
+                          - generic [ref=e1109]:
+                            - button "Layla Hassan" [ref=e1110] [cursor=pointer]
+                            - generic [ref=e1111]: layla.h@example.com
+                      - cell "Individual" [ref=e1112]
+                      - cell "On Hold" [ref=e1113]
+                      - cell "Prospect" [ref=e1114]
+                      - cell "Fatma Kaya" [ref=e1115]
+                      - cell "N/A" [ref=e1116]
+                      - cell "$4,200" [ref=e1117]
+                      - cell "N/A" [ref=e1118]
+                      - cell "0 Open Tasks" [ref=e1119]:
+                        - generic [ref=e1121]:
+                          - generic [ref=e1122]: "0"
+                          - generic [ref=e1123]: Open Tasks
+                    - row "John Smith John Smith john.smith@example.com Individual Active Prospect Ahmad Noor N/A $7,800 N/A 0 Open Tasks" [ref=e1124]:
+                      - cell [ref=e1125]:
+                        - checkbox [ref=e1126]
+                      - cell "John Smith John Smith john.smith@example.com" [ref=e1127]:
+                        - generic [ref=e1128]:
+                          - img "John Smith" [ref=e1129]
+                          - generic [ref=e1130]:
+                            - button "John Smith" [ref=e1131] [cursor=pointer]
+                            - generic [ref=e1132]: john.smith@example.com
+                      - cell "Individual" [ref=e1133]
+                      - cell "Active" [ref=e1134]
+                      - cell "Prospect" [ref=e1135]
+                      - cell "Ahmad Noor" [ref=e1136]
+                      - cell "N/A" [ref=e1137]
+                      - cell "$7,800" [ref=e1138]
+                      - cell "N/A" [ref=e1139]
+                      - cell "0 Open Tasks" [ref=e1140]:
+                        - generic [ref=e1142]:
+                          - generic [ref=e1143]: "0"
+                          - generic [ref=e1144]: Open Tasks
+                    - row "Yusuf Demir Yusuf Demir yusuf.d@example.com Recurring Active Prospect Ahmad Noor N/A $18,700 N/A 0 Open Tasks" [ref=e1145]:
+                      - cell [ref=e1146]:
+                        - checkbox [ref=e1147]
+                      - cell "Yusuf Demir Yusuf Demir yusuf.d@example.com" [ref=e1148]:
+                        - generic [ref=e1149]:
+                          - img "Yusuf Demir" [ref=e1150]
+                          - generic [ref=e1151]:
+                            - button "Yusuf Demir" [ref=e1152] [cursor=pointer]
+                            - generic [ref=e1153]: yusuf.d@example.com
+                      - cell "Recurring" [ref=e1154]
+                      - cell "Active" [ref=e1155]
+                      - cell "Prospect" [ref=e1156]
+                      - cell "Ahmad Noor" [ref=e1157]
+                      - cell "N/A" [ref=e1158]
+                      - cell "$18,700" [ref=e1159]
+                      - cell "N/A" [ref=e1160]
+                      - cell "0 Open Tasks" [ref=e1161]:
+                        - generic [ref=e1163]:
+                          - generic [ref=e1164]: "0"
+                          - generic [ref=e1165]: Open Tasks
+                    - row "Aisha Al-Farsi Aisha Al-Farsi aisha.f@example.com Recurring Active Prospect Fatma Kaya N/A $15,250 N/A 0 Open Tasks" [ref=e1166]:
+                      - cell [ref=e1167]:
+                        - checkbox [ref=e1168]
+                      - cell "Aisha Al-Farsi Aisha Al-Farsi aisha.f@example.com" [ref=e1169]:
+                        - generic [ref=e1170]:
+                          - img "Aisha Al-Farsi" [ref=e1171]
+                          - generic [ref=e1172]:
+                            - button "Aisha Al-Farsi" [ref=e1173] [cursor=pointer]
+                            - generic [ref=e1174]: aisha.f@example.com
+                      - cell "Recurring" [ref=e1175]
+                      - cell "Active" [ref=e1176]
+                      - cell "Prospect" [ref=e1177]
+                      - cell "Fatma Kaya" [ref=e1178]
+                      - cell "N/A" [ref=e1179]
+                      - cell "$15,250" [ref=e1180]
+                      - cell "N/A" [ref=e1181]
+                      - cell "0 Open Tasks" [ref=e1182]:
+                        - generic [ref=e1184]:
+                          - generic [ref=e1185]: "0"
+                          - generic [ref=e1186]: Open Tasks
+                    - row "Sarah Johnson Sarah Johnson sarah.j@example.com Recurring Active Prospect Fatma Kaya N/A $22,400 N/A 0 Open Tasks" [ref=e1187]:
+                      - cell [ref=e1188]:
+                        - checkbox [ref=e1189]
+                      - cell "Sarah Johnson Sarah Johnson sarah.j@example.com" [ref=e1190]:
+                        - generic [ref=e1191]:
+                          - img "Sarah Johnson" [ref=e1192]
+                          - generic [ref=e1193]:
+                            - button "Sarah Johnson" [ref=e1194] [cursor=pointer]
+                            - generic [ref=e1195]: sarah.j@example.com
+                      - cell "Recurring" [ref=e1196]
+                      - cell "Active" [ref=e1197]
+                      - cell "Prospect" [ref=e1198]
+                      - cell "Fatma Kaya" [ref=e1199]
+                      - cell "N/A" [ref=e1200]
+                      - cell "$22,400" [ref=e1201]
+                      - cell "N/A" [ref=e1202]
+                      - cell "0 Open Tasks" [ref=e1203]:
+                        - generic [ref=e1205]:
+                          - generic [ref=e1206]: "0"
+                          - generic [ref=e1207]: Open Tasks
+                    - row "Fatima Al-Rashid Fatima Al-Rashid fatima.r@example.com Recurring Active Prospect Fatma Kaya N/A $85,000 N/A 0 Open Tasks" [ref=e1208]:
+                      - cell [ref=e1209]:
+                        - checkbox [ref=e1210]
+                      - cell "Fatima Al-Rashid Fatima Al-Rashid fatima.r@example.com" [ref=e1211]:
+                        - generic [ref=e1212]:
+                          - img "Fatima Al-Rashid" [ref=e1213]
+                          - generic [ref=e1214]:
+                            - button "Fatima Al-Rashid" [ref=e1215] [cursor=pointer]
+                            - generic [ref=e1216]: fatima.r@example.com
+                      - cell "Recurring" [ref=e1217]
+                      - cell "Active" [ref=e1218]
+                      - cell "Prospect" [ref=e1219]
+                      - cell "Fatma Kaya" [ref=e1220]
+                      - cell "N/A" [ref=e1221]
+                      - cell "$85,000" [ref=e1222]
+                      - cell "N/A" [ref=e1223]
+                      - cell "0 Open Tasks" [ref=e1224]:
+                        - generic [ref=e1226]:
+                          - generic [ref=e1227]: "0"
+                          - generic [ref=e1228]: Open Tasks
+                    - row "Mohammed Al-Sayed Mohammed Al-Sayed mohammed.s@example.com Major donor Active Prospect Ahmad Noor N/A $250,000 N/A 0 Open Tasks" [ref=e1229]:
+                      - cell [ref=e1230]:
+                        - checkbox [ref=e1231]
+                      - cell "Mohammed Al-Sayed Mohammed Al-Sayed mohammed.s@example.com" [ref=e1232]:
+                        - generic [ref=e1233]:
+                          - img "Mohammed Al-Sayed" [ref=e1234]
+                          - generic [ref=e1235]:
+                            - button "Mohammed Al-Sayed" [ref=e1236] [cursor=pointer]
+                            - generic [ref=e1237]: mohammed.s@example.com
+                      - cell "Major donor" [ref=e1238]
+                      - cell "Active" [ref=e1239]
+                      - cell "Prospect" [ref=e1240]
+                      - cell "Ahmad Noor" [ref=e1241]
+                      - cell "N/A" [ref=e1242]
+                      - cell "$250,000" [ref=e1243]
+                      - cell "N/A" [ref=e1244]
+                      - cell "0 Open Tasks" [ref=e1245]:
+                        - generic [ref=e1247]:
+                          - generic [ref=e1248]: "0"
+                          - generic [ref=e1249]: Open Tasks
+              - navigation "Table navigation" [ref=e1250]:
+                - generic [ref=e1251]: Showing 1-8 of 8
+                - list [ref=e1252]:
+                  - listitem [ref=e1253]:
+                    - button "Previous" [disabled] [ref=e1254]
+                  - listitem [ref=e1255]:
+                    - button "Next" [disabled] [ref=e1256]
+  - generic [ref=e778]: $0

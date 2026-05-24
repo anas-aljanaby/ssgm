@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { DONOR_STATUSES, DONOR_TIERS } from '@gms/shared';
 import type { DonorPipelineLikelihood, DonorProfileInteraction, IndividualDonor, RelationshipHealth } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useTabParam } from '../../../hooks/useTabParam';
 import { useToast } from '../../../hooks/useToast';
 import { deleteDonorProfileDocument, uploadDonorProfileDocument, useDonorProfileDocuments, useDonorProfileDonations, useDonorProfileInteractions, useDonorProfileRecord, useDonorProfileSummary, useDonorProfileTasks } from '../../../hooks/useDonorProfileSummary';
 import { invalidateDonorsQueries, useDeleteDonor } from '../../../hooks/useDonors';
@@ -241,12 +242,14 @@ export const DonorProfileRoute: React.FC<{
     return <DonorDetailView donor={donorQuery.data} onBack={onBack} onDonorUpdated={onDonorUpdated} existingCountries={existingCountries} />;
 };
 
+const DONOR_DETAIL_TABS = ['overview', 'giving', 'relationship', 'documents'] as const;
+
 const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDonorUpdated, existingCountries = [] }) => {
     const { t, language } = useLocalization(['common', 'individual_donors', 'donors', 'misc']);
     const toast = useToast();
     const queryClient = useQueryClient();
     const [editableDonor, setEditableDonor] = useState(donor);
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useTabParam('detailTab', 'overview', DONOR_DETAIL_TABS);
     const [isLogModalOpen, setIsLogModalOpen] = useState(false);
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
     const [isHeaderEditing, setIsHeaderEditing] = useState(false);

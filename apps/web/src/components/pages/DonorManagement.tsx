@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useToast } from '../../hooks/useToast';
+import { useTabParam } from '../../hooks/useTabParam';
 import { useDonorIntelligenceData } from '../../hooks/useDonorIntelligenceData';
 import {
     DONORS_QUERY_KEY,
@@ -79,6 +80,8 @@ const RegistryMetricCard: React.FC<{ title: string; value: string; icon: React.R
     </div>
 );
 
+const REGISTRY_VIEW_TABS = ['list', 'card', 'kanban'] as const;
+
 const RegistryTab: React.FC<{
     deepLinkTarget?: { id?: string; tab?: string } | null;
 }> = ({ deepLinkTarget }) => {
@@ -92,7 +95,7 @@ const RegistryTab: React.FC<{
     const [searchTerm, setSearchTerm] = useState('');
     const [sortColumn, setSortColumn] = useState<keyof IndividualDonor | null>('lastDonationDate');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-    const [view, setView] = useState<'list' | 'card' | 'kanban'>('list');
+    const [view, setView] = useTabParam('registryView', 'list', REGISTRY_VIEW_TABS);
     const [selectedDonor, setSelectedDonor] = useState<IndividualDonor | null>(null);
     const [selectedDonorId, setSelectedDonorId] = useState<string | null>(null);
     const [filtersOpen, setFiltersOpen] = useState(false);
@@ -719,9 +722,11 @@ const AnalyticsTab: React.FC<{ role: Role }> = () => {
     );
 };
 
+const DONOR_HUB_TABS = ['registry', 'analytics'] as const;
+
 const DonorHub: React.FC<{ role: Role; deepLinkTarget?: { id?: string; tab?: string } | null }> = ({ role, deepLinkTarget }) => {
     const { t } = useLocalization(['common', 'donors', 'individual_donors', 'misc']);
-    const [activeTab, setActiveTab] = useState('registry');
+    const [activeTab, setActiveTab] = useTabParam('tab', 'registry', DONOR_HUB_TABS);
 
     const tabs = [
         { id: 'registry', label: t('donors.tabs.registry') },

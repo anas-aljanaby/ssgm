@@ -18,6 +18,7 @@ import StakeholderMatrix from './stakeholders/StakeholderMatrix';
 import StakeholderCard from './stakeholders/StakeholderCard';
 import { Users, Activity, AlertCircle, Shield, Heart, Building2, Handshake, UserCheck, Globe, Package, Newspaper, Search, Filter, Download, Plus, RefreshCw, Eye, Edit, Trash2, Calendar, Award, Zap, List, LayoutGrid, BarChart2, DollarSign, BrainCircuit } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
+import { useTabParam } from '../../hooks/useTabParam';
 import { MicrophoneIcon } from '../icons/AiIcons';
 
 // Add SpeechRecognition type definition
@@ -39,6 +40,7 @@ declare global {
     }
 }
 
+const STAKEHOLDER_VIEW_TABS = ['table', 'card', 'matrix'] as const;
 
 const StakeholderManagement: React.FC = () => {
     const { t, language } = useLocalization(['common', 'stakeholders', 'misc']);
@@ -47,7 +49,7 @@ const StakeholderManagement: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [selectedStakeholder, setSelectedStakeholder] = useState<Stakeholder | null>(null);
-    const [view, setView] = useState<'table' | 'card' | 'matrix'>('card');
+    const [view, setView] = useTabParam('tab', 'card', STAKEHOLDER_VIEW_TABS);
     const [highlightedId, setHighlightedId] = useState<Stakeholder['id'] | null>(null);
     const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

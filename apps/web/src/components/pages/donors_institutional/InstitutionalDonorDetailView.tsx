@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useTabParam } from '../../../hooks/useTabParam';
 import type { InstitutionalDonor } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
 import Tabs from '../../common/Tabs';
@@ -17,9 +18,11 @@ interface InstitutionalDonorDetailViewProps {
     existingCountries?: string[];
 }
 
+const INSTITUTIONAL_DONOR_DETAIL_TABS = ['overview', 'grants', 'contacts', 'documents'] as const;
+
 const InstitutionalDonorDetailView: React.FC<InstitutionalDonorDetailViewProps> = ({ donor, onBack, onDonorUpdated, existingCountries = [] }) => {
     const { t, language } = useLocalization(['common', 'institutional_donors']);
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useTabParam('tab', 'overview', INSTITUTIONAL_DONOR_DETAIL_TABS);
 
     const tabs = [
         { id: 'overview', label: t('institutional_donors.detail.overview') },

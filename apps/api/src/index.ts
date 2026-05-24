@@ -18,13 +18,23 @@ type Variables = {
 };
 
 const app = new Hono<{ Variables: Variables }>();
-const allowedOrigins = (process.env.WEB_ORIGIN ? process.env.WEB_ORIGIN.split(',') : ['http://localhost:5173', 'http://localhost:5174'])
+const defaultOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+];
+const allowedOrigins = (process.env.WEB_ORIGIN ? process.env.WEB_ORIGIN.split(',') : defaultOrigins)
     .map((origin) => origin.trim())
     .filter(Boolean);
 
 app.use(
     cors({
-        origin: (origin) => !origin || allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+        origin: (origin) => {
+            if (!origin) return allowedOrigins[0];
+            return allowedOrigins.includes(origin) ? origin : undefined;
+        },
+        allowHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
     })
 );

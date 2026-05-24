@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { buildOptimisticProject } from '../lib/projectOptimistic';
 import {
@@ -84,10 +85,14 @@ async function createProjectExpense(projectId: string, expense: CreateProjectExp
     return api.post<ExpenseLogItem>(`/projects/${projectId}/expenses`, expense);
 }
 
-export const useProjects = () => useQuery({
-    queryKey: PROJECTS_QUERY_KEY,
-    queryFn: fetchProjects,
-});
+export const useProjects = () => {
+    const { user, session, loading: authLoading } = useAuth();
+    return useQuery({
+        queryKey: PROJECTS_QUERY_KEY,
+        queryFn: fetchProjects,
+        enabled: !authLoading && !!user && !!session?.access_token,
+    });
+};
 
 export const useProject = (projectId: string | null) => useQuery({
     queryKey: projectId ? PROJECT_QUERY_KEY(projectId) : ['project', 'none'],

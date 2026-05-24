@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect, Suspense, lazy, useCallback } from 'react';
 import type { Role, Language, Project, HrData } from './types';
+import { useLocation, useNavigate } from 'react-router';
+import { pruneSearchParamsForModule } from './lib/moduleSearchParams';
 
 // Providers & Contexts
 import { DashboardProvider } from './contexts/DashboardContext';
@@ -74,6 +76,8 @@ const LoadingSpinner = () => (
 
 function App() {
     const { user, loading: authLoading } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [activeModule, setActiveModule] = useState(() => (window.location.hash.substring(1) || 'dashboard').split('/')[0]);
     const [role, setRole] = useState<Role>('Admin');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -88,18 +92,33 @@ function App() {
         window.location.hash = module;
     }, []);
     
+    const syncModuleFromHash = useCallback(() => {
+        const hashContent = window.location.hash.substring(1) || 'dashboard';
+        const [module, targetId, targetTab] = hashContent.split('/');
+
+        const prev = new URLSearchParams(location.search);
+        const pruned = pruneSearchParamsForModule(prev, module);
+        if (pruned.toString() !== prev.toString()) {
+            const search = pruned.toString();
+            navigate(
+                {
+                    pathname: location.pathname,
+                    search: search ? `?${search}` : '',
+                    hash: `#${hashContent}`,
+                },
+                { replace: true },
+            );
+        }
+
+        setActiveModule(module);
+        setDeepLinkTarget(targetId ? { id: targetId, tab: targetTab } : null);
+    }, [navigate, location.pathname, location.search]);
+
     useEffect(() => {
-        const handleHashChange = () => {
-            const hash = window.location.hash.substring(1) || 'dashboard';
-            const [module, targetId, targetTab] = hash.split('/');
-            
-            setActiveModule(module);
-            setDeepLinkTarget(targetId ? { id: targetId, tab: targetTab } : null);
-        };
-        window.addEventListener('hashchange', handleHashChange);
-        handleHashChange(); // Initial load
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, []);
+        window.addEventListener('hashchange', syncModuleFromHash);
+        syncModuleFromHash();
+        return () => window.removeEventListener('hashchange', syncModuleFromHash);
+    }, [syncModuleFromHash]);
 
     if (authLoading) {
         return <LoadingSpinner />;

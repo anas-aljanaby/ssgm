@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { api } from '../lib/api';
@@ -28,28 +29,33 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const queryClient = useQueryClient();
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const syncSession = (nextSession: Session | null) => {
+        setSession(nextSession);
+        setUser(nextSession?.user ?? null);
+        const token = nextSession?.access_token ?? null;
+        api.setToken(token);
+        if (token) {
+            void queryClient.invalidateQueries({ queryKey: ['projects'] });
+        }
+    };
+
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            if (session?.access_token) {
-                api.setToken(session.access_token);
-            }
+            syncSession(session);
             setLoading(false);
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            api.setToken(session?.access_token ?? null);
+            syncSession(session);
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [queryClient]);
 
     const signIn = async (email: string, password: string) => {
         if (email.trim().toLowerCase() === DEMO_USERNAME && password === DEMO_PASSWORD) {
