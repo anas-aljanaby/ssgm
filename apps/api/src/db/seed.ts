@@ -683,7 +683,18 @@ async function seed() {
 
     const [org] = await db
         .insert(schema.organizations)
-        .values({ name: SEED_ORG_NAME })
+        .values({
+            name: SEED_ORG_NAME,
+            custom_fields: {
+                bousala: {
+                    direction: {
+                        vision: 'تنمية مجتمعية مستدامة تقوم على التعليم والتمكين والشراكة',
+                        mission: 'تقديم برامج نوعية تربط الاحتياج الميداني بالأثر القابل للقياس',
+                        general: 'تحسين جودة التنفيذ ورفع كفاءة المتابعة وتعزيز الأثر طويل المدى',
+                    },
+                },
+            },
+        })
         .returning();
     console.log(`Created org: ${org.name} (${org.id})`);
 

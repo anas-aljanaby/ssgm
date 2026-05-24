@@ -80,6 +80,7 @@ export function mapBeneficiaryToCreatePayload(input: Partial<Beneficiary>) {
         photo: input.photo,
         status: input.status || 'active',
         profile: input.profile || { type: beneficiaryType },
+        project_id: input.projectId ?? null,
     };
 }
 
@@ -106,6 +107,24 @@ export async function fetchBeneficiariesList(): Promise<Beneficiary[]> {
     return rows.map(mapApiBeneficiaryToBeneficiary);
 }
 
+export const projectBeneficiariesQueryKey = (projectId: string) =>
+    ['project', projectId, 'beneficiaries'] as const;
+
+export async function fetchProjectBeneficiaries(projectId: string): Promise<Beneficiary[]> {
+    const rows = await api.get<ApiBeneficiary[]>(`/projects/${projectId}/beneficiaries`);
+    return rows.map(mapApiBeneficiaryToBeneficiary);
+}
+
+export const useProjectBeneficiaries = (projectId: string | null) => {
+    const { user, loading: authLoading } = useAuth();
+
+    return useQuery({
+        queryKey: projectId ? projectBeneficiariesQueryKey(projectId) : ['project', 'none', 'beneficiaries'],
+        queryFn: () => fetchProjectBeneficiaries(projectId as string),
+        enabled: !authLoading && !!user && !!projectId,
+    });
+};
+
 export async function fetchBeneficiaryById(id: string): Promise<Beneficiary> {
     const row = await api.get<ApiBeneficiary>(`/beneficiaries/${id}`);
     return mapApiBeneficiaryToBeneficiary(row);
@@ -123,6 +142,10 @@ export const useBeneficiaries = () => {
 
 export function invalidateBeneficiariesQueries(queryClient: QueryClient) {
     void queryClient.invalidateQueries({ queryKey: BENEFICIARIES_QUERY_KEY });
+}
+
+export function invalidateProjectBeneficiariesQueries(queryClient: QueryClient, projectId: string) {
+    void queryClient.invalidateQueries({ queryKey: projectBeneficiariesQueryKey(projectId) });
 }
 
 export async function createBeneficiaryApi(input: Partial<Beneficiary>): Promise<Beneficiary> {
@@ -165,6 +188,9 @@ export const useCreateBeneficiary = () => {
                     : old.filter((row) => row.id !== created.id);
                 return [created, ...withoutOptimistic];
             });
+            if (created.projectId) {
+                invalidateProjectBeneficiariesQueries(queryClient, created.projectId);
+            }
         },
         onError: (_error, _input, context) => {
             if (context?.previous) {
@@ -191,10 +217,15 @@ export const useUpdateBeneficiary = () => {
             );
             return { previous };
         },
-        onSuccess: (updated) => {
+        onSuccess: (updated, _input, context) => {
             queryClient.setQueryData<Beneficiary[]>(BENEFICIARIES_QUERY_KEY, (old) =>
                 (old ?? []).map((row) => (row.id === updated.id ? updated : row)),
             );
+            const previous = context?.previous?.find((row) => row.id === updated.id);
+            const projectIds = new Set(
+                [updated.projectId, previous?.projectId].filter((id): id is string => !!id),
+            );
+            projectIds.forEach((projectId) => invalidateProjectBeneficiariesQueries(queryClient, projectId));
         },
         onError: (_error, _input, context) => {
             if (context?.previous) {

@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
-import type { BousalaGoal, BousalaKpi, BousalaProject, BousalaTask } from '../types';
+import type { BousalaGoal, BousalaKpi, BousalaProject, BousalaTask, BousalaDirection } from '../types';
 import type { BousalaDemoState } from '../lib/bousalaDemoData';
 import { api } from '../lib/api';
 
 export const BOUSALA_QUERY_KEY = ['bousala'] as const;
 
-export type BousalaTree = BousalaDemoState;
+export type BousalaTree = BousalaDemoState & { direction?: BousalaDirection };
 
 export async function fetchBousalaTree(): Promise<BousalaTree> {
     return api.get<BousalaTree>('/bousala');
@@ -26,6 +26,7 @@ export interface CreateBousalaGoalInput {
     responsiblePerson: string;
     progress?: number;
     deadline?: string;
+    status?: string;
 }
 
 export async function createBousalaGoalApi(input: CreateBousalaGoalInput): Promise<BousalaGoal> {
@@ -35,17 +36,19 @@ export async function createBousalaGoalApi(input: CreateBousalaGoalInput): Promi
         responsible_person: input.responsiblePerson,
         progress: input.progress ?? 0,
         deadline: input.deadline ?? null,
+        ...(input.status ? { status: input.status } : {}),
     });
 }
 
 export async function updateBousalaGoalApi(
     goalId: string,
-    input: { title: string; description: string; responsiblePerson: string },
+    input: { title: string; description: string; responsiblePerson: string; status?: string },
 ): Promise<BousalaGoal> {
     return api.patch<BousalaGoal>(`/bousala/goals/${goalId}`, {
         title: input.title,
         description: input.description,
         responsible_person: input.responsiblePerson,
+        ...(input.status !== undefined ? { status: input.status } : {}),
     });
 }
 
@@ -73,13 +76,14 @@ export async function createBousalaKpiApi(input: CreateBousalaKpiInput): Promise
 
 export async function updateBousalaKpiApi(
     kpiId: string,
-    input: { title: string; value: number; target: number; unit: string },
+    input: { title: string; value: number; target: number; unit: string; kpiDescription?: string },
 ): Promise<BousalaKpi> {
     return api.patch<BousalaKpi>(`/bousala/kpis/${kpiId}`, {
         title: input.title,
         value: input.value,
         target: input.target,
         unit: input.unit,
+        ...(input.kpiDescription !== undefined ? { kpi_description: input.kpiDescription } : {}),
     });
 }
 
@@ -93,12 +97,17 @@ export async function linkBousalaProjectsApi(goalId: string, projectIds: string[
 
 export async function updateBousalaGoalProjectApi(
     projectId: string,
-    input: { title: string; description: string },
+    input: { title: string; description: string; status?: string },
 ): Promise<BousalaProject> {
     return api.patch<BousalaProject>(`/bousala/goal-projects/${projectId}`, {
         title: input.title,
         description: input.description,
+        ...(input.status !== undefined ? { status: input.status } : {}),
     });
+}
+
+export async function updateBousalaDirectionApi(input: Partial<BousalaDirection>): Promise<BousalaDirection> {
+    return api.patch<BousalaDirection>('/bousala/direction', input);
 }
 
 export async function unlinkBousalaGoalProjectApi(projectId: string): Promise<void> {
@@ -152,7 +161,7 @@ export const useCreateBousalaGoal = () => {
 export const useUpdateBousalaGoal = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (vars: { goalId: string; data: { title: string; description: string; responsiblePerson: string } }) =>
+        mutationFn: (vars: { goalId: string; data: { title: string; description: string; responsiblePerson: string; status?: string } }) =>
             updateBousalaGoalApi(vars.goalId, vars.data),
         onSuccess: () => invalidateBousalaQueries(queryClient),
     });
@@ -177,7 +186,7 @@ export const useCreateBousalaKpi = () => {
 export const useUpdateBousalaKpi = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (vars: { kpiId: string; data: { title: string; value: number; target: number; unit: string } }) =>
+        mutationFn: (vars: { kpiId: string; data: { title: string; value: number; target: number; unit: string; kpiDescription?: string } }) =>
             updateBousalaKpiApi(vars.kpiId, vars.data),
         onSuccess: () => invalidateBousalaQueries(queryClient),
     });
@@ -205,7 +214,7 @@ export const useLinkBousalaProjects = () => {
 export const useUpdateBousalaGoalProject = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (vars: { projectId: string; data: { title: string; description: string } }) =>
+        mutationFn: (vars: { projectId: string; data: { title: string; description: string; status?: string } }) =>
             updateBousalaGoalProjectApi(vars.projectId, vars.data),
         onSuccess: () => invalidateBousalaQueries(queryClient),
     });
@@ -241,5 +250,18 @@ export const useDeleteBousalaTask = () => {
     return useMutation({
         mutationFn: deleteBousalaTaskApi,
         onSuccess: () => invalidateBousalaQueries(queryClient),
+    });
+};
+
+export const useUpdateBousalaDirection = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: updateBousalaDirectionApi,
+        onSuccess: (direction) => {
+            queryClient.setQueryData<BousalaTree | undefined>(BOUSALA_QUERY_KEY, (old) =>
+                old ? { ...old, direction } : old,
+            );
+            void queryClient.invalidateQueries({ queryKey: BOUSALA_QUERY_KEY });
+        },
     });
 };

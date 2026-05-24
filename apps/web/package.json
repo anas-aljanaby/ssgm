@@ -28,6 +28,7 @@
     "react-grid-layout": "^1.4.4",
     "react-i18next": "^17.0.6",
     "react-photo-album": "^2.3.1",
+    "react-router-dom": "^7.15.1",
     "recharts": "^3.2.1",
     "xlsx": "^0.18.5",
     "yet-another-react-lightbox": "^3.19.0"

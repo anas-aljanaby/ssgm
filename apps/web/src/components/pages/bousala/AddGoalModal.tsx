@@ -1,14 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { X as XIcon } from 'lucide-react';
 import type { HrData } from '../../../types';
+import ResponsiblePersonField from './ResponsiblePersonField';
 
 interface AddGoalModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAdd: (goalData: { title: string; description: string; progress: number; responsiblePerson: string; }) => void;
+    onAdd: (goalData: { title: string; description: string; progress: number; responsiblePerson: string; status?: string; }) => void;
     hrData: HrData;
 }
 
@@ -18,7 +19,12 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({ isOpen, onClose, onAdd, hrD
     const [description, setDescription] = useState('');
     const [progress, setProgress] = useState(0);
     const [responsiblePerson, setResponsiblePerson] = useState('');
+    const [status, setStatus] = useState('');
     const [titleError, setTitleError] = useState<string | undefined>();
+    const statusOptions = useMemo(
+        () => Object.values(t('bousala.statusOptions', { returnObjects: true }) as Record<string, string>),
+        [t],
+    );
 
     useEffect(() => {
         if (!isOpen) return;
@@ -26,6 +32,7 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({ isOpen, onClose, onAdd, hrD
         setDescription('');
         setProgress(0);
         setResponsiblePerson('');
+        setStatus('');
         setTitleError(undefined);
     }, [isOpen]);
 
@@ -35,7 +42,13 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({ isOpen, onClose, onAdd, hrD
             setTitleError(t('bousala.addGoalModal.goalTitleRequired'));
             return;
         }
-        onAdd({ title: title.trim(), description: description.trim(), progress, responsiblePerson });
+        onAdd({
+            title: title.trim(),
+            description: description.trim(),
+            progress,
+            responsiblePerson: responsiblePerson.trim(),
+            status: status || undefined,
+        });
         onClose();
     };
 
@@ -55,6 +68,7 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({ isOpen, onClose, onAdd, hrD
                                 value={title}
                                 onChange={e => { setTitle(e.target.value); if (titleError) setTitleError(undefined); }}
                                 className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800"
+                                dir="auto"
                             />
                             {titleError && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{titleError}</p>}
                         </div>
@@ -69,11 +83,21 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({ isOpen, onClose, onAdd, hrD
                             </div>
                              <div>
                                 <label className="block text-sm font-medium">{t('bousala.addGoalModal.responsiblePerson')}</label>
-                                <select value={responsiblePerson} onChange={e => setResponsiblePerson(e.target.value)} className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800">
-                                    <option value="">{t('bousala.addGoalModal.selectPerson')}</option>
-                                    {hrData.volunteers.map(v => <option key={v.volunteer_id} value={v.full_name}>{v.full_name}</option>)}
-                                </select>
+                                <ResponsiblePersonField
+                                    value={responsiblePerson}
+                                    onChange={setResponsiblePerson}
+                                    hrData={hrData}
+                                />
                             </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">{t('bousala.addGoalModal.status')}</label>
+                            <select value={status} onChange={e => setStatus(e.target.value)} className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800">
+                                <option value="">—</option>
+                                {statusOptions.map(option => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                     <div className="px-6 py-4 bg-gray-50 dark:bg-dark-card/50 rounded-b-xl flex justify-end gap-3">

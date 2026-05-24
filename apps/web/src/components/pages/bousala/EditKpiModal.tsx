@@ -9,7 +9,7 @@ interface EditKpiModalProps {
     isOpen: boolean;
     onClose: () => void;
     kpi: BousalaKpi | null;
-    onSave: (data: { title: string; value: number; target: number; unit: string }) => void | Promise<void>;
+    onSave: (data: { title: string; value: number; target: number; unit: string; kpiDescription?: string }) => void | Promise<void>;
     isSaving?: boolean;
 }
 
@@ -26,6 +26,7 @@ const EditKpiModal: React.FC<EditKpiModalProps> = ({ isOpen, onClose, kpi, onSav
     const [value, setValue] = useState(0);
     const [target, setTarget] = useState(0);
     const [unit, setUnit] = useState('');
+    const [kpiDescription, setKpiDescription] = useState('');
     const [errors, setErrors] = useState<FormErrors>({});
 
     useEffect(() => {
@@ -34,6 +35,7 @@ const EditKpiModal: React.FC<EditKpiModalProps> = ({ isOpen, onClose, kpi, onSav
         setValue(kpi.value);
         setTarget(kpi.target);
         setUnit(kpi.unit);
+        setKpiDescription(kpi.description ?? '');
         setErrors({});
     }, [isOpen, kpi]);
 
@@ -56,6 +58,7 @@ const EditKpiModal: React.FC<EditKpiModalProps> = ({ isOpen, onClose, kpi, onSav
                 value,
                 target,
                 unit: unit.trim(),
+                kpiDescription: kpiDescription.trim(),
             }));
             onClose();
         } catch {
@@ -113,6 +116,17 @@ const EditKpiModal: React.FC<EditKpiModalProps> = ({ isOpen, onClose, kpi, onSav
                                 />
                                 {errors.target && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.target}</p>}
                             </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">{t('bousala.kpiEdit.description')}</label>
+                            <textarea
+                                value={kpiDescription}
+                                onChange={e => setKpiDescription(e.target.value)}
+                                rows={2}
+                                disabled={isSaving}
+                                className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800 disabled:opacity-50"
+                                dir="auto"
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium">{t('bousala.addKpiModal.unit')}</label>

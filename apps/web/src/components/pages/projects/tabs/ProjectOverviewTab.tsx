@@ -30,7 +30,6 @@ type InfoFormState = {
     city: string;
     donor: string;
     goal: string;
-    sdgGoals: number[];
 };
 
 const buildInfoForm = (project: Project): InfoFormState => ({
@@ -42,7 +41,6 @@ const buildInfoForm = (project: Project): InfoFormState => ({
     city: project.location?.city || '',
     donor: project.stakeholders?.donor || '',
     goal: project.goal || '',
-    sdgGoals: project.sdgGoals ?? [],
 });
 
 const InfoItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
@@ -56,11 +54,17 @@ const ProjectOverviewTab: React.FC<ProjectOverviewTabProps> = ({ project, onUpda
     const { t, language } = useLocalization(['common', 'projects']);
     const toast = useToast();
     const [isEditing, setIsEditing] = useState(false);
+    const [isEditingSdg, setIsEditingSdg] = useState(false);
     const [form, setForm] = useState<InfoFormState>(() => buildInfoForm(project));
+    const [sdgDraft, setSdgDraft] = useState<number[]>(() => project.sdgGoals ?? []);
 
     useEffect(() => {
         if (!isEditing) setForm(buildInfoForm(project));
     }, [project, isEditing]);
+
+    useEffect(() => {
+        if (!isEditingSdg) setSdgDraft(project.sdgGoals ?? []);
+    }, [project.sdgGoals, isEditingSdg]);
 
     const handleSave = () => {
         if (!form.nameEn.trim()) {
@@ -75,7 +79,6 @@ const ProjectOverviewTab: React.FC<ProjectOverviewTabProps> = ({ project, onUpda
             location: { ...project.location, country: form.country.trim(), city: form.city.trim() },
             stakeholders: { ...project.stakeholders, donor: form.donor.trim() },
             goal: form.goal.trim(),
-            sdgGoals: form.sdgGoals,
         });
         setIsEditing(false);
         toast.showSuccess(t('projects.updateSuccess', 'Project updated successfully'));
@@ -84,6 +87,17 @@ const ProjectOverviewTab: React.FC<ProjectOverviewTabProps> = ({ project, onUpda
     const handleCancel = () => {
         setForm(buildInfoForm(project));
         setIsEditing(false);
+    };
+
+    const handleSdgSave = () => {
+        onUpdate?.({ ...project, sdgGoals: sdgDraft });
+        setIsEditingSdg(false);
+        toast.showSuccess(t('projects.updateSuccess', 'Project updated successfully'));
+    };
+
+    const handleSdgCancel = () => {
+        setSdgDraft(project.sdgGoals ?? []);
+        setIsEditingSdg(false);
     };
 
     const scheduleStatus = project.costManagement.financialSummary.spi >= 1 ? 'onTrack' : 'atRisk';
@@ -238,32 +252,60 @@ const ProjectOverviewTab: React.FC<ProjectOverviewTabProps> = ({ project, onUpda
                 )}
             </div>
 
-            {isEditing ? (
-                <AiCard title={t('projects.overview.sdgTitle')}>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                        {t('projects.overview.sdgEditHint')}
-                    </p>
-                    <SdgGoalPicker
-                        value={form.sdgGoals}
-                        onChange={(sdgGoals) => setForm((f) => ({ ...f, sdgGoals }))}
-                    />
-                </AiCard>
-            ) : alignedSdgs.length > 0 ? (
-                <AiCard title={t('projects.overview.sdgTitle')}>
-                    <div className="flex flex-wrap gap-3">
-                        {alignedSdgs.map(sdg => (
-                            <Tooltip key={sdg.id} text={t('projects.sdgAnalytics.sdgTooltip', { id: sdg.id, name: sdg.name })}>
-                                <img
-                                    src={getSdgIconUrl(sdg.id)}
-                                    alt={`SDG ${sdg.id}: ${sdg.name}`}
-                                    className="w-16 h-16 rounded-lg object-cover transition-transform hover:scale-110 shadow-sm"
-                                    loading="lazy"
-                                />
-                            </Tooltip>
-                        ))}
+            {(onUpdate || alignedSdgs.length > 0) && (
+                <div className="bg-card dark:bg-dark-card rounded-2xl shadow-soft border dark:border-slate-700/50 p-5">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold">{t('projects.overview.sdgTitle')}</h3>
+                        {onUpdate && (
+                            !isEditingSdg ? (
+                                <button
+                                    onClick={() => setIsEditingSdg(true)}
+                                    className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-500 hover:text-primary hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                                >
+                                    <Pencil size={13} />
+                                    {t('common.edit', 'Edit')}
+                                </button>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <button onClick={handleSdgCancel} className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-gray-500 hover:text-red-600 rounded-lg">
+                                        <X size={13} /> {t('common.cancel')}
+                                    </button>
+                                    <button onClick={handleSdgSave} className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-white bg-primary hover:bg-primary-dark rounded-lg">
+                                        <Check size={13} /> {t('common.save')}
+                                    </button>
+                                </div>
+                            )
+                        )}
                     </div>
-                </AiCard>
-            ) : null}
+                    {!isEditingSdg ? (
+                        alignedSdgs.length > 0 ? (
+                            <div className="flex flex-wrap gap-3">
+                                {alignedSdgs.map(sdg => (
+                                    <Tooltip key={sdg.id} text={t('projects.sdgAnalytics.sdgTooltip', { id: sdg.id, name: sdg.name })}>
+                                        <img
+                                            src={getSdgIconUrl(sdg.id)}
+                                            alt={`SDG ${sdg.id}: ${sdg.name}`}
+                                            className="w-16 h-16 rounded-lg object-cover transition-transform hover:scale-110 shadow-sm"
+                                            loading="lazy"
+                                        />
+                                    </Tooltip>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {t('projects.overview.sdgEmpty')}
+                            </p>
+                        )
+                    ) : (
+                        <>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                {t('projects.overview.sdgEditHint')}
+                            </p>
+                            <SdgGoalPicker value={sdgDraft} onChange={setSdgDraft} />
+                        </>
+                    )}
+                </div>
+            )}
 
             <AiCard title={t('projects.hr.projectTeam')}>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">

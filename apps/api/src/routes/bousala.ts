@@ -8,6 +8,7 @@ import {
     bousala_kpis,
     bousala_tasks,
     memberships,
+    organizations,
     projects,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
@@ -16,6 +17,7 @@ import {
     createBousalaKpiSchema,
     createBousalaTaskSchema,
     linkBousalaProjectsSchema,
+    updateBousalaDirectionSchema,
     updateBousalaGoalProjectSchema,
     updateBousalaGoalSchema,
     updateBousalaKpiSchema,
@@ -50,7 +52,33 @@ type KpiRow = typeof bousala_kpis.$inferSelect;
 type GoalProjectRow = typeof bousala_goal_projects.$inferSelect;
 type TaskRow = typeof bousala_tasks.$inferSelect;
 
+function asCustomFields(value: unknown): Record<string, unknown> {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return value as Record<string, unknown>;
+    }
+    return {};
+}
+
+function mergeCustomFields(existing: unknown, patch: Record<string, unknown>): Record<string, unknown> {
+    return { ...asCustomFields(existing), ...patch };
+}
+
+function readStringField(customFields: unknown, key: string): string | undefined {
+    const value = asCustomFields(customFields)[key];
+    return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+function mapDirection(customFields: unknown) {
+    const direction = asCustomFields(asCustomFields(customFields).bousala).direction;
+    const vision = readStringField(direction, 'vision') ?? '';
+    const mission = readStringField(direction, 'mission') ?? '';
+    const general = readStringField(direction, 'general') ?? '';
+    if (!vision && !mission && !general) return undefined;
+    return { vision, mission, general };
+}
+
 function mapKpi(row: KpiRow) {
+    const description = readStringField(row.custom_fields, 'description');
     return {
         id: row.id,
         title: row.title,
@@ -60,10 +88,12 @@ function mapKpi(row: KpiRow) {
         trend: (row.trend as 'up' | 'down' | 'stable') || 'stable',
         lastUpdated: toIso(row.last_updated) || new Date().toISOString(),
         prediction: row.prediction ?? undefined,
+        ...(description ? { description } : {}),
     };
 }
 
 function mapGoalProject(row: GoalProjectRow, taskIds: string[]) {
+    const status = readStringField(row.custom_fields, 'status');
     return {
         id: row.id,
         title: row.title,
@@ -72,6 +102,7 @@ function mapGoalProject(row: GoalProjectRow, taskIds: string[]) {
         linkedGoal: row.goal_id,
         linkedTasks: taskIds,
         sourceProjectId: row.source_project_id ?? undefined,
+        ...(status ? { status } : {}),
     };
 }
 
@@ -89,11 +120,12 @@ function mapTask(row: TaskRow) {
 }
 
 async function fetchBousalaTree(orgId: string) {
-    const [goalRows, kpiRows, projectRows, taskRows] = await Promise.all([
+    const [goalRows, kpiRows, projectRows, taskRows, orgRows] = await Promise.all([
         db.select().from(bousala_goals).where(eq(bousala_goals.org_id, orgId)),
         db.select().from(bousala_kpis).where(eq(bousala_kpis.org_id, orgId)),
         db.select().from(bousala_goal_projects).where(eq(bousala_goal_projects.org_id, orgId)),
         db.select().from(bousala_tasks).where(eq(bousala_tasks.org_id, orgId)),
+        db.select({ custom_fields: organizations.custom_fields }).from(organizations).where(eq(organizations.id, orgId)).limit(1),
     ]);
 
     const sourceProjectIds = projectRows
@@ -154,13 +186,17 @@ async function fetchBousalaTree(orgId: string) {
             deadline: goal.deadline ?? undefined,
             kpis: (kpisByGoalId.get(goal.id) ?? []).map(mapKpi),
             prediction: goal.prediction ?? undefined,
+            ...(readStringField(goal.custom_fields, 'status') ? { status: readStringField(goal.custom_fields, 'status') } : {}),
         };
     });
+
+    const direction = orgRows[0] ? mapDirection(orgRows[0].custom_fields) : undefined;
 
     return {
         goals: mappedGoals,
         projects: mappedProjects,
         tasks: taskRows.map(mapTask),
+        ...(direction ? { direction } : {}),
     };
 }
 
@@ -233,7 +269,9 @@ bousalaRouter.post('/goals', async (c) => {
             responsible_person: body.responsible_person?.trim() || '',
             deadline: body.deadline ?? null,
             progress: body.progress ?? 0,
-            custom_fields: body.custom_fields ?? {},
+            custom_fields: mergeCustomFields(body.custom_fields ?? {}, {
+                ...(body.status?.trim() ? { status: body.status.trim() } : {}),
+            }),
         })
         .returning();
 
@@ -257,15 +295,21 @@ bousalaRouter.patch('/goals/:id', async (c) => {
         .limit(1);
     if (!existing) return c.json({ error: 'Goal not found' }, 404);
 
+    const { status, custom_fields: bodyCustomFields, ...goalFields } = body;
+    const nextCustomFields = mergeCustomFields(existing.custom_fields, {
+        ...(bodyCustomFields ?? {}),
+        ...(status !== undefined ? { status: status.trim() } : {}),
+    });
+
     await db
         .update(bousala_goals)
         .set({
-            ...(body.title !== undefined ? { title: body.title.trim() } : {}),
-            ...(body.description !== undefined ? { description: body.description.trim() } : {}),
-            ...(body.responsible_person !== undefined ? { responsible_person: body.responsible_person } : {}),
-            ...(body.deadline !== undefined ? { deadline: body.deadline } : {}),
-            ...(body.progress !== undefined ? { progress: body.progress } : {}),
-            ...(body.custom_fields !== undefined ? { custom_fields: body.custom_fields } : {}),
+            ...(goalFields.title !== undefined ? { title: goalFields.title.trim() } : {}),
+            ...(goalFields.description !== undefined ? { description: goalFields.description.trim() } : {}),
+            ...(goalFields.responsible_person !== undefined ? { responsible_person: goalFields.responsible_person } : {}),
+            ...(goalFields.deadline !== undefined ? { deadline: goalFields.deadline } : {}),
+            ...(goalFields.progress !== undefined ? { progress: goalFields.progress } : {}),
+            ...(status !== undefined || bodyCustomFields !== undefined ? { custom_fields: nextCustomFields } : {}),
             updated_at: new Date(),
         })
         .where(and(eq(bousala_goals.org_id, orgId), eq(bousala_goals.id, goalId)));
@@ -318,7 +362,9 @@ bousalaRouter.post('/goals/:goalId/kpis', async (c) => {
             unit: body.unit?.trim() || '',
             trend: body.trend ?? 'stable',
             last_updated: new Date(),
-            custom_fields: body.custom_fields ?? {},
+            custom_fields: mergeCustomFields(body.custom_fields ?? {}, {
+                ...(body.kpi_description?.trim() ? { description: body.kpi_description.trim() } : {}),
+            }),
         })
         .returning();
 
@@ -343,15 +389,21 @@ bousalaRouter.patch('/kpis/:id', async (c) => {
         .limit(1);
     if (!existing) return c.json({ error: 'KPI not found' }, 404);
 
+    const { kpi_description, custom_fields: bodyCustomFields, ...kpiFields } = body;
+    const nextCustomFields = mergeCustomFields(existing.custom_fields, {
+        ...(bodyCustomFields ?? {}),
+        ...(kpi_description !== undefined ? { description: kpi_description.trim() } : {}),
+    });
+
     await db
         .update(bousala_kpis)
         .set({
-            ...(body.title !== undefined ? { title: body.title.trim() } : {}),
-            ...(body.value !== undefined ? { value: String(body.value) } : {}),
-            ...(body.target !== undefined ? { target: String(body.target) } : {}),
-            ...(body.unit !== undefined ? { unit: body.unit.trim() } : {}),
-            ...(body.trend !== undefined ? { trend: body.trend } : {}),
-            ...(body.custom_fields !== undefined ? { custom_fields: body.custom_fields } : {}),
+            ...(kpiFields.title !== undefined ? { title: kpiFields.title.trim() } : {}),
+            ...(kpiFields.value !== undefined ? { value: String(kpiFields.value) } : {}),
+            ...(kpiFields.target !== undefined ? { target: String(kpiFields.target) } : {}),
+            ...(kpiFields.unit !== undefined ? { unit: kpiFields.unit.trim() } : {}),
+            ...(kpiFields.trend !== undefined ? { trend: kpiFields.trend } : {}),
+            ...(kpi_description !== undefined || bodyCustomFields !== undefined ? { custom_fields: nextCustomFields } : {}),
             last_updated: new Date(),
             prediction: null,
             updated_at: new Date(),
@@ -443,12 +495,18 @@ bousalaRouter.patch('/goal-projects/:id', async (c) => {
         .limit(1);
     if (!existing) return c.json({ error: 'Goal project not found' }, 404);
 
+    const { status, custom_fields: bodyCustomFields, ...projectFields } = body;
+    const nextCustomFields = mergeCustomFields(existing.custom_fields, {
+        ...(bodyCustomFields ?? {}),
+        ...(status !== undefined ? { status: status.trim() } : {}),
+    });
+
     await db
         .update(bousala_goal_projects)
         .set({
-            ...(body.title !== undefined ? { title: body.title.trim() } : {}),
-            ...(body.description !== undefined ? { description: body.description.trim() } : {}),
-            ...(body.custom_fields !== undefined ? { custom_fields: body.custom_fields } : {}),
+            ...(projectFields.title !== undefined ? { title: projectFields.title.trim() } : {}),
+            ...(projectFields.description !== undefined ? { description: projectFields.description.trim() } : {}),
+            ...(status !== undefined || bodyCustomFields !== undefined ? { custom_fields: nextCustomFields } : {}),
             updated_at: new Date(),
         })
         .where(and(eq(bousala_goal_projects.org_id, orgId), eq(bousala_goal_projects.id, projectId)));
@@ -562,6 +620,45 @@ bousalaRouter.delete('/tasks/:id', async (c) => {
 
     await db.delete(bousala_tasks).where(and(eq(bousala_tasks.org_id, orgId), eq(bousala_tasks.id, taskId)));
     return c.json({ ok: true });
+});
+
+bousalaRouter.patch('/direction', async (c) => {
+    const user = c.get('user');
+    const orgId = await getOrgId(user.id);
+    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+
+    const body = updateBousalaDirectionSchema.parse(await c.req.json());
+
+    const [existing] = await db
+        .select({ custom_fields: organizations.custom_fields })
+        .from(organizations)
+        .where(eq(organizations.id, orgId))
+        .limit(1);
+    if (!existing) return c.json({ error: 'Organization not found' }, 404);
+
+    const currentBousala = asCustomFields(asCustomFields(existing.custom_fields).bousala);
+    const currentDirection = asCustomFields(currentBousala.direction);
+
+    const nextDirection = {
+        vision: body.vision !== undefined ? body.vision.trim() : (readStringField(currentDirection, 'vision') ?? ''),
+        mission: body.mission !== undefined ? body.mission.trim() : (readStringField(currentDirection, 'mission') ?? ''),
+        general: body.general !== undefined ? body.general.trim() : (readStringField(currentDirection, 'general') ?? ''),
+    };
+
+    const nextCustomFields = mergeCustomFields(existing.custom_fields, {
+        bousala: {
+            ...currentBousala,
+            direction: nextDirection,
+        },
+    });
+
+    await db
+        .update(organizations)
+        .set({ custom_fields: nextCustomFields })
+        .where(eq(organizations.id, orgId));
+
+    const tree = await fetchBousalaTree(orgId);
+    return c.json(tree.direction ?? nextDirection);
 });
 
 export { bousalaRouter };

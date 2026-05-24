@@ -1691,6 +1691,7 @@ export interface BousalaKpi {
     unit: string;
     trend: 'up' | 'down' | 'stable';
     lastUpdated: string; // ISO
+    description?: string;
     prediction?: {
         probability: number;
         status: 'On Track' | 'At Risk' | 'Unlikely';
@@ -1704,6 +1705,7 @@ export interface BousalaGoal {
     linkedProjects: string[];
     responsiblePerson: string;
     deadline?: string; // ISO
+    status?: string;
     kpis?: BousalaKpi[];
     prediction?: {
         probability: number;
@@ -1718,6 +1720,7 @@ export interface BousalaProject {
     progress: number;
     linkedGoal: string;
     linkedTasks: string[];
+    status?: string;
     /** Main Projects module id when linked from execution projects. */
     sourceProjectId?: string;
 }
@@ -1730,6 +1733,12 @@ export interface BousalaTask {
     assignee: string;
     dueDate?: string;
     priority?: 'high' | 'medium' | 'low';
+}
+
+export interface BousalaDirection {
+    vision: string;
+    mission: string;
+    general: string;
 }
 
 // Loans Module

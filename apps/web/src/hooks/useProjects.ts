@@ -2,6 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { buildOptimisticProject } from '../lib/projectOptimistic';
 import {
+    buildOptimisticProjectRisk,
+    prependProjectRisk,
+} from '../lib/projectRiskOptimistic';
+import {
     buildOptimisticProjectTask,
     insertProjectTaskSorted,
     sortProjectTasksByStart,
@@ -9,6 +13,7 @@ import {
 import type { ExpenseLogItem, GanttTask, Project, Risk } from '../types';
 
 export { isOptimisticProjectTask } from '../lib/projectTaskOptimistic';
+export { isOptimisticProjectRisk } from '../lib/projectRiskOptimistic';
 
 export const PROJECTS_QUERY_KEY = ['projects'] as const;
 const PROJECT_QUERY_KEY = (projectId: string) => ['project', projectId] as const;
@@ -220,12 +225,36 @@ export const useProjectRisks = (projectId: string | null) => {
         enabled: !!projectId,
     });
 
+    type CreateRiskContext = { previous?: Risk[]; optimisticId: string };
+
     const createMutation = useMutation({
         mutationFn: (risk: Omit<Risk, 'id'>) => createProjectRisk(projectId as string, risk),
-        onSuccess: () => {
+        onMutate: async (input) => {
+            if (!projectId) return { previous: undefined, optimisticId: '' };
+            const key = PROJECT_RISKS_QUERY_KEY(projectId);
+            await queryClient.cancelQueries({ queryKey: key });
+            const previous = queryClient.getQueryData<Risk[]>(key);
+            const optimistic = buildOptimisticProjectRisk(input);
+            queryClient.setQueryData<Risk[]>(key, (old) => prependProjectRisk(old ?? [], optimistic));
+            return { previous, optimisticId: optimistic.id } satisfies CreateRiskContext;
+        },
+        onSuccess: (created, _input, context) => {
             if (!projectId) return;
-            void queryClient.invalidateQueries({ queryKey: PROJECT_RISKS_QUERY_KEY(projectId) });
+            const key = PROJECT_RISKS_QUERY_KEY(projectId);
+            queryClient.setQueryData<Risk[]>(key, (old) => {
+                const list = old ?? [];
+                const optimisticId = context?.optimisticId;
+                if (optimisticId && list.some((r) => r.id === optimisticId)) {
+                    return list.map((r) => (r.id === optimisticId ? created : r));
+                }
+                if (list.some((r) => r.id === created.id)) return list;
+                return prependProjectRisk(list, created);
+            });
             void queryClient.invalidateQueries({ queryKey: PROJECT_QUERY_KEY(projectId) });
+        },
+        onError: (_error, _input, context) => {
+            if (!projectId || !context?.previous) return;
+            queryClient.setQueryData(PROJECT_RISKS_QUERY_KEY(projectId), context.previous);
         },
     });
 
@@ -249,7 +278,7 @@ export const useProjectRisks = (projectId: string | null) => {
 
     return {
         ...query,
-        createRisk: createMutation.mutateAsync,
+        createRisk: createMutation.mutate,
         updateRisk: updateMutation.mutateAsync,
         deleteRisk: deleteMutation.mutateAsync,
     };

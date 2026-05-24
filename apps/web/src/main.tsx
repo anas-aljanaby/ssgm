@@ -7,6 +7,7 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import './index.css';
+import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import './lib/i18n';
 import App from './App';
@@ -30,9 +31,11 @@ root.render(
     <React.StrictMode>
         <React.Suspense fallback={<div className="flex h-screen w-screen items-center justify-center">Loading...</div>}>
             <QueryClientProvider client={queryClient}>
-                <AuthProvider>
-                    <App />
-                </AuthProvider>
+                <BrowserRouter>
+                    <AuthProvider>
+                        <App />
+                    </AuthProvider>
+                </BrowserRouter>
             </QueryClientProvider>
         </React.Suspense>
     </React.StrictMode>

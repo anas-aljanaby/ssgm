@@ -21,10 +21,13 @@ export const createBousalaGoalSchema = z.object({
     responsible_person: z.string().default(''),
     deadline: z.string().nullable().optional(),
     progress: z.number().int().min(0).max(100).default(0),
+    status: z.string().optional(),
     custom_fields: z.record(z.string(), z.unknown()).default({}),
 });
 
-export const updateBousalaGoalSchema = createBousalaGoalSchema.partial();
+export const updateBousalaGoalSchema = createBousalaGoalSchema.partial().extend({
+    status: z.string().optional(),
+});
 
 export const createBousalaKpiSchema = z.object({
     title: z.string().min(1),
@@ -32,19 +35,31 @@ export const createBousalaKpiSchema = z.object({
     target: z.number().default(0),
     unit: z.string().default(''),
     trend: bousalaKpiTrendSchema.default('stable'),
+    kpi_description: z.string().default(''),
     custom_fields: z.record(z.string(), z.unknown()).default({}),
 });
 
-export const updateBousalaKpiSchema = createBousalaKpiSchema.partial();
-
-export const linkBousalaProjectsSchema = z.object({
-    projectIds: z.array(z.string().uuid()).min(1),
+export const updateBousalaKpiSchema = createBousalaKpiSchema.partial().extend({
+    kpi_description: z.string().optional(),
 });
+
+export const bousalaDirectionSchema = z.object({
+    vision: z.string().default(''),
+    mission: z.string().default(''),
+    general: z.string().default(''),
+});
+
+export const updateBousalaDirectionSchema = bousalaDirectionSchema.partial();
 
 export const updateBousalaGoalProjectSchema = z.object({
     title: z.string().min(1).optional(),
     description: z.string().optional(),
+    status: z.string().optional(),
     custom_fields: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const linkBousalaProjectsSchema = z.object({
+    projectIds: z.array(z.string().uuid()).min(1),
 });
 
 export const createBousalaTaskSchema = z.object({

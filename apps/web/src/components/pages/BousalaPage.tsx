@@ -45,6 +45,7 @@ import {
     useUpdateBousalaGoalProject,
     useUpdateBousalaKpi,
     useUpdateBousalaTask,
+    useUpdateBousalaDirection,
     type TaskUpdatePatch as ApiTaskUpdatePatch,
 } from '../../hooks/useBousala';
 import { isOptimisticId, OPTIMISTIC_HIGHLIGHT_MS } from '../../lib/optimisticSubmit';
@@ -65,7 +66,11 @@ import PredictiveDashboard from './bousala/PredictiveDashboard';
 import SmartAlertsPanel from './bousala/SmartAlertsPanel';
 import AlertsCenterPanel from './bousala/AlertsCenterPanel';
 import BousalaSectionEmpty from './bousala/BousalaSectionEmpty';
+import StatusBadge from './bousala/StatusBadge';
+import StrategicDirectionCard from './bousala/StrategicDirectionCard';
+import ResponsiblePersonField from './bousala/ResponsiblePersonField';
 import type { BousalaDemoState } from '../../lib/bousalaDemoData';
+import type { BousalaDirection } from '../../types';
 
 type AiInsight = {
     id: number;
@@ -218,10 +223,15 @@ const KpiCard: React.FC<{
         <div className="bg-white dark:bg-slate-700/50 p-3 rounded-lg flex flex-col justify-between h-full">
             <div>
                 <div className="flex justify-between items-start gap-2">
-                    <h5 className="font-semibold text-sm flex items-center gap-2 min-w-0" dir="auto">
-                        {kpi.title}
-                        {showAnimation && isRefreshing && <Loader size={12} className="animate-spin text-primary" />}
-                    </h5>
+                    <div className="min-w-0">
+                        <h5 className="font-semibold text-sm flex items-center gap-2 min-w-0" dir="auto">
+                            {kpi.title}
+                            {showAnimation && isRefreshing && <Loader size={12} className="animate-spin text-primary" />}
+                        </h5>
+                        {kpi.description && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug" dir="auto">{kpi.description}</p>
+                        )}
+                    </div>
                     <div className="flex items-center gap-0.5 flex-shrink-0">
                         <button type="button" onClick={onEdit} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-slate-600 text-gray-500" aria-label={t('bousala.kpiEdit.editAria')}>
                             <Pencil size={14} />
@@ -268,20 +278,22 @@ type TaskUpdatePatch = Pick<BousalaTask, 'assignee' | 'status'>;
 const TaskItem: React.FC<{
     task: BousalaTask;
     volunteers: HrData['volunteers'];
+    hrData: HrData;
     unassignedLabel: string;
     highlighted?: boolean;
     isUpdating?: boolean;
     onUpdate: (taskId: string, patch: TaskUpdatePatch) => void | Promise<void>;
     onDelete: (taskId: string) => void;
-}> = ({ task, volunteers, unassignedLabel, highlighted = false, isUpdating = false, onUpdate, onDelete }) => {
+}> = ({ task, volunteers, hrData, unassignedLabel, highlighted = false, isUpdating = false, onUpdate, onDelete }) => {
     const { t, language } = useLocalization(['common', 'bousala']);
     const optimistic = isOptimisticBousalaTask(task.id);
     const disabled = optimistic || isUpdating;
 
-    const assigneeVolunteerId = useMemo(() => {
-        const match = volunteers.find(v => v.full_name === task.assignee);
-        return match?.volunteer_id ?? '';
-    }, [task.assignee, volunteers]);
+    const handleAssigneeChange = (assignee: string) => {
+        const next = assignee.trim() || unassignedLabel;
+        if (next === task.assignee) return;
+        void onUpdate(task.id, { assignee: next });
+    };
 
     const taskMeta = optimistic || isUpdating
         ? t('common.saving')
@@ -290,14 +302,6 @@ const TaskItem: React.FC<{
             task.dueDate ? t('bousala.common.taskDueDate', { date: formatDate(task.dueDate, language) }) : null,
             task.priority ? t('bousala.common.taskPriority', { priority: t(`bousala.addTaskModal.priorities.${task.priority}`) }) : null,
         ].filter(Boolean).join(' · ');
-
-    const handleAssigneeChange = (volunteerId: string) => {
-        const assignee = volunteerId
-            ? volunteers.find(v => v.volunteer_id === volunteerId)?.full_name ?? task.assignee
-            : unassignedLabel;
-        if (assignee === task.assignee) return;
-        void onUpdate(task.id, { assignee });
-    };
 
     const handleStatusChange = (status: BousalaTask['status']) => {
         if (status === task.status) return;
@@ -319,17 +323,14 @@ const TaskItem: React.FC<{
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
                 <label className="sr-only">{t('bousala.common.assignTaskTo')}</label>
-                <select
-                    value={assigneeVolunteerId}
-                    onChange={e => handleAssigneeChange(e.target.value)}
+                <ResponsiblePersonField
+                    value={task.assignee === unassignedLabel ? '' : task.assignee}
+                    onChange={handleAssigneeChange}
                     disabled={disabled}
-                    className="p-1.5 text-xs border rounded-md bg-gray-50 dark:bg-slate-800 w-36 max-w-[9rem] disabled:opacity-50"
-                >
-                    <option value="">{unassignedLabel}</option>
-                    {volunteers.map(v => (
-                        <option key={v.volunteer_id} value={v.volunteer_id}>{v.full_name}</option>
-                    ))}
-                </select>
+                    hrData={hrData}
+                    id={`task-assignee-${task.id}`}
+                    className="p-1.5 text-xs border rounded-md bg-gray-50 dark:bg-slate-800 w-40 max-w-[10rem] disabled:opacity-50"
+                />
                 <label className="sr-only">{t('bousala.taskEdit.statusLabel')}</label>
                 <select
                     value={task.status}
@@ -359,7 +360,7 @@ const TaskItem: React.FC<{
     );
 };
 
-type ProjectEditForm = { title: string; description: string };
+type ProjectEditForm = { title: string; description: string; status: string };
 
 const ProjectItem: React.FC<{
     project: BousalaProject;
@@ -377,19 +378,32 @@ const ProjectItem: React.FC<{
     isSavingProject?: boolean;
     mainProjects: MainProject[];
     volunteers: HrData['volunteers'];
-}> = ({ project, tasks, highlightedTaskId = null, updatingTaskId = null, unassignedLabel, isAiLoading, onSuggestTasks, onPredictRisk, onUpdateTask, onDeleteTask, onSaveProject, onUnlinkProject, isSavingProject = false, mainProjects, volunteers }) => {
+    hrData: HrData;
+}> = ({ project, tasks, highlightedTaskId = null, updatingTaskId = null, unassignedLabel, isAiLoading, onSuggestTasks, onPredictRisk, onUpdateTask, onDeleteTask, onSaveProject, onUnlinkProject, isSavingProject = false, mainProjects, volunteers, hrData }) => {
     const { t, language } = useLocalization(['common', 'bousala']);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [form, setForm] = useState<ProjectEditForm>({ title: project.title, description: project.description });
+    const [form, setForm] = useState<ProjectEditForm>({
+        title: project.title,
+        description: project.description,
+        status: project.status ?? '',
+    });
     const [titleError, setTitleError] = useState<string | undefined>();
+    const statusOptions = useMemo(
+        () => Object.values(t('bousala.statusOptions', { returnObjects: true }) as Record<string, string>),
+        [t],
+    );
 
     useEffect(() => {
         if (!isEditing) {
-            setForm({ title: project.title, description: project.description });
+            setForm({
+                title: project.title,
+                description: project.description,
+                status: project.status ?? '',
+            });
             setTitleError(undefined);
         }
-    }, [project.title, project.description, isEditing]);
+    }, [project.title, project.description, project.status, isEditing]);
 
     const sourceId = getSourceProjectId(project);
     const linkedSystemProject = sourceId ? mainProjects.find(p => p.id === sourceId) : undefined;
@@ -404,6 +418,7 @@ const ProjectItem: React.FC<{
             await Promise.resolve(onSaveProject(project.id, {
                 title: form.title.trim(),
                 description: form.description.trim(),
+                status: form.status,
             }));
             setIsEditing(false);
         } catch {
@@ -437,6 +452,20 @@ const ProjectItem: React.FC<{
                                         className="w-full p-2 border rounded-md bg-white dark:bg-slate-800 text-sm disabled:opacity-50"
                                         dir="auto"
                                     />
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-500 mb-1">{t('bousala.projectEdit.status')}</label>
+                                        <select
+                                            value={form.status}
+                                            onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+                                            disabled={isSavingProject}
+                                            className="w-full p-2 border rounded-md bg-white dark:bg-slate-800 text-sm disabled:opacity-50"
+                                        >
+                                            <option value="">—</option>
+                                            {statusOptions.map(option => (
+                                                <option key={option} value={option}>{option}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     <div className="flex gap-2 justify-end">
                                         <button type="submit" disabled={isSavingProject} className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded bg-primary text-white disabled:opacity-50">
                                             {isSavingProject ? <Loader size={12} className="animate-spin" /> : <Check size={12} />}
@@ -449,7 +478,10 @@ const ProjectItem: React.FC<{
                                 </form>
                             ) : (
                                 <>
-                                    <h4 className="font-bold text-lg text-foreground dark:text-dark-foreground" dir="auto">{project.title}</h4>
+                                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                                        <h4 className="font-bold text-lg text-foreground dark:text-dark-foreground" dir="auto">{project.title}</h4>
+                                        <StatusBadge status={project.status} />
+                                    </div>
                                     <p className="text-sm text-gray-600 dark:text-gray-400" dir="auto">{project.description}</p>
                                 </>
                             )}
@@ -488,6 +520,7 @@ const ProjectItem: React.FC<{
                                     key={task.id}
                                     task={task}
                                     volunteers={volunteers}
+                                    hrData={hrData}
                                     unassignedLabel={unassignedLabel}
                                     highlighted={highlightedTaskId === task.id}
                                     isUpdating={updatingTaskId === task.id}
@@ -525,6 +558,7 @@ type GoalEditForm = {
     title: string;
     description: string;
     responsiblePerson: string;
+    status: string;
 };
 
 const GoalCard: React.FC<{
@@ -548,8 +582,13 @@ const GoalCard: React.FC<{
         title: goal.title,
         description: goal.description,
         responsiblePerson: goal.responsiblePerson,
+        status: goal.status ?? '',
     });
     const [titleError, setTitleError] = useState<string | undefined>();
+    const statusOptions = useMemo(
+        () => Object.values(t('bousala.statusOptions', { returnObjects: true }) as Record<string, string>),
+        [t],
+    );
 
     useEffect(() => {
         if (!isEditing) {
@@ -557,16 +596,18 @@ const GoalCard: React.FC<{
                 title: goal.title,
                 description: goal.description,
                 responsiblePerson: goal.responsiblePerson,
+                status: goal.status ?? '',
             });
             setTitleError(undefined);
         }
-    }, [goal.title, goal.description, goal.responsiblePerson, isEditing]);
+    }, [goal.title, goal.description, goal.responsiblePerson, goal.status, isEditing]);
 
     const handleCancel = () => {
         setForm({
             title: goal.title,
             description: goal.description,
             responsiblePerson: goal.responsiblePerson,
+            status: goal.status ?? '',
         });
         setTitleError(undefined);
         setIsEditing(false);
@@ -582,7 +623,8 @@ const GoalCard: React.FC<{
             await Promise.resolve(onSave(goal.id, {
                 title: form.title.trim(),
                 description: form.description.trim(),
-                responsiblePerson: form.responsiblePerson,
+                responsiblePerson: form.responsiblePerson.trim(),
+                status: form.status,
             }));
             setIsEditing(false);
         } catch {
@@ -624,15 +666,25 @@ const GoalCard: React.FC<{
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-500">{t('bousala.addGoalModal.responsiblePerson')}</label>
-                                        <select
+                                        <ResponsiblePersonField
                                             value={form.responsiblePerson}
-                                            onChange={e => setForm(f => ({ ...f, responsiblePerson: e.target.value }))}
+                                            onChange={value => setForm(f => ({ ...f, responsiblePerson: value }))}
+                                            disabled={isSaving}
+                                            hrData={hrData}
+                                            className="mt-1 w-full p-2 border rounded-md bg-gray-50 dark:bg-slate-800 text-sm disabled:opacity-50"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-500">{t('bousala.goalEdit.status')}</label>
+                                        <select
+                                            value={form.status}
+                                            onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                                             disabled={isSaving}
                                             className="mt-1 w-full p-2 border rounded-md bg-gray-50 dark:bg-slate-800 text-sm disabled:opacity-50"
                                         >
-                                            <option value="">{t('bousala.addGoalModal.selectPerson')}</option>
-                                            {hrData.volunteers.map(v => (
-                                                <option key={v.volunteer_id} value={v.full_name}>{v.full_name}</option>
+                                            <option value="">—</option>
+                                            {statusOptions.map(option => (
+                                                <option key={option} value={option}>{option}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -657,7 +709,10 @@ const GoalCard: React.FC<{
                                 </form>
                             ) : (
                                 <>
-                                    <h3 className="font-bold text-xl text-primary dark:text-secondary" dir="auto">{goal.title}</h3>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <h3 className="font-bold text-xl text-primary dark:text-secondary" dir="auto">{goal.title}</h3>
+                                        <StatusBadge status={goal.status} />
+                                    </div>
                                     {goal.description && (
                                         <p className="text-sm text-gray-500 mt-1" dir="auto">{goal.description}</p>
                                     )}
@@ -982,10 +1037,12 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
     const unlinkProjectMutation = useUnlinkBousalaGoalProject();
     const createTaskMutation = useCreateBousalaTask();
     const updateTaskMutation = useUpdateBousalaTask();
+    const updateDirectionMutation = useUpdateBousalaDirection();
     const deleteTaskMutation = useDeleteBousalaTask();
 
     const emptyBousalaState = useMemo<BousalaDemoState>(() => ({ goals: [], projects: [], tasks: [] }), []);
     const bousalaState = bousalaQueryData ?? emptyBousalaState;
+    const [isSavingDirection, setIsSavingDirection] = useState(false);
 
     const setBousalaState = useCallback((updater: BousalaDemoState | ((prev: BousalaDemoState) => BousalaDemoState)) => {
         queryClient.setQueryData(BOUSALA_QUERY_KEY, (old) => {
@@ -1394,14 +1451,22 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
         }
     }, [toast, t, updateTaskMutation]);
 
-    const handleSaveGoal = useCallback(async (goalId: string, data: { title: string; description: string; responsiblePerson: string }) => {
+    const handleSaveGoal = useCallback(async (goalId: string, data: GoalEditForm) => {
         if (!data.title.trim()) {
             toast.showError(t('bousala.goalEdit.titleRequired'));
             throw new Error('validation');
         }
         setSavingGoalId(goalId);
         try {
-            await updateGoalMutation.mutateAsync({ goalId, data });
+            await updateGoalMutation.mutateAsync({
+                goalId,
+                data: {
+                    title: data.title,
+                    description: data.description,
+                    responsiblePerson: data.responsiblePerson,
+                    status: data.status || undefined,
+                },
+            });
             toast.showSuccess(t('bousala.goalEdit.saved'));
         } catch {
             toast.showError(t('common.error', 'Error'));
@@ -1411,13 +1476,27 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
         }
     }, [toast, t, updateGoalMutation]);
 
-    const handleAddGoal = (goalData: { title: string; description: string; progress: number; responsiblePerson: string; }) => {
+    const handleSaveDirection = useCallback(async (data: BousalaDirection) => {
+        setIsSavingDirection(true);
+        try {
+            await updateDirectionMutation.mutateAsync(data);
+            toast.showSuccess(t('bousala.direction.saved'));
+        } catch {
+            toast.showError(t('common.error', 'Error'));
+            throw new Error('direction save failed');
+        } finally {
+            setIsSavingDirection(false);
+        }
+    }, [toast, t, updateDirectionMutation]);
+
+    const handleAddGoal = (goalData: { title: string; description: string; progress: number; responsiblePerson: string; status?: string }) => {
         createGoalMutation.mutate(
             {
                 title: goalData.title,
                 description: goalData.description,
                 responsiblePerson: goalData.responsiblePerson,
                 progress: goalData.progress,
+                status: goalData.status,
             },
             {
                 onSuccess: () => {
@@ -1449,7 +1528,7 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
         });
     }, [toast, t, deleteKpiMutation]);
 
-    const handleSaveKpi = useCallback(async (data: { title: string; value: number; target: number; unit: string }) => {
+    const handleSaveKpi = useCallback(async (data: { title: string; value: number; target: number; unit: string; kpiDescription?: string }) => {
         if (!editingKpi) return;
         setSavingKpiId(editingKpi.kpi.id);
         try {
@@ -1479,7 +1558,14 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
         }
         setSavingProjectId(projectId);
         try {
-            await updateGoalProjectMutation.mutateAsync({ projectId, data });
+            await updateGoalProjectMutation.mutateAsync({
+                projectId,
+                data: {
+                    title: data.title,
+                    description: data.description,
+                    status: data.status || undefined,
+                },
+            });
             toast.showSuccess(t('bousala.projectEdit.saved'));
         } catch {
             toast.showError(t('common.error', 'Error'));
@@ -1725,6 +1811,7 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
                                                                         isSavingProject={savingProjectId === project.id}
                                                                         mainProjects={linkableProjects}
                                                                         volunteers={hrData.volunteers}
+                                                                        hrData={hrData}
                                                                     />
                                                                 ))}
                                                             </div>
@@ -1818,6 +1905,14 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
             />
             <InPresentationAlert alert={presentationAlert} />
             <div className="animate-fade-in space-y-8" dir={dir}>
+                {(bousalaState.direction || role === 'Admin' || role === 'Manager') && (
+                    <StrategicDirectionCard
+                        direction={bousalaState.direction}
+                        canEdit={role === 'Admin' || role === 'Manager'}
+                        isSaving={isSavingDirection}
+                        onSave={handleSaveDirection}
+                    />
+                )}
                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="flex items-center gap-4">
                         <BousalaIcon className="w-10 h-10" />

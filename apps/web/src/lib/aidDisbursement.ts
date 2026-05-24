@@ -1,8 +1,6 @@
 import type { AidStatus } from '../types';
 import type { DisbursementStatus } from '../types/financials';
 
-export const FINANCIALS_TAB_STORAGE_KEY = 'gms-financials-tab';
-
 export function mapDisbursementToAidStatus(status: DisbursementStatus): AidStatus {
     if (status === 'completed') return 'Delivered';
     if (status === 'scheduled') return 'Scheduled';
@@ -10,6 +8,9 @@ export function mapDisbursementToAidStatus(status: DisbursementStatus): AidStatu
 }
 
 export function openFinancialsTab(tabId: string) {
-    sessionStorage.setItem(FINANCIALS_TAB_STORAGE_KEY, tabId);
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', tabId);
     window.location.hash = 'financials';
+    const search = params.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}?${search}${window.location.hash}`);
 }

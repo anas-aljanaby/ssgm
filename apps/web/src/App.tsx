@@ -16,7 +16,6 @@ import MobileSidebar from './components/layout/MobileSidebar';
 import BottomNavBar from './components/layout/BottomNavBar';
 import AiFab from './components/common/AiFab';
 
-import { useBeneficiaryData } from './hooks/useBeneficiaryData';
 import { useHrData } from './hooks/useHrData';
 import { MOCK_PROJECTS } from './data/projectData';
 
@@ -50,14 +49,13 @@ const ModuleRenderer: React.FC<ModuleRendererProps> = ({
     enabledLanguages, onEnabledLanguagesChange, deepLinkTarget,
     hrData
 }) => {
-    const { beneficiaryData } = useBeneficiaryData();
     const { projects } = { projects: MOCK_PROJECTS as Project[] }; // Simplified for this context
 
     switch (activeModule) {
         case 'dashboard': return <Dashboard setActiveModule={updateActiveModule} />;
         case 'donors': return <DonorManagement role={role} deepLinkTarget={deepLinkTarget} />;
         case 'institutional_donors': return <InstitutionalDonors />;
-        case 'projects': return <ProjectManagement beneficiaries={beneficiaryData.beneficiaries} deepLinkTarget={deepLinkTarget} />;
+        case 'projects': return <ProjectManagement deepLinkTarget={deepLinkTarget} />;
         case 'beneficiaries': return <BeneficiariesModule deepLinkTarget={deepLinkTarget} />;
         case 'stakeholder_management': return <StakeholderManagement />;
         case 'bousala': return <BousalaPage projects={projects} hrData={hrData} role={role} />;

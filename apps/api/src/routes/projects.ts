@@ -1,8 +1,9 @@
 import { Hono } from 'hono';
 import { User } from '@supabase/supabase-js';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { db } from '../db';
 import {
+    beneficiaries,
     memberships,
     projects,
     project_budget_lines,
@@ -645,6 +646,22 @@ projectsRouter.post('/:id/expenses', async (c) => {
         amount: asNumber(expense.amount),
         wbsId: '',
     }, 201);
+});
+
+projectsRouter.get('/:id/beneficiaries', async (c) => {
+    const user = c.get('user');
+    const orgId = await getOrgId(user.id, c.req.query('org_id'));
+    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const project = await getOrgProject(c.req.param('id'), orgId);
+    if (!project) return c.json({ error: 'Not found' }, 404);
+
+    const rows = await db
+        .select()
+        .from(beneficiaries)
+        .where(and(eq(beneficiaries.project_id, project.id), eq(beneficiaries.org_id, orgId)))
+        .orderBy(desc(beneficiaries.created_at));
+
+    return c.json(rows);
 });
 
 projectsRouter.get('/:id/budget-lines', async (c) => {

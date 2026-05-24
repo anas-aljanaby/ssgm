@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useLocalization } from '../../../../hooks/useLocalization';
 import type { Project, Risk, RiskLevel } from '../../../../types';
 import AiCard from '../../ai/AiCard';
 import { PlusCircle, Pencil, Trash2, X, Check } from 'lucide-react';
-import { useProjectRisks } from '../../../../hooks/useProjects';
+import { isOptimisticProjectRisk, useProjectRisks } from '../../../../hooks/useProjects';
 import { useToast } from '../../../../hooks/useToast';
+import { OPTIMISTIC_HIGHLIGHT_MS } from '../../../../lib/optimisticSubmit';
+import AddProjectRiskModal, { type AddProjectRiskPayload } from '../AddProjectRiskModal';
 
 interface RiskManagementTabProps {
     project: Project;
@@ -34,40 +36,58 @@ const RiskManagementTab: React.FC<RiskManagementTabProps> = ({ project }) => {
     const { t } = useLocalization(['common', 'projects']);
     const toast = useToast();
     const { data: risks = project.riskManagement.riskRegister, createRisk, updateRisk, deleteRisk } = useProjectRisks(project.id);
-    const [modalOpen, setModalOpen] = useState(false);
+    const [addModalOpen, setAddModalOpen] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
     const [editingRisk, setEditingRisk] = useState<Risk | null>(null);
     const [form, setForm] = useState<Omit<Risk, 'id'>>(emptyRiskForm());
+    const [highlightedRiskId, setHighlightedRiskId] = useState<string | null>(null);
+    const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const openAddModal = () => {
-        setEditingRisk(null);
-        setForm(emptyRiskForm());
-        setModalOpen(true);
-    };
+    useEffect(() => {
+        return () => {
+            if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+        };
+    }, []);
+
+    const flashHighlight = useCallback((id: string) => {
+        if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+        setHighlightedRiskId(id);
+        highlightTimerRef.current = setTimeout(() => setHighlightedRiskId(null), OPTIMISTIC_HIGHLIGHT_MS);
+    }, []);
 
     const openEditModal = (risk: Risk) => {
         setEditingRisk(risk);
         const { id: _id, ...rest } = risk;
         setForm(rest);
-        setModalOpen(true);
+        setEditModalOpen(true);
     };
 
-    const closeModal = () => setModalOpen(false);
+    const closeEditModal = () => setEditModalOpen(false);
 
-    const handleSave = async () => {
-        if (!form.description.trim()) return;
+    const handleAddRisk = (payload: AddProjectRiskPayload) => {
+        createRisk(payload, {
+            onSuccess: (created) => {
+                flashHighlight(created.id);
+                toast.showSuccess(t('projects.risks.createSuccess'));
+            },
+            onError: () => {
+                toast.showError(t('projects.risks.createFailed'));
+            },
+        });
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingRisk || !form.description.trim()) return;
         try {
-            if (editingRisk) {
-                await updateRisk({ ...form, id: editingRisk.id });
-            } else {
-                await createRisk(form);
-            }
-            closeModal();
+            await updateRisk({ ...form, id: editingRisk.id, description: form.description.trim() });
+            closeEditModal();
         } catch {
             toast.showError(t('common.error', 'Something went wrong. Please try again.'));
         }
     };
 
     const handleDelete = (id: string) => {
+        if (isOptimisticProjectRisk(id)) return;
         void deleteRisk(id).catch(() => {
             toast.showError(t('common.error', 'Something went wrong. Please try again.'));
         });
@@ -93,7 +113,7 @@ const RiskManagementTab: React.FC<RiskManagementTabProps> = ({ project }) => {
     };
 
     const selectClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-dark-foreground focus:ring-1 focus:ring-primary";
-    const inputClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-dark-foreground focus:ring-1 focus:ring-primary";
+    const inputClass = selectClass;
     const labelClass = "block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1";
 
     return (
@@ -151,7 +171,7 @@ const RiskManagementTab: React.FC<RiskManagementTabProps> = ({ project }) => {
 
             <AiCard title={t('projects.risks.register')}>
                 <div className="flex justify-end mb-4">
-                    <button onClick={openAddModal} className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors">
+                    <button onClick={() => setAddModalOpen(true)} className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors">
                         <PlusCircle size={15} /> {t('projects.risks.addRisk')}
                     </button>
                 </div>
@@ -170,38 +190,62 @@ const RiskManagementTab: React.FC<RiskManagementTabProps> = ({ project }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {risks.map(risk => (
-                                <tr key={risk.id} className="border-t dark:border-slate-700 group">
-                                    <td className="p-2 max-w-xs">{risk.description}</td>
-                                    <td className="p-2">{t(`projects.risks.categories.${risk.category}`)}</td>
-                                    <td className="p-2"><LevelBadge level={risk.impact} /></td>
-                                    <td className="p-2"><LevelBadge level={risk.probability} /></td>
-                                    <td className="p-2">{t(`projects.risks.responses.${risk.responseStrategy}`)}</td>
-                                    <td className="p-2">{risk.owner}</td>
-                                    <td className="p-2">{t(`projects.risks.statuses.${risk.status}`)}</td>
-                                    <td className="p-2">
-                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => openEditModal(risk)} className="p-1 text-gray-400 hover:text-primary rounded" title={t('projects.risks.editRisk')}>
-                                                <Pencil size={13} />
-                                            </button>
-                                            <button onClick={() => handleDelete(risk.id)} className="p-1 text-gray-400 hover:text-red-500 rounded" title={t('projects.risks.deleteRisk')}>
-                                                <Trash2 size={13} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                            {risks.map(risk => {
+                                const optimistic = isOptimisticProjectRisk(risk.id);
+                                const highlighted = highlightedRiskId === risk.id;
+                                return (
+                                    <tr
+                                        key={risk.id}
+                                        className={`border-t dark:border-slate-700 group transition-colors ${
+                                            optimistic ? 'opacity-70 animate-pulse bg-blue-50/60 dark:bg-blue-950/30' : ''
+                                        } ${highlighted ? 'ring-2 ring-inset ring-emerald-300 dark:ring-emerald-700' : ''}`}
+                                    >
+                                        <td className="p-2 max-w-xs">
+                                            <span className="block">{risk.description}</span>
+                                            {optimistic && (
+                                                <span className="text-xs text-gray-500 dark:text-gray-400">{t('projects.risks.saving')}</span>
+                                            )}
+                                        </td>
+                                        <td className="p-2">{t(`projects.risks.categories.${risk.category}`)}</td>
+                                        <td className="p-2"><LevelBadge level={risk.impact} /></td>
+                                        <td className="p-2"><LevelBadge level={risk.probability} /></td>
+                                        <td className="p-2">{t(`projects.risks.responses.${risk.responseStrategy}`)}</td>
+                                        <td className="p-2">{risk.owner}</td>
+                                        <td className="p-2">{t(`projects.risks.statuses.${risk.status}`)}</td>
+                                        <td className="p-2">
+                                            <div
+                                                className={`flex items-center gap-1 transition-opacity ${
+                                                    optimistic ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100'
+                                                }`}
+                                            >
+                                                <button onClick={() => openEditModal(risk)} className="p-1 text-gray-400 hover:text-primary rounded" title={t('projects.risks.editRisk')}>
+                                                    <Pencil size={13} />
+                                                </button>
+                                                <button onClick={() => handleDelete(risk.id)} className="p-1 text-gray-400 hover:text-red-500 rounded" title={t('projects.risks.deleteRisk')}>
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
             </AiCard>
 
-            {modalOpen && (
+            <AddProjectRiskModal
+                isOpen={addModalOpen}
+                onClose={() => setAddModalOpen(false)}
+                onSubmit={handleAddRisk}
+            />
+
+            {editModalOpen && editingRisk && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="bg-card dark:bg-dark-card rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-base font-bold">{editingRisk ? t('projects.risks.editRisk') : t('projects.risks.addRisk')}</h3>
-                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
+                            <h3 className="text-base font-bold">{t('projects.risks.editRisk')}</h3>
+                            <button onClick={closeEditModal} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
                         </div>
                         <div className="space-y-3">
                             <div>
@@ -250,8 +294,8 @@ const RiskManagementTab: React.FC<RiskManagementTabProps> = ({ project }) => {
                             </div>
                         </div>
                         <div className="flex justify-end gap-2 mt-5">
-                            <button onClick={closeModal} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg">{t('common.cancel')}</button>
-                            <button onClick={handleSave} disabled={!form.description.trim()} className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg disabled:opacity-50">
+                            <button onClick={closeEditModal} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg">{t('common.cancel')}</button>
+                            <button onClick={handleSaveEdit} disabled={!form.description.trim()} className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg disabled:opacity-50">
                                 <Check size={14} /> {t('common.save')}
                             </button>
                         </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useToast } from '../../hooks/useToast';
-import type { Project, Beneficiary } from '../../types';
+import type { Project } from '../../types';
 import ProjectList from './projects/ProjectList';
 import CreateProjectWizard from './projects/CreateProjectWizard';
 import ProjectDetailView from './projects/ProjectDetailView';
@@ -64,11 +64,10 @@ const ProjectDetailSkeleton: React.FC = () => (
 );
 
 interface ProjectManagementProps {
-  beneficiaries: Beneficiary[];
   deepLinkTarget?: { id?: string; tab?: string } | null;
 }
 
-const ProjectManagement: React.FC<ProjectManagementProps> = ({ beneficiaries, deepLinkTarget }) => {
+const ProjectManagement: React.FC<ProjectManagementProps> = ({ deepLinkTarget }) => {
     const { t, language } = useLocalization(['common', 'projects', 'beneficiaries', 'misc']);
     const toast = useToast();
     const { data: projects = [], isLoading: isProjectsLoading } = useProjects();
@@ -142,7 +141,6 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({ beneficiaries, de
         }
         return <ProjectDetailView
                     project={selectedProject}
-                    beneficiaries={beneficiaries}
                     existingCountries={existingCountries}
                     onBack={() => {
                         setSelectedProjectId(null);

@@ -3,6 +3,7 @@ import { boolean, integer, jsonb, numeric, pgTable, text, timestamp, uuid } from
 export const organizations = pgTable('organizations', {
     id: uuid('id').primaryKey().defaultRandom(),
     name: text('name').notNull(),
+    custom_fields: jsonb('custom_fields').default({}),
     created_at: timestamp('created_at').defaultNow()
 });
 

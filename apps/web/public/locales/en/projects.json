@@ -140,6 +140,20 @@
       }
     },
     "beneficiariesTab": {
+      "linkBeneficiary": "Link Beneficiary",
+      "requiredHint": "Fields marked * are required.",
+      "linkAction": "Link",
+      "selectBeneficiary": "Beneficiary",
+      "selectPlaceholder": "Choose a beneficiary…",
+      "noAvailableBeneficiaries": "No unlinked beneficiaries available",
+      "saving": "Saving...",
+      "createSuccess": "Beneficiary added to this project.",
+      "createFailed": "Unable to add beneficiary. Please try again.",
+      "linkSuccess": "Beneficiary linked to this project.",
+      "linkFailed": "Unable to link beneficiary. Please try again.",
+      "errors": {
+        "selectBeneficiary": "Select a beneficiary to link."
+      },
       "descriptions": {
         "albania150": "150 Albanian youth and orphans",
         "villagers5000": "5000 villagers across 10 communities",
@@ -173,6 +187,7 @@
     "overview": {
       "sdgTitle": "SDG Alignment",
       "sdgEditHint": "Click icons to toggle SDG alignment.",
+      "sdgEmpty": "No SDGs linked yet. Use Edit to align this project with UN Sustainable Development Goals.",
       "location": "Location",
       "goal": "Goal",
       "country": "Country",
@@ -320,6 +335,13 @@
       "addRisk": "Add Risk",
       "editRisk": "Edit Risk",
       "deleteRisk": "Delete Risk",
+      "requiredHint": "Fields marked * are required.",
+      "saving": "Saving...",
+      "createSuccess": "Risk added successfully.",
+      "createFailed": "Unable to add risk. Please try again.",
+      "errors": {
+        "descriptionRequired": "Risk description is required."
+      },
       "levels": {
         "low": "Low",
         "medium": "Medium",

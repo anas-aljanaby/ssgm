@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
-import type { Project, Beneficiary } from '../../../types';
+import type { Project } from '../../../types';
 import { formatCurrency } from '../../../lib/utils';
 import Tabs from '../../common/Tabs';
 import ScopeManagementTab from './tabs/ScopeManagementTab';
@@ -19,7 +19,6 @@ import { formatProjectLocation } from './utils/location';
 
 interface ProjectDetailViewProps {
     project: Project;
-    beneficiaries: Beneficiary[];
     onBack: () => void;
     onUpdate?: (updated: Project) => void;
     initialTab?: string;
@@ -41,7 +40,7 @@ const progressColor = (progress: number) => {
     return 'bg-gray-300 dark:bg-slate-600';
 };
 
-const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ project, beneficiaries, onBack, onUpdate, initialTab, existingCountries = [] }) => {
+const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ project, onBack, onUpdate, initialTab, existingCountries = [] }) => {
     const { t, language, dir } = useLocalization(['common', 'projects']);
     const [activeTab, setActiveTab] = useState(initialTab || 'overview');
 
@@ -77,7 +76,7 @@ const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({ project, benefici
             case 'risks':
                 return <RiskManagementTab project={project} onUpdate={onUpdate} />;
             case 'beneficiaries':
-                return <BeneficiariesTab project={project} beneficiaries={beneficiaries} />;
+                return <BeneficiariesTab project={project} />;
             case 'documents':
                 return <DocumentsTab project={project} />;
             case 'reports':

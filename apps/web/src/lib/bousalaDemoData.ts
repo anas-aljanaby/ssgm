@@ -1,4 +1,4 @@
-import type { BousalaGoal, BousalaProject, BousalaTask } from '../types';
+import type { BousalaGoal, BousalaProject, BousalaTask, BousalaDirection } from '../types';
 
 type TranslateFn = (key: string, options?: Record<string, unknown>) => string;
 
@@ -6,6 +6,7 @@ export type BousalaDemoState = {
   goals: BousalaGoal[];
   projects: BousalaProject[];
   tasks: BousalaTask[];
+  direction?: BousalaDirection;
 };
 
 const DEMO_GOAL_IDS = new Set(['G1', 'G2']);
