@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { MOCK_APPROVAL_ITEMS, MOCK_DISBURSEMENTS, MOCK_TRANSACTIONS } from '../data/financialsPageData';
-import type { Disbursement, DisbursementType } from '../types/financials';
+import type { Disbursement, DisbursementStatus, DisbursementType } from '../types/financials';
 import { createOptimisticId, isOptimisticId } from '../lib/optimisticSubmit';
 
 const QUERY_KEY = ['financial-disbursements'] as const;
@@ -39,9 +39,15 @@ function buildOptimisticDisbursement(input: CreateDisbursementInput): Disburseme
   };
 }
 
+const HIDDEN_DISBURSEMENT_STATUSES: DisbursementStatus[] = ['cancelled', 'failed'];
+
+async function cancelDisbursement(id: string): Promise<Disbursement> {
+  return api.patch<Disbursement>(`/financials/disbursements/${id}`, { status: 'cancelled' });
+}
+
 async function fetchDisbursements(beneficiaryId?: string): Promise<Disbursement[]> {
   if (!USE_API) {
-    const all = MOCK_DISBURSEMENTS;
+    const all = MOCK_DISBURSEMENTS.filter((d) => !HIDDEN_DISBURSEMENT_STATUSES.includes(d.status));
     if (!beneficiaryId) return all;
     return all.filter((d) => d.beneficiaryId === beneficiaryId);
   }
@@ -50,9 +56,10 @@ async function fetchDisbursements(beneficiaryId?: string): Promise<Disbursement[
     const path = beneficiaryId
       ? `/financials/disbursements?beneficiary_id=${encodeURIComponent(beneficiaryId)}`
       : '/financials/disbursements';
-    return await api.get<Disbursement[]>(path);
+    const rows = await api.get<Disbursement[]>(path);
+    return rows.filter((d) => !HIDDEN_DISBURSEMENT_STATUSES.includes(d.status));
   } catch {
-    const all = MOCK_DISBURSEMENTS;
+    const all = MOCK_DISBURSEMENTS.filter((d) => !HIDDEN_DISBURSEMENT_STATUSES.includes(d.status));
     if (!beneficiaryId) return all;
     return all.filter((d) => d.beneficiaryId === beneficiaryId);
   }
@@ -149,6 +156,19 @@ export function useBeneficiaryDisbursements(beneficiaryId?: string) {
     queryKey: [...QUERY_KEY, beneficiaryId] as const,
     queryFn: () => fetchDisbursements(beneficiaryId),
     enabled: !!beneficiaryId,
+  });
+}
+
+export function useCancelDisbursement() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: cancelDisbursement,
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['financial-approvals'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-overview'] });
+    },
   });
 }
 

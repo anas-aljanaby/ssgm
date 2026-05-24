@@ -71,6 +71,7 @@ const DonorSearchSelect: React.FC<DonorSearchSelectProps> = ({
     onSelect(id);
     setOpen(false);
     setQuery('');
+    inputRef.current?.blur();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -139,7 +140,9 @@ const DonorSearchSelect: React.FC<DonorSearchSelectProps> = ({
               setQuery(e.target.value);
               setOpen(true);
             }}
-            onFocus={() => setOpen(true)}
+            onFocus={() => {
+              if (!selectedId) setOpen(true);
+            }}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={`${inputClass} ps-8 pe-8 disabled:opacity-60`}
@@ -173,7 +176,10 @@ const DonorSearchSelect: React.FC<DonorSearchSelectProps> = ({
                     : 'text-foreground dark:text-dark-foreground hover:bg-gray-50 dark:hover:bg-slate-700'
                 }`}
                 onMouseEnter={() => setHighlightIndex(idx)}
-                onClick={() => handleSelect(donor.id)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelect(donor.id);
+                }}
               >
                 {donor.id === selectedId && <Check className="w-3.5 h-3.5 shrink-0 text-emerald-500" />}
                 <span className={donor.id !== selectedId ? 'ps-[22px]' : ''}>{getDonorName(donor)}</span>
@@ -187,10 +193,10 @@ const DonorSearchSelect: React.FC<DonorSearchSelectProps> = ({
 
   if (label) {
     return (
-      <label className="block min-w-0">
+      <div className="block min-w-0">
         <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{label}</span>
         <div className="mt-1">{control}</div>
-      </label>
+      </div>
     );
   }
 

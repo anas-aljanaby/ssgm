@@ -3,6 +3,8 @@ import { useLocalization } from '../../../../hooks/useLocalization';
 import type { Project, Risk, RiskLevel } from '../../../../types';
 import AiCard from '../../ai/AiCard';
 import { PlusCircle, Pencil, Trash2, X, Check } from 'lucide-react';
+import { useProjectRisks } from '../../../../hooks/useProjects';
+import { useToast } from '../../../../hooks/useToast';
 
 interface RiskManagementTabProps {
     project: Project;
@@ -28,13 +30,13 @@ const emptyRiskForm = (): Omit<Risk, 'id'> => ({
 const levelMap: Record<RiskLevel, number> = { low: 0, medium: 1, high: 2 };
 const scoreMap: Record<RiskLevel, number> = { low: 1, medium: 2, high: 3 };
 
-const RiskManagementTab: React.FC<RiskManagementTabProps> = ({ project, onUpdate }) => {
+const RiskManagementTab: React.FC<RiskManagementTabProps> = ({ project }) => {
     const { t } = useLocalization(['projects']);
+    const toast = useToast();
+    const { data: risks = project.riskManagement.riskRegister, createRisk, updateRisk, deleteRisk } = useProjectRisks(project.id);
     const [modalOpen, setModalOpen] = useState(false);
     const [editingRisk, setEditingRisk] = useState<Risk | null>(null);
     const [form, setForm] = useState<Omit<Risk, 'id'>>(emptyRiskForm());
-
-    const risks = project.riskManagement.riskRegister;
 
     const openAddModal = () => {
         setEditingRisk(null);
@@ -51,17 +53,24 @@ const RiskManagementTab: React.FC<RiskManagementTabProps> = ({ project, onUpdate
 
     const closeModal = () => setModalOpen(false);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!form.description.trim()) return;
-        const updated = editingRisk
-            ? risks.map(r => r.id === editingRisk.id ? { ...form, id: editingRisk.id } : r)
-            : [...risks, { ...form, id: `risk-${Date.now()}` }];
-        onUpdate?.({ ...project, riskManagement: { ...project.riskManagement, riskRegister: updated } });
-        closeModal();
+        try {
+            if (editingRisk) {
+                await updateRisk({ ...form, id: editingRisk.id });
+            } else {
+                await createRisk(form);
+            }
+            closeModal();
+        } catch {
+            toast.showError(t('common.error', 'Something went wrong. Please try again.'));
+        }
     };
 
     const handleDelete = (id: string) => {
-        onUpdate?.({ ...project, riskManagement: { ...project.riskManagement, riskRegister: risks.filter(r => r.id !== id) } });
+        void deleteRisk(id).catch(() => {
+            toast.showError(t('common.error', 'Something went wrong. Please try again.'));
+        });
     };
 
     const riskMatrix: Risk[][][] = Array.from({ length: 3 }, () => Array.from({ length: 3 }, () => []));

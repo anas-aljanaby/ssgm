@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import { useDropzone } from 'react-dropzone';
+import type { InstitutionalDonor } from '../../../types';
 import { Upload, FolderPlus, Trash2, Download, X as XIcon, Eye } from 'lucide-react';
 import { PdfIcon, WordIcon, ImageIcon, VideoIcon, FileIcon as GenericFileIcon, FolderIcon } from '../../icons/FiletypeIcons';
 import { formatDate } from '../../../lib/utils';
@@ -59,6 +60,31 @@ const initialDocuments: DocumentItem[] = [
     { id: 'doc5', name: 'Signing Ceremony.jpg', category: 'media', date: '2024-01-16', size: '4.8 MB', type: 'jpg' },
     { id: 'doc6', name: 'Institutional Overview.mp4', category: 'media', date: '2023-11-10', size: '58.4 MB', type: 'mp4' },
 ];
+
+/** PLACEHOLDER: Replace with institutional donor documents API when backend is activated. */
+const DONORS_WITH_SEED_DOCUMENTS = new Set(['G-00123', 'G-00301', 'UN-001', 'QA-001']);
+const donorDocumentsCache = new Map<string, DocumentItem[]>();
+
+function seedDocumentsForDonor(donorId: string): DocumentItem[] {
+    if (!DONORS_WITH_SEED_DOCUMENTS.has(donorId)) {
+        return [];
+    }
+    return initialDocuments.map((doc) => ({
+        ...doc,
+        id: `${donorId}-${doc.id}`,
+    }));
+}
+
+function loadDocumentsForDonor(donorId: string): DocumentItem[] {
+    if (!donorDocumentsCache.has(donorId)) {
+        donorDocumentsCache.set(donorId, seedDocumentsForDonor(donorId));
+    }
+    return [...(donorDocumentsCache.get(donorId) ?? [])];
+}
+
+export function clearDonorDocumentsCache(donorId: string) {
+    donorDocumentsCache.delete(donorId);
+}
 
 const getFileIcon = (type: DocumentType) => {
     switch (type) {
@@ -117,13 +143,28 @@ const FilePreviewModal: React.FC<{ item: DocumentItem; onClose: () => void; lang
 };
 
 
-const DocumentsTab: React.FC = () => {
+interface DocumentsTabProps {
+    donor: InstitutionalDonor;
+}
+
+const DocumentsTab: React.FC<DocumentsTabProps> = ({ donor }) => {
     const { t, language } = useLocalization(['common', 'institutional_donors']);
     const toast = useToast();
-    const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments);
+    const [documents, setDocuments] = useState<DocumentItem[]>(() => loadDocumentsForDonor(donor.id));
     const [selectedCategory, setSelectedCategory] = useState<DocumentCategoryId>('all');
     const [previewItem, setPreviewItem] = useState<DocumentItem | null>(null);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        setDocuments(loadDocumentsForDonor(donor.id));
+        setSelectedCategory('all');
+        setPreviewItem(null);
+        setSelectedIds(new Set());
+    }, [donor.id]);
+
+    useEffect(() => {
+        donorDocumentsCache.set(donor.id, documents);
+    }, [donor.id, documents]);
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const newFiles: DocumentItem[] = acceptedFiles.map(file => {
@@ -133,7 +174,7 @@ const DocumentsTab: React.FC = () => {
                 type = extension as DocumentType;
             }
             return {
-                id: `file-${Date.now()}-${Math.random()}`,
+                id: `${donor.id}-file-${Date.now()}-${Math.random()}`,
                 name: file.name,
                 category: selectedCategory === 'all' ? 'correspondence' : selectedCategory,
                 date: new Date().toISOString(),
@@ -144,8 +185,8 @@ const DocumentsTab: React.FC = () => {
         });
         setDocuments(prev => [...newFiles, ...prev]);
         toast.showSuccess(t('institutional_donors.documentsTab.uploadSuccess', { count: newFiles.length }));
-    }, [selectedCategory, toast, t]);
-    
+    }, [donor.id, selectedCategory, toast, t]);
+
     const { getRootProps, getInputProps, open, isDragActive } = useDropzone({ onDrop, noClick: true, noKeyboard: true });
 
     const handleNewFolder = useCallback((e: React.MouseEvent) => {
@@ -153,7 +194,7 @@ const DocumentsTab: React.FC = () => {
         const folderName = prompt(t('institutional_donors.documentsTab.folderPrompt'));
         if (folderName && folderName.trim() !== '') {
             const newFolder: DocumentItem = {
-                id: `folder-${Date.now()}`,
+                id: `${donor.id}-folder-${Date.now()}`,
                 name: folderName.trim(),
                 category: selectedCategory === 'all' ? 'correspondence' : selectedCategory,
                 date: new Date().toISOString(),
@@ -163,7 +204,7 @@ const DocumentsTab: React.FC = () => {
             setDocuments(prev => [newFolder, ...prev]);
             toast.showSuccess(t('institutional_donors.documentsTab.folderCreated', { name: folderName.trim() }));
         }
-    }, [selectedCategory, toast, t]);
+    }, [donor.id, selectedCategory, toast, t]);
 
     const handleDelete = (id: string) => {
         if (window.confirm(t('institutional_donors.documentsTab.deleteConfirm'))) {
@@ -279,7 +320,7 @@ const DocumentsTab: React.FC = () => {
                         </table>
                         {filteredDocuments.length === 0 && (
                             <div className="text-center p-16 text-gray-500">
-                                <p>{t('institutional_donors.documentsTab.emptyCategory')}</p>
+                                <p>{documents.length === 0 ? t('institutional_donors.documentsTab.emptyLibrary') : t('institutional_donors.documentsTab.emptyCategory')}</p>
                             </div>
                         )}
                     </div>

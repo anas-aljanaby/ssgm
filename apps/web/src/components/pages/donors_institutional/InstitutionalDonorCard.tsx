@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import type { InstitutionalDonor, GrantmakerRelationshipStatus, PriorityLevel } from '../../../types';
 import { formatDate, formatCurrency } from '../../../lib/utils';
-import { Clock, Tag, DollarSign, Package, MapPin } from 'lucide-react';
+import { Clock, Tag, DollarSign, Package, MapPin, Eye, Trash2 } from 'lucide-react';
 import { isOptimisticInstitution } from '../../../lib/institutionOptimistic';
 import { formatInstitutionalCountry } from './countryDisplay';
 
@@ -10,9 +10,10 @@ interface InstitutionalDonorCardProps {
     donor: InstitutionalDonor;
     highlighted?: boolean;
     onSelect: (donor: InstitutionalDonor) => void;
+    onDelete?: (donor: InstitutionalDonor) => void;
 }
 
-const InstitutionalDonorCard: React.FC<InstitutionalDonorCardProps> = ({ donor, highlighted = false, onSelect }) => {
+const InstitutionalDonorCard: React.FC<InstitutionalDonorCardProps> = ({ donor, highlighted = false, onSelect, onDelete }) => {
     const { t, language } = useLocalization(['common', 'institutional_donors']);
     const optimistic = isOptimisticInstitution(donor.id);
 
@@ -83,14 +84,38 @@ const InstitutionalDonorCard: React.FC<InstitutionalDonorCardProps> = ({ donor, 
                 </div>
             </div>
 
-            <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-b-xl border-t dark:border-slate-700">
-                 <div className="flex items-center gap-2 text-sm">
-                    <Clock size={16} className="text-primary"/>
-                    <div>
+            <div className="p-4 bg-gray-50 dark:bg-dark-card/50 rounded-b-xl border-t dark:border-slate-700 flex items-center justify-between gap-2">
+                 <div className="flex items-center gap-2 text-sm flex-1 min-w-0">
+                    <Clock size={16} className="text-primary flex-shrink-0"/>
+                    <div className="min-w-0">
                         <p className="text-xs text-gray-500">{t('institutional_donors.nextDeadline')}</p>
-                        <p className="font-semibold">{donor.nextDeadline ? formatDate(donor.nextDeadline, language, 'medium') : t('common.notAvailable')}</p>
+                        <p className="font-semibold truncate">{donor.nextDeadline ? formatDate(donor.nextDeadline, language, 'medium') : t('common.notAvailable')}</p>
                     </div>
                 </div>
+                {!optimistic && (
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); onSelect(donor); }}
+                            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"
+                            title={t('institutional_donors.card.viewProfile')}
+                            aria-label={t('institutional_donors.card.viewProfile')}
+                        >
+                            <Eye size={16} />
+                        </button>
+                        {onDelete && (
+                            <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); onDelete(donor); }}
+                                className="p-2 rounded-full hover:bg-red-100 text-red-600 dark:hover:bg-red-900/30"
+                                title={t('institutional_donors.deleteInstitution')}
+                                aria-label={t('institutional_donors.deleteInstitution')}
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

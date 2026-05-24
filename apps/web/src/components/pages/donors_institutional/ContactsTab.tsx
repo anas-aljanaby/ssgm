@@ -4,7 +4,7 @@ import { buildOptimisticContact, isOptimisticContact } from '../../../lib/contac
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import type { InstitutionalDonor } from '../../../types';
-import { Mail, Phone, PlusCircle, Globe, Linkedin, Twitter, Facebook, MapPin, Handshake } from 'lucide-react';
+import { Mail, Phone, PlusCircle, Globe, Linkedin, Twitter, Facebook, MapPin, Handshake, Trash2 } from 'lucide-react';
 import AddContactModal from './AddContactModal';
 
 // Self-contained WhatsappIcon to avoid dependency on missing file
@@ -128,7 +128,7 @@ interface ContactsTabProps {
     donor: InstitutionalDonor;
 }
 
-const ContactCard: React.FC<{ contact: Contact; highlighted?: boolean }> = ({ contact, highlighted = false }) => {
+const ContactCard: React.FC<{ contact: Contact; highlighted?: boolean; onDelete?: () => void }> = ({ contact, highlighted = false, onDelete }) => {
     const { t } = useLocalization(['common', 'institutional_donors']);
     const optimistic = isOptimisticContact(contact.id);
     return (
@@ -137,11 +137,23 @@ const ContactCard: React.FC<{ contact: Contact; highlighted?: boolean }> = ({ co
                 ? 'opacity-70 animate-pulse'
                 : 'hover:shadow-md'
         } ${highlighted ? 'ring-2 ring-emerald-300 dark:ring-emerald-700' : ''}`}>
-            {contact.isPrimary && (
-                <div className="absolute top-3 right-3 text-xs font-bold px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                    {t('institutional_donors.detail.form.isPrimary')}
-                </div>
-            )}
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+                {contact.isPrimary && (
+                    <span className="text-xs font-bold px-2 py-1 bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900/40 dark:text-blue-200">
+                        {t('institutional_donors.detail.form.isPrimary')}
+                    </span>
+                )}
+                {onDelete && !optimistic && (
+                    <button
+                        type="button"
+                        onClick={onDelete}
+                        className="rounded-full p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30"
+                        aria-label={t('institutional_donors.detail.deleteContact')}
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                )}
+            </div>
             <div className="flex flex-col items-center text-center">
                  <img 
                     src={contact.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(contact.name)}&background=random`} 
@@ -176,11 +188,14 @@ const ContactCard: React.FC<{ contact: Contact; highlighted?: boolean }> = ({ co
 const ContactsTab: React.FC<ContactsTabProps> = ({ donor }) => {
     const { t } = useLocalization(['common', 'institutional_donors']);
     const toast = useToast();
-    const mockContacts = getMockContacts(donor);
-    const [contacts, setContacts] = useState<Contact[]>(mockContacts);
+    const [contacts, setContacts] = useState<Contact[]>(() => getMockContacts(donor));
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [highlightedId, setHighlightedId] = useState<string | null>(null);
     const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        setContacts(getMockContacts(donor));
+    }, [donor.id]);
 
     useEffect(() => {
         return () => {
@@ -211,6 +226,13 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ donor }) => {
         });
     };
 
+    const handleDeleteContact = (contactId: string) => {
+        if (!window.confirm(t('institutional_donors.detail.deleteContactConfirm'))) {
+            return;
+        }
+        setContacts((prev) => prev.filter((c) => c.id !== contactId));
+        toast.showInfo(t('institutional_donors.detail.contactDeleted'));
+    };
 
     return (
         <div className="animate-fade-in space-y-6">
@@ -218,16 +240,27 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ donor }) => {
 
             <div>
                 <div className="flex justify-between items-center mb-4 mt-8">
-                     <h3 className="text-xl font-bold">الأشخاص المسؤولون</h3>
+                     <h3 className="text-xl font-bold">{t('institutional_donors.detail.contactsListTitle')}</h3>
                      <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-secondary hover:bg-secondary-dark rounded-lg">
                         <PlusCircle /> {t('institutional_donors.detail.addContact')}
                     </button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {contacts.map((contact) => (
-                        <ContactCard key={contact.id} contact={contact} highlighted={highlightedId === contact.id} />
-                    ))}
-                </div>
+                {contacts.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-gray-300 px-6 py-10 text-center text-sm text-gray-500 dark:border-slate-600 dark:text-gray-400">
+                        {t('institutional_donors.detail.noContacts')}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {contacts.map((contact) => (
+                            <ContactCard
+                                key={contact.id}
+                                contact={contact}
+                                highlighted={highlightedId === contact.id}
+                                onDelete={() => handleDeleteContact(contact.id)}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
             
             <AddContactModal 

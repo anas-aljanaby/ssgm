@@ -3,7 +3,7 @@ import type { AidItem, AidStatus, Beneficiary, ProgramProject } from '../../../t
 import type { Disbursement, DisbursementStatus } from '../../../types/financials';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
-import { useBeneficiaryDisbursements, useCreateDisbursement } from '../../../hooks/useDisbursements';
+import { useBeneficiaryDisbursements, useCancelDisbursement, useCreateDisbursement } from '../../../hooks/useDisbursements';
 import { formatDate, formatCurrency, formatNumber } from '../../../lib/utils';
 import { FinancialAidIcon, InKindAidIcon, ServiceAidIcon } from '../../icons/AidIcons';
 import { Clock, CheckCircle, AlertCircle, PlusCircle, Pencil, Trash2, ExternalLink, Landmark } from 'lucide-react';
@@ -33,10 +33,12 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
     const toast = useToast();
     const { data: disbursements = [] } = useBeneficiaryDisbursements(beneficiary.id);
     const createDisbursement = useCreateDisbursement();
+    const cancelDisbursement = useCancelDisbursement();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<AidItem | null>(null);
     const [itemToRemove, setItemToRemove] = useState<AidItem | null>(null);
+    const [disbursementToCancel, setDisbursementToCancel] = useState<Disbursement | null>(null);
 
     const linkedDisbursementIds = useMemo(
         () => new Set(aidLog.map((item) => item.disbursementId).filter(Boolean) as string[]),
@@ -148,11 +150,32 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
         toast.showSuccess(t('beneficiaries.actions.saved'));
     };
 
-    const handleRemove = () => {
+    const handleRemove = async () => {
         if (!onUpdate || !itemToRemove) return;
+
+        if (itemToRemove.disbursementId) {
+            try {
+                await cancelDisbursement.mutateAsync(itemToRemove.disbursementId);
+            } catch {
+                toast.showError(t('beneficiaries.aidLog.disbursementCancelFailed'));
+                return;
+            }
+        }
+
         onUpdate(aidLog.filter((entry) => entry.id !== itemToRemove.id));
         setItemToRemove(null);
         toast.showSuccess(t('beneficiaries.actions.saved'));
+    };
+
+    const handleCancelDisbursement = async () => {
+        if (!disbursementToCancel) return;
+        try {
+            await cancelDisbursement.mutateAsync(disbursementToCancel.id);
+            setDisbursementToCancel(null);
+            toast.showSuccess(t('beneficiaries.aidLog.disbursementCancelled'));
+        } catch {
+            toast.showError(t('beneficiaries.aidLog.disbursementCancelFailed'));
+        }
     };
 
     const openAddModal = () => {
@@ -256,7 +279,7 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
         const StatusIcon = statusConfig[mappedStatus].icon;
         const statusColor = statusConfig[mappedStatus].color;
         const displayDate = disbursement.processedDate || disbursement.scheduledDate;
-        const title = t(`financials:disbursementType.${disbursement.type}`, { defaultValue: disbursement.type });
+        const title = t(`financials.disbursementType.${disbursement.type}`);
 
         return (
             <div key={`disbursement-${disbursement.id}`} className="mb-8 relative group">
@@ -275,8 +298,18 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
                             </span>
                             <div className={`flex items-center gap-1 text-xs font-semibold ${statusColor}`}>
                                 <StatusIcon className="w-4 h-4" />
-                                {t(`financials:status.${disbursement.status}`, { defaultValue: disbursement.status })}
+                                {t(`financials.status.${disbursement.status}`)}
                             </div>
+                            {disbursement.status === 'pending_approval' && (
+                                <button
+                                    type="button"
+                                    onClick={() => setDisbursementToCancel(disbursement)}
+                                    className="inline-flex h-7 w-7 items-center justify-center rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                    aria-label={t('beneficiaries.aidLog.withdrawDisbursement')}
+                                >
+                                    <Trash2 size={13} />
+                                </button>
+                            )}
                         </div>
                     </div>
                     <div className="mt-2 pt-2 border-t dark:border-slate-600 text-sm space-y-1">
@@ -362,6 +395,14 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
                 onConfirm={handleRemove}
                 title={t('beneficiaries.aidLog.removeItem')}
                 message={t('beneficiaries.aidLog.removeConfirm')}
+            />
+
+            <ConfirmationModal
+                isOpen={!!disbursementToCancel}
+                onClose={() => setDisbursementToCancel(null)}
+                onConfirm={handleCancelDisbursement}
+                title={t('beneficiaries.aidLog.withdrawDisbursement')}
+                message={t('beneficiaries.aidLog.withdrawDisbursementConfirm')}
             />
         </>
     );

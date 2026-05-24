@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useToast } from '../../hooks/useToast';
-import { MOCK_PROJECTS } from '../../data/projectData';
 import type { Project, Beneficiary } from '../../types';
 import ProjectList from './projects/ProjectList';
 import CreateProjectWizard from './projects/CreateProjectWizard';
 import ProjectDetailView from './projects/ProjectDetailView';
 import SDGAlignmentDashboard from './projects/SDGAlignmentDashboard';
 import { formatCurrency } from '../../lib/utils';
-import { buildOptimisticProject, isOptimisticProject } from '../../lib/projectOptimistic';
-import { OPTIMISTIC_HIGHLIGHT_MS, simulateLocalPersist } from '../../lib/optimisticSubmit';
+import { isOptimisticProject } from '../../lib/projectOptimistic';
+import { OPTIMISTIC_HIGHLIGHT_MS } from '../../lib/optimisticSubmit';
 import { List, Target, PlusCircle, FolderKanban, DollarSign, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { useCreateProject, useProject, useProjects, useUpdateProject } from '../../hooks/useProjects';
 
 interface ProjectManagementProps {
   beneficiaries: Beneficiary[];
@@ -20,9 +20,13 @@ interface ProjectManagementProps {
 const ProjectManagement: React.FC<ProjectManagementProps> = ({ beneficiaries, deepLinkTarget }) => {
     const { t, language } = useLocalization(['common', 'projects', 'beneficiaries', 'misc']);
     const toast = useToast();
-    const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
+    const { data: projects = [], isLoading: isProjectsLoading } = useProjects();
+    const createProject = useCreateProject();
+    const updateProject = useUpdateProject();
     const [isWizardOpen, setIsWizardOpen] = useState(false);
-    const [selectedProjectInfo, setSelectedProjectInfo] = useState<{ project: Project; initialTab?: string } | null>(null);
+    const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+    const [selectedInitialTab, setSelectedInitialTab] = useState<string | undefined>(undefined);
+    const { data: selectedProject, isLoading: isSelectedProjectLoading } = useProject(selectedProjectId);
     const [activeView, setActiveView] = useState('list');
     const [highlightedId, setHighlightedId] = useState<string | null>(null);
     const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -43,7 +47,8 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({ beneficiaries, de
         if (deepLinkTarget?.id) {
             const projectToSelect = projects.find(p => p.id === deepLinkTarget.id);
             if (projectToSelect) {
-                setSelectedProjectInfo({ project: projectToSelect, initialTab: deepLinkTarget.tab });
+                setSelectedProjectId(projectToSelect.id);
+                setSelectedInitialTab(deepLinkTarget.tab);
             }
         }
     }, [deepLinkTarget, projects]);
@@ -61,35 +66,33 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({ beneficiaries, de
     }, [projects]);
 
     const handleCreateProject = (newProjectData: Omit<Project, 'id'>) => {
-        const optimistic = buildOptimisticProject(newProjectData);
-        const realCount = projects.filter((p) => !isOptimisticProject(p.id)).length;
-        setProjects((prev) => [optimistic, ...prev]);
-
-        void simulateLocalPersist(() => ({
-            ...optimistic,
-            id: `PROJ-${new Date().getFullYear()}-${String(realCount + 1).padStart(3, '0')}`,
-        })).then((created) => {
-            setProjects((prev) => prev.map((p) => (p.id === optimistic.id ? created : p)));
+        void createProject.mutateAsync(newProjectData).then((created) => {
             flashHighlight(created.id);
             toast.showSuccess(t('projects.createSuccess', 'Project created successfully'));
         }).catch(() => {
-            setProjects((prev) => prev.filter((p) => p.id !== optimistic.id));
             toast.showError(t('projects.createFailed', 'Unable to create project. Please try again.'));
         });
     };
 
     const handleUpdateProject = (updated: Project) => {
-        setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
-        setSelectedProjectInfo(prev => prev && prev.project.id === updated.id ? { ...prev, project: updated } : prev);
+        void updateProject.mutateAsync(updated).catch(() => {
+            toast.showError(t('projects.updateFailed', 'Unable to update project. Please try again.'));
+        });
     };
 
-    if (selectedProjectInfo) {
+    if (selectedProjectId) {
+        if (isSelectedProjectLoading || !selectedProject) {
+            return <div className="py-10 text-center text-sm text-gray-500 dark:text-gray-400">{t('common.loading', 'Loading...')}</div>;
+        }
         return <ProjectDetailView
-                    project={selectedProjectInfo.project}
+                    project={selectedProject}
                     beneficiaries={beneficiaries}
-                    onBack={() => setSelectedProjectInfo(null)}
+                    onBack={() => {
+                        setSelectedProjectId(null);
+                        setSelectedInitialTab(undefined);
+                    }}
                     onUpdate={handleUpdateProject}
-                    initialTab={selectedProjectInfo.initialTab}
+                    initialTab={selectedInitialTab}
                 />;
     }
 
@@ -159,13 +162,17 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({ beneficiaries, de
                         highlightedId={highlightedId}
                         onProjectSelect={(project) => {
                             if (isOptimisticProject(project.id)) return;
-                            setSelectedProjectInfo({ project, initialTab: 'overview' });
+                            setSelectedProjectId(project.id);
+                            setSelectedInitialTab('overview');
                         }}
                     />
                 )}
 
                 {activeView === 'sdg' && (
                     <SDGAlignmentDashboard projects={projects} />
+                )}
+                {isProjectsLoading && (
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('common.loading', 'Loading...')}</div>
                 )}
             </div>
 

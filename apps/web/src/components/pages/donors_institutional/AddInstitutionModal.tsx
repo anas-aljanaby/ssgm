@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import type { InstitutionalDonor, InstitutionType, GrantmakerRelationshipStatus, PriorityLevel } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useToast } from '../../../hooks/useToast';
 import ModalPortal from '../../common/ModalPortal';
 import CountryCombobox from '../../common/CountryCombobox';
 import { XIcon } from '../../icons/GenericIcons';
@@ -9,12 +10,14 @@ import { XIcon } from '../../icons/GenericIcons';
 interface AddInstitutionModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAdd: (donorData: any) => void;
+    onAdd: (donorData: Omit<InstitutionalDonor, 'id' | 'logo' | 'totalGrantsAwarded' | 'activeGrants' | 'nextDeadline' | 'lastContactDate' | 'assignedManager' | 'createdDate'>) => Promise<void>;
     existingCountries?: string[];
 }
 
 const AddInstitutionModal: React.FC<AddInstitutionModalProps> = ({ isOpen, onClose, onAdd, existingCountries = [] }) => {
     const { t } = useLocalization(['common', 'institutional_donors']);
+    const toast = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [organizationName, setOrganizationName] = useState({ en: '', ar: '' });
     const [type, setType] = useState<InstitutionType>('Foundation');
     const [country, setCountry] = useState('');
@@ -24,35 +27,12 @@ const AddInstitutionModal: React.FC<AddInstitutionModalProps> = ({ isOpen, onClo
     const [contactName, setContactName] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [focusAreas, setFocusAreas] = useState('');
+    const [geographicFocus, setGeographicFocus] = useState('');
     const [priority, setPriority] = useState<PriorityLevel>('Medium');
     const [relationshipStatus, setRelationshipStatus] = useState<GrantmakerRelationshipStatus>('Prospect');
 
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!organizationName.en) {
-            alert(t('institutional_donors.modal.requiredName'));
-            return;
-        }
-        onAdd({
-            organizationName: {
-                en: organizationName.en,
-                ar: organizationName.ar || organizationName.en,
-
-            },
-            type,
-            primaryContact: {
-                name: contactName,
-                email: contactEmail,
-            },
-            relationshipStatus,
-            focusAreas: focusAreas.split(',').map(s => s.trim()).filter(Boolean),
-            priority,
-            country: country.trim(),
-            city,
-            registrationNumber,
-            establishmentDate,
-        });
+    const resetForm = () => {
         setOrganizationName({ en: '', ar: '' });
         setType('Foundation');
         setCountry('');
@@ -62,9 +42,50 @@ const AddInstitutionModal: React.FC<AddInstitutionModalProps> = ({ isOpen, onClo
         setContactName('');
         setContactEmail('');
         setFocusAreas('');
+        setGeographicFocus('');
         setPriority('Medium');
         setRelationshipStatus('Prospect');
-        onClose();
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!organizationName.en.trim()) {
+            toast.showError(t('institutional_donors.modal.requiredName'));
+            return;
+        }
+        if (contactEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail.trim())) {
+            toast.showError(t('institutional_donors.detail.validation.email'));
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            await onAdd({
+                organizationName: {
+                    en: organizationName.en.trim(),
+                    ar: organizationName.ar.trim() || organizationName.en.trim(),
+                },
+                type,
+                primaryContact: {
+                    name: contactName.trim(),
+                    email: contactEmail.trim(),
+                },
+                relationshipStatus,
+                focusAreas: focusAreas.split(',').map((s) => s.trim()).filter(Boolean),
+                geographicFocus: geographicFocus.split(',').map((s) => s.trim()).filter(Boolean),
+                priority,
+                country: country.trim(),
+                city: city.trim(),
+                registrationNumber: registrationNumber.trim(),
+                establishmentDate,
+            });
+            resetForm();
+            onClose();
+        } catch {
+            toast.showError(t('institutional_donors.errors.generic'));
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -136,7 +157,11 @@ const AddInstitutionModal: React.FC<AddInstitutionModalProps> = ({ isOpen, onClo
                         </div>
                         <div>
                             <label className="block text-sm font-medium">{t('institutional_donors.modal.focusAreas')}</label>
-                            <input type="text" value={focusAreas} onChange={e => setFocusAreas(e.target.value)} className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800 dark:border-slate-700"/>
+                            <input type="text" value={focusAreas} onChange={e => setFocusAreas(e.target.value)} placeholder={t('institutional_donors.modal.focusAreasHint')} className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800 dark:border-slate-700"/>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium">{t('institutional_donors.detail.geographicFocus')}</label>
+                            <input type="text" value={geographicFocus} onChange={e => setGeographicFocus(e.target.value)} placeholder={t('institutional_donors.modal.geographicFocusHint')} className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800 dark:border-slate-700"/>
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -154,8 +179,10 @@ const AddInstitutionModal: React.FC<AddInstitutionModalProps> = ({ isOpen, onClo
                         </div>
                     </div>
                     <div className="px-6 py-4 bg-gray-50 dark:bg-dark-card/50 rounded-b-2xl flex justify-end gap-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-slate-700 text-sm font-semibold">{t('common.cancel')}</button>
-                        <button type="submit" className="px-4 py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary-dark">{t('institutional_donors.addInstitution')}</button>
+                        <button type="button" onClick={onClose} disabled={isSubmitting} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-slate-700 text-sm font-semibold disabled:opacity-50">{t('common.cancel')}</button>
+                        <button type="submit" disabled={isSubmitting} className="px-4 py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary-dark disabled:opacity-50">
+                            {isSubmitting ? t('common.saving') : t('institutional_donors.addInstitution')}
+                        </button>
                     </div>
                 </form>
             </div>

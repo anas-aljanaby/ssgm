@@ -425,3 +425,113 @@ export const financial_alerts = pgTable('financial_alerts', {
     custom_fields: jsonb('custom_fields').default({}),
     created_at: timestamp('created_at').defaultNow(),
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROJECTS MODULE
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const projects = pgTable('projects', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    name_en: text('name_en').notNull(),
+    name_ar: text('name_ar').default(''),
+    type: text('type').notNull().default('humanitarian'),
+    stage: text('stage').notNull().default('design'),
+    sdg_goals: jsonb('sdg_goals').default([]),
+    planned_start_date: text('planned_start_date').default(''),
+    planned_end_date: text('planned_end_date').default(''),
+    country: text('country').default(''),
+    city: text('city').default(''),
+    region: text('region').default(''),
+    donor: text('donor').default(''),
+    implementing_partner: text('implementing_partner').default(''),
+    target_beneficiaries: text('target_beneficiaries').default(''),
+    primary_contact: text('primary_contact').default(''),
+    goal: text('goal').default(''),
+    objectives: jsonb('objectives').default([]),
+    expected_outcomes: jsonb('expected_outcomes').default([]),
+    progress: integer('progress').default(0),
+    budget: numeric('budget', { precision: 14, scale: 2 }).default('0'),
+    spent: numeric('spent', { precision: 14, scale: 2 }).default('0'),
+    scope_in: jsonb('scope_in').default([]),
+    scope_out: jsonb('scope_out').default([]),
+    scope_assumptions: jsonb('scope_assumptions').default([]),
+    scope_constraints: jsonb('scope_constraints').default([]),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+    updated_at: timestamp('updated_at').defaultNow(),
+});
+
+export const project_kpis = pgTable('project_kpis', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    project_id: uuid('project_id').notNull().references(() => projects.id),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    name: text('name').notNull(),
+    unit: text('unit').notNull().default('number'),
+    target: text('target').notNull().default(''),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const project_tasks = pgTable('project_tasks', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    project_id: uuid('project_id').notNull().references(() => projects.id),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    name: text('name').notNull(),
+    start_date: text('start_date').default(''),
+    end_date: text('end_date').default(''),
+    progress: integer('progress').notNull().default(0),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const project_budget_lines = pgTable('project_budget_lines', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    project_id: uuid('project_id').notNull().references(() => projects.id),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    category: text('category').notNull(),
+    planned: numeric('planned', { precision: 12, scale: 2 }).notNull().default('0'),
+    actual: numeric('actual', { precision: 12, scale: 2 }).notNull().default('0'),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const project_expenses = pgTable('project_expenses', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    project_id: uuid('project_id').notNull().references(() => projects.id),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    date: text('date').notNull(),
+    description: text('description').notNull(),
+    category: text('category').notNull().default('other'),
+    amount: numeric('amount', { precision: 12, scale: 2 }).notNull().default('0'),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const project_risks = pgTable('project_risks', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    project_id: uuid('project_id').notNull().references(() => projects.id),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    description: text('description').notNull(),
+    category: text('category').notNull().default('operational'),
+    probability: text('probability').notNull().default('medium'),
+    impact: text('impact').notNull().default('medium'),
+    response_strategy: text('response_strategy').notNull().default('mitigate'),
+    contingency_plan: text('contingency_plan').default(''),
+    owner: text('owner').default(''),
+    status: text('status').notNull().default('open'),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const project_team_members = pgTable('project_team_members', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    project_id: uuid('project_id').notNull().references(() => projects.id),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    user_id: text('user_id').notNull(),
+    project_role: text('project_role').notNull().default(''),
+    effort: integer('effort').notNull().default(0),
+    availability: text('availability').default(''),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});

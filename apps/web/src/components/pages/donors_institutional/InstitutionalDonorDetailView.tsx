@@ -13,9 +13,11 @@ import { formatInstitutionalLocation } from './countryDisplay';
 interface InstitutionalDonorDetailViewProps {
     donor: InstitutionalDonor;
     onBack: () => void;
+    onDonorUpdated?: (donor: InstitutionalDonor) => void;
+    existingCountries?: string[];
 }
 
-const InstitutionalDonorDetailView: React.FC<InstitutionalDonorDetailViewProps> = ({ donor, onBack }) => {
+const InstitutionalDonorDetailView: React.FC<InstitutionalDonorDetailViewProps> = ({ donor, onBack, onDonorUpdated, existingCountries = [] }) => {
     const { t, language } = useLocalization(['common', 'institutional_donors']);
     const [activeTab, setActiveTab] = useState('overview');
 
@@ -29,13 +31,13 @@ const InstitutionalDonorDetailView: React.FC<InstitutionalDonorDetailViewProps> 
     const renderTabContent = () => {
         switch (activeTab) {
             case 'overview':
-                return <DetailOverviewTabInstitutional donor={donor} />;
+                return <DetailOverviewTabInstitutional donor={donor} onDonorUpdated={onDonorUpdated} existingCountries={existingCountries} />;
             case 'grants':
                 return <GrantsTab donor={donor} />;
             case 'contacts':
                 return <ContactsTab donor={donor} />;
             case 'documents':
-                return <DocumentsTab />;
+                return <DocumentsTab donor={donor} />;
             default:
                 return <div className="p-8 text-center text-gray-500">{t('placeholder.underConstruction')}</div>;
         }

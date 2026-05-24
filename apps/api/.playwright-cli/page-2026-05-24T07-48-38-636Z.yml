@@ -1,0 +1,170 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e2838]:
+          - link "لوحة القيادة" [ref=e2839] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2841]
+            - generic [ref=e2846]: لوحة القيادة
+        - listitem [ref=e2847]:
+          - link "بوصلة" [ref=e2848] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2850]
+            - generic [ref=e2853]: بوصلة
+        - listitem [ref=e2854]:
+          - link "إدارة أصحاب المصلحة" [ref=e2855] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2857]
+            - generic [ref=e2862]: إدارة أصحاب المصلحة
+        - listitem [ref=e2863]:
+          - link "إدارة المانحين" [ref=e2864] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2866]
+            - generic [ref=e2868]: إدارة المانحين
+        - listitem [ref=e2869]:
+          - link "المؤسسات المانحة" [ref=e2870] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2872]
+            - generic [ref=e2874]: المؤسسات المانحة
+        - listitem [ref=e2875]:
+          - link "إدارة المستفيدين" [ref=e2876] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2878]
+            - generic [ref=e2883]: إدارة المستفيدين
+        - listitem [ref=e2884]:
+          - link "إدارة المشاريع" [ref=e2885] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2887]
+            - generic [ref=e2891]: إدارة المشاريع
+        - listitem [ref=e2892]:
+          - link "الإدارة المالية" [ref=e2893] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2895]
+            - generic [ref=e2897]: الإدارة المالية
+        - listitem [ref=e2898]:
+          - link "المساعدة والدعم" [ref=e2899] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2901]
+            - generic [ref=e2904]: المساعدة والدعم
+        - listitem [ref=e2905]:
+          - link "الإعدادات" [ref=e2906] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2908]
+            - generic [ref=e2911]: الإعدادات
+      - list [ref=e103]:
+        - listitem [ref=e2912]:
+          - link "تسجيل الخروج" [ref=e2913] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2915]
+            - generic [ref=e2918]: تسجيل الخروج
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "إدارة المستفيدين" [level=1] [ref=e2497]
+            - button "liveIndicator.delayed" [ref=e3138] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "ابحث في كل شيء..." [ref=e2499]
+            - button "بحث صوتي" [ref=e2500] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "المساعدة والدعم" [ref=e2501] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "Arabic (Saudi Arabia) Flag" [ref=e2502]:
+              - generic [ref=e2505]: لَا إِلٰهَ إِلَّا الله، مُحَمَّدٌ رَسُولُ الله
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User مرحباً! Admin" [ref=e2507] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: مرحباً!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e2919]:
+          - button "العودة إلى القائمة" [ref=e2920] [cursor=pointer]:
+            - img [ref=e2921]
+            - text: العودة إلى القائمة
+          - generic [ref=e2923]:
+            - img "علي خالد" [ref=e2924]
+            - generic [ref=e2925]:
+              - heading "علي خالد" [level=1] [ref=e2926]
+              - paragraph [ref=e2927]: 6th Grade
+              - generic [ref=e2928]:
+                - generic [ref=e2929]: نشط
+                - generic [ref=e2930]: يتيم
+                - generic [ref=e2931]: Jordan
+          - generic [ref=e2932]:
+            - generic [ref=e2933]:
+              - img [ref=e2935]
+              - generic [ref=e2940]:
+                - paragraph [ref=e2941]: الولي
+                - paragraph [ref=e2942]: Maryam Abdullah
+            - generic [ref=e2943]:
+              - img [ref=e2945]
+              - generic [ref=e2948]:
+                - paragraph [ref=e2949]: المساعدات المستلمة
+                - paragraph [ref=e2950]: ‏150 US$
+            - generic [ref=e2951]:
+              - img [ref=e2953]
+              - generic [ref=e2956]:
+                - paragraph [ref=e2957]: الإنجازات
+                - paragraph [ref=e2958]: 1/1
+          - generic [ref=e2959]:
+            - navigation [ref=e2962]:
+              - button "نظرة عامة" [ref=e2963] [cursor=pointer]
+              - button "الولي والأسرة" [ref=e2964] [cursor=pointer]
+              - button "الكفالة" [ref=e2965] [cursor=pointer]
+              - button "المساعدات والخدمات" [ref=e2966] [cursor=pointer]
+              - button "تقييم الاحتياجات" [ref=e2967] [cursor=pointer]
+              - button "المستندات" [ref=e2968] [cursor=pointer]
+            - generic [ref=e3057]:
+              - generic [ref=e3059]:
+                - img [ref=e3061]
+                - heading "الكفالة" [level=3] [ref=e3063]
+              - generic [ref=e3068]:
+                - generic [ref=e3089]:
+                  - generic [ref=e3090]:
+                    - text: نوع الدعم
+                    - combobox "نوع الدعم" [ref=e3091]:
+                      - option "دعم مباشر"
+                      - option "كفالة" [selected]
+                  - generic [ref=e3092]:
+                    - text: الكافل / المتبرع
+                    - generic [ref=e3095] [cursor=pointer]:
+                      - generic [ref=e3139]: جون سميث
+                      - button [ref=e3140]:
+                        - img [ref=e3141]
+                  - generic [ref=e3101]:
+                    - text: تاريخ البدء
+                    - textbox "تاريخ البدء" [ref=e3102]: 2024-01-01
+                  - generic [ref=e3103]:
+                    - text: المبلغ الشهري
+                    - spinbutton "المبلغ الشهري" [ref=e3104]: "150"
+                  - generic [ref=e3105]:
+                    - text: العملة
+                    - combobox "العملة" [ref=e3106]:
+                      - option "USD" [selected]
+                      - option "SAR"
+                      - option "AED"
+                      - option "EUR"
+                - generic [ref=e3107]:
+                  - button "حفظ" [ref=e3108] [cursor=pointer]:
+                    - img [ref=e3109]
+                    - text: حفظ
+                  - button "إلغاء" [ref=e3111] [cursor=pointer]:
+                    - img [ref=e3112]
+                    - text: إلغاء
+  - generic [ref=e789]: $0

@@ -1,0 +1,247 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e2528]:
+          - link "لوحة القيادة" [ref=e2529] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2531]
+            - generic [ref=e2536]: لوحة القيادة
+        - listitem [ref=e2537]:
+          - link "بوصلة" [ref=e2538] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2540]
+            - generic [ref=e2543]: بوصلة
+        - listitem [ref=e2544]:
+          - link "إدارة أصحاب المصلحة" [ref=e2545] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2547]
+            - generic [ref=e2552]: إدارة أصحاب المصلحة
+        - listitem [ref=e2553]:
+          - link "إدارة المانحين" [ref=e2554] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2556]
+            - generic [ref=e2558]: إدارة المانحين
+        - listitem [ref=e2559]:
+          - link "المؤسسات المانحة" [ref=e2560] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2562]
+            - generic [ref=e2564]: المؤسسات المانحة
+        - listitem [ref=e2565]:
+          - link "إدارة المستفيدين" [ref=e2566] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2568]
+            - generic [ref=e2573]: إدارة المستفيدين
+        - listitem [ref=e2574]:
+          - link "إدارة المشاريع" [ref=e2575] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2577]
+            - generic [ref=e2581]: إدارة المشاريع
+        - listitem [ref=e2582]:
+          - link "الإدارة المالية" [ref=e2583] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2585]
+            - generic [ref=e2587]: الإدارة المالية
+        - listitem [ref=e2588]:
+          - link "المساعدة والدعم" [ref=e2589] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2591]
+            - generic [ref=e2594]: المساعدة والدعم
+        - listitem [ref=e2595]:
+          - link "الإعدادات" [ref=e2596] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2598]
+            - generic [ref=e2601]: الإعدادات
+      - list [ref=e103]:
+        - listitem [ref=e2602]:
+          - link "تسجيل الخروج" [ref=e2603] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e2605]
+            - generic [ref=e2608]: تسجيل الخروج
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "إدارة المستفيدين" [level=1] [ref=e2497]
+            - button "liveIndicator.delayed" [ref=e2498] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "ابحث في كل شيء..." [ref=e2499]
+            - button "بحث صوتي" [ref=e2500] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "المساعدة والدعم" [ref=e2501] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "Arabic (Saudi Arabia) Flag" [ref=e2502]:
+              - generic [ref=e2505]: لَا إِلٰهَ إِلَّا الله، مُحَمَّدٌ رَسُولُ الله
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User مرحباً! Admin" [ref=e2507] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: مرحباً!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e2069]:
+          - button "العودة إلى القائمة" [ref=e2508] [cursor=pointer]:
+            - img [ref=e2071]
+            - text: العودة إلى القائمة
+          - generic [ref=e2073]:
+            - img "يوسف الأحمد" [ref=e2509]
+            - generic [ref=e2075]:
+              - heading "يوسف الأحمد" [level=1] [ref=e2510]
+              - paragraph [ref=e2077]: Computer Engineering في Istanbul University
+              - generic [ref=e2078]:
+                - generic [ref=e2079]: نشط
+                - generic [ref=e2080]: طالب
+                - generic [ref=e2081]: Turkey
+          - generic [ref=e2082]:
+            - generic [ref=e2083]:
+              - img [ref=e2085]
+              - generic [ref=e2088]:
+                - paragraph [ref=e2089]: المعدل التراكمي
+                - paragraph [ref=e2090]: "3.40"
+            - generic [ref=e2091]:
+              - img [ref=e2093]
+              - generic [ref=e2096]:
+                - paragraph [ref=e2097]: المساعدات المستلمة
+                - paragraph [ref=e2098]: ‏250 US$
+            - generic [ref=e2099]:
+              - img [ref=e2101]
+              - generic [ref=e2104]:
+                - paragraph [ref=e2105]: الإنجازات
+                - paragraph [ref=e2106]: 2/4
+          - generic [ref=e2107]:
+            - navigation [ref=e2110]:
+              - button "نظرة عامة" [ref=e2511] [cursor=pointer]
+              - button "البيانات الأكاديمية" [ref=e2512] [cursor=pointer]
+              - button "الكفالة" [ref=e2513] [cursor=pointer]
+              - button "المساعدات والخدمات" [ref=e2514] [cursor=pointer]
+              - button "تقييم الاحتياجات" [ref=e2515] [cursor=pointer]
+              - button "المستندات" [ref=e2516] [cursor=pointer]
+            - generic [ref=e2252]:
+              - generic [ref=e2253]:
+                - heading "سجل المساعدات والخدمات" [level=2] [ref=e2517]
+                - button "إضافة مساعدة" [ref=e2518] [cursor=pointer]:
+                  - img [ref=e2256]
+                  - text: إضافة مساعدة
+              - generic [ref=e2258]:
+                - generic [ref=e2259]:
+                  - img [ref=e2261]
+                  - generic [ref=e2263]:
+                    - generic [ref=e2264]:
+                      - generic [ref=e2265]:
+                        - paragraph [ref=e2266]: sponsorship_stipend
+                        - paragraph [ref=e2267]: 11 ديسمبر 2024
+                      - generic [ref=e2268]:
+                        - generic [ref=e2269]: من المالية
+                        - generic [ref=e2270]:
+                          - img [ref=e2271]
+                          - text: completed
+                    - generic [ref=e2274]:
+                      - paragraph [ref=e2275]:
+                        - strong [ref=e2276]: "القيمة:"
+                        - text: ‏250 US$
+                      - button "عرض في المالية" [ref=e2519] [cursor=pointer]:
+                        - text: عرض في المالية
+                        - img [ref=e2278]
+                - generic [ref=e2282]:
+                  - img [ref=e2284]
+                  - generic [ref=e2286]:
+                    - generic [ref=e2287]:
+                      - generic [ref=e2288]:
+                        - paragraph [ref=e2289]: مخصص أغسطس
+                        - paragraph [ref=e2290]: 1 أغسطس 2024
+                      - generic [ref=e2291]:
+                        - generic [ref=e2292]: مالي
+                        - generic [ref=e2293]:
+                          - img [ref=e2294]
+                          - text: مجدول
+                        - generic [ref=e2297]:
+                          - button "تعديل المساعدة" [ref=e2520] [cursor=pointer]:
+                            - img [ref=e2299]
+                          - button "حذف المساعدة" [ref=e2521] [cursor=pointer]:
+                            - img [ref=e2303]
+                    - paragraph [ref=e2307]:
+                      - strong [ref=e2308]: "القيمة:"
+                      - text: ‏250 US$
+                - generic [ref=e2309]:
+                  - img [ref=e2311]
+                  - generic [ref=e2313]:
+                    - generic [ref=e2314]:
+                      - generic [ref=e2315]:
+                        - paragraph [ref=e2316]: مخصص شهري
+                        - paragraph [ref=e2317]: 1 يوليو 2024
+                      - generic [ref=e2318]:
+                        - generic [ref=e2319]: مالي
+                        - generic [ref=e2320]:
+                          - img [ref=e2321]
+                          - text: تم التسليم
+                        - generic [ref=e2324]:
+                          - button "تعديل المساعدة" [ref=e2522] [cursor=pointer]:
+                            - img [ref=e2326]
+                          - button "حذف المساعدة" [ref=e2523] [cursor=pointer]:
+                            - img [ref=e2330]
+                    - generic [ref=e2333]:
+                      - paragraph [ref=e2334]:
+                        - strong [ref=e2335]: "القيمة:"
+                        - text: ‏250 US$
+                      - paragraph [ref=e2336]:
+                        - strong [ref=e2337]: "المشروع:"
+                        - text: مبادرة الدعم التعليمي
+                - generic [ref=e2338]:
+                  - img [ref=e2340]
+                  - generic [ref=e2344]:
+                    - generic [ref=e2345]:
+                      - generic [ref=e2346]:
+                        - paragraph [ref=e2347]: جهاز كمبيوتر محمول للدراسة
+                        - paragraph [ref=e2348]: 15 يونيو 2024
+                      - generic [ref=e2349]:
+                        - generic [ref=e2350]: عيني
+                        - generic [ref=e2351]:
+                          - img [ref=e2352]
+                          - text: تم التسليم
+                        - generic [ref=e2355]:
+                          - button "تعديل المساعدة" [ref=e2524] [cursor=pointer]:
+                            - img [ref=e2357]
+                          - button "حذف المساعدة" [ref=e2525] [cursor=pointer]:
+                            - img [ref=e2361]
+                    - generic [ref=e2364]:
+                      - paragraph [ref=e2365]:
+                        - strong [ref=e2366]: "القيمة:"
+                        - text: 1 pcs
+                      - paragraph [ref=e2367]:
+                        - strong [ref=e2368]: "صنف المخزون:"
+                        - text: ELEC-LAP-01
+                - generic [ref=e2369]:
+                  - img [ref=e2371]
+                  - generic [ref=e2374]:
+                    - generic [ref=e2375]:
+                      - generic [ref=e2376]:
+                        - paragraph [ref=e2377]: حضور ورشة عمل القيادة
+                        - paragraph [ref=e2378]: 20 مايو 2024
+                      - generic [ref=e2379]:
+                        - generic [ref=e2380]: خدمة
+                        - generic [ref=e2381]:
+                          - img [ref=e2382]
+                          - text: تم التسليم
+                        - generic [ref=e2385]:
+                          - button "تعديل المساعدة" [ref=e2526] [cursor=pointer]:
+                            - img [ref=e2387]
+                          - button "حذف المساعدة" [ref=e2527] [cursor=pointer]:
+                            - img [ref=e2391]
+                    - paragraph [ref=e2395]:
+                      - strong [ref=e2396]: "القيمة:"
+                      - text: 8 hours
+  - generic [ref=e789]: $0

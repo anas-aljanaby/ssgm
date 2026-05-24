@@ -268,6 +268,10 @@
       "requestDisbursementHint": "Creates a pending disbursement in Financials linked to this beneficiary.",
       "disbursementRequested": "Disbursement submitted for approval.",
       "disbursementRequestFailed": "Could not submit disbursement. Please try again.",
+      "disbursementCancelFailed": "Could not cancel the linked disbursement. Please try again from Financials.",
+      "disbursementCancelled": "Disbursement request withdrawn.",
+      "withdrawDisbursement": "Withdraw disbursement request",
+      "withdrawDisbursementConfirm": "Cancel this pending disbursement request? It will be removed from Financials approvals.",
       "notes": "Notes"
     },
 

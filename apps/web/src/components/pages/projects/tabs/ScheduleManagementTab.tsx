@@ -3,6 +3,8 @@ import { useLocalization } from '../../../../hooks/useLocalization';
 import type { Project, GanttTask } from '../../../../types';
 import AiCard from '../../ai/AiCard';
 import { CheckCircle2, Clock, Circle, PlusCircle, Pencil, Trash2, X, Check } from 'lucide-react';
+import { useProjectTasks } from '../../../../hooks/useProjects';
+import { useToast } from '../../../../hooks/useToast';
 
 interface ScheduleManagementTabProps {
     project: Project;
@@ -31,8 +33,10 @@ const statusIcon = (progress: number) => {
     return <Circle size={14} className="text-gray-300 dark:text-slate-600 shrink-0" />;
 };
 
-const ScheduleManagementTab: React.FC<ScheduleManagementTabProps> = ({ project, onUpdate }) => {
+const ScheduleManagementTab: React.FC<ScheduleManagementTabProps> = ({ project }) => {
     const { t } = useLocalization(['projects']);
+    const toast = useToast();
+    const { data: tasks = project.schedule, createTask, updateTask, deleteTask } = useProjectTasks(project.id);
     const [modalOpen, setModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<GanttTask | null>(null);
     const [form, setForm] = useState<TaskForm>(emptyTaskForm());
@@ -51,17 +55,24 @@ const ScheduleManagementTab: React.FC<ScheduleManagementTabProps> = ({ project, 
 
     const closeModal = () => setModalOpen(false);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!form.name.trim()) return;
-        const updated = editingTask
-            ? project.schedule.map(t => t.id === editingTask.id ? { ...editingTask, ...form, name: form.name.trim() } : t)
-            : [...project.schedule, { id: `task-${Date.now()}`, ...form, name: form.name.trim() }];
-        onUpdate?.({ ...project, schedule: updated });
-        closeModal();
+        try {
+            if (editingTask) {
+                await updateTask({ ...editingTask, ...form, name: form.name.trim() });
+            } else {
+                await createTask({ ...form, name: form.name.trim() });
+            }
+            closeModal();
+        } catch {
+            toast.showError(t('common.error', 'Something went wrong. Please try again.'));
+        }
     };
 
     const handleDelete = (id: string) => {
-        onUpdate?.({ ...project, schedule: project.schedule.filter(t => t.id !== id) });
+        void deleteTask(id).catch(() => {
+            toast.showError(t('common.error', 'Something went wrong. Please try again.'));
+        });
     };
 
     const inputClass = "w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-dark-foreground focus:ring-1 focus:ring-primary";
@@ -82,7 +93,7 @@ const ScheduleManagementTab: React.FC<ScheduleManagementTabProps> = ({ project, 
                         <span className="text-end">{t('projects.list.progress')}</span>
                         <span></span>
                     </div>
-                    {project.schedule.map(task => (
+                    {tasks.map(task => (
                         <div key={task.id} className="grid grid-cols-[1fr_2fr_100px_56px] gap-4 items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800/40 transition-colors group">
                             <div className="flex items-center gap-2 min-w-0">
                                 {statusIcon(task.progress)}

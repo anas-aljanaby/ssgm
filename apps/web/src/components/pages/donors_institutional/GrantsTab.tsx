@@ -22,14 +22,36 @@ const mockGrants: Grant[] = [
     { id: 'GR-03', date: '2023-05-20T00:00:00Z', amount: 250000, currency: 'USD', type: 'Restricted', projectBeneficiary: 'Emergency Food Aid for Conflict Zones', status: 'Paid'},
 ];
 
+/** PLACEHOLDER: Replace with grants API when institutional donors backend is activated. */
+const GRANT_IDS_BY_DONOR: Record<string, string[]> = {
+    'G-00123': ['GR-01', 'GR-02'],
+    'G-00301': ['GR-01', 'GR-04'],
+    'UN-001': ['GR-02', 'GR-03'],
+    'UN-002': ['GR-03'],
+    'QA-001': ['GR-03', 'GR-04'],
+};
+
+function grantsForDonor(donor: InstitutionalDonor): Grant[] {
+    const explicit = GRANT_IDS_BY_DONOR[donor.id];
+    if (explicit) {
+        return mockGrants.filter((grant) => explicit.includes(grant.id));
+    }
+    if (donor.activeGrants <= 0) {
+        return [];
+    }
+    const count = Math.min(donor.activeGrants, mockGrants.length);
+    return mockGrants.slice(0, count);
+}
+
 const FILTER_ALL = 'all';
 
 interface GrantsTabProps {
     donor: InstitutionalDonor;
 }
 
-const GrantsTab: React.FC<GrantsTabProps> = ({ donor: _donor }) => {
+const GrantsTab: React.FC<GrantsTabProps> = ({ donor }) => {
     const { t, language } = useLocalization(['common', 'institutional_donors', 'projects']);
+    const donorGrants = useMemo(() => grantsForDonor(donor), [donor]);
 
     const [filters, setFilters] = useState({
         status: FILTER_ALL,
@@ -73,7 +95,7 @@ const GrantsTab: React.FC<GrantsTabProps> = ({ donor: _donor }) => {
     };
 
     const allSponsoredProjects = useMemo(() => {
-        return mockGrants.map(grant => {
+        return donorGrants.map(grant => {
             const project = MOCK_PROJECTS.find(p => p.name.en === grant.projectBeneficiary);
             if (project) {
                 return { project, grant };
@@ -91,7 +113,7 @@ const GrantsTab: React.FC<GrantsTabProps> = ({ donor: _donor }) => {
             }
             return null;
         }).filter(Boolean) as { project: Partial<Project>, grant: Grant }[];
-    }, []);
+    }, [donorGrants]);
 
     const filteredProjects = useMemo(() => {
         return allSponsoredProjects.filter(({ project, grant }) => {
@@ -116,7 +138,16 @@ const GrantsTab: React.FC<GrantsTabProps> = ({ donor: _donor }) => {
     }, [allSponsoredProjects, filters, t]);
 
     const sectorOptions = useMemo(() => Array.from(new Set(allSponsoredProjects.map(p => p.project.type).filter(Boolean))) as ProjectType[], [allSponsoredProjects]);
-    const yearOptions = useMemo(() => Array.from(new Set(mockGrants.map(g => new Date(g.date).getFullYear().toString()))).sort((a,b) => Number(b) - Number(a)), []);
+    const yearOptions = useMemo(() => Array.from(new Set(donorGrants.map(g => new Date(g.date).getFullYear().toString()))).sort((a, b) => Number(b) - Number(a)), [donorGrants]);
+
+    if (donorGrants.length === 0) {
+        return (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50/80 px-6 py-12 text-center dark:border-slate-600 dark:bg-slate-900/20">
+                <p className="text-sm font-semibold text-foreground dark:text-dark-foreground">{t('institutional_donors.grantsTab.noGrantsForDonor')}</p>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t('institutional_donors.grantsTab.noGrantsForDonorHint')}</p>
+            </div>
+        );
+    }
 
     return (
         <div>

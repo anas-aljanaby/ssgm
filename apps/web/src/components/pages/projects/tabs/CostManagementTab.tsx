@@ -2,11 +2,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { useLocalization } from '../../../../hooks/useLocalization';
-import type { Project, ExpenseLogItem } from '../../../../types';
+import type { Project } from '../../../../types';
 import AiCard from '../../ai/AiCard';
 import { formatCurrency, formatDate } from '../../../../lib/utils';
 import { useTheme } from '../../../../hooks/useTheme';
 import { PlusCircle, X, Check } from 'lucide-react';
+import { useProjectExpenses } from '../../../../hooks/useProjects';
+import { useToast } from '../../../../hooks/useToast';
 
 interface CostManagementTabProps {
     project: Project;
@@ -37,9 +39,11 @@ const KpiCard: React.FC<{ title: string; value: string; colorClass: string }> = 
     </div>
 );
 
-const CostManagementTab: React.FC<CostManagementTabProps> = ({ project, isInitiallyActive, onUpdate }) => {
+const CostManagementTab: React.FC<CostManagementTabProps> = ({ project, isInitiallyActive }) => {
     const { t, language } = useLocalization(['projects']);
     const { theme } = useTheme();
+    const toast = useToast();
+    const { data: expenses = project.costManagement.expenseLog, createExpense } = useProjectExpenses(project.id);
     const isDark = theme === 'dark';
     const kpiCardRef = useRef<HTMLDivElement>(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -55,29 +59,25 @@ const CostManagementTab: React.FC<CostManagementTabProps> = ({ project, isInitia
         }
     }, [isInitiallyActive]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const amount = parseFloat(form.amount);
         if (!form.description.trim() || isNaN(amount) || amount <= 0) return;
-        const newExpense: ExpenseLogItem = {
-            id: `exp-${Date.now()}`,
-            date: form.date,
-            description: form.description.trim(),
-            category: form.category,
-            amount,
-            wbsId: '',
-        };
-        const updatedLog = [...project.costManagement.expenseLog, newExpense];
-        const newSpent = updatedLog.reduce((sum, e) => sum + e.amount, 0);
-        onUpdate?.({
-            ...project,
-            spent: newSpent,
-            costManagement: { ...project.costManagement, expenseLog: updatedLog },
-        });
-        setModalOpen(false);
-        setForm(emptyExpenseForm());
+        try {
+            await createExpense({
+                date: form.date,
+                description: form.description.trim(),
+                category: form.category,
+                amount,
+            });
+            setModalOpen(false);
+            setForm(emptyExpenseForm());
+        } catch {
+            toast.showError(t('common.error', 'Something went wrong. Please try again.'));
+        }
     };
 
-    const remainingBudget = project.budget - project.spent;
+    const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    const remainingBudget = project.budget - totalSpent;
     const budgetData = project.costManagement.budgetDetails.map(item => ({
         name: t(`projects.cost.categories.${item.category}`, item.category),
         Planned: item.planned,
@@ -92,7 +92,7 @@ const CostManagementTab: React.FC<CostManagementTabProps> = ({ project, isInitia
             <AiCard title={t('projects.cost.dashboard')} ref={kpiCardRef}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <KpiCard title={t('projects.cost.totalBudget')} value={formatCurrency(project.budget, language)} colorClass="text-foreground dark:text-dark-foreground" />
-                    <KpiCard title={t('projects.cost.totalSpent')} value={formatCurrency(project.spent, language)} colorClass="text-orange-500" />
+                    <KpiCard title={t('projects.cost.totalSpent')} value={formatCurrency(totalSpent, language)} colorClass="text-orange-500" />
                     <KpiCard title={t('projects.cost.remaining')} value={formatCurrency(remainingBudget, language)} colorClass={remainingBudget > 0 ? "text-green-500" : "text-red-500"} />
                     <KpiCard title={t('projects.cost.earnedValue')} value={formatCurrency(project.costManagement.financialSummary.ev, language)} colorClass="text-purple-500" />
                 </div>
@@ -183,7 +183,7 @@ const CostManagementTab: React.FC<CostManagementTabProps> = ({ project, isInitia
                             </tr>
                         </thead>
                         <tbody>
-                            {project.costManagement.expenseLog.map(item => (
+                            {expenses.map(item => (
                                 <tr key={item.id} className="border-t dark:border-slate-700">
                                     <td className="p-2">{formatDate(item.date, language)}</td>
                                     <td className="p-2">{item.description}</td>
