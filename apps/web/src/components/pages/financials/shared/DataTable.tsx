@@ -133,6 +133,7 @@ function DataTable<T extends Record<string, any>>({
               return (
               <tr
                 key={getRowKey ? getRowKey(row) : rowIdx}
+                data-highlight-id={getRowKey ? getRowKey(row) : undefined}
                 className={`border-b border-gray-100 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors duration-500 ${zebra} ${customClass} ${
                   onRowClick ? 'cursor-pointer' : ''
                 }`}

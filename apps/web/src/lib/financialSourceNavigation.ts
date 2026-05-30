@@ -1,12 +1,17 @@
 import type { ApprovalItem, Disbursement } from '../types/financials';
+import { openBeneficiaryAidLog } from './moduleNavigation';
 
 export type FinancialSourceRoute = {
-    hash: string;
+    beneficiaryId: string;
+    highlightDisbursementId?: string;
 };
 
 export function getDisbursementSourceRoute(disbursement: Disbursement): FinancialSourceRoute | null {
     if (!disbursement.beneficiaryId) return null;
-    return { hash: `beneficiaries/${disbursement.beneficiaryId}/aid_log` };
+    return {
+        beneficiaryId: disbursement.beneficiaryId,
+        highlightDisbursementId: disbursement.id,
+    };
 }
 
 export function getApprovalSourceRoute(
@@ -17,7 +22,10 @@ export function getApprovalSourceRoute(
 
     const beneficiaryId = item.metadata?.beneficiaryId;
     if (beneficiaryId) {
-        return { hash: `beneficiaries/${beneficiaryId}/aid_log` };
+        return {
+            beneficiaryId,
+            highlightDisbursementId: item.relatedEntityId,
+        };
     }
 
     if (item.relatedEntityId && disbursementById) {
@@ -29,5 +37,5 @@ export function getApprovalSourceRoute(
 }
 
 export function navigateToFinancialSource(route: FinancialSourceRoute) {
-    window.location.hash = route.hash;
+    openBeneficiaryAidLog(route.beneficiaryId, route.highlightDisbursementId);
 }

@@ -3,6 +3,7 @@ import type { AidItem, AidStatus, Beneficiary, ProgramProject } from '../../../t
 import type { Disbursement, DisbursementStatus } from '../../../types/financials';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
+import { HIGHLIGHT_CARD_CLASS, useUrlHighlight } from '../../../hooks/useUrlHighlight';
 import { useBeneficiaryDisbursements, useCancelDisbursement, useCreateDisbursement } from '../../../hooks/useDisbursements';
 import { formatDate, formatCurrency, formatNumber } from '../../../lib/utils';
 import { mapDisbursementToAidStatus, openFinancialsTab } from '../../../lib/aidDisbursement';
@@ -29,6 +30,7 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
     const { data: disbursements = [] } = useBeneficiaryDisbursements(beneficiary.id);
     const createDisbursement = useCreateDisbursement();
     const cancelDisbursement = useCancelDisbursement();
+    const { highlightedId, consumeHighlightParam } = useUrlHighlight();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<AidItem | null>(null);
@@ -85,6 +87,27 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
             return new Date(dateB).getTime() - new Date(dateA).getTime();
         });
     }, [aidLog, disbursements, linkedDisbursementIds]);
+
+    useEffect(() => {
+        if (timeline.length === 0) return;
+        consumeHighlightParam((disbursementId) => {
+            const matches = timeline.some((entry) =>
+                entry.kind === 'disbursement'
+                    ? entry.disbursement.id === disbursementId
+                    : entry.item.disbursementId === disbursementId,
+            );
+            return matches ? disbursementId : null;
+        });
+    }, [timeline, consumeHighlightParam]);
+
+    const isEntryHighlighted = (entry: TimelineEntry) => {
+        if (!highlightedId) return false;
+        if (entry.kind === 'disbursement') return entry.disbursement.id === highlightedId;
+        return entry.item.disbursementId === highlightedId;
+    };
+
+    const getEntryHighlightId = (entry: TimelineEntry) =>
+        entry.kind === 'disbursement' ? entry.disbursement.id : (entry.item.disbursementId ?? entry.item.id);
 
     const aidTypeConfig: Record<AidItem['type'], { icon: React.FC, color: string }> = {
         financial: { icon: FinancialAidIcon, color: 'text-green-500' },
@@ -228,8 +251,8 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
         return projects.find((p) => p.id === projectId)?.name[language];
     };
 
-    const openFinancialsForDisbursement = (status?: DisbursementStatus) => {
-        openFinancialsTab(status === 'pending_approval' ? 'approvals' : 'disbursements');
+    const openFinancialsForDisbursement = (disbursementId: string, status?: DisbursementStatus) => {
+        openFinancialsTab(status === 'pending_approval' ? 'approvals' : 'disbursements', disbursementId);
     };
 
     const renderAidEntry = (item: AidItem) => {
@@ -247,7 +270,12 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
                 <div className={`absolute top-1 w-10 h-10 rounded-full bg-card dark:bg-dark-card border-2 border-gray-200 dark:border-slate-700 flex items-center justify-center ${aidTypeConfig[item.type].color} ${dir === 'rtl' ? 'right-[-52px]' : 'left-[-52px]'}`}>
                     <TypeIcon />
                 </div>
-                <div className="bg-card dark:bg-dark-card/50 p-4 rounded-xl shadow-md border dark:border-slate-700">
+                <div
+                    data-highlight-id={getEntryHighlightId({ kind: 'aid', item })}
+                    className={`bg-card dark:bg-dark-card/50 p-4 rounded-xl shadow-md border dark:border-slate-700 transition-colors duration-500 ${
+                        isEntryHighlighted({ kind: 'aid', item }) ? HIGHLIGHT_CARD_CLASS : ''
+                    }`}
+                >
                     <div className="flex justify-between items-start gap-3">
                         <div className="min-w-0 flex-1">
                             <p className="font-bold text-foreground dark:text-dark-foreground">{item.description[language] || item.description.en}</p>
@@ -296,7 +324,7 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
                         {item.disbursementId && (
                             <p className="text-gray-600 dark:text-gray-300">
                                 <strong>{t('beneficiaries.aidLog.linkedDisbursement')}:</strong>{' '}
-                                <button type="button" onClick={() => openFinancialsForDisbursement(disbursementStatus)} className="inline-flex items-center gap-1 text-primary hover:underline">
+                                <button type="button" onClick={() => item.disbursementId && openFinancialsForDisbursement(item.disbursementId, disbursementStatus)} className="inline-flex items-center gap-1 text-primary hover:underline">
                                     {t('beneficiaries.aidLog.viewInFinancials')}
                                     <ExternalLink size={12} />
                                 </button>
@@ -325,7 +353,12 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
                 <div className={`absolute top-1 w-10 h-10 rounded-full bg-card dark:bg-dark-card border-2 border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 ${dir === 'rtl' ? 'right-[-52px]' : 'left-[-52px]'}`}>
                     <Landmark size={18} />
                 </div>
-                <div className="bg-card dark:bg-dark-card/50 p-4 rounded-xl shadow-md border border-amber-100 dark:border-amber-900/40">
+                <div
+                    data-highlight-id={getEntryHighlightId({ kind: 'disbursement', disbursement })}
+                    className={`bg-card dark:bg-dark-card/50 p-4 rounded-xl shadow-md border border-amber-100 dark:border-amber-900/40 transition-colors duration-500 ${
+                        isEntryHighlighted({ kind: 'disbursement', disbursement }) ? HIGHLIGHT_CARD_CLASS : ''
+                    }`}
+                >
                     <div className="flex justify-between items-start gap-3">
                         <div className="min-w-0 flex-1">
                             <p className="font-bold text-foreground dark:text-dark-foreground">{title}</p>
@@ -359,7 +392,7 @@ const AidLogTab: React.FC<AidLogTabProps> = ({ beneficiary, onUpdate, projects =
                         {disbursement.notes && (
                             <p><strong>{t('beneficiaries.aidLog.notes')}:</strong> {disbursement.notes}</p>
                         )}
-                        <button type="button" onClick={() => openFinancialsForDisbursement(disbursement.status)} className="inline-flex items-center gap-1 text-primary hover:underline text-sm font-semibold">
+                        <button type="button" onClick={() => openFinancialsForDisbursement(disbursement.id, disbursement.status)} className="inline-flex items-center gap-1 text-primary hover:underline text-sm font-semibold">
                             {t('beneficiaries.aidLog.viewInFinancials')}
                             <ExternalLink size={12} />
                         </button>

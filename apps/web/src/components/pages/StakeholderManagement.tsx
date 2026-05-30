@@ -11,8 +11,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalization } from '../../hooks/useLocalization';
 import { MOCK_STAKEHOLDERS } from '../../data/stakeholderData';
 import type { Stakeholder, StakeholderType } from '../../types';
-import { formatNumber, formatDate } from '../../lib/utils';
-import AddStakeholderModal from './stakeholders/AddStakeholderModal';
+import { formatDate } from '../../lib/utils';
+import AddStakeholderModal, { type StakeholderFormValues } from './stakeholders/AddStakeholderModal';
 import StakeholderDetailPanel from './stakeholders/StakeholderDetailPanel';
 import StakeholderMatrix from './stakeholders/StakeholderMatrix';
 import StakeholderCard from './stakeholders/StakeholderCard';
@@ -48,7 +48,9 @@ const StakeholderManagement: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<StakeholderType | 'all'>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedStakeholder, setSelectedStakeholder] = useState<Stakeholder | null>(null);
+    const [editingStakeholder, setEditingStakeholder] = useState<Stakeholder | null>(null);
     const [view, setView] = useTabParam('tab', 'card', STAKEHOLDER_VIEW_TABS);
     const [highlightedId, setHighlightedId] = useState<Stakeholder['id'] | null>(null);
     const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -141,6 +143,7 @@ const StakeholderManagement: React.FC = () => {
     ] as const, []);
 
     const stats = useMemo(() => {
+        // TODO: Replace these aggregate metrics with real cross-module API data when stakeholder relations are activated.
         const avgHealthScore = stakeholders.reduce((sum, s) => sum + s.healthScore, 0) / (stakeholders.length || 1);
         const needsAttention = stakeholders.filter(s => s.healthScore < 80).length;
         const highRisk = stakeholders.filter(s => s.riskLevel === 'high').length;
@@ -171,21 +174,84 @@ const StakeholderManagement: React.FC = () => {
         return 'red';
     };
 
-    const handleAddStakeholder = (data: Pick<Stakeholder, 'name' | 'type' | 'category' | 'country' | 'email' | 'phone'>) => {
+    const handleAddStakeholder = async (data: StakeholderFormValues) => {
         const optimistic = buildOptimisticStakeholder(data);
         setStakeholders(prev => [optimistic, ...prev]);
 
-        void simulateLocalPersist((): Stakeholder => ({
+        const created = await simulateLocalPersist((): Stakeholder => ({
             ...optimistic,
             id: nextStakeholderNumericId(stakeholders),
-        })).then((created) => {
-            setStakeholders(prev => prev.map(s => (s.id === optimistic.id ? created : s)));
-            flashHighlight(created.id);
-            toast.showSuccess(t('stakeholder_management.add_modal.success', 'Stakeholder added'));
-        }).catch(() => {
-            setStakeholders(prev => prev.filter(s => s.id !== optimistic.id));
-            toast.showError(t('common.error', 'Error'));
-        });
+        }));
+        setStakeholders(prev => prev.map(s => (s.id === optimistic.id ? created : s)));
+        flashHighlight(created.id);
+        toast.showSuccess(t('stakeholder_management.notifications.createSuccess'));
+    };
+
+    const handleOpenEditModal = (stakeholder: Stakeholder) => {
+        setEditingStakeholder(stakeholder);
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdateStakeholder = async (data: StakeholderFormValues) => {
+        if (!editingStakeholder) return;
+        const targetId = editingStakeholder.id;
+        const target = stakeholders.find((s) => s.id === targetId);
+        if (!target) return;
+
+        const updated = await simulateLocalPersist<Stakeholder>(() => ({
+            ...target,
+            ...data,
+            name: {
+                en: data.name.en || data.name.ar,
+                ar: data.name.ar || data.name.en,
+            },
+        }));
+
+        setStakeholders((prev) => prev.map((s) => (s.id === targetId ? updated : s)));
+        setSelectedStakeholder((prev) => (prev && prev.id === targetId ? updated : prev));
+        setEditingStakeholder(updated);
+        flashHighlight(updated.id);
+        toast.showSuccess(t('stakeholder_management.notifications.updateSuccess'));
+    };
+
+    const handleSaveFromDetailPanel = async (stakeholderId: Stakeholder['id'], updates: Partial<Stakeholder>) => {
+        const existing = stakeholders.find((s) => s.id === stakeholderId);
+        if (!existing) return;
+
+        const updated = await simulateLocalPersist<Stakeholder>(() => ({
+            ...existing,
+            ...updates,
+            name: updates.name
+                ? {
+                    en: updates.name.en || updates.name.ar,
+                    ar: updates.name.ar || updates.name.en,
+                }
+                : existing.name,
+        }));
+
+        setStakeholders((prev) => prev.map((s) => (s.id === stakeholderId ? updated : s)));
+        setSelectedStakeholder((prev) => (prev && prev.id === stakeholderId ? updated : prev));
+        flashHighlight(updated.id);
+        toast.showSuccess(t('stakeholder_management.notifications.updateSuccess'));
+    };
+
+    const handleDeleteStakeholder = async (stakeholderId: Stakeholder['id']) => {
+        const existing = stakeholders.find((s) => s.id === stakeholderId);
+        if (!existing) return;
+
+        const confirmed = window.confirm(
+            t('stakeholder_management.confirmDelete', { name: existing.name[language] || existing.name.en })
+        );
+        if (!confirmed) return;
+
+        await simulateLocalPersist(() => true);
+        setStakeholders((prev) => prev.filter((s) => s.id !== stakeholderId));
+        setSelectedStakeholder((prev) => (prev && prev.id === stakeholderId ? null : prev));
+        if (editingStakeholder?.id === stakeholderId) {
+            setEditingStakeholder(null);
+            setIsEditModalOpen(false);
+        }
+        toast.showSuccess(t('stakeholder_management.notifications.deleteSuccess'));
     };
     
     const ViewButton: React.FC<{ viewType: 'table' | 'card' | 'matrix'; icon: React.ReactNode; }> = ({ viewType, icon }) => (
@@ -196,8 +262,28 @@ const StakeholderManagement: React.FC = () => {
 
     return (
         <>
-            <AddStakeholderModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={handleAddStakeholder} />
-            <StakeholderDetailPanel stakeholder={selectedStakeholder} onClose={() => setSelectedStakeholder(null)} />
+            <AddStakeholderModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onSubmit={handleAddStakeholder}
+                mode="create"
+            />
+            <AddStakeholderModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditingStakeholder(null);
+                }}
+                onSubmit={handleUpdateStakeholder}
+                initialStakeholder={editingStakeholder}
+                mode="edit"
+            />
+            <StakeholderDetailPanel
+                stakeholder={selectedStakeholder}
+                onClose={() => setSelectedStakeholder(null)}
+                onSave={handleSaveFromDetailPanel}
+                onDelete={handleDeleteStakeholder}
+            />
 
             <div className="min-h-full bg-gray-50 dark:bg-dark-background p-6 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 {/* Header */}
@@ -292,74 +378,110 @@ const StakeholderManagement: React.FC = () => {
                     >
                         {view === 'table' && (
                             <div className="bg-card dark:bg-dark-card rounded-xl shadow-soft overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead className="bg-gray-50 dark:bg-slate-800 border-b-2 border-gray-200 dark:border-slate-700">
-                                            <tr>
-                                                {['name', 'type', 'relationshipHealth', 'level', 'risks', 'lastContact', 'aiInsights', 'actions'].map(header => (
-                                                    <th key={header} className="px-6 py-4 text-start text-sm font-bold text-gray-700 dark:text-gray-300">{t(`stakeholder_management.table.${header}`)}</th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-                                            {filteredStakeholders.map((stakeholder) => {
-                                                const typeInfo = stakeholderTypes.find(t => t.id === stakeholder.type);
-                                                const TypeIcon = typeInfo?.icon || Users;
-                                                const healthColor = getHealthColor(stakeholder.healthScore);
-                                                const riskColor = getRiskColor(stakeholder.riskLevel);
-                                                const optimistic = isOptimisticStakeholder(stakeholder.id);
-                                                const highlighted = highlightedId === stakeholder.id;
-                                                return (
-                                                    <tr
-                                                        key={stakeholder.id}
-                                                        className={`hover:bg-primary-light/20 dark:hover:bg-primary/10 ${
-                                                            optimistic
-                                                                ? 'opacity-70 animate-pulse bg-blue-50/60 dark:bg-blue-950/30'
-                                                                : highlighted
-                                                                  ? 'bg-emerald-50 dark:bg-emerald-950/40'
-                                                                  : ''
-                                                        }`}
-                                                    >
-                                                        <td className="px-6 py-4"><div className="flex items-center gap-3"><div className={`bg-primary/20 p-2 rounded-lg`}><TypeIcon className="w-5 h-5 text-primary" /></div><div><p className="font-semibold text-gray-800 dark:text-dark-foreground">{stakeholder.name[language]}</p><p className="text-xs text-gray-500">{optimistic ? t('common.saving') : stakeholder.name.en}</p></div></div></td>
-                                                        <td className="px-6 py-4"><span className={`px-3 py-1 bg-primary-light text-primary-dark rounded-full text-xs font-semibold`}>{t(`stakeholder_management.types.${stakeholder.type}`)}</span></td>
-                                                        <td className="px-6 py-4"><div className="flex items-center gap-2"><div className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-full h-2 max-w-24"><div className={`h-full bg-${healthColor}-500 rounded-full`} style={{ width: `${stakeholder.healthScore}%` }} /></div><span className={`font-bold text-sm text-${healthColor}-600`}>{stakeholder.healthScore}%</span></div></td>
-                                                        <td className="px-6 py-4"><Award className={`w-5 h-5 ${stakeholder.relationshipLevel === 'strategic' ? 'text-purple-600' : stakeholder.relationshipLevel === 'core' ? 'text-primary' : 'text-gray-600'}`} title={t(`stakeholder_management.relationshipLevels.${stakeholder.relationshipLevel}`)} /></td>
-                                                        <td className="px-6 py-4"><span className={`px-2 py-1 bg-${riskColor}-100 text-${riskColor}-800 rounded text-xs font-semibold`}>{t(`stakeholder_management.risks.${stakeholder.riskLevel}`)}</span></td>
-                                                        <td className="px-6 py-4 text-sm text-gray-600"><div className="flex items-center gap-1"><Calendar className="w-4 h-4" /><span>{formatDate(stakeholder.lastContact, language)}</span></div></td>
-                                                        <td className="px-6 py-4"><div className="flex items-start gap-2 max-w-xs"><Zap className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" /><p className="text-xs text-gray-600 dark:text-gray-400">{optimistic ? t('common.saving') : t(stakeholder.aiInsights)}</p></div></td>
-                                                        <td className="px-6 py-4">{optimistic ? <span className="text-xs text-gray-400">—</span> : (
-                                                        <div className="flex items-center gap-2">
-                                                            <button onClick={() => setSelectedStakeholder(stakeholder)} className="p-2 hover:bg-primary-light rounded-lg"><Eye className="w-4 h-4 text-primary" /></button>
-                                                            <button className="p-2 hover:bg-green-100 rounded-lg"><Edit className="w-4 h-4 text-green-600" /></button>
-                                                            <button className="p-2 hover:bg-red-100 rounded-lg"><Trash2 className="w-4 h-4 text-red-600" /></button>
-                                                        </div>)}</td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                {filteredStakeholders.length === 0 ? (
+                                    <EmptyState
+                                        title={t('stakeholder_management.empty.title')}
+                                        description={t('stakeholder_management.empty.description')}
+                                        actionLabel={t('stakeholder_management.empty.resetFilters')}
+                                        onAction={() => {
+                                            setSelectedCategory('all');
+                                            setSearchQuery('');
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full">
+                                            <thead className="bg-gray-50 dark:bg-slate-800 border-b-2 border-gray-200 dark:border-slate-700">
+                                                <tr>
+                                                    {['name', 'type', 'relationshipHealth', 'level', 'risks', 'lastContact', 'aiInsights', 'actions'].map(header => (
+                                                        <th key={header} className="px-6 py-4 text-start text-sm font-bold text-gray-700 dark:text-gray-300">{t(`stakeholder_management.table.${header}`)}</th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+                                                {filteredStakeholders.map((stakeholder) => {
+                                                    const typeInfo = stakeholderTypes.find(t => t.id === stakeholder.type);
+                                                    const TypeIcon = typeInfo?.icon || Users;
+                                                    const healthColor = getHealthColor(stakeholder.healthScore);
+                                                    const riskColor = getRiskColor(stakeholder.riskLevel);
+                                                    const optimistic = isOptimisticStakeholder(stakeholder.id);
+                                                    const highlighted = highlightedId === stakeholder.id;
+                                                    return (
+                                                        <tr
+                                                            key={stakeholder.id}
+                                                            className={`hover:bg-primary-light/20 dark:hover:bg-primary/10 ${
+                                                                optimistic
+                                                                    ? 'opacity-70 animate-pulse bg-blue-50/60 dark:bg-blue-950/30'
+                                                                    : highlighted
+                                                                    ? 'bg-emerald-50 dark:bg-emerald-950/40'
+                                                                    : ''
+                                                            }`}
+                                                        >
+                                                            <td className="px-6 py-4"><div className="flex items-center gap-3"><div className={`bg-primary/20 p-2 rounded-lg`}><TypeIcon className="w-5 h-5 text-primary" /></div><div><p className="font-semibold text-gray-800 dark:text-dark-foreground">{stakeholder.name[language]}</p><p className="text-xs text-gray-500">{optimistic ? t('common.saving') : stakeholder.name.en}</p></div></div></td>
+                                                            <td className="px-6 py-4"><span className={`px-3 py-1 bg-primary-light text-primary-dark rounded-full text-xs font-semibold`}>{t(`stakeholder_management.types.${stakeholder.type}`)}</span></td>
+                                                            <td className="px-6 py-4"><div className="flex items-center gap-2"><div className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-full h-2 max-w-24"><div className={`h-full bg-${healthColor}-500 rounded-full`} style={{ width: `${stakeholder.healthScore}%` }} /></div><span className={`font-bold text-sm text-${healthColor}-600`}>{stakeholder.healthScore}%</span></div></td>
+                                                            <td className="px-6 py-4"><Award className={`w-5 h-5 ${stakeholder.relationshipLevel === 'strategic' ? 'text-purple-600' : stakeholder.relationshipLevel === 'core' ? 'text-primary' : 'text-gray-600'}`} title={t(`stakeholder_management.relationshipLevels.${stakeholder.relationshipLevel}`)} /></td>
+                                                            <td className="px-6 py-4"><span className={`px-2 py-1 bg-${riskColor}-100 text-${riskColor}-800 rounded text-xs font-semibold`}>{t(`stakeholder_management.risks.${stakeholder.riskLevel}`)}</span></td>
+                                                            <td className="px-6 py-4 text-sm text-gray-600"><div className="flex items-center gap-1"><Calendar className="w-4 h-4" /><span>{formatDate(stakeholder.lastContact, language)}</span></div></td>
+                                                            <td className="px-6 py-4"><div className="flex items-start gap-2 max-w-xs"><Zap className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" /><p className="text-xs text-gray-600 dark:text-gray-400">{optimistic ? t('common.saving') : t(stakeholder.aiInsights)}</p></div></td>
+                                                            <td className="px-6 py-4">{optimistic ? <span className="text-xs text-gray-400">—</span> : (
+                                                                <div className="flex items-center gap-2">
+                                                                    <button onClick={() => setSelectedStakeholder(stakeholder)} className="p-2 hover:bg-primary-light rounded-lg"><Eye className="w-4 h-4 text-primary" /></button>
+                                                                    <button onClick={() => handleOpenEditModal(stakeholder)} className="p-2 hover:bg-green-100 rounded-lg"><Edit className="w-4 h-4 text-green-600" /></button>
+                                                                    <button onClick={() => void handleDeleteStakeholder(stakeholder.id)} className="p-2 hover:bg-red-100 rounded-lg"><Trash2 className="w-4 h-4 text-red-600" /></button>
+                                                                </div>)}</td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         )}
 
                         {view === 'card' && (
-                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {filteredStakeholders.map(stakeholder => (
-                                    <StakeholderCard
-                                        key={stakeholder.id}
-                                        stakeholder={stakeholder}
-                                        highlighted={highlightedId === stakeholder.id}
-                                        onClick={() => {
-                                            if (isOptimisticStakeholder(stakeholder.id)) return;
-                                            setSelectedStakeholder(stakeholder);
-                                        }}
-                                    />
-                                ))}
-                            </div>
+                            filteredStakeholders.length === 0 ? (
+                                <EmptyState
+                                    title={t('stakeholder_management.empty.title')}
+                                    description={t('stakeholder_management.empty.description')}
+                                    actionLabel={t('stakeholder_management.empty.resetFilters')}
+                                    onAction={() => {
+                                        setSelectedCategory('all');
+                                        setSearchQuery('');
+                                    }}
+                                />
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredStakeholders.map(stakeholder => (
+                                        <StakeholderCard
+                                            key={stakeholder.id}
+                                            stakeholder={stakeholder}
+                                            highlighted={highlightedId === stakeholder.id}
+                                            onClick={() => {
+                                                if (isOptimisticStakeholder(stakeholder.id)) return;
+                                                setSelectedStakeholder(stakeholder);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            )
                         )}
                         
                         {view === 'matrix' && (
-                            <StakeholderMatrix stakeholders={filteredStakeholders} onSelect={setSelectedStakeholder} />
+                            filteredStakeholders.length === 0 ? (
+                                <EmptyState
+                                    title={t('stakeholder_management.empty.title')}
+                                    description={t('stakeholder_management.empty.matrixDescription')}
+                                    actionLabel={t('stakeholder_management.empty.resetFilters')}
+                                    onAction={() => {
+                                        setSelectedCategory('all');
+                                        setSearchQuery('');
+                                    }}
+                                />
+                            ) : (
+                                <StakeholderMatrix stakeholders={filteredStakeholders} onSelect={setSelectedStakeholder} />
+                            )
                         )}
                     </motion.div>
                 </AnimatePresence>
@@ -379,6 +501,25 @@ const StatCard: React.FC<{ title: string; value: string | number; icon: React.Re
                 {React.cloneElement(icon as React.ReactElement, { className: "w-8 h-8 text-gray-500" })}
             </div>
         </div>
+    </div>
+);
+
+const EmptyState: React.FC<{ title: string; description: string; actionLabel: string; onAction: () => void }> = ({
+    title,
+    description,
+    actionLabel,
+    onAction,
+}) => (
+    <div className="p-12 text-center">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-foreground">{title}</h3>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{description}</p>
+        <button
+            onClick={onAction}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/20"
+        >
+            <RefreshCw className="w-4 h-4" />
+            {actionLabel}
+        </button>
     </div>
 );
 

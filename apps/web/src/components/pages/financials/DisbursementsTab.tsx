@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { DollarSign, Clock, Calendar, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import { getDisbursementSourceRoute, navigateToFinancialSource } from '../../../lib/financialSourceNavigation';
+import { HIGHLIGHT_ROW_CLASS, useUrlHighlight } from '../../../hooks/useUrlHighlight';
 import DataTable, { type Column } from './shared/DataTable';
 import FilterBar, { type FilterDef } from './shared/FilterBar';
 import StatusBadge from './shared/StatusBadge';
@@ -46,10 +47,16 @@ const TYPE_BADGE_CLASSES: Record<DisbursementType, string> = {
 const DisbursementsTab: React.FC = () => {
   const { t, language } = useLocalization(['common', 'financials']);
   const { data: disbursements = [] } = useDisbursements();
+  const { highlightedId, consumeHighlightParam } = useUrlHighlight();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+
+  useEffect(() => {
+    if (disbursements.length === 0) return;
+    consumeHighlightParam((id) => (disbursements.some((d) => d.id === id) ? id : null));
+  }, [disbursements, consumeHighlightParam]);
 
   // --- KPI calculations ---
   const kpiData = useMemo(() => {
@@ -121,9 +128,12 @@ const DisbursementsTab: React.FC = () => {
       if (isOptimisticDisbursement(row.id)) {
         return 'opacity-70 animate-pulse bg-blue-50/60 dark:bg-blue-950/30';
       }
+      if (highlightedId === row.id) {
+        return HIGHLIGHT_ROW_CLASS;
+      }
       return '';
     },
-    []
+    [highlightedId]
   );
 
   // --- Table columns ---
@@ -268,6 +278,7 @@ const DisbursementsTab: React.FC = () => {
       <DataTable<Disbursement>
         columns={columns}
         data={filteredData}
+        getRowKey={(row) => row.id}
         getRowClassName={getRowClassName}
         emptyMessage={t('financials.disbursements.noDisbursements')}
       />

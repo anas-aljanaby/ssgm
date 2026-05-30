@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { CheckCircle, XCircle, Eye, Clock, ExternalLink } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import { getApprovalDescription, getApprovalRelatedEntityName, getApprovalTitle } from '../../../lib/approvalDisplay';
 import { getApprovalSourceRoute, navigateToFinancialSource } from '../../../lib/financialSourceNavigation';
+import { HIGHLIGHT_CARD_CLASS, useUrlHighlight } from '../../../hooks/useUrlHighlight';
 import type { ApprovalItem, ApprovalItemType } from '../../../types/financials';
 import { useApproveItem, useApprovals, useRejectItem } from '../../../hooks/useApprovals';
 import { useDisbursements } from '../../../hooks/useDisbursements';
@@ -36,9 +37,20 @@ const ApprovalsTab: React.FC = () => {
   );
   const approveItem = useApproveItem();
   const rejectItem = useRejectItem();
+  const { highlightedId, consumeHighlightParam } = useUrlHighlight();
   const [activeAction, setActiveAction] = React.useState<'approve' | 'reject' | null>(null);
   const [activeApprovalId, setActiveApprovalId] = React.useState<string | null>(null);
   const [viewingItem, setViewingItem] = React.useState<ApprovalItem | null>(null);
+
+  useEffect(() => {
+    if (approvalItems.length === 0) return;
+    consumeHighlightParam((disbursementId) => {
+      const item = approvalItems.find(
+        (entry) => entry.relatedEntityId === disbursementId || entry.id === disbursementId,
+      );
+      return item?.id ?? null;
+    });
+  }, [approvalItems, consumeHighlightParam]);
 
   const pendingCount = useMemo(
     () => approvalItems.filter((item) => item.status === 'pending').length,
@@ -138,7 +150,10 @@ const ApprovalsTab: React.FC = () => {
           return (
           <div
             key={item.id}
-            className="bg-card dark:bg-dark-card rounded-xl border border-gray-200 dark:border-slate-700/50 p-5"
+            data-highlight-id={item.id}
+            className={`bg-card dark:bg-dark-card rounded-xl border border-gray-200 dark:border-slate-700/50 p-5 transition-colors duration-500 ${
+              highlightedId === item.id ? HIGHLIGHT_CARD_CLASS : ''
+            }`}
           >
             {/* Top row: Type badge + Priority badge + Due date */}
             <div className="flex flex-wrap items-center gap-2 mb-3">

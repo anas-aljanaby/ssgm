@@ -57,7 +57,25 @@
     },
     "statuses": {
       "active": "نشط",
-      "inactive": "غير نشط"
+      "inactive": "غير نشط",
+      "pending": "قيد الانتظار"
+    },
+    "actions": {
+      "edit": "تعديل صاحب المصلحة",
+      "delete": "حذف صاحب المصلحة",
+      "saveChanges": "حفظ التغييرات"
+    },
+    "notifications": {
+      "createSuccess": "تمت إضافة صاحب المصلحة بنجاح.",
+      "updateSuccess": "تم تحديث صاحب المصلحة بنجاح.",
+      "deleteSuccess": "تم حذف صاحب المصلحة بنجاح."
+    },
+    "confirmDelete": "هل تريد حذف {{name}}؟",
+    "empty": {
+      "title": "لا يوجد أصحاب مصلحة",
+      "description": "جرّب تغيير عوامل التصفية أو كلمات البحث.",
+      "matrixDescription": "عدّل عوامل التصفية لعرض أصحاب المصلحة في المصفوفة.",
+      "resetFilters": "إعادة تعيين التصفية"
     },
     "classificationLabel": "التصنيف",
     "classification": {
@@ -94,6 +112,7 @@
     },
     "add_modal": {
       "title": "إضافة صاحب مصلحة جديد",
+      "editTitle": "تعديل صاحب المصلحة",
       "name_ar": "الاسم (عربي)",
       "name_en": "الاسم (إنجليزي)",
       "type": "النوع",
@@ -101,6 +120,7 @@
       "country": "الدولة",
       "email": "البريد الإلكتروني",
       "phone": "الهاتف",
+      "submitError": "تعذر حفظ صاحب المصلحة. يرجى المحاولة مرة أخرى.",
       "validation": {
         "nameRequired": "الاسم مطلوب بلغة واحدة على الأقل."
       },
@@ -112,6 +132,7 @@
     },
     "detailPanel": {
       "summary": "الملخص",
+      "status": "الحالة",
       "metrics": "مؤشرات العلاقة",
       "contactHistory": "سجل التواصل",
       "aiActionCenter": "مركز الإجراءات الذكية",

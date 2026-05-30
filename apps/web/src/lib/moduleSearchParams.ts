@@ -1,6 +1,7 @@
 /** Query keys used by useTabParam across modules (shared `tab` is per-module). */
 export const MODULE_SEARCH_PARAM_KEYS = [
   'tab',
+  'highlight',
   'projectTab',
   'detailTab',
   'registryView',
@@ -10,11 +11,11 @@ export const MODULE_SEARCH_PARAM_KEYS = [
 
 /** Which search params each sidebar module may keep in the URL. */
 export const MODULE_ALLOWED_SEARCH_PARAMS: Record<string, readonly string[]> = {
-  financials: ['tab'],
+  financials: ['tab', 'highlight'],
   projects: ['tab', 'projectTab'],
-  donors: ['tab', 'detailTab', 'registryView'],
+  donors: ['tab', 'detailTab', 'registryView', 'highlight'],
   institutional_donors: ['tab'],
-  beneficiaries: ['tab'],
+  beneficiaries: ['tab', 'highlight'],
   stakeholder_management: ['tab'],
   bousala: ['tab'],
   settings: ['tab', 'usersTab', 'documentsTab'],

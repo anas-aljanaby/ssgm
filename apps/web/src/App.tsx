@@ -96,10 +96,15 @@ function App() {
         const hashContent = window.location.hash.substring(1) || 'dashboard';
         const [module, targetId, targetTab] = hashContent.split('/');
 
-        const prev = new URLSearchParams(location.search);
-        const pruned = pruneSearchParamsForModule(prev, module);
-        if (pruned.toString() !== prev.toString()) {
-            const search = pruned.toString();
+        const browserSearch = new URLSearchParams(window.location.search);
+        const pruned = pruneSearchParamsForModule(browserSearch, module);
+        const search = pruned.toString();
+        const currentSearch = location.search.replace(/^\?/, '');
+
+        setActiveModule(module);
+        setDeepLinkTarget(targetId ? { id: targetId, tab: targetTab } : null);
+
+        if (search !== currentSearch || location.hash !== `#${hashContent}`) {
             navigate(
                 {
                     pathname: location.pathname,
@@ -109,10 +114,7 @@ function App() {
                 { replace: true },
             );
         }
-
-        setActiveModule(module);
-        setDeepLinkTarget(targetId ? { id: targetId, tab: targetTab } : null);
-    }, [navigate, location.pathname, location.search]);
+    }, [navigate, location.pathname, location.search, location.hash]);
 
     useEffect(() => {
         window.addEventListener('hashchange', syncModuleFromHash);

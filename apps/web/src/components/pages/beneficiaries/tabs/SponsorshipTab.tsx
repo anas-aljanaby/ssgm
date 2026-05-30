@@ -5,6 +5,7 @@ import { useToast } from '../../../../hooks/useToast';
 import { useDonors } from '../../../../hooks/useDonors';
 import { formatCurrency, formatDate } from '../../../../lib/utils';
 import { HeartHandshake, PlusCircle, Check, X, ExternalLink } from 'lucide-react';
+import { openDonorProfile } from '../../../../lib/moduleNavigation';
 import DonorSearchSelect from '../../../common/DonorSearchSelect';
 import Section from '../shared/Section';
 import InfoRow from '../shared/InfoRow';
@@ -58,9 +59,9 @@ const SponsorshipTab: React.FC<SponsorshipTabProps> = ({ beneficiary, onUpdate }
             ? t('beneficiaries.sponsorship.donorNotFound')
             : null;
 
-    const openDonorProfile = () => {
+    const handleOpenDonorProfile = () => {
         if (!linkedDonor) return;
-        window.location.hash = `donors/${linkedDonor.id}`;
+        openDonorProfile(linkedDonor.id);
     };
 
     const validateForm = (): boolean => {
@@ -190,7 +191,7 @@ const SponsorshipTab: React.FC<SponsorshipTabProps> = ({ beneficiary, onUpdate }
                                     linkedDonor ? (
                                         <button
                                             type="button"
-                                            onClick={openDonorProfile}
+                                            onClick={handleOpenDonorProfile}
                                             className="inline-flex items-center gap-1 text-primary hover:underline font-semibold"
                                         >
                                             {donorName}

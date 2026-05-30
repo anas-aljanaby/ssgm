@@ -1,0 +1,231 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e1173]:
+          - link "Dashboard" [ref=e1174] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1176]
+            - generic [ref=e1181]: Dashboard
+        - listitem [ref=e1182]:
+          - link "Bousala" [ref=e1183] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1185]
+            - generic [ref=e1188]: Bousala
+        - listitem [ref=e1189]:
+          - link "Stakeholder Management" [ref=e1190] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1192]
+            - generic [ref=e1197]: Stakeholder Management
+        - listitem [ref=e1198]:
+          - link "Donor Management" [ref=e1199] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1201]
+            - generic [ref=e1203]: Donor Management
+        - listitem [ref=e1204]:
+          - link "Institutional Donors" [ref=e1205] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1207]
+            - generic [ref=e1209]: Institutional Donors
+        - listitem [ref=e1210]:
+          - link "Beneficiary Management" [ref=e1211] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1213]
+            - generic [ref=e1218]: Beneficiary Management
+        - listitem [ref=e1219]:
+          - link "Project Management" [ref=e1220] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1222]
+            - generic [ref=e1226]: Project Management
+        - listitem [ref=e1227]:
+          - link "Financial Management" [ref=e1228] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1230]
+            - generic [ref=e1232]: Financial Management
+        - listitem [ref=e1233]:
+          - link "Help & Support" [ref=e1234] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1236]
+            - generic [ref=e1239]: Help & Support
+        - listitem [ref=e1240]:
+          - link "Settings" [ref=e1241] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1243]
+            - generic [ref=e1246]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e1247]:
+          - link "Logout" [ref=e1248] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1250]
+            - generic [ref=e1253]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Beneficiary Management" [level=1] [ref=e944]
+            - button "liveIndicator.delayed" [ref=e1254] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e1255]:
+          - button "Back to Beneficiaries" [ref=e1256] [cursor=pointer]:
+            - img [ref=e1257]
+            - text: Back to Beneficiaries
+          - generic [ref=e1259]:
+            - img "Yusuf Al-Ahmad" [ref=e1260]
+            - generic [ref=e1261]:
+              - heading "Yusuf Al-Ahmad" [level=1] [ref=e1262]
+              - paragraph [ref=e1263]: Computer Engineering at Istanbul University
+              - generic [ref=e1264]:
+                - generic [ref=e1265]: Active
+                - generic [ref=e1266]: Student
+                - generic [ref=e1267]: Turkey
+          - generic [ref=e1268]:
+            - generic [ref=e1269]:
+              - img [ref=e1271]
+              - generic [ref=e1274]:
+                - paragraph [ref=e1275]: Current GPA
+                - paragraph [ref=e1276]: "3.40"
+            - generic [ref=e1277]:
+              - img [ref=e1279]
+              - generic [ref=e1282]:
+                - paragraph [ref=e1283]: Aid Received
+                - paragraph [ref=e1284]: $350
+            - generic [ref=e1285]:
+              - img [ref=e1287]
+              - generic [ref=e1290]:
+                - paragraph [ref=e1291]: Milestones
+                - paragraph [ref=e1292]: 2/4
+          - generic [ref=e1293]:
+            - navigation [ref=e1296]:
+              - button "Overview" [ref=e1297] [cursor=pointer]
+              - button "Academics" [ref=e1298] [cursor=pointer]
+              - button "Sponsorship" [ref=e1299] [cursor=pointer]
+              - button "Aid & Services" [ref=e1300] [cursor=pointer]
+              - button "Needs Assessment" [ref=e1301] [cursor=pointer]
+              - button "Documents" [ref=e1302] [cursor=pointer]
+            - generic [ref=e1304]:
+              - generic [ref=e1305]:
+                - generic [ref=e1306]:
+                  - generic [ref=e1307]:
+                    - img [ref=e1309]
+                    - heading "Contact Information" [level=3] [ref=e1311]
+                  - button "Edit Contact" [ref=e1312] [cursor=pointer]:
+                    - img [ref=e1313]
+                - generic [ref=e1316]:
+                  - generic [ref=e1317]:
+                    - paragraph [ref=e1318]: Country
+                    - generic [ref=e1319]: Turkey
+                  - generic [ref=e1320]:
+                    - paragraph [ref=e1321]: Project
+                    - generic [ref=e1322]: —
+                  - generic [ref=e1323]:
+                    - paragraph [ref=e1324]: Email
+                    - link "yusuf.a@example.com" [ref=e1326] [cursor=pointer]:
+                      - /url: mailto:yusuf.a@example.com
+                  - generic [ref=e1327]:
+                    - paragraph [ref=e1328]: Phone
+                    - link "+90 555 123 4567" [ref=e1330] [cursor=pointer]:
+                      - /url: tel:+90 555 123 4567
+                  - generic [ref=e1331]:
+                    - paragraph [ref=e1332]: Address
+                    - generic [ref=e1333]: Istanbul, Turkey
+              - generic [ref=e1334]:
+                - generic [ref=e1335]:
+                  - generic [ref=e1336]:
+                    - img [ref=e1338]
+                    - heading "Details" [level=3] [ref=e1341]
+                  - button "Edit Details" [ref=e1342] [cursor=pointer]:
+                    - img [ref=e1343]
+                - generic [ref=e1346]:
+                  - generic [ref=e1347]:
+                    - paragraph [ref=e1348]: Date of Birth
+                    - generic [ref=e1349]: 2004-08-15
+                  - generic [ref=e1350]:
+                    - paragraph [ref=e1351]: Gender
+                    - generic [ref=e1352]: Male
+                  - generic [ref=e1353]:
+                    - paragraph [ref=e1354]: University
+                    - generic [ref=e1355]: Istanbul University
+                  - generic [ref=e1356]:
+                    - paragraph [ref=e1357]: Major / Field
+                    - generic [ref=e1358]: Computer Engineering
+                  - generic [ref=e1359]:
+                    - paragraph [ref=e1360]: GPA
+                    - generic [ref=e1361]: "3.4"
+                  - generic [ref=e1362]:
+                    - paragraph [ref=e1363]: Academic Year
+                    - generic [ref=e1364]: University - 2nd Year
+              - generic [ref=e1365]:
+                - generic [ref=e1367]:
+                  - img [ref=e1369]
+                  - heading "Milestones" [level=3] [ref=e1372]
+                - button "Add Milestone" [ref=e1374] [cursor=pointer]:
+                  - img [ref=e1375]
+                  - text: Add Milestone
+                - generic [ref=e1377]:
+                  - generic [ref=e1378]:
+                    - generic [ref=e1380]:
+                      - paragraph [ref=e1381]: Enrolled in University
+                      - paragraph [ref=e1382]: Achieved
+                    - generic [ref=e1383]: Sep 2023
+                    - generic [ref=e1384]:
+                      - button "Edit Milestone" [ref=e1385] [cursor=pointer]:
+                        - img [ref=e1386]
+                      - button "Remove Milestone" [ref=e1389] [cursor=pointer]:
+                        - img [ref=e1390]
+                  - generic [ref=e1393]:
+                    - generic [ref=e1395]:
+                      - paragraph [ref=e1396]: Completed First Year
+                      - paragraph [ref=e1397]: Achieved
+                    - generic [ref=e1398]: Jun 2024
+                    - generic [ref=e1399]:
+                      - button "Edit Milestone" [ref=e1400] [cursor=pointer]:
+                        - img [ref=e1401]
+                      - button "Remove Milestone" [ref=e1404] [cursor=pointer]:
+                        - img [ref=e1405]
+                  - generic [ref=e1408]:
+                    - generic [ref=e1410]:
+                      - paragraph [ref=e1411]: Internship
+                      - paragraph [ref=e1412]: In Progress
+                    - generic [ref=e1413]: Sep 2024
+                    - generic [ref=e1414]:
+                      - button "Edit Milestone" [ref=e1415] [cursor=pointer]:
+                        - img [ref=e1416]
+                      - button "Remove Milestone" [ref=e1419] [cursor=pointer]:
+                        - img [ref=e1420]
+                  - generic [ref=e1423]:
+                    - generic [ref=e1425]:
+                      - paragraph [ref=e1426]: Graduation
+                      - paragraph [ref=e1427]: Pending
+                    - generic [ref=e1428]:
+                      - button "Edit Milestone" [ref=e1429] [cursor=pointer]:
+                        - img [ref=e1430]
+                      - button "Remove Milestone" [ref=e1433] [cursor=pointer]:
+                        - img [ref=e1434]
+  - generic [ref=e784]: $0

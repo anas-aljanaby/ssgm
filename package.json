@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "concurrently -n web,api -c blue,green \"npm run dev:web\" \"npm run dev:api\"",
     "dev:web": "npm run dev --workspace=@gms/web",
     "build:web": "npm run build --workspace=@gms/web",
     "dev:api": "npm run dev --workspace=@gms/api",
@@ -14,9 +15,11 @@
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",
+    "jspdf": "4.2.1",
     "postgres": "^3.4.9"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.10"
+    "concurrently": "^10.0.0",
+    "drizzle-kit": "^0.18.1"
   }
 }

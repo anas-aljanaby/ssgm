@@ -1,0 +1,249 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e17]:
+    - navigation [ref=e18]:
+      - button "Collapse sidebar" [expanded] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - generic [ref=e22]:
+        - generic [ref=e24]: M
+        - heading "MSS.2" [level=1] [ref=e25]
+      - list [ref=e27]:
+        - listitem [ref=e1705]:
+          - link "Dashboard" [ref=e1706] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1708]
+            - generic [ref=e1713]: Dashboard
+        - listitem [ref=e1714]:
+          - link "Bousala" [ref=e1715] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1717]
+            - generic [ref=e1720]: Bousala
+        - listitem [ref=e1721]:
+          - link "Stakeholder Management" [ref=e1722] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1724]
+            - generic [ref=e1729]: Stakeholder Management
+        - listitem [ref=e1730]:
+          - link "Donor Management" [ref=e1731] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1733]
+            - generic [ref=e1735]: Donor Management
+        - listitem [ref=e1736]:
+          - link "Institutional Donors" [ref=e1737] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1739]
+            - generic [ref=e1741]: Institutional Donors
+        - listitem [ref=e1742]:
+          - link "Beneficiary Management" [ref=e1743] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1745]
+            - generic [ref=e1750]: Beneficiary Management
+        - listitem [ref=e1751]:
+          - link "Project Management" [ref=e1752] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1754]
+            - generic [ref=e1758]: Project Management
+        - listitem [ref=e1759]:
+          - link "Financial Management" [ref=e1760] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1762]
+            - generic [ref=e1764]: Financial Management
+        - listitem [ref=e1765]:
+          - link "Help & Support" [ref=e1766] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1768]
+            - generic [ref=e1771]: Help & Support
+        - listitem [ref=e1772]:
+          - link "Settings" [ref=e1773] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1775]
+            - generic [ref=e1778]: Settings
+      - list [ref=e103]:
+        - listitem [ref=e1779]:
+          - link "Logout" [ref=e1780] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e1782]
+            - generic [ref=e1785]: Logout
+    - generic [ref=e111]:
+      - banner [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Financial Management" [level=1] [ref=e1786]
+            - button "liveIndicator.live" [ref=e1704] [cursor=pointer]
+          - generic [ref=e120]:
+            - generic:
+              - img
+            - searchbox "Search everything..." [ref=e121]
+            - button "Search by voice" [ref=e123] [cursor=pointer]:
+              - img [ref=e124]
+        - generic [ref=e127]:
+          - button "Help & Support" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+          - button "Change language" [ref=e136] [cursor=pointer]:
+            - img [ref=e137]
+            - img "English (US) Flag" [ref=e140]
+          - button "Switch to dark mode" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+          - button "View announcements" [ref=e150] [cursor=pointer]:
+            - img [ref=e151]
+          - button "User Welcome! Admin" [ref=e158] [cursor=pointer]:
+            - img "User" [ref=e159]
+            - generic [ref=e160]:
+              - generic [ref=e161]: Welcome!
+              - generic [ref=e162]: Admin
+            - img [ref=e163]
+      - main [ref=e165]:
+        - generic [ref=e1787]:
+          - generic [ref=e1788]:
+            - heading "Financial Management" [level=1] [ref=e1789]
+            - paragraph [ref=e1790]: Central source of truth for all financial operations
+          - navigation [ref=e1792]:
+            - button "Overview" [ref=e1793] [cursor=pointer]
+            - button "Transactions" [ref=e1794] [cursor=pointer]
+            - button "Disbursements" [ref=e1795] [cursor=pointer]
+            - button "Approvals" [ref=e1796] [cursor=pointer]
+          - generic [ref=e1797]:
+            - generic [ref=e1798]:
+              - generic [ref=e1799]:
+                - img [ref=e1801]
+                - generic [ref=e1803]:
+                  - paragraph [ref=e1804]: $650
+                  - paragraph [ref=e1805]: Total Disbursed
+              - generic [ref=e1806]:
+                - img [ref=e1808]
+                - generic [ref=e1811]:
+                  - paragraph [ref=e1812]: "2"
+                  - paragraph [ref=e1813]: Pending
+              - generic [ref=e1814]:
+                - img [ref=e1816]
+                - generic [ref=e1818]:
+                  - paragraph [ref=e1819]: "0"
+                  - paragraph [ref=e1820]: Scheduled This Month
+              - generic [ref=e1821]:
+                - img [ref=e1823]
+                - generic [ref=e1825]:
+                  - paragraph [ref=e1826]: "0"
+                  - paragraph [ref=e1827]: Failed
+            - generic [ref=e1828]:
+              - generic [ref=e1829]:
+                - img
+                - textbox "Search by beneficiary..." [ref=e1830]
+              - combobox [ref=e1831]:
+                - option "All Types" [selected]
+                - option "Aid Payment"
+                - option "Sponsorship"
+                - option "Emergency Relief"
+                - option "Project Grant"
+                - option "Scholarship"
+              - combobox [ref=e1832]:
+                - option "All Statuses" [selected]
+                - option "Scheduled"
+                - option "Pending Approval"
+                - option "Approved"
+                - option "Processing"
+                - option "Completed"
+                - option "Failed"
+                - option "Cancelled"
+            - table [ref=e1834]:
+              - rowgroup [ref=e1835]:
+                - row "Date Beneficiary Type Amount Method Project Status" [ref=e1836]:
+                  - columnheader "Date" [ref=e1837] [cursor=pointer]:
+                    - generic [ref=e1838]: Date
+                  - columnheader "Beneficiary" [ref=e1839]:
+                    - generic [ref=e1840]: Beneficiary
+                  - columnheader "Type" [ref=e1841]:
+                    - generic [ref=e1842]: Type
+                  - columnheader "Amount" [ref=e1843] [cursor=pointer]:
+                    - generic [ref=e1844]: Amount
+                  - columnheader "Method" [ref=e1845]:
+                    - generic [ref=e1846]: Method
+                  - columnheader "Project" [ref=e1847]:
+                    - generic [ref=e1848]: Project
+                  - columnheader "Status" [ref=e1849]:
+                    - generic [ref=e1850]: Status
+                  - columnheader [ref=e1851]
+              - rowgroup [ref=e1852]:
+                - row "May 30, 2026 Ali Khaled Aid Payment $444 Bank Transfer — Pending Approval Go to source" [ref=e1853]:
+                  - cell "May 30, 2026" [ref=e1854]
+                  - cell "Ali Khaled" [ref=e1855]
+                  - cell "Aid Payment" [ref=e1856]:
+                    - generic [ref=e1857]: Aid Payment
+                  - cell "$444" [ref=e1858]
+                  - cell "Bank Transfer" [ref=e1859]
+                  - cell "—" [ref=e1860]
+                  - cell "Pending Approval" [ref=e1861]:
+                    - generic [ref=e1862]: Pending Approval
+                  - cell "Go to source" [ref=e1863]:
+                    - button "Go to source" [ref=e1864] [cursor=pointer]:
+                      - img [ref=e1865]
+                      - text: Go to source
+                - row "May 24, 2026 Abdulrahman Mahmoud Aid Payment $200 Bank Transfer — Completed Go to source" [ref=e1869]:
+                  - cell "May 24, 2026" [ref=e1870]
+                  - cell "Abdulrahman Mahmoud" [ref=e1871]
+                  - cell "Aid Payment" [ref=e1872]:
+                    - generic [ref=e1873]: Aid Payment
+                  - cell "$200" [ref=e1874]
+                  - cell "Bank Transfer" [ref=e1875]
+                  - cell "—" [ref=e1876]
+                  - cell "Completed" [ref=e1877]:
+                    - generic [ref=e1878]: Completed
+                  - cell "Go to source" [ref=e1879]:
+                    - button "Go to source" [ref=e1880] [cursor=pointer]:
+                      - img [ref=e1881]
+                      - text: Go to source
+                - row "May 24, 2026 Yusuf Al-Ahmad Aid Payment $100 Bank Transfer — Completed Go to source" [ref=e1885]:
+                  - cell "May 24, 2026" [ref=e1886]
+                  - cell "Yusuf Al-Ahmad" [ref=e1887]
+                  - cell "Aid Payment" [ref=e1888]:
+                    - generic [ref=e1889]: Aid Payment
+                  - cell "$100" [ref=e1890]
+                  - cell "Bank Transfer" [ref=e1891]
+                  - cell "—" [ref=e1892]
+                  - cell "Completed" [ref=e1893]:
+                    - generic [ref=e1894]: Completed
+                  - cell "Go to source" [ref=e1895]:
+                    - button "Go to source" [ref=e1896] [cursor=pointer]:
+                      - img [ref=e1897]
+                      - text: Go to source
+                - row "May 24, 2026 Abdulrahman Mahmoud Aid Payment $100 Bank Transfer — Completed Go to source" [ref=e1901]:
+                  - cell "May 24, 2026" [ref=e1902]
+                  - cell "Abdulrahman Mahmoud" [ref=e1903]
+                  - cell "Aid Payment" [ref=e1904]:
+                    - generic [ref=e1905]: Aid Payment
+                  - cell "$100" [ref=e1906]
+                  - cell "Bank Transfer" [ref=e1907]
+                  - cell "—" [ref=e1908]
+                  - cell "Completed" [ref=e1909]:
+                    - generic [ref=e1910]: Completed
+                  - cell "Go to source" [ref=e1911]:
+                    - button "Go to source" [ref=e1912] [cursor=pointer]:
+                      - img [ref=e1913]
+                      - text: Go to source
+                - row "Dec 20, 2024 Ahmad Hussein Emergency Relief $800 Mobile Money — Pending Approval Go to source" [ref=e1917]:
+                  - cell "Dec 20, 2024" [ref=e1918]
+                  - cell "Ahmad Hussein" [ref=e1919]
+                  - cell "Emergency Relief" [ref=e1920]:
+                    - generic [ref=e1921]: Emergency Relief
+                  - cell "$800" [ref=e1922]
+                  - cell "Mobile Money" [ref=e1923]
+                  - cell "—" [ref=e1924]
+                  - cell "Pending Approval" [ref=e1925]:
+                    - generic [ref=e1926]: Pending Approval
+                  - cell "Go to source" [ref=e1927]:
+                    - button "Go to source" [ref=e1928] [cursor=pointer]:
+                      - img [ref=e1929]
+                      - text: Go to source
+                - row "Dec 1, 2024 Yusuf Al-Ahmad Sponsorship $250 Bank Transfer — Completed Go to source" [ref=e1933]:
+                  - cell "Dec 1, 2024" [ref=e1934]
+                  - cell "Yusuf Al-Ahmad" [ref=e1935]
+                  - cell "Sponsorship" [ref=e1936]:
+                    - generic [ref=e1937]: Sponsorship
+                  - cell "$250" [ref=e1938]
+                  - cell "Bank Transfer" [ref=e1939]
+                  - cell "—" [ref=e1940]
+                  - cell "Completed" [ref=e1941]:
+                    - generic [ref=e1942]: Completed
+                  - cell "Go to source" [ref=e1943]:
+                    - button "Go to source" [ref=e1944] [cursor=pointer]:
+                      - img [ref=e1945]
+                      - text: Go to source
+  - generic [ref=e784]: $0

@@ -1,15 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalization } from '../../../hooks/useLocalization';
-import type { Stakeholder } from '../../../types';
-import { X, Mail, Phone, Zap, MessageSquare, Briefcase, Calendar, Info, Shield, CheckCircle } from 'lucide-react';
+import type { Stakeholder, StakeholderCategoryKey, StakeholderType } from '../../../types';
+import { X, Mail, Phone, Zap, MessageSquare, Briefcase, Calendar, Info, Shield, CheckCircle, Pencil, Trash2 } from 'lucide-react';
 import Spinner from '../../common/Spinner';
 import { generateAiContent, parseAiJson } from '../../../lib/ai';
 
 interface StakeholderDetailPanelProps {
     stakeholder: Stakeholder | null;
     onClose: () => void;
+    onSave: (stakeholderId: Stakeholder['id'], updates: Partial<Stakeholder>) => Promise<void>;
+    onDelete: (stakeholderId: Stakeholder['id']) => Promise<void>;
 }
 
 interface AiSuggestion {
@@ -69,11 +71,48 @@ const ContactHistoryItem: React.FC<{ icon: React.ReactNode; title: string; date:
     </div>
 );
 
-const StakeholderDetailPanel: React.FC<StakeholderDetailPanelProps> = ({ stakeholder, onClose }) => {
+const StakeholderDetailPanel: React.FC<StakeholderDetailPanelProps> = ({ stakeholder, onClose, onSave, onDelete }) => {
     const { t, language, dir } = useLocalization();
     const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [draft, setDraft] = useState<{
+        name: { en: string; ar: string };
+        type: StakeholderType;
+        category: StakeholderCategoryKey;
+        status: Stakeholder['status'];
+        classification: Stakeholder['classification'];
+        email: string;
+        phone: string;
+        country: string;
+    }>({
+        name: { en: '', ar: '' },
+        type: 'donor',
+        category: 'foundation',
+        status: 'active',
+        classification: 'primary',
+        email: '',
+        phone: '',
+        country: '',
+    });
+
+    useEffect(() => {
+        if (!stakeholder) return;
+        setDraft({
+            name: stakeholder.name,
+            type: stakeholder.type,
+            category: stakeholder.category,
+            status: stakeholder.status,
+            classification: stakeholder.classification,
+            email: stakeholder.email,
+            phone: stakeholder.phone,
+            country: stakeholder.country,
+        });
+        setIsEditing(false);
+    }, [stakeholder]);
     
     const panelVariants = {
         hidden: { x: dir === 'rtl' ? '-100%' : '100%' },
@@ -109,6 +148,41 @@ const StakeholderDetailPanel: React.FC<StakeholderDetailPanelProps> = ({ stakeho
             setIsLoading(false);
         }
     };
+
+    const handleSave = async () => {
+        if (!stakeholder) return;
+        if (!draft.name.en && !draft.name.ar) return;
+
+        setIsSaving(true);
+        try {
+            await onSave(stakeholder.id, {
+                name: {
+                    en: draft.name.en || draft.name.ar,
+                    ar: draft.name.ar || draft.name.en,
+                },
+                type: draft.type,
+                category: draft.category,
+                status: draft.status,
+                classification: draft.classification,
+                email: draft.email,
+                phone: draft.phone,
+                country: draft.country,
+            });
+            setIsEditing(false);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!stakeholder) return;
+        setIsDeleting(true);
+        try {
+            await onDelete(stakeholder.id);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
     
     const riskProfileConfig = {
         supporter: { icon: <CheckCircle className="w-4 h-4 text-green-500" />, text: t('stakeholder_management.riskProfile.supporter') },
@@ -128,16 +202,173 @@ const StakeholderDetailPanel: React.FC<StakeholderDetailPanelProps> = ({ stakeho
                     >
                         <header className="p-4 flex justify-between items-center border-b dark:border-slate-700 flex-shrink-0">
                             <h2 className="text-lg font-bold">{stakeholder.name[language]}</h2>
-                            <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"><X /></button>
+                            <div className="flex items-center gap-2">
+                                {isEditing ? (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                setDraft({
+                                                    name: stakeholder.name,
+                                                    type: stakeholder.type,
+                                                    category: stakeholder.category,
+                                                    status: stakeholder.status,
+                                                    classification: stakeholder.classification,
+                                                    email: stakeholder.email,
+                                                    phone: stakeholder.phone,
+                                                    country: stakeholder.country,
+                                                });
+                                                setIsEditing(false);
+                                            }}
+                                            disabled={isSaving}
+                                            className="px-3 py-1 text-xs rounded-md bg-gray-100 dark:bg-slate-700"
+                                        >
+                                            {t('common.cancel')}
+                                        </button>
+                                        <button
+                                            onClick={handleSave}
+                                            disabled={isSaving}
+                                            className="px-3 py-1 text-xs rounded-md bg-primary text-white disabled:opacity-60"
+                                        >
+                                            {isSaving ? t('common.saving') : t('stakeholder_management.actions.saveChanges')}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700"
+                                            title={t('stakeholder_management.actions.edit')}
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={handleDelete}
+                                            disabled={isDeleting}
+                                            className="p-2 rounded-md hover:bg-red-100 dark:hover:bg-red-900/30 disabled:opacity-60"
+                                            title={t('stakeholder_management.actions.delete')}
+                                        >
+                                            <Trash2 className="w-4 h-4 text-red-600" />
+                                        </button>
+                                    </>
+                                )}
+                                <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"><X /></button>
+                            </div>
                         </header>
                         <div className="flex-grow p-6 space-y-6 overflow-y-auto">
                             <section>
                                 <h3 className="font-semibold text-gray-500 mb-2">{t('stakeholder_management.detailPanel.summary')}</h3>
-                                <div className="space-y-2 text-sm">
-                                    <p className="flex items-center gap-2"><Mail size={16} />{stakeholder.email}</p>
-                                    <p className="flex items-center gap-2"><Phone size={16} />{stakeholder.phone}</p>
-                                    <p className="flex items-center gap-2 capitalize"><Info size={16} />{t('stakeholder_management.classificationLabel')}: {t(`stakeholder_management.classification.${stakeholder.classification}`)}</p>
-                                </div>
+                                {isEditing ? (
+                                    <div className="space-y-3 text-sm">
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.add_modal.name_ar')}</label>
+                                            <input
+                                                dir="rtl"
+                                                value={draft.name.ar}
+                                                onChange={(e) => setDraft((prev) => ({ ...prev, name: { ...prev.name, ar: e.target.value } }))}
+                                                className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.add_modal.name_en')}</label>
+                                            <input
+                                                value={draft.name.en}
+                                                onChange={(e) => setDraft((prev) => ({ ...prev, name: { ...prev.name, en: e.target.value } }))}
+                                                className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.add_modal.type')}</label>
+                                                <select
+                                                    value={draft.type}
+                                                    onChange={(e) => setDraft((prev) => ({ ...prev, type: e.target.value as StakeholderType }))}
+                                                    className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                                >
+                                                    <option value="donor">{t('stakeholder_management.types.donor')}</option>
+                                                    <option value="beneficiary">{t('stakeholder_management.types.beneficiary')}</option>
+                                                    <option value="partner">{t('stakeholder_management.types.partner')}</option>
+                                                    <option value="volunteer">{t('stakeholder_management.types.volunteer')}</option>
+                                                    <option value="mentor">{t('stakeholder_management.types.mentor')}</option>
+                                                    <option value="expert">{t('stakeholder_management.types.expert')}</option>
+                                                    <option value="investor">{t('stakeholder_management.types.investor')}</option>
+                                                    <option value="board_member">{t('stakeholder_management.types.board_member')}</option>
+                                                    <option value="government">{t('stakeholder_management.types.government')}</option>
+                                                    <option value="supplier">{t('stakeholder_management.types.supplier')}</option>
+                                                    <option value="community">{t('stakeholder_management.types.community')}</option>
+                                                    <option value="media">{t('stakeholder_management.types.media')}</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.add_modal.category')}</label>
+                                                <select
+                                                    value={draft.category}
+                                                    onChange={(e) => setDraft((prev) => ({ ...prev, category: e.target.value as StakeholderCategoryKey }))}
+                                                    className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                                >
+                                                    <option value="foundation">{t('stakeholder_management.add_modal.categories.foundation')}</option>
+                                                    <option value="family">{t('stakeholder_management.add_modal.categories.family')}</option>
+                                                    <option value="company">{t('stakeholder_management.add_modal.categories.company')}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.detailPanel.status')}</label>
+                                                <select
+                                                    value={draft.status}
+                                                    onChange={(e) => setDraft((prev) => ({ ...prev, status: e.target.value as Stakeholder['status'] }))}
+                                                    className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                                >
+                                                    <option value="active">{t('stakeholder_management.statuses.active')}</option>
+                                                    <option value="inactive">{t('stakeholder_management.statuses.inactive')}</option>
+                                                    <option value="pending">{t('stakeholder_management.statuses.pending')}</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.classificationLabel')}</label>
+                                                <select
+                                                    value={draft.classification}
+                                                    onChange={(e) => setDraft((prev) => ({ ...prev, classification: e.target.value as Stakeholder['classification'] }))}
+                                                    className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                                >
+                                                    <option value="primary">{t('stakeholder_management.classification.primary')}</option>
+                                                    <option value="secondary">{t('stakeholder_management.classification.secondary')}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.add_modal.email')}</label>
+                                            <input
+                                                type="email"
+                                                value={draft.email}
+                                                onChange={(e) => setDraft((prev) => ({ ...prev, email: e.target.value }))}
+                                                className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.add_modal.phone')}</label>
+                                            <input
+                                                value={draft.phone}
+                                                onChange={(e) => setDraft((prev) => ({ ...prev, phone: e.target.value }))}
+                                                className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 mb-1">{t('stakeholder_management.add_modal.country')}</label>
+                                            <input
+                                                value={draft.country}
+                                                onChange={(e) => setDraft((prev) => ({ ...prev, country: e.target.value }))}
+                                                className="w-full rounded-md border p-2 dark:bg-slate-800 dark:border-slate-700"
+                                            />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2 text-sm">
+                                        <p className="flex items-center gap-2"><Mail size={16} />{stakeholder.email}</p>
+                                        <p className="flex items-center gap-2"><Phone size={16} />{stakeholder.phone}</p>
+                                        <p className="flex items-center gap-2 capitalize"><Info size={16} />{t('stakeholder_management.classificationLabel')}: {t(`stakeholder_management.classification.${stakeholder.classification}`)}</p>
+                                    </div>
+                                )}
                             </section>
 
                              <section>

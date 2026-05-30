@@ -22,11 +22,12 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.16",
+    "jspdf": "4.2.1",
     "postgres": "^3.4.9",
     "supabase": "^2.98.0"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.10",
+    "drizzle-kit": "^0.18.1",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2"
   }

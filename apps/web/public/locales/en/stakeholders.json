@@ -57,7 +57,25 @@
     },
     "statuses": {
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "pending": "Pending"
+    },
+    "actions": {
+      "edit": "Edit stakeholder",
+      "delete": "Delete stakeholder",
+      "saveChanges": "Save Changes"
+    },
+    "notifications": {
+      "createSuccess": "Stakeholder added successfully.",
+      "updateSuccess": "Stakeholder updated successfully.",
+      "deleteSuccess": "Stakeholder deleted successfully."
+    },
+    "confirmDelete": "Delete {{name}}?",
+    "empty": {
+      "title": "No stakeholders found",
+      "description": "Try changing filters or search terms.",
+      "matrixDescription": "Adjust filters to display stakeholders on the matrix.",
+      "resetFilters": "Reset filters"
     },
     "classificationLabel": "Classification",
     "classification": {
@@ -94,6 +112,7 @@
     },
     "add_modal": {
       "title": "Add New Stakeholder",
+      "editTitle": "Edit Stakeholder",
       "name_ar": "Name (Arabic)",
       "name_en": "Name (English)",
       "type": "Type",
@@ -101,6 +120,7 @@
       "country": "Country",
       "email": "Email",
       "phone": "Phone",
+      "submitError": "Could not save stakeholder. Please try again.",
       "validation": {
         "nameRequired": "Name is required in at least one language."
       },
@@ -112,6 +132,7 @@
     },
     "detailPanel": {
       "summary": "Summary",
+      "status": "Status",
       "metrics": "Relationship Metrics",
       "contactHistory": "Contact History",
       "aiActionCenter": "AI Action Center",

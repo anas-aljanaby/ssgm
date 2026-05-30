@@ -19,6 +19,7 @@ import DonorOverviewTab from './tabs/DonorOverviewTab';
 import DonorRelationshipActivityTab from './tabs/DonorRelationshipActivityTab';
 import { Chip, EmptyPanel, InfoRow, RelationshipHealthChip, RelationshipLikelihoodChip, Section } from './tabs/profileUi';
 import { getCountryDisplayName } from '../../../lib/countryOptions';
+import { HIGHLIGHT_CARD_CLASS, useUrlHighlight } from '../../../hooks/useUrlHighlight';
 
 interface DonorDetailViewProps {
     donor: IndividualDonor;
@@ -261,6 +262,11 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
     const interactionHighlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [headerForm, setHeaderForm] = useState<HeaderFormState>(() => buildHeaderFormState(donor));
     const deleteDonorMutation = useDeleteDonor();
+    const { highlightedId, consumeHighlightParam } = useUrlHighlight();
+
+    useEffect(() => {
+        consumeHighlightParam((id) => (id === editableDonor.id ? id : null));
+    }, [editableDonor.id, consumeHighlightParam]);
 
     const summaryQuery = useDonorProfileSummary(editableDonor.id);
     const donationsQuery = useDonorProfileDonations(editableDonor.id);
@@ -745,7 +751,12 @@ const DonorDetailView: React.FC<DonorDetailViewProps> = ({ donor, onBack, onDono
                     <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {t('individual_donors.backToList')}
                 </button>
 
-                <section className="overflow-hidden rounded-2xl border border-gray-200 bg-card shadow-soft dark:border-slate-700/60 dark:bg-dark-card">
+                <section
+                    data-highlight-id={editableDonor.id}
+                    className={`overflow-hidden rounded-2xl border border-gray-200 bg-card shadow-soft transition-colors duration-500 dark:border-slate-700/60 dark:bg-dark-card ${
+                        highlightedId === editableDonor.id ? HIGHLIGHT_CARD_CLASS : ''
+                    }`}
+                >
                     <div className="grid grid-cols-1 gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_auto]">
                         <div className="flex min-w-0 items-start gap-4 sm:gap-5">
                             <img src={summary?.donor.avatar || editableDonor.avatar} alt={donorName} className="h-20 w-20 flex-shrink-0 rounded-2xl border-4 border-primary-light object-cover dark:border-primary/20 sm:h-24 sm:w-24" />
