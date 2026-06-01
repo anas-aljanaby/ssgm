@@ -14,43 +14,48 @@ interface StakeholderCardProps {
 
 // MiniGauge component for displaying scores
 const MiniGauge: React.FC<{ value: number; label: string }> = ({ value, label }) => {
-    const radius = 22;
+    const size = 56;
+    const stroke = 5;
+    const radius = (size - stroke) / 2;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (value / 100) * circumference;
-    
-    const getColor = (v: number) => {
-        if (v >= 80) return 'stroke-green-500';
-        if (v >= 60) return 'stroke-yellow-500';
-        return 'stroke-red-500';
-    };
+
+    const ringColor = value >= 80 ? 'stroke-green-500' : value >= 60 ? 'stroke-amber-500' : 'stroke-red-500';
+    const textColor = value >= 80
+        ? 'text-green-600 dark:text-green-400'
+        : value >= 60
+        ? 'text-amber-600 dark:text-amber-400'
+        : 'text-red-600 dark:text-red-400';
 
     return (
-        <div className="flex flex-col items-center">
-            <svg className="w-16 h-16 transform -rotate-90">
-                <circle
-                    className="text-gray-200 dark:text-slate-700"
-                    strokeWidth="5"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r={radius}
-                    cx="32"
-                    cy="32"
-                />
-                <circle
-                    className={`transition-all duration-500 ${getColor(value)}`}
-                    strokeWidth="5"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={offset}
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r={radius}
-                    cx="32"
-                    cy="32"
-                />
-            </svg>
-            <span className="text-xl font-bold -mt-10">{value}</span>
-            <span className="text-xs text-gray-500 mt-5">{label}</span>
+        <div className="flex flex-col items-center gap-1.5">
+            <div className="relative" style={{ width: size, height: size }}>
+                <svg width={size} height={size} className="-rotate-90">
+                    <circle
+                        className="text-gray-200 dark:text-slate-700"
+                        strokeWidth={stroke}
+                        stroke="currentColor"
+                        fill="transparent"
+                        r={radius}
+                        cx={size / 2}
+                        cy={size / 2}
+                    />
+                    <circle
+                        className={`transition-all duration-700 ${ringColor}`}
+                        strokeWidth={stroke}
+                        strokeDasharray={circumference}
+                        strokeDashoffset={offset}
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="transparent"
+                        r={radius}
+                        cx={size / 2}
+                        cy={size / 2}
+                    />
+                </svg>
+                <span className={`absolute inset-0 flex items-center justify-center text-sm font-bold ${textColor}`}>{value}</span>
+            </div>
+            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 text-center leading-tight w-full truncate">{label}</span>
         </div>
     );
 };
@@ -111,17 +116,17 @@ const StakeholderCard: React.FC<StakeholderCardProps> = ({ stakeholder, highligh
             } ${highlighted ? 'ring-2 ring-emerald-300 dark:ring-emerald-700' : ''}`}
         >
             <div className="p-4 border-b dark:border-slate-700/50">
-                <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg bg-primary-light dark:bg-primary/20`}>
+                <div className="flex justify-between items-start gap-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className={`flex-shrink-0 p-2 rounded-lg bg-primary-light dark:bg-primary/20`}>
                             <TypeIcon className="w-6 h-6 text-primary dark:text-secondary" />
                         </div>
-                        <div>
-                            <h3 className="font-bold text-lg text-foreground dark:text-dark-foreground">{stakeholder.name[language] || stakeholder.name.ar || stakeholder.name.en}</h3>
+                        <div className="min-w-0">
+                            <h3 className="font-bold text-lg text-foreground dark:text-dark-foreground truncate">{stakeholder.name[language] || stakeholder.name.ar || stakeholder.name.en}</h3>
                             <p className="text-xs text-gray-500">{t(`stakeholder_management.types.${stakeholder.type}`)}</p>
                         </div>
                     </div>
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${stakeholder.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{t(`stakeholder_management.statuses.${stakeholder.status}`)}</span>
+                    <span className={`flex-shrink-0 px-2 py-1 text-xs font-semibold rounded-full ${stakeholder.status === 'active' ? 'bg-green-100 text-green-800' : stakeholder.status === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800'}`}>{t(`stakeholder_management.statuses.${stakeholder.status}`)}</span>
                 </div>
             </div>
             

@@ -50,6 +50,7 @@ import {
     type TaskUpdatePatch as ApiTaskUpdatePatch,
 } from '../../hooks/useBousala';
 import { isOptimisticId, OPTIMISTIC_HIGHLIGHT_MS } from '../../lib/optimisticSubmit';
+import i18n from '../../lib/i18n';
 
 const OPTIMISTIC_TASK_PREFIX = 'optimistic-task-';
 
@@ -77,7 +78,61 @@ type AiInsight = {
     id: number;
     title: string;
     content: string;
+    isDefault?: boolean;
 };
+
+const DEFAULT_AI_INSIGHT_IDS = { tasks: -1, kpis: -2, risks: -3 } as const;
+type DefaultAiInsightSection = keyof typeof DEFAULT_AI_INSIGHT_IDS;
+
+function buildDefaultAiInsights(t: (key: string) => string): {
+    tasks: AiInsight[];
+    kpis: AiInsight[];
+    risks: AiInsight[];
+} {
+    return {
+        tasks: [{
+            id: DEFAULT_AI_INSIGHT_IDS.tasks,
+            isDefault: true,
+            title: t('bousala.defaultInsights.tasksTitle'),
+            content: t('bousala.defaultInsights.tasksContent'),
+        }],
+        kpis: [{
+            id: DEFAULT_AI_INSIGHT_IDS.kpis,
+            isDefault: true,
+            title: t('bousala.defaultInsights.kpisTitle'),
+            content: t('bousala.defaultInsights.kpisContent'),
+        }],
+        risks: [{
+            id: DEFAULT_AI_INSIGHT_IDS.risks,
+            isDefault: true,
+            title: t('bousala.defaultInsights.risksTitle'),
+            content: t('bousala.defaultInsights.risksContent'),
+        }],
+    };
+}
+
+function matchesEnglishDefaultInsight(insight: AiInsight, section: DefaultAiInsightSection): boolean {
+    const enDefaults = (i18n.getResourceBundle('en', 'bousala') as { bousala?: { defaultInsights?: Record<string, string> } } | undefined)
+        ?.bousala?.defaultInsights;
+    if (!enDefaults) return false;
+    const titleKey = section === 'tasks' ? 'tasksTitle' : section === 'kpis' ? 'kpisTitle' : 'risksTitle';
+    const contentKey = section === 'tasks' ? 'tasksContent' : section === 'kpis' ? 'kpisContent' : 'risksContent';
+    return insight.title === enDefaults[titleKey] && insight.content === enDefaults[contentKey];
+}
+
+function syncDefaultInsightList(
+    list: AiInsight[],
+    defaultInsight: AiInsight,
+    section: DefaultAiInsightSection,
+): AiInsight[] {
+    return list.map((item) =>
+        item.isDefault
+        || item.id === DEFAULT_AI_INSIGHT_IDS[section]
+        || matchesEnglishDefaultInsight(item, section)
+            ? { ...defaultInsight, id: DEFAULT_AI_INSIGHT_IDS[section] }
+            : item,
+    );
+}
 
 interface BousalaPageProps {
     projects: MainProject[];
@@ -174,12 +229,12 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
 
 
 const ProgressBar: React.FC<{ progress: number, color?: string }> = ({ progress, color = 'bg-primary' }) => {
-    const { t, pickLocalized } = useLocalization();
+    const { t, language } = useLocalization(['common', 'bousala']);
     return (
         <div className="group">
             <div className="flex justify-between text-sm font-semibold mb-1">
                 <span>{t('bousala.common.progressLabel')}</span>
-                <span>{progress}%</span>
+                <span>{formatNumber(progress, language)}%</span>
             </div>
             <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5">
                 <div 
@@ -381,7 +436,7 @@ const ProjectItem: React.FC<{
     volunteers: HrData['volunteers'];
     hrData: HrData;
 }> = ({ project, tasks, highlightedTaskId = null, updatingTaskId = null, unassignedLabel, isAiLoading, onSuggestTasks, onPredictRisk, onUpdateTask, onDeleteTask, onSaveProject, onUnlinkProject, isSavingProject = false, mainProjects, volunteers, hrData }) => {
-    const { t, language } = useLocalization(['common', 'bousala']);
+    const { t, language, pickLocalized } = useLocalization(['common', 'bousala', 'projects']);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState<ProjectEditForm>({
@@ -539,10 +594,12 @@ const ProjectItem: React.FC<{
                                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm space-y-1">
                                         <p className="font-bold text-blue-800 dark:text-blue-300">{pickLocalized(linkedSystemProject.name)}</p>
                                         <p><strong>{t('bousala.common.budget')}:</strong> {formatCurrency(linkedSystemProject.budget, language)}</p>
-                                        <p><strong>{t('bousala.common.progress')}:</strong> {linkedSystemProject.progress}%</p>
+                                        <p><strong>{t('bousala.common.progress')}:</strong> {formatNumber(linkedSystemProject.progress, language)}%</p>
                                         <h6 className="font-semibold mt-2">{t('bousala.common.kpiIndicators')}:</h6>
                                         <ul className="list-disc list-inside text-xs">
-                                            {linkedSystemProject.kpis.map(kpi => <li key={kpi.id} dir="auto">{kpi.name}: {kpi.target}</li>)}
+                                            {(linkedSystemProject.kpis ?? []).map(kpi => (
+                                                <li key={kpi.id} dir="auto">{kpi.name}: {kpi.target}</li>
+                                            ))}
                                         </ul>
                                     </div>
                                 </div>
@@ -805,7 +862,9 @@ const AccordionSection: React.FC<{
                                 insights.map(insight => (
                                     <div key={insight.id} className="bg-white/50 dark:bg-black/20 p-3 rounded-lg">
                                         <h5 className="font-semibold text-sm" dir="auto">{insight.title}</h5>
-                                        <MarkdownRenderer content={insight.content} />
+                                        <div dir="auto">
+                                            <MarkdownRenderer content={insight.content} />
+                                        </div>
                                     </div>
                                 ))
                             )}
@@ -1055,18 +1114,28 @@ const BousalaPage: React.FC<BousalaPageProps> = ({ projects: mainProjects, hrDat
     }, [queryClient, emptyBousalaState]);
 
     const [expandedGoal, setExpandedGoal] = useState<string | null>(null);
+    const initialGoalExpandDoneRef = useRef(false);
 
     useEffect(() => {
-        if (!expandedGoal && bousalaState.goals[0]?.id) {
-            setExpandedGoal(bousalaState.goals[0].id);
+        if (bousalaState.goals.length === 0) {
+            initialGoalExpandDoneRef.current = false;
+            return;
         }
-    }, [bousalaState.goals, expandedGoal]);
+        if (initialGoalExpandDoneRef.current) return;
+        setExpandedGoal(bousalaState.goals[0].id);
+        initialGoalExpandDoneRef.current = true;
+    }, [bousalaState.goals]);
     const [aiLoading, setAiLoading] = useState<'tasks' | 'kpis' | 'risks' | null>(null);
-    const [aiInsights, setAiInsights] = useState<{ tasks: AiInsight[]; kpis: AiInsight[]; risks: AiInsight[] }>({
-        tasks: [{ id: Date.now(), title: t('bousala.defaultInsights.tasksTitle'), content: t('bousala.defaultInsights.tasksContent') }],
-        kpis: [{ id: Date.now() + 1, title: t('bousala.defaultInsights.kpisTitle'), content: t('bousala.defaultInsights.kpisContent') }],
-        risks: [{ id: Date.now() + 2, title: t('bousala.defaultInsights.risksTitle'), content: t('bousala.defaultInsights.risksContent') }]
-    });
+    const [aiInsights, setAiInsights] = useState(() => buildDefaultAiInsights(t));
+
+    useEffect(() => {
+        const defaults = buildDefaultAiInsights(t);
+        setAiInsights((prev) => ({
+            tasks: syncDefaultInsightList(prev.tasks, defaults.tasks[0], 'tasks'),
+            kpis: syncDefaultInsightList(prev.kpis, defaults.kpis[0], 'kpis'),
+            risks: syncDefaultInsightList(prev.risks, defaults.risks[0], 'risks'),
+        }));
+    }, [language, t]);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
     const [isAddGoalModalOpen, setIsAddGoalModalOpen] = useState(false);
