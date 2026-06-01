@@ -6,6 +6,7 @@ import * as schema from './schema';
 import { SEED_BENEFICIARIES } from './beneficiarySeed';
 import { resolveProjectId, seedProjects } from './projectSeed';
 import { seedBousala } from './bousalaSeed';
+import { SEED_STAKEHOLDERS } from './stakeholderSeed';
 
 const client = postgres(process.env.DIRECT_URL || process.env.DATABASE_URL!);
 const db = drizzle(client, { schema });
@@ -197,6 +198,7 @@ async function reset() {
     await db.delete(schema.donor_tasks);
     await db.delete(schema.donations);
     await db.delete(schema.individual_donors);
+    await db.delete(schema.stakeholders);
     await db.delete(schema.beneficiaries);
     await db.delete(schema.project_team_members);
     await db.delete(schema.project_risks);
@@ -779,6 +781,16 @@ async function seed() {
             .values({ org_id: org.id, ...beneficiary, project_id: projectId, profile })
             .returning();
         console.log(`  Beneficiary: ${inserted.name_en} (${inserted.beneficiary_type})`);
+    }
+
+    console.log('Seeding stakeholders...');
+    for (const stakeholder of SEED_STAKEHOLDERS) {
+        const [inserted] = await db
+            .insert(schema.stakeholders)
+            .values({ org_id: org.id, ...stakeholder })
+            .returning();
+        const label = inserted.name_ar?.trim() || inserted.name_en;
+        console.log(`  Stakeholder: ${label} (${inserted.type})`);
     }
 
     await seedFinancials(org.id, userEmail);

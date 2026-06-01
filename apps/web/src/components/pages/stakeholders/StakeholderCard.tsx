@@ -117,7 +117,7 @@ const StakeholderCard: React.FC<StakeholderCardProps> = ({ stakeholder, highligh
                             <TypeIcon className="w-6 h-6 text-primary dark:text-secondary" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg text-foreground dark:text-dark-foreground">{stakeholder.name[language]}</h3>
+                            <h3 className="font-bold text-lg text-foreground dark:text-dark-foreground">{stakeholder.name[language] || stakeholder.name.ar || stakeholder.name.en}</h3>
                             <p className="text-xs text-gray-500">{t(`stakeholder_management.types.${stakeholder.type}`)}</p>
                         </div>
                     </div>
