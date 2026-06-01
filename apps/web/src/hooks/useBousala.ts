@@ -15,6 +15,30 @@ export function invalidateBousalaQueries(queryClient: QueryClient) {
     void queryClient.invalidateQueries({ queryKey: BOUSALA_QUERY_KEY });
 }
 
+function mergeGoal(existing: BousalaGoal, updated: BousalaGoal): BousalaGoal {
+    return {
+        ...existing,
+        ...updated,
+        kpis: updated.kpis ?? existing.kpis,
+        linkedProjects: updated.linkedProjects ?? existing.linkedProjects,
+    };
+}
+
+function patchBousalaTreeCache(
+    queryClient: QueryClient,
+    updater: (tree: BousalaTree) => BousalaTree,
+) {
+    const next = queryClient.setQueryData<BousalaTree>(BOUSALA_QUERY_KEY, (old) => {
+        if (!old) return undefined;
+        return updater(old);
+    });
+    if (next === undefined) {
+        invalidateBousalaQueries(queryClient);
+        return;
+    }
+    invalidateBousalaQueries(queryClient);
+}
+
 export const useBousala = () => useQuery({
     queryKey: BOUSALA_QUERY_KEY,
     queryFn: fetchBousalaTree,
@@ -28,7 +52,7 @@ export interface BousalaImpact {
     donors: number;
 }
 
-export const BOUSALA_IMPACT_QUERY_KEY = ['bousala', 'impact'] as const;
+export const BOUSALA_IMPACT_QUERY_KEY = ['bousala-impact'] as const;
 
 export const useBousalaImpact = () => useQuery({
     queryKey: BOUSALA_IMPACT_QUERY_KEY,
@@ -169,7 +193,12 @@ export const useCreateBousalaGoal = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createBousalaGoalApi,
-        onSuccess: () => invalidateBousalaQueries(queryClient),
+        onSuccess: (goal) => {
+            patchBousalaTreeCache(queryClient, (tree) => ({
+                ...tree,
+                goals: [...tree.goals, goal],
+            }));
+        },
     });
 };
 
@@ -178,7 +207,14 @@ export const useUpdateBousalaGoal = () => {
     return useMutation({
         mutationFn: (vars: { goalId: string; data: { title: string; description: string; responsiblePerson: string; status?: string } }) =>
             updateBousalaGoalApi(vars.goalId, vars.data),
-        onSuccess: () => invalidateBousalaQueries(queryClient),
+        onSuccess: (goal) => {
+            patchBousalaTreeCache(queryClient, (tree) => ({
+                ...tree,
+                goals: tree.goals.map((existing) =>
+                    existing.id === goal.id ? mergeGoal(existing, goal) : existing,
+                ),
+            }));
+        },
     });
 };
 
@@ -186,7 +222,19 @@ export const useDeleteBousalaGoal = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: deleteBousalaGoalApi,
-        onSuccess: () => invalidateBousalaQueries(queryClient),
+        onSuccess: (_data, goalId) => {
+            patchBousalaTreeCache(queryClient, (tree) => {
+                const removedProjectIds = new Set(
+                    tree.projects.filter((project) => project.linkedGoal === goalId).map((project) => project.id),
+                );
+                return {
+                    ...tree,
+                    goals: tree.goals.filter((goal) => goal.id !== goalId),
+                    projects: tree.projects.filter((project) => project.linkedGoal !== goalId),
+                    tasks: tree.tasks.filter((task) => !removedProjectIds.has(task.linkedProject)),
+                };
+            });
+        },
     });
 };
 
@@ -194,7 +242,16 @@ export const useCreateBousalaKpi = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createBousalaKpiApi,
-        onSuccess: () => invalidateBousalaQueries(queryClient),
+        onSuccess: (kpi, variables) => {
+            patchBousalaTreeCache(queryClient, (tree) => ({
+                ...tree,
+                goals: tree.goals.map((goal) =>
+                    goal.id === variables.goalId
+                        ? { ...goal, kpis: [...(goal.kpis ?? []), kpi] }
+                        : goal,
+                ),
+            }));
+        },
     });
 };
 
@@ -203,7 +260,15 @@ export const useUpdateBousalaKpi = () => {
     return useMutation({
         mutationFn: (vars: { kpiId: string; data: { title: string; value: number; target: number; unit: string; kpiDescription?: string } }) =>
             updateBousalaKpiApi(vars.kpiId, vars.data),
-        onSuccess: () => invalidateBousalaQueries(queryClient),
+        onSuccess: (kpi) => {
+            patchBousalaTreeCache(queryClient, (tree) => ({
+                ...tree,
+                goals: tree.goals.map((goal) => ({
+                    ...goal,
+                    kpis: (goal.kpis ?? []).map((existing) => (existing.id === kpi.id ? kpi : existing)),
+                })),
+            }));
+        },
     });
 };
 
@@ -211,7 +276,15 @@ export const useDeleteBousalaKpi = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: deleteBousalaKpiApi,
-        onSuccess: () => invalidateBousalaQueries(queryClient),
+        onSuccess: (_data, kpiId) => {
+            patchBousalaTreeCache(queryClient, (tree) => ({
+                ...tree,
+                goals: tree.goals.map((goal) => ({
+                    ...goal,
+                    kpis: (goal.kpis ?? []).filter((kpi) => kpi.id !== kpiId),
+                })),
+            }));
+        },
     });
 };
 
@@ -239,7 +312,25 @@ export const useUnlinkBousalaGoalProject = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: unlinkBousalaGoalProjectApi,
-        onSuccess: () => invalidateBousalaQueries(queryClient),
+        onSuccess: (_data, projectId) => {
+            patchBousalaTreeCache(queryClient, (tree) => {
+                const project = tree.projects.find((row) => row.id === projectId);
+                const goalId = project?.linkedGoal;
+                return {
+                    ...tree,
+                    projects: tree.projects.filter((row) => row.id !== projectId),
+                    goals: tree.goals.map((goal) =>
+                        goal.id === goalId
+                            ? {
+                                  ...goal,
+                                  linkedProjects: goal.linkedProjects.filter((id) => id !== projectId),
+                              }
+                            : goal,
+                    ),
+                    tasks: tree.tasks.filter((task) => task.linkedProject !== projectId),
+                };
+            });
+        },
     });
 };
 
