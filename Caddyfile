@@ -9,3 +9,8 @@ ssgm.app, www.ssgm.app {
         reverse_proxy web:80
     }
 }
+
+# Full-pages app — separate compose project, reached via its host port 81
+full.ssgm.app {
+    reverse_proxy host.docker.internal:81
+}
