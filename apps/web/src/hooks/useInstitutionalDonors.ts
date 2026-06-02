@@ -64,19 +64,96 @@ type ApiInstitutionalDonor = {
     contacts?: InstitutionalDonorContact[];
 };
 
+type InstitutionalDonorApiRow = ApiInstitutionalDonor | Record<string, unknown>;
+
 const INSTITUTIONAL_DONORS_QUERY_KEY = ['institutional-donors'] as const;
 
-function mapApiInstitutionalDonor(row: ApiInstitutionalDonor): InstitutionalDonor {
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+    !!value && typeof value === 'object' && !Array.isArray(value);
+
+const asStringArray = (value: unknown): string[] => {
+    if (!Array.isArray(value)) return [];
+    return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+};
+
+const customString = (customFields: unknown, key: string): string | undefined => {
+    if (!isRecord(customFields)) return undefined;
+    const value = customFields[key];
+    return typeof value === 'string' && value.trim() ? value : undefined;
+};
+
+const toIso = (value: unknown): string => {
+    if (!value) return '';
+    const date = value instanceof Date ? value : new Date(String(value));
+    return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+};
+
+function mapApiInstitutionalDonor(row: InstitutionalDonorApiRow): InstitutionalDonor {
+    if ('organizationName' in row && isRecord(row.organizationName) && typeof row.organizationName.en === 'string') {
+        const mapped = row as ApiInstitutionalDonor;
+        return {
+            ...mapped,
+            contacts: mapped.contacts ?? [],
+        };
+    }
+
+    const raw = row as Record<string, unknown>;
+    const customFields = raw.custom_fields;
+    const socialMedia = isRecord(customFields) && isRecord(customFields.social_media)
+        ? customFields.social_media
+        : undefined;
+    const coordinates = isRecord(customFields) && isRecord(customFields.coordinates)
+        ? customFields.coordinates
+        : undefined;
+
     return {
-        ...row,
-        contacts: row.contacts ?? [],
+        id: String(raw.id),
+        organizationName: {
+            en: String(raw.name_en || ''),
+            ar: String(raw.name_ar || raw.name_en || ''),
+        },
+        logo: customString(customFields, 'logo') || '',
+        type: (raw.type as InstitutionalDonor['type']) || 'Foundation',
+        primaryContact: {
+            name: String(raw.primary_contact_name || ''),
+            email: String(raw.primary_contact_email || ''),
+        },
+        totalGrantsAwarded: Number(raw.totalGrantsAwarded) || 0,
+        activeGrants: Number(raw.activeGrants) || 0,
+        nextDeadline: typeof raw.nextDeadline === 'string' ? raw.nextDeadline : '',
+        relationshipStatus: (raw.relationship_status as InstitutionalDonor['relationshipStatus'])
+            || (raw.relationshipStatus as InstitutionalDonor['relationshipStatus'])
+            || 'Prospect',
+        focusAreas: asStringArray(raw.focus_areas ?? raw.focusAreas),
+        geographicFocus: asStringArray(raw.geographic_focus ?? raw.geographicFocus),
+        assignedManager: String(raw.assigned_manager || raw.assignedManager || ''),
+        priority: (raw.priority as InstitutionalDonor['priority']) || 'Medium',
+        country: String(raw.country || ''),
+        lastContactDate: customString(customFields, 'last_contact_date') || toIso(raw.updated_at) || toIso(raw.created_at),
+        createdDate: toIso(raw.createdDate) || toIso(raw.created_at),
+        registrationNumber: customString(customFields, 'registration_number'),
+        city: customString(customFields, 'city'),
+        establishmentDate: customString(customFields, 'establishment_date'),
+        phone: customString(customFields, 'phone'),
+        website: customString(customFields, 'website'),
+        address: customString(customFields, 'address'),
+        socialMedia: socialMedia ? {
+            linkedin: typeof socialMedia.linkedin === 'string' ? socialMedia.linkedin : undefined,
+            twitter: typeof socialMedia.twitter === 'string' ? socialMedia.twitter : undefined,
+            facebook: typeof socialMedia.facebook === 'string' ? socialMedia.facebook : undefined,
+        } : undefined,
+        coordinates: coordinates ? {
+            lat: Number(coordinates.lat) || 0,
+            lng: Number(coordinates.lng) || 0,
+        } : undefined,
+        contacts: Array.isArray(raw.contacts) ? raw.contacts as InstitutionalDonorContact[] : [],
     };
 }
 
 export const useInstitutionalDonors = () => useQuery({
     queryKey: INSTITUTIONAL_DONORS_QUERY_KEY,
     queryFn: async () => {
-        const rows = await api.get<ApiInstitutionalDonor[]>('/institutional-donors');
+        const rows = await api.get<InstitutionalDonorApiRow[]>('/institutional-donors');
         return rows.map(mapApiInstitutionalDonor);
     },
 });
@@ -99,11 +176,9 @@ export type CreateInstitutionalDonorInput = {
 export const useCreateInstitutionalDonor = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (input: CreateInstitutionalDonorInput) => api.post<ApiInstitutionalDonor>('/institutional-donors', input),
-        onSuccess: (created) => {
-            queryClient.setQueryData<InstitutionalDonor[]>(INSTITUTIONAL_DONORS_QUERY_KEY, (old) => [mapApiInstitutionalDonor(created), ...(old ?? [])]);
-        },
-        onSettled: () => {
+        mutationFn: async (input: CreateInstitutionalDonorInput) =>
+            mapApiInstitutionalDonor(await api.post<InstitutionalDonorApiRow>('/institutional-donors', input)),
+        onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: INSTITUTIONAL_DONORS_QUERY_KEY });
         },
     });
@@ -112,7 +187,8 @@ export const useCreateInstitutionalDonor = () => {
 export const useUpdateInstitutionalDonor = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (vars: { donorId: string; payload: Record<string, unknown> }) => api.patch<ApiInstitutionalDonor>(`/institutional-donors/${vars.donorId}`, vars.payload),
+        mutationFn: async (vars: { donorId: string; payload: Record<string, unknown> }) =>
+            mapApiInstitutionalDonor(await api.patch<InstitutionalDonorApiRow>(`/institutional-donors/${vars.donorId}`, vars.payload)),
         onSuccess: () => {
             void queryClient.invalidateQueries({ queryKey: INSTITUTIONAL_DONORS_QUERY_KEY });
         },

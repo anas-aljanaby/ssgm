@@ -21,7 +21,7 @@ This is an **MVP**. The goal is to ship a polished initial version with enough d
 - **Auth & Storage**: Supabase (Auth, Storage, RLS)
 - **AI**: Google Gemini API (server-side only, never in browser bundle)
 - **Shared**: Zod schemas + derived types in `packages/shared`
-- **Deployment**: Vite static build on Vercel (frontend), Node on Render (backend), Supabase managed DB
+- **Deployment**: Self-hosted on a Contabo VPS via Docker Compose (Caddy reverse proxy + TLS, web + api containers). Supabase managed DB.
 
 ## Demo credentials
 
@@ -41,6 +41,30 @@ npm run db:studio        # Open Drizzle Studio (in apps/api)
 npm run seed             # Seed database (in apps/api)
 npm run seed:reset       # Reset + reseed (in apps/api)
 ```
+
+## Deployment (production)
+
+Both frontend and backend run as Docker containers on a Contabo VPS, fronted by Caddy (auto‑TLS for `ssgm.app`).
+
+- **Host**: `ssh contabo-vps` → project at `~/Workspace/github/gms-ai` (git remote: `anas-aljanaby/ssgm`, branch `main`).
+- **Containers** (`docker-compose.yml`): `api` (Hono, `Dockerfile.api`, tsx, internal `:3000`), `web` (static build served by nginx, `Dockerfile.web`, internal `:80`), `caddy` (public `:80`/`:443`, routes `/api/*` → api, everything else → web).
+- **Env**: `.env` on the server (Supabase keys, `DATABASE_URL`, `VITE_*` build args). Not in git.
+- **Build‑time coupling**: the web image bakes `VITE_*` env at build time, so the frontend **must be rebuilt** to pick up source or env changes — a restart alone is not enough.
+
+### Deploy after a git pull
+
+On the server, from `~/Workspace/github/gms-ai`:
+
+```
+git pull
+docker compose up -d --build      # rebuilds changed images + recreates containers
+```
+
+`git pull` only updates source on disk — the running containers keep the old code until you rebuild. `--build` rebuilds the `api` and `web` images from the new source; `-d` recreates only the changed containers (caddy is untouched unless the Caddyfile changed).
+
+- **Schema changed** (`apps/api/src/db/schema.ts`): also run `npm run db:push` against the DB (e.g. `docker compose exec api npm run db:push`, or locally with the prod `DATABASE_URL`).
+- **Caddyfile changed**: `docker compose restart caddy`.
+- **Verify**: `docker compose ps` (all Up), `docker compose logs -f api` for backend errors.
 
 ## Architecture principles
 

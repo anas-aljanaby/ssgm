@@ -278,7 +278,7 @@ institutionalDonorsRouter.post('/', async (c) => {
         custom_fields: customFields,
     }).returning();
 
-    return c.json(donor, 201);
+    return c.json(mapInstitutionalDonor(donor, [], []), 201);
 });
 
 institutionalDonorsRouter.patch('/:id', async (c) => {
@@ -317,7 +317,15 @@ institutionalDonorsRouter.patch('/:id', async (c) => {
         .where(and(eq(institutional_donors.id, existing.id), eq(institutional_donors.org_id, orgId)))
         .returning();
 
-    return c.json(updated);
+    const [grantRows, contactRows] = await Promise.all([
+        db.select().from(grants).where(and(eq(grants.org_id, orgId), eq(grants.grantor_id, updated.id))),
+        db.select().from(institutional_donor_contacts).where(and(
+            eq(institutional_donor_contacts.org_id, orgId),
+            eq(institutional_donor_contacts.institutional_donor_id, updated.id),
+        )),
+    ]);
+
+    return c.json(mapInstitutionalDonor(updated, grantRows, contactRows));
 });
 
 institutionalDonorsRouter.delete('/:id', async (c) => {
