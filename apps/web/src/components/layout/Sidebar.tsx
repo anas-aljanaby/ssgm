@@ -18,7 +18,7 @@ interface SidebarProps {
 const UNGATED_MODULES = new Set(['help']);
 
 const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule }) => {
-  const { t, dir } = useLocalization(['common', 'sidebar', 'staff', 'platform']);
+  const { sidebarLabel, dir } = useLocalization(['common', 'sidebar']);
   const { signOut } = useAuth();
   const { can, isPlatformAdmin } = usePermissions();
   const { isImpersonating } = useOrg();
@@ -70,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule }) => {
           <div className="flex items-center justify-center w-6 h-6 flex-shrink-0">
             <Icon />
           </div>
-          <span className={`mx-4 font-medium whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>{t(`sidebar.${moduleKey}`)}</span>
+          <span className={`mx-4 font-medium whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>{sidebarLabel(moduleKey)}</span>
         </a>
       </li>
     );
@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule }) => {
                     className={`flex items-center w-full p-3 rounded-lg transition-colors duration-200 text-left rtl:flex-row-reverse ${isActive ? 'text-primary dark:text-white' : 'text-gray-500 dark:text-gray-400'} hover:bg-gray-100 dark:hover:bg-gray-700/50`}
                   >
                     <div className="flex items-center justify-center w-6 h-6 flex-shrink-0"><Icon /></div>
-                    <span className={`mx-4 font-medium whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>{t(`sidebar.${module.key}`)}</span>
+                    <span className={`mx-4 font-medium whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>{sidebarLabel(module.key)}</span>
                     <ChevronDownIcon className={`w-4 h-4 ms-auto flex-shrink-0 transition-all ${isExpanded ? 'opacity-100' : 'opacity-0'} ${isSubmenuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   <AnimatePresence>
@@ -131,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule }) => {
                             <a href="#" onClick={(e) => { e.preventDefault(); setActiveModule(subItem.key); }}
                                 className={`block p-2 rounded-md text-sm font-medium ${activeModule === subItem.key ? 'bg-primary-light/50 text-primary-dark dark:bg-primary/20 dark:text-white font-bold' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'}`}
                             >
-                              {t(`sidebar.${subItem.key}`)}
+                              {sidebarLabel(subItem.key)}
                             </a>
                           </li>
                         ))}

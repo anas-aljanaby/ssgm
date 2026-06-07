@@ -30,7 +30,7 @@ export const ALL_NAMESPACES = [
 
 export type AppNamespace = (typeof ALL_NAMESPACES)[number];
 
-export const ALWAYS_LOADED_NAMESPACES: AppNamespace[] = ['common', 'sidebar', 'header', 'misc'];
+export const ALWAYS_LOADED_NAMESPACES: AppNamespace[] = ['common', 'sidebar', 'header', 'misc', 'staff', 'platform'];
 export const DEFAULT_NAMESPACES: AppNamespace[] = ALWAYS_LOADED_NAMESPACES;
 
 export const NAMESPACE_BY_ROOT_KEY: Record<string, AppNamespace> = {
@@ -104,6 +104,8 @@ const getStoredLanguage = (): Language => {
 };
 
 export const resolveNamespaceForKey = (key: string): AppNamespace | undefined => {
+  // Sidebar labels always live in the sidebar namespace (e.g. sidebar.staff).
+  if (key.startsWith('sidebar.')) return 'sidebar';
   const [rootKey] = key.split('.');
   return NAMESPACE_BY_ROOT_KEY[rootKey];
 };

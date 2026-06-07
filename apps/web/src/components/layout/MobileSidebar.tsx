@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../hooks/useTheme';
-import { SIDEBAR_MODULES } from '../../constants';
+import type { RbacModule } from '@gms/shared';
+import { SIDEBAR_MODULES, PLATFORM_MODULE } from '../../constants';
+import { usePermissions } from '../../hooks/usePermissions';
+import { useOrg } from '../../contexts/OrgContext';
 import { LogoutIcon } from '../icons/ModuleIcons';
 import { SunIcon, MoonIcon, ChevronDownIcon } from '../icons/GenericIcons';
 import { SUPPORTED_LANGUAGES } from '../../lib/i18n';
@@ -21,17 +24,31 @@ interface MobileSidebarProps {
 }
 
 const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose, activeModule, setActiveModule, role, setRole }) => {
-  const { t, language, setLanguage, dir } = useLocalization();
+  const { t, sidebarLabel, language, setLanguage, dir } = useLocalization(['common', 'sidebar', 'header']);
   const { signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { can, isPlatformAdmin } = usePermissions();
+  const { isImpersonating } = useOrg();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
 
-  const visibleModules = useMemo(() => SIDEBAR_MODULES.filter(module => {
-    if (module.key === 'bousala') {
-      return role === 'Admin' || role === 'Manager';
-    }
-    return true;
-  }), [role]);
+  const UNGATED_MODULES = new Set(['help']);
+
+  const visibleModules = useMemo(() => {
+    const filtered = SIDEBAR_MODULES.filter((module) => {
+      if (UNGATED_MODULES.has(module.key)) return true;
+      return can(module.key as RbacModule, 'read');
+    });
+    if (!isPlatformAdmin || isImpersonating) return filtered;
+
+    const settingsIndex = filtered.findIndex((module) => module.key === 'settings');
+    if (settingsIndex === -1) return [...filtered, PLATFORM_MODULE];
+
+    return [
+      ...filtered.slice(0, settingsIndex),
+      PLATFORM_MODULE,
+      ...filtered.slice(settingsIndex),
+    ];
+  }, [can, isPlatformAdmin, isImpersonating]);
 
   useEffect(() => {
     if (isOpen) {
@@ -92,7 +109,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose, activeMo
                             <button onClick={() => setOpenSubmenu(openSubmenu === module.key ? null : module.key)}
                                 className={`flex items-center w-full p-3 rounded-lg text-left ${dir === 'rtl' ? 'flex-row-reverse' : ''} ${module.submenu.some((sub: any) => sub.key === activeModule) ? 'text-primary dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
                                 <module.icon />
-                                <span className="mx-4 font-semibold text-base">{t(`sidebar.${module.key}`)}</span>
+                                <span className="mx-4 font-semibold text-base">{sidebarLabel(module.key)}</span>
                                 <ChevronDownIcon className={`w-4 h-4 ms-auto transition-transform ${openSubmenu === module.key ? 'rotate-180' : ''}`} />
                             </button>
                             <AnimatePresence>
@@ -102,7 +119,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose, activeMo
                                         <li key={subItem.key}>
                                             <a href="#" onClick={(e) => { e.preventDefault(); handleModuleClick(subItem.key); }}
                                                className={`block p-2 rounded-md text-sm font-medium ${activeModule === subItem.key ? 'bg-primary-light/50 text-primary-dark font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
-                                                {t(`sidebar.${subItem.key}`)}
+                                                {sidebarLabel(subItem.key)}
                                             </a>
                                         </li>
                                     ))}
@@ -115,7 +132,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose, activeMo
                            className={`flex items-center p-3 rounded-lg ${activeModule === module.key ? 'bg-primary-light/50 dark:bg-primary/20 text-primary dark:text-white' : 'text-gray-500 dark:text-gray-400'} ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}
                         >
                             <module.icon />
-                            <span className="mx-4 font-semibold text-base">{t(`sidebar.${module.key}`)}</span>
+                            <span className="mx-4 font-semibold text-base">{sidebarLabel(module.key)}</span>
                         </a>
                     )}
                 </li>
@@ -146,7 +163,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose, activeMo
                     className={`flex items-center p-3 rounded-lg transition-all duration-200 active:scale-95 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}
                 >
                     <LogoutIcon />
-                    <span className={`mx-4 font-semibold text-base`}>{t('sidebar.logout')}</span>
+                    <span className={`mx-4 font-semibold text-base`}>{sidebarLabel('logout')}</span>
                 </a>
             </div>
         </div>

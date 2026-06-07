@@ -11,6 +11,8 @@ import bousala from '../../public/locales/en/bousala.json';
 import leadership from '../../public/locales/en/leadership.json';
 import stakeholders from '../../public/locales/en/stakeholders.json';
 import settings from '../../public/locales/en/settings.json';
+import staff from '../../public/locales/en/staff.json';
+import platform from '../../public/locales/en/platform.json';
 import misc from '../../public/locales/en/misc.json';
 
 export const defaultResources = {
@@ -27,5 +29,7 @@ export const defaultResources = {
   leadership,
   stakeholders,
   settings,
+  staff,
+  platform,
   misc,
 } as const;

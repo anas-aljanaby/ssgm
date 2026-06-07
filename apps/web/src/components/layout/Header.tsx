@@ -43,7 +43,7 @@ interface HeaderProps {
  * />
  */
 const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, setIsMobileMenuOpen, enabledLanguages, setActiveModule }) => {
-  const { t, language, setLanguage } = useLocalization(['common', 'header', 'sidebar', 'misc', 'staff', 'platform']);
+  const { t, sidebarLabel, language, setLanguage } = useLocalization(['common', 'header', 'sidebar', 'misc', 'staff', 'platform']);
   const { theme, toggleTheme } = useTheme();
   const { orgs, activeOrgId, activeOrgName, isImpersonating, isPlatformAdmin, setActiveOrg } = useOrg();
   const { data: platformOrgs = [] } = usePlatformOrgs();
@@ -125,10 +125,10 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, setIsMobileMenuOpen, 
 
   const activeModuleKey = window.location.hash.substring(1).split('/')[0] || 'dashboard';
   
-  const pageTitle = useMemo(() => {
-    // A simple lookup in the translation file is sufficient now
-    return t(`sidebar.${activeModuleKey}`, activeModuleKey.replace(/_/g, ' '));
-  }, [activeModuleKey, t]);
+  const pageTitle = useMemo(
+    () => sidebarLabel(activeModuleKey),
+    [activeModuleKey, sidebarLabel],
+  );
   
   const CurrentFlag = langToFlag[language];
 

@@ -17,11 +17,11 @@ interface PlaceholderPageProps {
  * <PlaceholderPage moduleKey="financials" />
  */
 const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ moduleKey }) => {
-  const { t } = useLocalization(['common', 'misc']);
+  const { t, sidebarLabel } = useLocalization(['common', 'misc', 'sidebar']);
   
   const moduleInfo = SIDEBAR_MODULES.find(m => m.key === moduleKey);
   const Icon = moduleInfo?.icon || (() => null);
-  const moduleName = t(`sidebar.${moduleKey}`, moduleKey.replace(/_/g, ' '));
+  const moduleName = sidebarLabel(moduleKey);
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-8 bg-card dark:bg-dark-card rounded-2xl shadow-soft">

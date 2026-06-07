@@ -64,6 +64,16 @@ export const useLocalization = (namespaces: AppNamespace[] = DEFAULT_NAMESPACES)
     [t],
   );
 
+  /** Sidebar module labels always resolve from the sidebar namespace. */
+  const sidebarLabel = useCallback(
+    (moduleKey: string, defaultValue?: string) =>
+      t(`sidebar.${moduleKey}`, {
+        ns: 'sidebar',
+        defaultValue: defaultValue ?? moduleKey.replace(/_/g, ' '),
+      }),
+    [t],
+  );
+
   const setLanguage = useCallback(
     (nextLanguage: Language) => {
       if (instance.resolvedLanguage === nextLanguage) {
@@ -78,6 +88,7 @@ export const useLocalization = (namespaces: AppNamespace[] = DEFAULT_NAMESPACES)
 
   return {
     t,
+    sidebarLabel,
     language,
     setLanguage,
     dir,
