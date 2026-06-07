@@ -1,29 +1,19 @@
 import { Hono } from 'hono';
-import { User } from '@supabase/supabase-js';
 import { and, desc, eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { db } from '../db';
-import { donor_documents, donor_interactions, donor_tasks, donations, individual_donors, memberships } from '../db/schema';
+import { donor_documents, donor_interactions, donor_tasks, donations, individual_donors } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
+import { OrgContextVars, orgContext } from '../middleware/orgContext';
 import { normalizeDonorTags, validateDonorCustomFieldsPatch, validateDonorTags } from '../lib/donorPatchValidation';
 import { createDonationSchema, createDonorInteractionSchema, createDonorSchema, createDonorTaskSchema, updateDonorInteractionSchema, updateDonorSchema, updateDonorTaskSchema } from '@gms/shared';
 
-type Variables = { user: User };
-
-const donorsRouter = new Hono<{ Variables: Variables }>();
+const donorsRouter = new Hono<{ Variables: OrgContextVars }>();
 
 donorsRouter.use(authMiddleware);
-
-async function getOrgId(userId: string, requestedOrgId?: string): Promise<string | null> {
-    const where = requestedOrgId
-        ? and(eq(memberships.user_id, userId), eq(memberships.org_id, requestedOrgId))
-        : eq(memberships.user_id, userId);
-
-    const rows = await db.select({ org_id: memberships.org_id }).from(memberships).where(where).limit(1);
-    return rows[0]?.org_id ?? null;
-}
+donorsRouter.use(orgContext);
 
 type DonationRow = typeof donations.$inferSelect;
 type DonorRow = typeof individual_donors.$inferSelect;
@@ -246,9 +236,7 @@ async function refreshDonorGivingCache(donorId: string, orgId: string) {
 }
 
 donorsRouter.get('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db
         .select()
@@ -259,9 +247,7 @@ donorsRouter.get('/', async (c) => {
 });
 
 donorsRouter.get('/:id/profile-summary', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -335,9 +321,7 @@ donorsRouter.get('/:id/profile-summary', async (c) => {
 });
 
 donorsRouter.get('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db
         .select()
@@ -349,9 +333,7 @@ donorsRouter.get('/:id', async (c) => {
 });
 
 donorsRouter.post('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createDonorSchema.safeParse(body);
@@ -397,9 +379,7 @@ donorsRouter.post('/', async (c) => {
 });
 
 donorsRouter.patch('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existingDonor = await getOrgDonor(c.req.param('id'), orgId);
     if (!existingDonor) return c.json({ error: 'Not found' }, 404);
@@ -453,9 +433,7 @@ donorsRouter.patch('/:id', async (c) => {
 });
 
 donorsRouter.delete('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -482,9 +460,7 @@ donorsRouter.delete('/:id', async (c) => {
 // --- Donations sub-routes ---
 
 donorsRouter.get('/:id/donations', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -499,9 +475,7 @@ donorsRouter.get('/:id/donations', async (c) => {
 });
 
 donorsRouter.post('/:id/donations', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -529,9 +503,7 @@ donorsRouter.post('/:id/donations', async (c) => {
 });
 
 donorsRouter.get('/:id/tasks', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -546,9 +518,7 @@ donorsRouter.get('/:id/tasks', async (c) => {
 });
 
 donorsRouter.post('/:id/tasks', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -576,9 +546,7 @@ donorsRouter.post('/:id/tasks', async (c) => {
 });
 
 donorsRouter.patch('/:id/tasks/:taskId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -607,9 +575,7 @@ donorsRouter.patch('/:id/tasks/:taskId', async (c) => {
 });
 
 donorsRouter.delete('/:id/tasks/:taskId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -624,9 +590,7 @@ donorsRouter.delete('/:id/tasks/:taskId', async (c) => {
 });
 
 donorsRouter.get('/:id/interactions', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -641,9 +605,7 @@ donorsRouter.get('/:id/interactions', async (c) => {
 });
 
 donorsRouter.post('/:id/interactions', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -671,9 +633,7 @@ donorsRouter.post('/:id/interactions', async (c) => {
 });
 
 donorsRouter.patch('/:id/interactions/:interactionId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -711,9 +671,7 @@ donorsRouter.patch('/:id/interactions/:interactionId', async (c) => {
 });
 
 donorsRouter.delete('/:id/interactions/:interactionId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -728,9 +686,7 @@ donorsRouter.delete('/:id/interactions/:interactionId', async (c) => {
 });
 
 donorsRouter.get('/:id/documents', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -745,9 +701,7 @@ donorsRouter.get('/:id/documents', async (c) => {
 });
 
 donorsRouter.post('/:id/documents', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -782,9 +736,7 @@ donorsRouter.post('/:id/documents', async (c) => {
 });
 
 donorsRouter.delete('/:id/documents/:documentId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);

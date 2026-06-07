@@ -1,0 +1,56 @@
+{
+  "staff": {
+    "title": "Staff Management",
+    "subtitle": "Manage your organization's team members and their access roles",
+    "add": "Add Staff",
+    "add_title": "Add Staff Member",
+    "edit_title": "Edit Staff Member",
+    "search": "Search by name, email, role, or department…",
+    "empty": "No staff members yet",
+    "no_results": "No staff matching your search",
+    "created": "Staff member created successfully",
+    "updated": "Staff member updated successfully",
+    "deleted": "Staff member removed successfully",
+    "delete_title": "Remove Staff Member",
+    "delete_confirm": "Are you sure you want to remove {{name}} from this organization? They will lose access.",
+    "password_created_title": "Account Created",
+    "password_created_desc": "Share this temporary password with the new staff member. They should change it on first login.",
+    "required_helper": "Fields marked * are required.",
+    "fields": {
+      "name": "Name",
+      "name_en": "Name (English)",
+      "name_ar": "Name (Arabic)",
+      "email": "Email",
+      "role": "Role",
+      "title": "Job Title",
+      "department": "Department",
+      "phone": "Phone",
+      "status": "Status",
+      "password": "Password"
+    },
+    "password_helper_create": "Leave empty to auto-generate. Minimum 8 characters if you set one.",
+    "password_helper_edit": "Demo only — visible here for easy reference. Minimum 8 characters.",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+    "roles": {
+      "admin": "Admin",
+      "manager": "Manager",
+      "accountant": "Accountant",
+      "staff": "Staff",
+      "viewer": "Viewer"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "name_en_required": "English name is required.",
+      "email_required": "Email is required.",
+      "email_invalid": "Enter a valid email address.",
+      "password_min_length": "Password must be at least 8 characters.",
+      "last_admin": "Cannot proceed — this is the only admin in the organization.",
+      "cannot_remove_self": "You cannot remove yourself from the organization."
+    }
+  }
+}

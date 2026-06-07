@@ -1,0 +1,33 @@
+{
+  "platform": {
+    "title": "Platform Console",
+    "subtitle": "View and manage all organizations on the platform",
+    "no_orgs": "No organizations found",
+    "members": "members",
+    "enter": "Enter Organization",
+    "exit": "Exit to Console",
+    "impersonation_banner": "You are viewing {{org}} as a platform admin",
+    "create_org": "Create Organization",
+    "create_submit": "Create",
+    "required_helper": "Fields marked * are required.",
+    "org_name": "Organization name",
+    "org_name_helper": "Enter a clear organization name you can recognize later.",
+    "org_name_required": "Organization name is required.",
+    "org_name_placeholder": "e.g. Al-Khair Foundation",
+    "create_success": "Organization created",
+    "manage_org": "Manage",
+    "manage_org_title": "Manage {{name}}",
+    "manage_org_description": "Administrative actions are kept here so the org card stays focused on entering the workspace.",
+    "enter_description": "Switch into this organization and continue in the main workspace.",
+    "danger_zone": "Danger zone",
+    "delete_hint": "Deleting an organization permanently removes it and all of its data. Use this only for cleanup or mistakes.",
+    "delete": "Delete",
+    "delete_org": "Delete Organization",
+    "delete_confirm": "Delete \"{{name}}\" and all of its data? This cannot be undone.",
+    "delete_success": "Organization deleted",
+    "delete_last_org": "Cannot delete the last organization on the platform"
+  },
+  "header": {
+    "switch_org": "Switch Organization"
+  }
+}

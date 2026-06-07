@@ -23,6 +23,8 @@ export const ALL_NAMESPACES = [
   'stakeholders',
   'financials',
   'settings',
+  'staff',
+  'platform',
   'misc',
 ] as const;
 
@@ -53,6 +55,9 @@ export const NAMESPACE_BY_ROOT_KEY: Record<string, AppNamespace> = {
   incubation_investors: 'stakeholders',
   incubationSuccessMetrics: 'stakeholders',
   settings: 'settings',
+  staff: 'staff',
+  roles: 'staff',
+  platform: 'platform',
   financials: 'financials',
   financialSettings: 'settings',
   layoutCustomizer: 'settings',

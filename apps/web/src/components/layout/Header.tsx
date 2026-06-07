@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import type { Role, Language } from '../../types';
+import type { Language } from '../../types';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useTheme } from '../../hooks/useTheme';
+import { useOrg } from '../../contexts/OrgContext';
+import { usePermissions } from '../../hooks/usePermissions';
+import { usePlatformOrgs } from '../../hooks/usePlatform';
 import { SUPPORTED_LANGUAGES } from '../../lib/i18n';
-import { USER_ROLES } from '../../constants';
 import { SunIcon, MoonIcon, GlobeIcon, ChevronDownIcon, HamburgerIcon } from '../icons/GenericIcons';
 import { Bell, Lightbulb } from 'lucide-react';
 import { langToFlag } from '../icons/FlagIcons';
@@ -14,8 +16,8 @@ import { MOCK_ANNOUNCEMENTS } from '../../data/announcementsData';
 import Tooltip from '../common/Tooltip';
 
 interface HeaderProps {
-  role: Role;
-  setRole: (role: Role) => void;
+  role?: unknown;
+  setRole?: unknown;
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (isOpen: boolean) => void;
   enabledLanguages: Language[];
@@ -40,18 +42,30 @@ interface HeaderProps {
  *   enabledLanguages={['en', 'ar']}
  * />
  */
-const Header: React.FC<HeaderProps> = ({ role, setRole, isMobileMenuOpen, setIsMobileMenuOpen, enabledLanguages, setActiveModule }) => {
-  const { t, language, setLanguage } = useLocalization(['common', 'header', 'sidebar', 'misc']);
+const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, setIsMobileMenuOpen, enabledLanguages, setActiveModule }) => {
+  const { t, language, setLanguage } = useLocalization(['common', 'header', 'sidebar', 'misc', 'staff', 'platform']);
   const { theme, toggleTheme } = useTheme();
+  const { orgs, activeOrgId, activeOrgName, isImpersonating, isPlatformAdmin, setActiveOrg } = useOrg();
+  const { data: platformOrgs = [] } = usePlatformOrgs();
+  const { role } = usePermissions();
+
+  const switchableOrgs = useMemo(() => {
+    if (!isPlatformAdmin) return orgs;
+    const memberIds = new Set(orgs.map((o) => o.id));
+    const extras = platformOrgs
+      .filter((o) => !memberIds.has(o.id))
+      .map((o) => ({ id: o.id, name: o.name }));
+    return [...orgs, ...extras].sort((a, b) => a.name.localeCompare(b.name));
+  }, [orgs, platformOrgs, isPlatformAdmin]);
 
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [orgDropdownOpen, setOrgDropdownOpen] = useState(false);
   const [announcementsOpen, setAnnouncementsOpen] = useState(false);
   const [dataStatus, setDataStatus] = useState<LiveIndicatorStatus>('live');
   const [lastUpdate, setLastUpdate] = useState(new Date());
-  
+
   const langDropdownRef = useRef<HTMLDivElement>(null);
-  const roleDropdownRef = useRef<HTMLDivElement>(null);
+  const orgDropdownRef = useRef<HTMLDivElement>(null);
 
   const availableLanguages = useMemo(() => 
     SUPPORTED_LANGUAGES.filter(lang => enabledLanguages.includes(lang.code)),
@@ -101,8 +115,8 @@ const Header: React.FC<HeaderProps> = ({ role, setRole, isMobileMenuOpen, setIsM
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
         setLangDropdownOpen(false);
       }
-      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
-        setRoleDropdownOpen(false);
+      if (orgDropdownRef.current && !orgDropdownRef.current.contains(event.target as Node)) {
+        setOrgDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -196,36 +210,58 @@ const Header: React.FC<HeaderProps> = ({ role, setRole, isMobileMenuOpen, setIsM
           </div>
 
 
-          {/* Profile Dropdown */}
-          <div className="relative" ref={roleDropdownRef}>
-              <button onClick={() => setRoleDropdownOpen(!roleDropdownOpen)} className="flex items-center space-x-2" aria-expanded={roleDropdownOpen} aria-haspopup="true">
-                  <img src="https://picsum.photos/id/1005/100/100" alt="User" className="w-10 h-10 rounded-full" loading="lazy"/>
-                  <div className="hidden sm:flex flex-col items-start rtl:items-end">
-                      <span className="font-semibold text-sm">{t('header.greeting')}!</span>
-                      <span className="text-xs text-gray-500">{role}</span>
+          {/* Profile / Org Dropdown */}
+          <div className="relative" ref={orgDropdownRef}>
+              <button onClick={() => setOrgDropdownOpen(!orgDropdownOpen)} className="flex items-center space-x-2" aria-expanded={orgDropdownOpen} aria-haspopup="true">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-bold text-sm shrink-0">
+                      {(activeOrgName || '?').charAt(0).toUpperCase()}
                   </div>
-                  <ChevronDownIcon className={`transition-transform duration-200 ${roleDropdownOpen ? 'transform rotate-180' : ''}`} />
+                  <div className="hidden sm:flex flex-col items-start rtl:items-end">
+                      <span className="font-semibold text-sm truncate max-w-[120px]">{activeOrgName || t('header.greeting')}</span>
+                      <span className="text-xs text-gray-500">{role ? t(`staff.roles.${role}`) : ''}</span>
+                  </div>
+                  <ChevronDownIcon className={`transition-transform duration-200 ${orgDropdownOpen ? 'transform rotate-180' : ''}`} />
               </button>
-              {roleDropdownOpen && (
-                   <div className="absolute end-0 mt-2 w-48 origin-top-right bg-card dark:bg-dark-card rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10 animate-scale-in-fast">
-                      <div className="px-4 py-3 border-b dark:border-slate-700">
-                          <p className="text-sm font-semibold">{t('header.profile.name')}</p>
-                          <p className="text-xs text-gray-500 truncate">{t('header.profile.email')}</p>
-                      </div>
-                      <div className="py-1" role="menu" aria-orientation="vertical">
-                          <div className="px-4 pt-2 pb-1 text-xs uppercase text-gray-400">{t('header.role')}</div>
-                           {USER_ROLES.map(r => (
-                              <a href="#" key={r} onClick={(e) => { e.preventDefault(); setRole(r); setRoleDropdownOpen(false); }} className={`block px-4 py-2 text-sm ${role === r ? 'font-bold text-primary' : 'text-foreground dark:text-dark-foreground'} hover:bg-gray-100 dark:hover:bg-slate-700`} role="menuitem">
-                                  {r}
+              {orgDropdownOpen && (
+                   <div className="absolute end-0 mt-2 w-56 origin-top-right bg-card dark:bg-dark-card rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10 animate-scale-in-fast">
+                      {switchableOrgs.length > 1 && (
+                          <div className="py-1 border-b dark:border-slate-700" role="menu">
+                              <div className="px-4 pt-2 pb-1 text-xs uppercase text-gray-400">{t('header.switch_org', 'Switch Organization')}</div>
+                              {switchableOrgs.map((o) => {
+                                  const isActive = activeOrgId === o.id;
+                                  const isMember = orgs.some((m) => m.id === o.id);
+                                  return (
+                                  <a href="#" key={o.id} onClick={(e) => { e.preventDefault(); setActiveOrg(o.id, isMember ? undefined : o.name); setOrgDropdownOpen(false); }} className={`block px-4 py-2 text-sm ${isActive ? 'font-bold text-primary' : 'text-foreground dark:text-dark-foreground'} hover:bg-gray-100 dark:hover:bg-slate-700`} role="menuitem">
+                                      {o.name}
+                                  </a>
+                                  );
+                              })}
+                          </div>
+                      )}
+                      {isPlatformAdmin && (
+                          <div className="py-1">
+                              <a href="#" onClick={(e) => { e.preventDefault(); setActiveModule('platform'); setOrgDropdownOpen(false); }} className="block px-4 py-2 text-sm text-foreground dark:text-dark-foreground hover:bg-gray-100 dark:hover:bg-slate-700" role="menuitem">
+                                  {t('platform.title', 'Platform Console')}
                               </a>
-                          ))}
-                      </div>
+                          </div>
+                      )}
                   </div>
               )}
           </div>
         </div>
       </header>
       <AnnouncementsModal isOpen={announcementsOpen} onClose={() => setAnnouncementsOpen(false)} />
+      {isImpersonating && (
+          <div className="flex items-center justify-between px-4 sm:px-6 py-2 bg-amber-500 text-amber-950 text-sm font-medium">
+              <span>{t('platform.impersonation_banner', { org: activeOrgName || '' })}</span>
+              <button
+                  onClick={() => { setActiveOrg(null); setActiveModule('platform'); }}
+                  className="px-3 py-1 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition-colors"
+              >
+                  {t('platform.exit')}
+              </button>
+          </div>
+      )}
     </>
   );
 };

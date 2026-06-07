@@ -5,6 +5,8 @@ export * from './schemas/project';
 export * from './schemas/bousala';
 export * from './schemas/stakeholder';
 export * from './schemas/institutionalDonor';
+export * from './schemas/staff';
 export * from './constants/donorOptions';
 export * from './constants/beneficiaryOptions';
 export * from './constants/financialOptions';
+export * from './constants/rbac';

@@ -2,31 +2,50 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocalization } from '../../hooks/useLocalization';
 import { useAuth } from '../../contexts/AuthContext';
-import { SIDEBAR_MODULES } from '../../constants';
-import { SettingsIcon, LogoutIcon } from '../icons/ModuleIcons';
+import { usePermissions } from '../../hooks/usePermissions';
+import { useOrg } from '../../contexts/OrgContext';
+import { SIDEBAR_MODULES, PLATFORM_MODULE } from '../../constants';
+import { LogoutIcon } from '../icons/ModuleIcons';
 import { ChevronDownIcon } from '../icons/GenericIcons';
-import type { Role } from '../../types';
+import type { RbacModule } from '@gms/shared';
 
 interface SidebarProps {
   activeModule: string;
   setActiveModule: (module: string) => void;
-  role: Role;
+  role?: unknown;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule, role }) => {
-  const { t, dir } = useLocalization(['common', 'sidebar']);
+const UNGATED_MODULES = new Set(['help']);
+
+const Sidebar: React.FC<SidebarProps> = ({ activeModule, setActiveModule }) => {
+  const { t, dir } = useLocalization(['common', 'sidebar', 'staff', 'platform']);
   const { signOut } = useAuth();
+  const { can, isPlatformAdmin } = usePermissions();
+  const { isImpersonating } = useOrg();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(() => {
     return localStorage.getItem('sidebarExpanded') !== 'false';
   });
 
-  const visibleModules = useMemo(() => SIDEBAR_MODULES.filter(module => {
-    if (module.key === 'bousala') {
-      return role === 'Admin' || role === 'Manager';
+  const visibleModules = useMemo(() => {
+    const filtered = SIDEBAR_MODULES.filter(module => {
+      if (UNGATED_MODULES.has(module.key)) return true;
+      return can(module.key as RbacModule, 'read');
+    });
+    if (!isPlatformAdmin || isImpersonating) return filtered;
+
+    const settingsIndex = filtered.findIndex((module) => module.key === 'settings');
+    if (settingsIndex === -1) {
+      return [...filtered, PLATFORM_MODULE];
     }
-    return true;
-  }), [role]);
+
+    // Platform console is an infrequent admin utility, so keep it near settings.
+    return [
+      ...filtered.slice(0, settingsIndex),
+      PLATFORM_MODULE,
+      ...filtered.slice(settingsIndex),
+    ];
+  }, [can, isPlatformAdmin, isImpersonating]);
 
   useEffect(() => {
     const parentMenu = visibleModules.find(m => m.submenu && m.submenu.some((sub: any) => sub.key === activeModule));

@@ -14,6 +14,8 @@ import { projectsRouter } from './routes/projects';
 import { bousalaRouter } from './routes/bousala';
 import { stakeholdersRouter } from './routes/stakeholders';
 import { institutionalDonorsRouter } from './routes/institutionalDonors';
+import { staffRouter } from './routes/staff';
+import { platformRouter } from './routes/platform';
 
 type Variables = {
     user: User;
@@ -38,7 +40,7 @@ app.use(
             if (!origin) return allowedOrigins[0];
             return allowedOrigins.includes(origin) ? origin : undefined;
         },
-        allowHeaders: ['Content-Type', 'Authorization'],
+        allowHeaders: ['Content-Type', 'Authorization', 'x-org-id'],
         credentials: true,
     })
 );
@@ -72,6 +74,8 @@ app.route('/projects', projectsRouter);
 app.route('/bousala', bousalaRouter);
 app.route('/stakeholders', stakeholdersRouter);
 app.route('/institutional-donors', institutionalDonorsRouter);
+app.route('/staff', staffRouter);
+app.route('/platform', platformRouter);
 
 const port = Number(process.env.PORT) || 3000;
 

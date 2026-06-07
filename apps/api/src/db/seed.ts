@@ -265,6 +265,7 @@ async function reset() {
     await db.delete(schema.audit_log);
     await db.delete(schema.modules);
     await db.delete(schema.memberships);
+    await db.delete(schema.platform_admins);
     await db.delete(schema.organizations);
     console.log('All tables truncated.');
 }
@@ -755,8 +756,18 @@ async function seed() {
         org_id: org.id,
         user_id: userId,
         role: 'admin',
+        full_name_en: 'System Admin',
+        full_name_ar: 'مدير النظام',
+        email: userEmail,
+        title: 'Administrator',
+        department: 'IT',
+        status: 'active',
     });
     console.log(`Created membership for ${userEmail} as admin`);
+
+    // Make the seed user a platform admin (super admin for cross-org access).
+    await db.insert(schema.platform_admins).values({ user_id: userId }).onConflictDoNothing();
+    console.log('Set as platform admin');
 
     const moduleNames = ['donors', 'beneficiaries', 'projects', 'stakeholders', 'hr', 'finance'];
     await db.insert(schema.modules).values(
@@ -856,6 +867,43 @@ async function seed() {
     }
 
     await seedFinancials(org.id, userEmail, institutionalDonorIdByKey);
+
+    // ── Sample staff (demo memberships with different roles) ────────────
+    const sampleStaff = [
+        { full_name_en: 'Fatma Kaya', full_name_ar: 'فاطمة كايا', role: 'manager', title: 'Program Manager', department: 'Programs', email: 'fatma@example.com' },
+        { full_name_en: 'Ahmed Hassan', full_name_ar: 'أحمد حسن', role: 'accountant', title: 'Finance Officer', department: 'Finance', email: 'ahmed@example.com' },
+        { full_name_en: 'Sara Yilmaz', full_name_ar: 'سارة يلماز', role: 'staff', title: 'Field Coordinator', department: 'Operations', email: 'sara@example.com' },
+        { full_name_en: 'Khalid Noor', full_name_ar: 'خالد نور', role: 'viewer', title: 'Board Observer', department: 'Board', email: 'khalid@example.com' },
+    ];
+    for (const s of sampleStaff) {
+        // Look up or skip — these are display-only staff rows with placeholder user_ids.
+        await db.insert(schema.memberships).values({
+            org_id: org.id,
+            user_id: '00000000-0000-0000-0000-000000000000',
+            ...s,
+            status: 'active',
+            custom_fields: { demo_password: 'DemoPass123!' },
+        });
+    }
+    console.log(`Added ${sampleStaff.length} sample staff members`);
+
+    // ── Second organization (so the platform console shows > 1 org) ────
+    const [org2] = await db.insert(schema.organizations).values({ name: 'Al-Khair Foundation', custom_fields: {} }).returning();
+    await db.insert(schema.memberships).values({
+        org_id: org2.id,
+        user_id: userId,
+        role: 'admin',
+        full_name_en: 'System Admin',
+        full_name_ar: 'مدير النظام',
+        email: userEmail,
+        title: 'Administrator',
+        department: 'IT',
+        status: 'active',
+    });
+    await db.insert(schema.modules).values(
+        moduleNames.map((name) => ({ org_id: org2.id, name })),
+    );
+    console.log(`Created second org: ${org2.name}`);
 
     console.log('\nSeed complete.');
 }

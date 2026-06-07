@@ -12,7 +12,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "seed": "tsx src/db/seed.ts",
-    "seed:reset": "tsx src/db/seed.ts --reset"
+    "seed:reset": "tsx src/db/seed.ts --reset",
+    "seed:test": "tsx src/db/seedTestOrg.ts"
   },
   "dependencies": {
     "@gms/shared": "^0.0.0",

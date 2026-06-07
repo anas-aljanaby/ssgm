@@ -1,23 +1,14 @@
 import { Hono } from 'hono';
-import { User } from '@supabase/supabase-js';
 import { and, desc, eq } from 'drizzle-orm';
 import { createStakeholderSchema, updateStakeholderSchema } from '@gms/shared';
 import { db } from '../db';
-import { memberships, stakeholders } from '../db/schema';
+import { stakeholders } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
+import { OrgContextVars, orgContext } from '../middleware/orgContext';
 
-type Variables = { user: User };
-
-const stakeholdersRouter = new Hono<{ Variables: Variables }>();
+const stakeholdersRouter = new Hono<{ Variables: OrgContextVars }>();
 stakeholdersRouter.use(authMiddleware);
-
-async function getOrgId(userId: string, requestedOrgId?: string): Promise<string | null> {
-    const where = requestedOrgId
-        ? and(eq(memberships.user_id, userId), eq(memberships.org_id, requestedOrgId))
-        : eq(memberships.user_id, userId);
-    const rows = await db.select({ org_id: memberships.org_id }).from(memberships).where(where).limit(1);
-    return rows[0]?.org_id ?? null;
-}
+stakeholdersRouter.use(orgContext);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -79,9 +70,7 @@ async function getOrgStakeholder(id: string, orgId: string) {
 }
 
 stakeholdersRouter.get('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db
         .select()
@@ -93,9 +82,7 @@ stakeholdersRouter.get('/', async (c) => {
 });
 
 stakeholdersRouter.get('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const row = await getOrgStakeholder(c.req.param('id'), orgId);
     if (!row) return c.json({ error: 'Not found' }, 404);
@@ -103,9 +90,7 @@ stakeholdersRouter.get('/:id', async (c) => {
 });
 
 stakeholdersRouter.post('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createStakeholderSchema.safeParse(body);
@@ -149,9 +134,7 @@ stakeholdersRouter.post('/', async (c) => {
 });
 
 stakeholdersRouter.patch('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await getOrgStakeholder(c.req.param('id'), orgId);
     if (!existing) return c.json({ error: 'Not found' }, 404);
@@ -206,9 +189,7 @@ stakeholdersRouter.patch('/:id', async (c) => {
 });
 
 stakeholdersRouter.delete('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await getOrgStakeholder(c.req.param('id'), orgId);
     if (!existing) return c.json({ error: 'Not found' }, 404);

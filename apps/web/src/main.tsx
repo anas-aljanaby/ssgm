@@ -9,6 +9,7 @@ import 'react-resizable/css/styles.css';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { OrgProvider } from './contexts/OrgContext';
 import './lib/i18n';
 import App from './App';
 
@@ -33,7 +34,9 @@ root.render(
             <QueryClientProvider client={queryClient}>
                 <BrowserRouter>
                     <AuthProvider>
-                        <App />
+                        <OrgProvider>
+                            <App />
+                        </OrgProvider>
                     </AuthProvider>
                 </BrowserRouter>
             </QueryClientProvider>

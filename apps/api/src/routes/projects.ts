@@ -1,10 +1,8 @@
 import { Hono } from 'hono';
-import { User } from '@supabase/supabase-js';
 import { and, desc, eq } from 'drizzle-orm';
 import { db } from '../db';
 import {
     beneficiaries,
-    memberships,
     projects,
     project_budget_lines,
     project_expenses,
@@ -14,6 +12,7 @@ import {
     project_team_members,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
+import { OrgContextVars, orgContext } from '../middleware/orgContext';
 import {
     createProjectExpenseSchema,
     createProjectRiskSchema,
@@ -24,18 +23,9 @@ import {
     updateProjectTaskSchema,
 } from '@gms/shared';
 
-type Variables = { user: User };
-
-const projectsRouter = new Hono<{ Variables: Variables }>();
+const projectsRouter = new Hono<{ Variables: OrgContextVars }>();
 projectsRouter.use(authMiddleware);
-
-async function getOrgId(userId: string, requestedOrgId?: string): Promise<string | null> {
-    const where = requestedOrgId
-        ? and(eq(memberships.user_id, userId), eq(memberships.org_id, requestedOrgId))
-        : eq(memberships.user_id, userId);
-    const rows = await db.select({ org_id: memberships.org_id }).from(memberships).where(where).limit(1);
-    return rows[0]?.org_id ?? null;
-}
+projectsRouter.use(orgContext);
 
 function asNumber(value: unknown): number {
     const parsed = Number(value);
@@ -230,18 +220,14 @@ async function getOrgProject(projectId: string, orgId: string) {
 }
 
 projectsRouter.get('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(projects).where(eq(projects.org_id, orgId));
     return c.json(rows.map((row) => buildProjectModel(row)));
 });
 
 projectsRouter.post('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createProjectSchema.safeParse(body);
@@ -298,9 +284,7 @@ projectsRouter.post('/', async (c) => {
 });
 
 projectsRouter.get('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
@@ -318,9 +302,7 @@ projectsRouter.get('/:id', async (c) => {
 });
 
 projectsRouter.patch('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await getOrgProject(c.req.param('id'), orgId);
     if (!existing) return c.json({ error: 'Not found' }, 404);
@@ -391,9 +373,7 @@ projectsRouter.patch('/:id', async (c) => {
 });
 
 projectsRouter.delete('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await getOrgProject(c.req.param('id'), orgId);
     if (!existing) return c.json({ error: 'Not found' }, 404);
@@ -410,9 +390,7 @@ projectsRouter.delete('/:id', async (c) => {
 });
 
 projectsRouter.get('/:id/tasks', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -421,9 +399,7 @@ projectsRouter.get('/:id/tasks', async (c) => {
 });
 
 projectsRouter.post('/:id/tasks', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -445,9 +421,7 @@ projectsRouter.post('/:id/tasks', async (c) => {
 });
 
 projectsRouter.patch('/:id/tasks/:taskId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -470,9 +444,7 @@ projectsRouter.patch('/:id/tasks/:taskId', async (c) => {
 });
 
 projectsRouter.delete('/:id/tasks/:taskId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -484,9 +456,7 @@ projectsRouter.delete('/:id/tasks/:taskId', async (c) => {
 });
 
 projectsRouter.get('/:id/risks', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -505,9 +475,7 @@ projectsRouter.get('/:id/risks', async (c) => {
 });
 
 projectsRouter.post('/:id/risks', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -543,9 +511,7 @@ projectsRouter.post('/:id/risks', async (c) => {
 });
 
 projectsRouter.patch('/:id/risks/:riskId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -582,9 +548,7 @@ projectsRouter.patch('/:id/risks/:riskId', async (c) => {
 });
 
 projectsRouter.delete('/:id/risks/:riskId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -596,9 +560,7 @@ projectsRouter.delete('/:id/risks/:riskId', async (c) => {
 });
 
 projectsRouter.get('/:id/expenses', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -614,9 +576,7 @@ projectsRouter.get('/:id/expenses', async (c) => {
 });
 
 projectsRouter.post('/:id/expenses', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -649,9 +609,7 @@ projectsRouter.post('/:id/expenses', async (c) => {
 });
 
 projectsRouter.get('/:id/beneficiaries', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 
@@ -665,9 +623,7 @@ projectsRouter.get('/:id/beneficiaries', async (c) => {
 });
 
 projectsRouter.get('/:id/budget-lines', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
     const project = await getOrgProject(c.req.param('id'), orgId);
     if (!project) return c.json({ error: 'Not found' }, 404);
 

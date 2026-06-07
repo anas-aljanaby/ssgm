@@ -2,9 +2,16 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 class ApiClient {
     private token: string | null = null;
+    private orgId: string | null = null;
 
     setToken(token: string | null) {
         this.token = token;
+    }
+
+    // Active organization sent on every request as x-org-id (drives backend org scoping
+    // and platform-admin impersonation).
+    setOrgId(orgId: string | null) {
+        this.orgId = orgId;
     }
 
     private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -16,6 +23,10 @@ class ApiClient {
 
         if (this.token) {
             headers['Authorization'] = `Bearer ${this.token}`;
+        }
+
+        if (this.orgId) {
+            headers['x-org-id'] = this.orgId;
         }
 
         const res = await fetch(`${API_BASE}${path}`, {

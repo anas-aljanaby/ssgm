@@ -34,6 +34,8 @@ const HelpSupportPage = lazy(() => import('./components/pages/HelpSupportPage'))
 const PlaceholderPage = lazy(() => import('./components/pages/PlaceholderPage'));
 const BousalaPage = lazy(() => import('./components/pages/BousalaPage'));
 const FinancialsPage = lazy(() => import('./components/pages/FinancialsPage'));
+const StaffPage = lazy(() => import('./components/pages/StaffPage'));
+const PlatformPage = lazy(() => import('./components/pages/PlatformPage'));
 
 
 interface ModuleRendererProps {
@@ -46,12 +48,12 @@ interface ModuleRendererProps {
     hrData: HrData;
 }
 
-const ModuleRenderer: React.FC<ModuleRendererProps> = ({ 
+const ModuleRenderer: React.FC<ModuleRendererProps> = ({
     activeModule, updateActiveModule, role,
     enabledLanguages, onEnabledLanguagesChange, deepLinkTarget,
     hrData
 }) => {
-    const { projects } = { projects: MOCK_PROJECTS as Project[] }; // Simplified for this context
+    const { projects } = { projects: MOCK_PROJECTS as Project[] };
 
     switch (activeModule) {
         case 'dashboard': return <Dashboard setActiveModule={updateActiveModule} />;
@@ -62,6 +64,8 @@ const ModuleRenderer: React.FC<ModuleRendererProps> = ({
         case 'stakeholder_management': return <StakeholderManagement />;
         case 'bousala': return <BousalaPage projects={projects} hrData={hrData} role={role} setActiveModule={updateActiveModule} />;
         case 'financials': return <FinancialsPage />;
+        case 'staff': return <StaffPage />;
+        case 'platform': return <PlatformPage setActiveModule={updateActiveModule} />;
         case 'settings': return <SettingsPage enabledLanguages={enabledLanguages} onEnabledLanguagesChange={onEnabledLanguagesChange} />;
         case 'help': return <HelpSupportPage />;
         default: return <PlaceholderPage moduleKey={activeModule} />;

@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { User } from '@supabase/supabase-js';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
@@ -10,9 +9,9 @@ import {
     institutional_donor_contacts,
     institutional_donor_documents,
     institutional_donors,
-    memberships,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
+import { OrgContextVars, orgContext } from '../middleware/orgContext';
 import {
     createInstitutionalDonorContactSchema,
     createInstitutionalDonorSchema,
@@ -20,10 +19,9 @@ import {
     updateInstitutionalDonorSchema,
 } from '@gms/shared';
 
-type Variables = { user: User };
-
-const institutionalDonorsRouter = new Hono<{ Variables: Variables }>();
+const institutionalDonorsRouter = new Hono<{ Variables: OrgContextVars }>();
 institutionalDonorsRouter.use(authMiddleware);
+institutionalDonorsRouter.use(orgContext);
 
 const UPLOAD_DIR = process.env.INSTITUTIONAL_DONOR_UPLOAD_DIR || path.resolve(process.cwd(), 'uploads', 'institutional-donor-documents');
 const UPLOAD_PUBLIC_PATH = '/uploads/institutional-donor-documents';
@@ -79,15 +77,6 @@ function isUploadedFile(value: unknown): value is { name: string; type?: string;
         && 'name' in value
         && 'arrayBuffer' in value
         && typeof (value as { arrayBuffer?: unknown }).arrayBuffer === 'function';
-}
-
-async function getOrgId(userId: string, requestedOrgId?: string): Promise<string | null> {
-    const where = requestedOrgId
-        ? and(eq(memberships.user_id, userId), eq(memberships.org_id, requestedOrgId))
-        : eq(memberships.user_id, userId);
-
-    const rows = await db.select({ org_id: memberships.org_id }).from(memberships).where(where).limit(1);
-    return rows[0]?.org_id ?? null;
 }
 
 async function getOrgInstitutionalDonor(donorId: string, orgId: string) {
@@ -194,9 +183,7 @@ function mapInstitutionalDonor(
 }
 
 institutionalDonorsRouter.get('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donorRows = await db
         .select()
@@ -233,9 +220,7 @@ institutionalDonorsRouter.get('/', async (c) => {
 });
 
 institutionalDonorsRouter.get('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -252,9 +237,7 @@ institutionalDonorsRouter.get('/:id', async (c) => {
 });
 
 institutionalDonorsRouter.post('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createInstitutionalDonorSchema.safeParse(body);
@@ -282,9 +265,7 @@ institutionalDonorsRouter.post('/', async (c) => {
 });
 
 institutionalDonorsRouter.patch('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!existing) return c.json({ error: 'Not found' }, 404);
@@ -329,9 +310,7 @@ institutionalDonorsRouter.patch('/:id', async (c) => {
 });
 
 institutionalDonorsRouter.delete('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -363,9 +342,7 @@ institutionalDonorsRouter.delete('/:id', async (c) => {
 });
 
 institutionalDonorsRouter.get('/:id/grants', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -390,9 +367,7 @@ institutionalDonorsRouter.get('/:id/grants', async (c) => {
 });
 
 institutionalDonorsRouter.get('/:id/contacts', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -406,9 +381,7 @@ institutionalDonorsRouter.get('/:id/contacts', async (c) => {
 });
 
 institutionalDonorsRouter.post('/:id/contacts', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -434,9 +407,7 @@ institutionalDonorsRouter.post('/:id/contacts', async (c) => {
 });
 
 institutionalDonorsRouter.patch('/:id/contacts/:contactId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -466,9 +437,7 @@ institutionalDonorsRouter.patch('/:id/contacts/:contactId', async (c) => {
 });
 
 institutionalDonorsRouter.delete('/:id/contacts/:contactId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -483,9 +452,7 @@ institutionalDonorsRouter.delete('/:id/contacts/:contactId', async (c) => {
 });
 
 institutionalDonorsRouter.get('/:id/documents', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -499,9 +466,7 @@ institutionalDonorsRouter.get('/:id/documents', async (c) => {
 });
 
 institutionalDonorsRouter.post('/:id/documents', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -533,9 +498,7 @@ institutionalDonorsRouter.post('/:id/documents', async (c) => {
 });
 
 institutionalDonorsRouter.delete('/:id/documents/:documentId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const donor = await getOrgInstitutionalDonor(c.req.param('id'), orgId);
     if (!donor) return c.json({ error: 'Not found' }, 404);
@@ -555,9 +518,7 @@ institutionalDonorsRouter.delete('/:id/documents/:documentId', async (c) => {
 });
 
 institutionalDonorsRouter.get('/debug/orphan-grantors', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const orphanRows = await db.execute(sql`
         select g.grantor_id, g.grantor_name, count(*)::int as grants_count

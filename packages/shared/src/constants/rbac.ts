@@ -1,0 +1,103 @@
+import { z } from 'zod/v4';
+
+// Org-scoped roles. A staff member holds exactly one of these per organization.
+export const ORG_ROLES = ['admin', 'manager', 'accountant', 'staff', 'viewer'] as const;
+export type OrgRole = (typeof ORG_ROLES)[number];
+
+export const orgRoleSchema = z.enum(ORG_ROLES);
+
+// Modules that can be permission-gated. Keys match the frontend sidebar/module keys.
+export const RBAC_MODULES = [
+    'dashboard',
+    'donors',
+    'institutional_donors',
+    'projects',
+    'beneficiaries',
+    'stakeholder_management',
+    'bousala',
+    'financials',
+    'staff',
+    'settings',
+] as const;
+export type RbacModule = (typeof RBAC_MODULES)[number];
+
+export type AccessLevel = 'none' | 'read' | 'write';
+export type PermissionAction = 'read' | 'write';
+
+// Single source of truth for the fixed-role permission matrix.
+// 'write' implies 'read'. 'staff' and 'settings' are admin-only.
+export const ROLE_PERMISSIONS: Record<OrgRole, Record<RbacModule, AccessLevel>> = {
+    admin: {
+        dashboard: 'write',
+        donors: 'write',
+        institutional_donors: 'write',
+        projects: 'write',
+        beneficiaries: 'write',
+        stakeholder_management: 'write',
+        bousala: 'write',
+        financials: 'write',
+        staff: 'write',
+        settings: 'write',
+    },
+    manager: {
+        dashboard: 'write',
+        donors: 'write',
+        institutional_donors: 'write',
+        projects: 'write',
+        beneficiaries: 'write',
+        stakeholder_management: 'write',
+        bousala: 'write',
+        financials: 'read',
+        staff: 'none',
+        settings: 'none',
+    },
+    accountant: {
+        dashboard: 'write',
+        donors: 'read',
+        institutional_donors: 'read',
+        projects: 'read',
+        beneficiaries: 'read',
+        stakeholder_management: 'read',
+        bousala: 'read',
+        financials: 'write',
+        staff: 'none',
+        settings: 'none',
+    },
+    staff: {
+        dashboard: 'read',
+        donors: 'write',
+        institutional_donors: 'write',
+        projects: 'write',
+        beneficiaries: 'write',
+        stakeholder_management: 'write',
+        bousala: 'read',
+        financials: 'none',
+        staff: 'none',
+        settings: 'none',
+    },
+    viewer: {
+        dashboard: 'read',
+        donors: 'read',
+        institutional_donors: 'read',
+        projects: 'read',
+        beneficiaries: 'read',
+        stakeholder_management: 'read',
+        bousala: 'read',
+        financials: 'read',
+        staff: 'none',
+        settings: 'none',
+    },
+};
+
+const ACCESS_RANK: Record<AccessLevel, number> = { none: 0, read: 1, write: 2 };
+
+/**
+ * Returns true if the given role is allowed to perform `action` on `module`.
+ * `write` access implies `read` access.
+ */
+export function can(role: OrgRole, module: RbacModule, action: PermissionAction): boolean {
+    const granted = ROLE_PERMISSIONS[role]?.[module] ?? 'none';
+    return ACCESS_RANK[granted] >= ACCESS_RANK[action];
+}
+
+// Human-readable role labels are handled via i18n on the frontend (keys: roles.<role>).

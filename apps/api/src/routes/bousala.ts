@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { User } from '@supabase/supabase-js';
 import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '../db';
 import {
@@ -10,11 +9,11 @@ import {
     bousala_tasks,
     financial_transactions,
     individual_donors,
-    memberships,
     organizations,
     projects,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
+import { OrgContextVars, orgContext } from '../middleware/orgContext';
 import {
     createBousalaGoalSchema,
     createBousalaKpiSchema,
@@ -27,18 +26,9 @@ import {
     updateBousalaTaskSchema,
 } from '@gms/shared';
 
-type Variables = { user: User };
-
-const bousalaRouter = new Hono<{ Variables: Variables }>();
+const bousalaRouter = new Hono<{ Variables: OrgContextVars }>();
 bousalaRouter.use(authMiddleware);
-
-async function getOrgId(userId: string, requestedOrgId?: string): Promise<string | null> {
-    const where = requestedOrgId
-        ? and(eq(memberships.user_id, userId), eq(memberships.org_id, requestedOrgId))
-        : eq(memberships.user_id, userId);
-    const rows = await db.select({ org_id: memberships.org_id }).from(memberships).where(where).limit(1);
-    return rows[0]?.org_id ?? null;
-}
+bousalaRouter.use(orgContext);
 
 function asNumber(value: unknown): number {
     if (value === null || value === undefined) return 0;
@@ -232,24 +222,18 @@ async function recalculateGoalProgress(orgId: string, goalId: string) {
 }
 
 bousalaRouter.get('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
     return c.json(await fetchBousalaTree(orgId));
 });
 
 bousalaRouter.get('/goals', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
     const tree = await fetchBousalaTree(orgId);
     return c.json(tree.goals);
 });
 
 bousalaRouter.get('/goals/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
     const goalId = c.req.param('id');
     const tree = await fetchBousalaTree(orgId);
     const goal = tree.goals.find((row) => row.id === goalId);
@@ -258,9 +242,7 @@ bousalaRouter.get('/goals/:id', async (c) => {
 });
 
 bousalaRouter.post('/goals', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = createBousalaGoalSchema.parse(await c.req.json());
     const [inserted] = await db
@@ -284,9 +266,7 @@ bousalaRouter.post('/goals', async (c) => {
 });
 
 bousalaRouter.patch('/goals/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const goalId = c.req.param('id');
     const body = updateBousalaGoalSchema.parse(await c.req.json());
@@ -323,9 +303,7 @@ bousalaRouter.patch('/goals/:id', async (c) => {
 });
 
 bousalaRouter.delete('/goals/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const goalId = c.req.param('id');
     const [existing] = await db
@@ -340,9 +318,7 @@ bousalaRouter.delete('/goals/:id', async (c) => {
 });
 
 bousalaRouter.post('/goals/:goalId/kpis', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const goalId = c.req.param('goalId');
     const body = createBousalaKpiSchema.parse(await c.req.json());
@@ -378,9 +354,7 @@ bousalaRouter.post('/goals/:goalId/kpis', async (c) => {
 });
 
 bousalaRouter.patch('/kpis/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const kpiId = c.req.param('id');
     const body = updateBousalaKpiSchema.parse(await c.req.json());
@@ -420,9 +394,7 @@ bousalaRouter.patch('/kpis/:id', async (c) => {
 });
 
 bousalaRouter.delete('/kpis/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const kpiId = c.req.param('id');
     const [existing] = await db
@@ -437,9 +409,7 @@ bousalaRouter.delete('/kpis/:id', async (c) => {
 });
 
 bousalaRouter.post('/goals/:goalId/projects', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const goalId = c.req.param('goalId');
     const body = linkBousalaProjectsSchema.parse(await c.req.json());
@@ -484,9 +454,7 @@ bousalaRouter.post('/goals/:goalId/projects', async (c) => {
 });
 
 bousalaRouter.patch('/goal-projects/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const projectId = c.req.param('id');
     const body = updateBousalaGoalProjectSchema.parse(await c.req.json());
@@ -520,9 +488,7 @@ bousalaRouter.patch('/goal-projects/:id', async (c) => {
 });
 
 bousalaRouter.delete('/goal-projects/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const projectId = c.req.param('id');
     const [existing] = await db
@@ -541,9 +507,7 @@ bousalaRouter.delete('/goal-projects/:id', async (c) => {
 });
 
 bousalaRouter.post('/tasks', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = createBousalaTaskSchema.parse(await c.req.json());
 
@@ -575,9 +539,7 @@ bousalaRouter.post('/tasks', async (c) => {
 });
 
 bousalaRouter.patch('/tasks/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const taskId = c.req.param('id');
     const body = updateBousalaTaskSchema.parse(await c.req.json());
@@ -609,9 +571,7 @@ bousalaRouter.patch('/tasks/:id', async (c) => {
 });
 
 bousalaRouter.delete('/tasks/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const taskId = c.req.param('id');
     const [existing] = await db
@@ -626,9 +586,7 @@ bousalaRouter.delete('/tasks/:id', async (c) => {
 });
 
 bousalaRouter.patch('/direction', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = updateBousalaDirectionSchema.parse(await c.req.json());
 
@@ -665,9 +623,7 @@ bousalaRouter.patch('/direction', async (c) => {
 });
 
 bousalaRouter.get('/impact', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id);
-    if (!orgId) return c.json({ error: 'No organization membership found' }, 403);
+    const orgId = c.get('orgId');
 
     const [projectRows, txnRows, beneficiaryRows, donorRows] = await Promise.all([
         db.select({ stage: projects.stage }).from(projects).where(eq(projects.org_id, orgId)),

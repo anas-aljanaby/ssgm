@@ -7,11 +7,28 @@ export const organizations = pgTable('organizations', {
     created_at: timestamp('created_at').defaultNow()
 });
 
+// A membership doubles as a staff profile: one row per (user, org) with a role
+// and the profile fields shown on the Staff page.
 export const memberships = pgTable('memberships', {
     id: uuid('id').primaryKey().defaultRandom(),
     org_id: uuid('org_id').notNull().references(() => organizations.id),
     user_id: uuid('user_id').notNull(),
     role: text('role').notNull(),
+    full_name_en: text('full_name_en').notNull().default(''),
+    full_name_ar: text('full_name_ar').notNull().default(''),
+    email: text('email').notNull().default(''),
+    title: text('title').notNull().default(''),
+    department: text('department').notNull().default(''),
+    phone: text('phone').notNull().default(''),
+    avatar: text('avatar').notNull().default(''),
+    status: text('status').notNull().default('active'),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow()
+});
+
+// Platform-level super admins. Presence of a user_id here grants cross-org access.
+export const platform_admins = pgTable('platform_admins', {
+    user_id: uuid('user_id').primaryKey(),
     created_at: timestamp('created_at').defaultNow()
 });
 

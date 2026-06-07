@@ -10,9 +10,10 @@ import {
     financial_pledges, pledge_installments, project_budgets, budget_lines,
     disbursements, funds, grants, grant_installments,
     approval_items, financial_reports, financial_alerts,
-    memberships, donations, individual_donors,
+    donations, individual_donors,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
+import { OrgContextVars, orgContext } from '../middleware/orgContext';
 import {
     createTransactionSchema, updateTransactionSchema,
     createPledgeSchema, updatePledgeSchema,
@@ -23,20 +24,11 @@ import {
     approveRejectSchema,
 } from '@gms/shared';
 
-type Variables = { user: User };
-
-const financialsRouter = new Hono<{ Variables: Variables }>();
+const financialsRouter = new Hono<{ Variables: OrgContextVars }>();
 financialsRouter.use(authMiddleware);
+financialsRouter.use(orgContext);
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-
-async function getOrgId(userId: string, requestedOrgId?: string): Promise<string | null> {
-    const where = requestedOrgId
-        ? and(eq(memberships.user_id, userId), eq(memberships.org_id, requestedOrgId))
-        : eq(memberships.user_id, userId);
-    const rows = await db.select({ org_id: memberships.org_id }).from(memberships).where(where).limit(1);
-    return rows[0]?.org_id ?? null;
-}
 
 function asNumber(v: unknown): number {
     if (v === null || v === undefined) return 0;
@@ -377,9 +369,7 @@ function deriveGrantStatus(totalAmount: number, receivedAmount: number): string 
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/overview', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const [txnRows, pledgeRows, fundRows, alertRows] = await Promise.all([
         db.select().from(financial_transactions).where(eq(financial_transactions.org_id, orgId)).orderBy(desc(financial_transactions.date)),
@@ -439,9 +429,7 @@ financialsRouter.get('/overview', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/transactions', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const conditions = [eq(financial_transactions.org_id, orgId)];
     const status = c.req.query('status');
@@ -471,9 +459,7 @@ financialsRouter.get('/transactions', async (c) => {
 });
 
 financialsRouter.get('/transactions/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(financial_transactions)
         .where(and(eq(financial_transactions.id, c.req.param('id')), eq(financial_transactions.org_id, orgId)));
@@ -482,9 +468,7 @@ financialsRouter.get('/transactions/:id', async (c) => {
 });
 
 financialsRouter.post('/transactions', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     // Support both JSON and multipart (for receipt upload)
     const contentType = c.req.header('content-type') || '';
@@ -610,9 +594,7 @@ financialsRouter.post('/transactions', async (c) => {
 });
 
 financialsRouter.patch('/transactions/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(financial_transactions)
         .where(and(eq(financial_transactions.id, c.req.param('id')), eq(financial_transactions.org_id, orgId)));
@@ -650,9 +632,7 @@ financialsRouter.patch('/transactions/:id', async (c) => {
 });
 
 financialsRouter.delete('/transactions/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(financial_transactions)
         .where(and(eq(financial_transactions.id, c.req.param('id')), eq(financial_transactions.org_id, orgId)));
@@ -699,9 +679,7 @@ financialsRouter.delete('/transactions/:id', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/donations', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const conditions = [eq(donation_records.org_id, orgId)];
     const method = c.req.query('method');
@@ -727,9 +705,7 @@ financialsRouter.get('/donations', async (c) => {
 });
 
 financialsRouter.get('/donations/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(donation_records)
         .where(and(eq(donation_records.id, c.req.param('id')), eq(donation_records.org_id, orgId)));
@@ -742,9 +718,7 @@ financialsRouter.get('/donations/:id', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/pledges', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const pledgeRows = await db.select().from(financial_pledges)
         .where(eq(financial_pledges.org_id, orgId))
@@ -767,9 +741,7 @@ financialsRouter.get('/pledges', async (c) => {
 });
 
 financialsRouter.get('/pledges/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(financial_pledges)
         .where(and(eq(financial_pledges.id, c.req.param('id')), eq(financial_pledges.org_id, orgId)));
@@ -783,9 +755,7 @@ financialsRouter.get('/pledges/:id', async (c) => {
 });
 
 financialsRouter.post('/pledges', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createPledgeSchema.safeParse(body);
@@ -860,9 +830,7 @@ financialsRouter.post('/pledges', async (c) => {
 });
 
 financialsRouter.patch('/pledges/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(financial_pledges)
         .where(and(eq(financial_pledges.id, c.req.param('id')), eq(financial_pledges.org_id, orgId)));
@@ -906,9 +874,8 @@ financialsRouter.patch('/pledges/:id', async (c) => {
 });
 
 financialsRouter.post('/pledges/:id/payments', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const user = c.get('user') as User;
+    const orgId = c.get('orgId');
 
     const pledgeRows = await db.select().from(financial_pledges)
         .where(and(eq(financial_pledges.id, c.req.param('id')), eq(financial_pledges.org_id, orgId)));
@@ -996,9 +963,7 @@ financialsRouter.post('/pledges/:id/payments', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/budgets', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const budgetRows = await db.select().from(project_budgets)
         .where(eq(project_budgets.org_id, orgId))
@@ -1020,9 +985,7 @@ financialsRouter.get('/budgets', async (c) => {
 });
 
 financialsRouter.get('/budgets/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(project_budgets)
         .where(and(eq(project_budgets.id, c.req.param('id')), eq(project_budgets.org_id, orgId)));
@@ -1035,9 +998,7 @@ financialsRouter.get('/budgets/:id', async (c) => {
 });
 
 financialsRouter.post('/budgets', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createBudgetSchema.safeParse(body);
@@ -1062,9 +1023,7 @@ financialsRouter.post('/budgets', async (c) => {
 });
 
 financialsRouter.patch('/budgets/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(project_budgets)
         .where(and(eq(project_budgets.id, c.req.param('id')), eq(project_budgets.org_id, orgId)));
@@ -1096,9 +1055,7 @@ financialsRouter.patch('/budgets/:id', async (c) => {
 });
 
 financialsRouter.post('/budgets/:id/lines', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(project_budgets)
         .where(and(eq(project_budgets.id, c.req.param('id')), eq(project_budgets.org_id, orgId)));
@@ -1126,9 +1083,7 @@ financialsRouter.post('/budgets/:id/lines', async (c) => {
 });
 
 financialsRouter.patch('/budgets/:id/lines/:lineId', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existingBudget = await db.select().from(project_budgets)
         .where(and(eq(project_budgets.id, c.req.param('id')), eq(project_budgets.org_id, orgId)));
@@ -1168,9 +1123,7 @@ financialsRouter.patch('/budgets/:id/lines/:lineId', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/disbursements', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const conditions = [eq(disbursements.org_id, orgId)];
     const type = c.req.query('type');
@@ -1197,9 +1150,8 @@ financialsRouter.get('/disbursements', async (c) => {
 });
 
 financialsRouter.post('/disbursements', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const user = c.get('user') as User;
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createDisbursementSchema.safeParse(body);
@@ -1258,9 +1210,7 @@ financialsRouter.post('/disbursements', async (c) => {
 });
 
 financialsRouter.patch('/disbursements/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(disbursements)
         .where(and(eq(disbursements.id, c.req.param('id')), eq(disbursements.org_id, orgId)));
@@ -1303,18 +1253,14 @@ financialsRouter.patch('/disbursements/:id', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/funds', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(funds).where(eq(funds.org_id, orgId));
     return c.json(rows.map(mapFund));
 });
 
 financialsRouter.post('/funds', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createFundSchema.safeParse(body);
@@ -1346,9 +1292,7 @@ financialsRouter.post('/funds', async (c) => {
 });
 
 financialsRouter.patch('/funds/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(funds)
         .where(and(eq(funds.id, c.req.param('id')), eq(funds.org_id, orgId)));
@@ -1390,9 +1334,7 @@ financialsRouter.patch('/funds/:id', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/grants', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const grantRows = await db.select().from(grants)
         .where(eq(grants.org_id, orgId))
@@ -1415,9 +1357,7 @@ financialsRouter.get('/grants', async (c) => {
 });
 
 financialsRouter.post('/grants', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createGrantSchema.safeParse(body);
@@ -1449,9 +1389,7 @@ financialsRouter.post('/grants', async (c) => {
 });
 
 financialsRouter.patch('/grants/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(grants)
         .where(and(eq(grants.id, c.req.param('id')), eq(grants.org_id, orgId)));
@@ -1493,9 +1431,8 @@ financialsRouter.patch('/grants/:id', async (c) => {
 });
 
 financialsRouter.post('/grants/:id/receive', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const user = c.get('user') as User;
+    const orgId = c.get('orgId');
 
     const grantRows = await db.select().from(grants)
         .where(and(eq(grants.id, c.req.param('id')), eq(grants.org_id, orgId)));
@@ -1579,9 +1516,7 @@ financialsRouter.post('/grants/:id/receive', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/approvals', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(approval_items)
         .where(eq(approval_items.org_id, orgId))
@@ -1591,9 +1526,8 @@ financialsRouter.get('/approvals', async (c) => {
 });
 
 async function approveApproval(c: any) {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const user = c.get('user') as User;
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(approval_items)
         .where(and(eq(approval_items.id, c.req.param('id')), eq(approval_items.org_id, orgId)));
@@ -1661,9 +1595,8 @@ financialsRouter.put('/approvals/:id/approve', approveApproval);
 financialsRouter.post('/approvals/:id/approve', approveApproval);
 
 async function rejectApproval(c: any) {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const user = c.get('user') as User;
+    const orgId = c.get('orgId');
 
     const existing = await db.select().from(approval_items)
         .where(and(eq(approval_items.id, c.req.param('id')), eq(approval_items.org_id, orgId)));
@@ -1701,9 +1634,7 @@ financialsRouter.post('/approvals/:id/reject', rejectApproval);
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/reports', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(financial_reports)
         .where(eq(financial_reports.org_id, orgId));
@@ -1712,9 +1643,7 @@ financialsRouter.get('/reports', async (c) => {
 });
 
 financialsRouter.post('/reports/:type/generate', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const reportType = c.req.param('type');
     const rows = await db.select().from(financial_reports)
@@ -1732,9 +1661,7 @@ financialsRouter.post('/reports/:type/generate', async (c) => {
 });
 
 financialsRouter.get('/reports/:id/download', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(financial_reports)
         .where(and(eq(financial_reports.id, c.req.param('id')), eq(financial_reports.org_id, orgId)));
@@ -1747,9 +1674,7 @@ financialsRouter.get('/reports/:id/download', async (c) => {
 });
 
 financialsRouter.get('/reports/:type/download', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(financial_reports)
         .where(and(eq(financial_reports.org_id, orgId), eq(financial_reports.type, c.req.param('type'))))
@@ -1765,9 +1690,7 @@ financialsRouter.get('/reports/:type/download', async (c) => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 financialsRouter.get('/alerts', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db.select().from(financial_alerts)
         .where(and(eq(financial_alerts.org_id, orgId), eq(financial_alerts.dismissed, false)))
@@ -1777,9 +1700,7 @@ financialsRouter.get('/alerts', async (c) => {
 });
 
 financialsRouter.patch('/alerts/:id/dismiss', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const [updated] = await db.update(financial_alerts)
         .set({ dismissed: true })

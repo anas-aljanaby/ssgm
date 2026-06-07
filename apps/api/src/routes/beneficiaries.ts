@@ -1,25 +1,15 @@
 import { Hono } from 'hono';
-import { User } from '@supabase/supabase-js';
 import { and, desc, eq } from 'drizzle-orm';
 import { db } from '../db';
-import { beneficiaries, memberships } from '../db/schema';
+import { beneficiaries } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
+import { OrgContextVars, orgContext } from '../middleware/orgContext';
 import { createBeneficiarySchema, updateBeneficiarySchema } from '@gms/shared';
 
-type Variables = { user: User };
-
-const beneficiariesRouter = new Hono<{ Variables: Variables }>();
+const beneficiariesRouter = new Hono<{ Variables: OrgContextVars }>();
 
 beneficiariesRouter.use(authMiddleware);
-
-async function getOrgId(userId: string, requestedOrgId?: string): Promise<string | null> {
-    const where = requestedOrgId
-        ? and(eq(memberships.user_id, userId), eq(memberships.org_id, requestedOrgId))
-        : eq(memberships.user_id, userId);
-
-    const rows = await db.select({ org_id: memberships.org_id }).from(memberships).where(where).limit(1);
-    return rows[0]?.org_id ?? null;
-}
+beneficiariesRouter.use(orgContext);
 
 type BeneficiaryRow = typeof beneficiaries.$inferSelect;
 
@@ -42,9 +32,7 @@ function defaultPhoto(nameEn: string, nameAr: string): string {
 }
 
 beneficiariesRouter.get('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const rows = await db
         .select()
@@ -56,9 +44,7 @@ beneficiariesRouter.get('/', async (c) => {
 });
 
 beneficiariesRouter.get('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const row = await getOrgBeneficiary(c.req.param('id'), orgId);
     if (!row) return c.json({ error: 'Not found' }, 404);
@@ -66,9 +52,7 @@ beneficiariesRouter.get('/:id', async (c) => {
 });
 
 beneficiariesRouter.post('/', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const body = await c.req.json();
     const parsed = createBeneficiarySchema.safeParse(body);
@@ -104,9 +88,7 @@ beneficiariesRouter.post('/', async (c) => {
 });
 
 beneficiariesRouter.patch('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await getOrgBeneficiary(c.req.param('id'), orgId);
     if (!existing) return c.json({ error: 'Not found' }, 404);
@@ -150,9 +132,7 @@ beneficiariesRouter.patch('/:id', async (c) => {
 });
 
 beneficiariesRouter.delete('/:id', async (c) => {
-    const user = c.get('user');
-    const orgId = await getOrgId(user.id, c.req.query('org_id'));
-    if (!orgId) return c.json({ error: 'No organization found' }, 403);
+    const orgId = c.get('orgId');
 
     const existing = await getOrgBeneficiary(c.req.param('id'), orgId);
     if (!existing) return c.json({ error: 'Not found' }, 404);

@@ -10,6 +10,8 @@ import {
     HelpSupportIcon,
     BousalaIcon,
     FinancialsIcon,
+    StaffIcon,
+    PlatformIcon,
 } from './components/icons/ModuleIcons';
 import {
     CommunityServiceIcon,
@@ -31,9 +33,13 @@ export const SIDEBAR_MODULES: any[] = [
     { key: 'beneficiaries', icon: BeneficiaryIcon },
     { key: 'projects', icon: ProjectIcon },
     { key: 'financials', icon: FinancialsIcon },
+    { key: 'staff', icon: StaffIcon },
     { key: 'help', icon: HelpSupportIcon },
     { key: 'settings', icon: SettingsIcon },
 ];
+
+// Platform console is not in SIDEBAR_MODULES — it's injected conditionally for super admins.
+export const PLATFORM_MODULE = { key: 'platform', icon: PlatformIcon };
 
 export const SIDEBAR_MODULES_FOR_PERMISSIONS = SIDEBAR_MODULES.filter(m => !['settings', 'help'].includes(m.key));
 
