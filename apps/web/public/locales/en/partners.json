@@ -1,0 +1,120 @@
+{
+  "title": "Implementing Partners List",
+  "breadcrumbHome": "Home",
+  "breadcrumbPartners": "Partners",
+  "breadcrumbList": "Partners List",
+  "analyticsTitle": "Analytical Overview",
+  "kpi": {
+    "total": "Total Partners",
+    "active": "Active Partners",
+    "totalBudget": "Total Budgets",
+    "avgRating": "Average Rating"
+  },
+  "sectorChartTitle": "Partners by Sector",
+  "chartTooltip": "partners",
+  "chartSeries": "Partner Count",
+  "searchPlaceholder": "Search by name, country, or sector...",
+  "listening": "Listening...",
+  "filters": {
+    "sector": "Sector",
+    "status": "Status",
+    "region": "Region",
+    "rating": "Rating",
+    "all": "All"
+  },
+  "exportList": "Export List",
+  "addPartner": "Add New Partner",
+  "pagination": {
+    "showing": "Showing {{from}}-{{to}} of {{total}} partners",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "card": {
+    "projects": "Projects",
+    "completed": "completed",
+    "inProgress": "In Progress",
+    "rating": "Rating",
+    "budget": "Budget",
+    "viewProfile": "View Profile"
+  },
+  "detail": {
+    "backToList": "Back to List",
+    "tabs": {
+      "projects": "Projects",
+      "evaluations": "Evaluations",
+      "documents": "Documents",
+      "contact": "Contact Info"
+    },
+    "contactsTitle": "Key Contacts",
+    "addContact": "Add Contact",
+    "noLocation": "No location data provided"
+  },
+  "projects": {
+    "filterAll": "All",
+    "statusActive": "In Progress",
+    "statusCompleted": "Completed",
+    "statusPaused": "Paused",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
+    "sortBudget": "By Budget",
+    "linkProject": "Link New Project",
+    "progress": "Progress",
+    "beneficiaries": "beneficiaries",
+    "viewDetails": "View Details",
+    "linkModalTitle": "Link New Project",
+    "selectProject": "Select Project",
+    "selectPlaceholder": "-- Select from project list --",
+    "linkSubmit": "Link Project",
+    "linkSuccess": "Project \"{{name}}\" linked successfully."
+  },
+  "evaluations": {
+    "basedOn": "Based on {{count}} reviews",
+    "addEvaluation": "Add Evaluation",
+    "breakdownTitle": "Rating Breakdown",
+    "stars": "{{count}} stars",
+    "reviewsCount": "{{count}} reviews ({{percent}}%)",
+    "kpiTitle": "Key Performance Indicators",
+    "individualTitle": "Individual Reviews",
+    "helpful": "{{count}} found this helpful",
+    "viewAll": "View All Reviews",
+    "projectLabel": "Project"
+  },
+  "documents": {
+    "upload": "Upload File",
+    "newFolder": "New Folder",
+    "fileName": "File Name",
+    "uploadDate": "Upload Date",
+    "size": "Size",
+    "actions": "Actions",
+    "preview": "Preview",
+    "download": "Download",
+    "delete": "Delete",
+    "empty": "No documents in this category."
+  },
+  "wizard": {
+    "title": "Add New Implementing Partner",
+    "breadcrumbAdd": " Add New Partner",
+    "steps": {
+      "basic": "Basic Information",
+      "org": "Organization Details",
+      "contact": "Contact Information",
+      "documents": "Documents",
+      "review": "Review & Confirm"
+    },
+    "basicTitle": "Partner Basic Information",
+    "cancel": "Cancel",
+    "prev": "Previous",
+    "next": "Next",
+    "saveDraft": "Save as Draft",
+    "submit": "Submit Request",
+    "confirmLabel": "I confirm that all entered information is accurate",
+    "successTitle": "Partner Added Successfully!",
+    "successSubtitle": "The partner request has been submitted for review.",
+    "requestNumber": "Request #:",
+    "status": "Status:",
+    "statusPending": "Under Review",
+    "emailNotice": "You will be notified by email when the review is complete.",
+    "backToList": "Back to Partners List",
+    "viewProfile": "View Partner Profile"
+  }
+}

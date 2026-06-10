@@ -35,6 +35,7 @@ const PlaceholderPage = lazy(() => import('./components/pages/PlaceholderPage'))
 const BousalaPage = lazy(() => import('./components/pages/BousalaPage'));
 const FinancialsPage = lazy(() => import('./components/pages/FinancialsPage'));
 const StaffPage = lazy(() => import('./components/pages/StaffPage'));
+const ImplementingPartnersPage = lazy(() => import('./components/pages/ImplementingPartnersPage'));
 const PlatformPage = lazy(() => import('./components/pages/PlatformPage'));
 
 
@@ -64,6 +65,7 @@ const ModuleRenderer: React.FC<ModuleRendererProps> = ({
         case 'stakeholder_management': return <StakeholderManagement />;
         case 'bousala': return <BousalaPage projects={projects} hrData={hrData} role={role} setActiveModule={updateActiveModule} />;
         case 'financials': return <FinancialsPage />;
+        case 'implementing_partners': return <ImplementingPartnersPage />;
         case 'staff': return <StaffPage />;
         case 'platform': return <PlatformPage setActiveModule={updateActiveModule} />;
         case 'settings': return <SettingsPage enabledLanguages={enabledLanguages} onEnabledLanguagesChange={onEnabledLanguagesChange} />;

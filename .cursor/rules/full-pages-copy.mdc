@@ -1,0 +1,16 @@
+---
+description: Copy pages from full.ssgm.app into the live app as static placeholders when requested
+alwaysApply: true
+---
+
+# Full Pages Copy Workflow
+
+Use this rule when the user asks to copy or bring over a page from `full.ssgm.app`.
+
+- `full.ssgm.app` is the reference source for full page UI.
+- `ssgm.app` and this repository are the target app.
+- Copy the page as-is as closely as practical.
+- Match layout, sections, tabs, labels, visuals, and placeholder/static values from the reference page.
+- It is acceptable for the copied page to be blank or static after the copy.
+- Do not proactively implement real data wiring, backend routes, mutations, persistence, or CRUD unless the user explicitly asks for that later.
+- Keep changes surgical. Do not refactor unrelated code while doing a page copy.

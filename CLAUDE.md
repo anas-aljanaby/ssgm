@@ -66,6 +66,20 @@ docker compose up -d --build      # rebuilds changed images + recreates containe
 - **Caddyfile changed**: `docker compose restart caddy`.
 - **Verify**: `docker compose ps` (all Up), `docker compose logs -f api` for backend errors.
 
+## Full pages reference app
+
+There are two hosted frontend surfaces:
+
+- `https://ssgm.app` — the live production app and the main deployment target.
+- `https://full.ssgm.app` — the hosted full-pages reference app used when the user wants a page copied into the live codebase.
+
+When the user asks to copy a page from `full.ssgm.app`:
+- Copy the page as-is as closely as practical.
+- Prioritize matching layout, sections, tabs, labels, visuals, and placeholder/static content.
+- It is acceptable for the copied page to remain a blank/static page with placeholder values.
+- Do not proactively wire real backend data, TanStack Query hooks, Hono routes, or full CRUD unless the user explicitly asks for implementation.
+- Treat implementation and data wiring as a later phase.
+
 ## Architecture principles
 
 ### Multi-tenancy

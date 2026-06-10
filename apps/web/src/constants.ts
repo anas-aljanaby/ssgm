@@ -12,6 +12,7 @@ import {
     FinancialsIcon,
     StaffIcon,
     PlatformIcon,
+    PartnerIcon,
 } from './components/icons/ModuleIcons';
 import {
     CommunityServiceIcon,
@@ -33,6 +34,7 @@ export const SIDEBAR_MODULES: any[] = [
     { key: 'beneficiaries', icon: BeneficiaryIcon },
     { key: 'projects', icon: ProjectIcon },
     { key: 'financials', icon: FinancialsIcon },
+    { key: 'implementing_partners', icon: PartnerIcon },
     { key: 'staff', icon: StaffIcon },
     { key: 'help', icon: HelpSupportIcon },
     { key: 'settings', icon: SettingsIcon },

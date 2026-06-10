@@ -1,0 +1,120 @@
+{
+  "title": "قائمة الشركاء المنفذين",
+  "breadcrumbHome": "الرئيسية",
+  "breadcrumbPartners": "الشركاء",
+  "breadcrumbList": "قائمة الشركاء",
+  "analyticsTitle": "نظرة عامة تحليلية",
+  "kpi": {
+    "total": "إجمالي الشركاء",
+    "active": "الشركاء النشطون",
+    "totalBudget": "إجمالي الميزانيات",
+    "avgRating": "متوسط التقييم"
+  },
+  "sectorChartTitle": "توزيع الشركاء حسب القطاع",
+  "chartTooltip": "شركاء",
+  "chartSeries": "عدد الشركاء",
+  "searchPlaceholder": "ابحث عن شريك بالاسم، الدولة، أو القطاع...",
+  "listening": "جاري الاستماع...",
+  "filters": {
+    "sector": "القطاع",
+    "status": "الحالة",
+    "region": "المنطقة",
+    "rating": "التقييم",
+    "all": "الكل"
+  },
+  "exportList": "تصدير القائمة",
+  "addPartner": "إضافة شريك جديد",
+  "pagination": {
+    "showing": "عرض {{from}}-{{to}} من {{total}} شريك",
+    "prev": "السابق",
+    "next": "التالي"
+  },
+  "card": {
+    "projects": "المشاريع",
+    "completed": "مكتمل",
+    "inProgress": "قيد التنفيذ",
+    "rating": "التقييم",
+    "budget": "الميزانية",
+    "viewProfile": "عرض الملف"
+  },
+  "detail": {
+    "backToList": "العودة إلى القائمة",
+    "tabs": {
+      "projects": "المشاريع",
+      "evaluations": "التقييمات",
+      "documents": "المستندات",
+      "contact": "معلومات التواصل"
+    },
+    "contactsTitle": "الأشخاص المسؤولون",
+    "addContact": "إضافة جهة اتصال",
+    "noLocation": "No Location data provided"
+  },
+  "projects": {
+    "filterAll": "الكل",
+    "statusActive": "جاري التنفيذ",
+    "statusCompleted": "مكتمل",
+    "statusPaused": "متوقف",
+    "sortNewest": "الأحدث",
+    "sortOldest": "الأقدم",
+    "sortBudget": "حسب الميزانية",
+    "linkProject": "ربط مشروع جديد",
+    "progress": "التقدم",
+    "beneficiaries": "مستفيد",
+    "viewDetails": "عرض التفاصيل",
+    "linkModalTitle": "ربط مشروع جديد",
+    "selectProject": "اختر المشروع",
+    "selectPlaceholder": "-- اختر من قائمة المشاريع --",
+    "linkSubmit": "ربط المشروع",
+    "linkSuccess": "تم ربط مشروع \"{{name}}\" بنجاح."
+  },
+  "evaluations": {
+    "basedOn": "بناءً على {{count}} تقييم",
+    "addEvaluation": "إضافة تقييم",
+    "breakdownTitle": "تفصيل التقييمات",
+    "stars": "{{count}} نجوم",
+    "reviewsCount": "{{count}} تقييمات ({{percent}}%)",
+    "kpiTitle": "مؤشرات الأداء الرئيسية",
+    "individualTitle": "التقييمات الفردية",
+    "helpful": "{{count}} شخص وجد هذا مفيداً",
+    "viewAll": "عرض جميع التقييمات",
+    "projectLabel": "المشروع"
+  },
+  "documents": {
+    "upload": "رفع ملف",
+    "newFolder": "مجلد جديد",
+    "fileName": "اسم الملف",
+    "uploadDate": "تاريخ الرفع",
+    "size": "الحجم",
+    "actions": "الإجراءات",
+    "preview": "معاينة",
+    "download": "تنزيل",
+    "delete": "حذف",
+    "empty": "لا توجد وثائق في هذا التصنيف."
+  },
+  "wizard": {
+    "title": "إضافة شريك منفذ جديد",
+    "breadcrumbAdd": " إضافة شريك جديد",
+    "steps": {
+      "basic": "المعلومات الأساسية",
+      "org": "التفاصيل التنظيمية",
+      "contact": "معلومات الاتصال",
+      "documents": "المستندات",
+      "review": "المراجعة والتأكيد"
+    },
+    "basicTitle": "البيانات الأساسية للشريك",
+    "cancel": "إلغاء",
+    "prev": "السابق",
+    "next": "التالي",
+    "saveDraft": "حفظ كمسودة",
+    "submit": "إرسال الطلب",
+    "confirmLabel": "أؤكد أن جميع المعلومات المدخلة صحيحة ودقيقة",
+    "successTitle": "تم إضافة الشريك بنجاح!",
+    "successSubtitle": "تم إرسال طلب إضافة الشريك للمراجعة.",
+    "requestNumber": "رقم الطلب:",
+    "status": "الحالة:",
+    "statusPending": "قيد المراجعة",
+    "emailNotice": "سيتم إشعارك عبر البريد الإلكتروني عند اكتمال المراجعة.",
+    "backToList": "العودة لقائمة الشركاء",
+    "viewProfile": "عرض ملف الشريك"
+  }
+}

@@ -24,7 +24,7 @@ This is an **MVP**. The goal is to ship a polished initial version with enough d
 - **Auth & Storage**: Supabase (Auth, Storage, RLS)
 - **AI**: Google Gemini API (server-side only, never in browser bundle)
 - **Shared**: Zod schemas + derived types in `packages/shared`
-- **Deployment**: Vite static build on Vercel (frontend), Node on Render (backend), Supabase managed DB
+- **Deployment**: Self-hosted on a Contabo VPS via Docker Compose (Caddy reverse proxy + TLS, web + api containers). Supabase managed DB.
 
 ## Demo credentials
 
@@ -54,6 +54,17 @@ npm run db:studio        # Open Drizzle Studio (in apps/api)
 npm run seed             # Seed database (in apps/api)
 npm run seed:reset       # Reset + reseed (in apps/api)
 ```
+
+## Hosted environments
+
+- `https://ssgm.app` — live production app.
+- `https://full.ssgm.app` — full-pages reference app used as the source when the user asks agents to copy a page into the live app.
+
+When the user asks to copy a page from `full.ssgm.app`:
+- Copy the page as-is as closely as practical.
+- Match layout, sections, tabs, labels, visuals, and placeholder/static values from the reference page.
+- It is acceptable for the copied page to remain blank/static with placeholder values.
+- Do not proactively implement real backend data, TanStack Query hooks, Hono routes, persistence, or CRUD unless the user explicitly asks for implementation later.
 
 ## Architecture principles
 
