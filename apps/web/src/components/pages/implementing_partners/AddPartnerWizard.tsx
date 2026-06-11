@@ -1,13 +1,15 @@
 import React, { useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, FileText, X } from 'lucide-react';
-import type { Partner, PartnerSector } from '../../../types';
+import type { PartnerSector } from '../../../types';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
+import type { PartnerCreateInput } from '../../../hooks/usePartners';
 
 interface AddPartnerWizardProps {
     onBack: () => void;
-    onSubmit: (partner: Partner) => void;
+    onSubmit: (input: PartnerCreateInput, callbacks?: { onSuccess?: () => void }) => void;
+    isSubmitting?: boolean;
 }
 
 const STEPS = ['basic', 'scope', 'contact', 'documents', 'review'] as const;
@@ -103,13 +105,12 @@ const SuccessScreen: React.FC<{ referenceNumber: string; onBack: () => void; t: 
     </div>
 );
 
-const AddPartnerWizard: React.FC<AddPartnerWizardProps> = ({ onBack, onSubmit }) => {
+const AddPartnerWizard: React.FC<AddPartnerWizardProps> = ({ onBack, onSubmit, isSubmitting = false }) => {
     const { t } = useLocalization(['partners', 'common']);
     const toast = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [step, setStep] = useState(1);
     const [submitted, setSubmitted] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [referenceNumber, setReferenceNumber] = useState('');
     const [confirmed, setConfirmed] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -165,37 +166,28 @@ const AddPartnerWizard: React.FC<AddPartnerWizardProps> = ({ onBack, onSubmit })
         setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const buildPartner = (): Partner => {
-        const name = form.organizationName.trim();
-        const logo = name.slice(0, 2).toUpperCase();
-        return {
-            id: `p-${Date.now()}`,
-            name,
-            logo,
-            country: form.city.trim() ? `${form.country} · ${form.city.trim()}` : form.country.trim(),
-            sector: form.primarySector,
-            status: 'قيد المراجعة',
-            projectsCompleted: 0,
-            projectsInProgress: 0,
-            rating: 0,
-            budget: 0,
-            phone: form.mainPhone.trim() || undefined,
-            email: form.officialEmail.trim(),
-            website: form.website.trim() || undefined,
-            contacts: [],
-        };
-    };
+    const buildCreateInput = (): PartnerCreateInput => ({
+        name_ar: form.organizationName.trim(),
+        name_en: form.organizationNameEn.trim(),
+        sector: form.primarySector,
+        status: 'قيد المراجعة',
+        country: form.country.trim(),
+        city: form.city.trim(),
+        description: form.description.trim(),
+        phone: form.mainPhone.trim() || undefined,
+        email: form.officialEmail.trim(),
+        website: form.website.trim() || undefined,
+    });
 
     const handleSubmit = () => {
-        if (!confirmed) return;
-        setIsSubmitting(true);
+        if (!confirmed || isSubmitting) return;
         const ref = `P-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
-        setTimeout(() => {
-            onSubmit(buildPartner());
-            setReferenceNumber(ref);
-            setIsSubmitting(false);
-            setSubmitted(true);
-        }, 500);
+        onSubmit(buildCreateInput(), {
+            onSuccess: () => {
+                setReferenceNumber(ref);
+                setSubmitted(true);
+            },
+        });
     };
 
     const handleSaveDraft = () => {

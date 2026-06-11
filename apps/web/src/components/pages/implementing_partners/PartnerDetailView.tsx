@@ -13,9 +13,10 @@ interface PartnerDetailViewProps {
     partner: Partner;
     onBack: () => void;
     onPartnerUpdate: (updated: Partner) => void;
+    isSaving?: boolean;
 }
 
-const PartnerDetailView: React.FC<PartnerDetailViewProps> = ({ partner, onBack, onPartnerUpdate }) => {
+const PartnerDetailView: React.FC<PartnerDetailViewProps> = ({ partner, onBack, onPartnerUpdate, isSaving = false }) => {
     const { t } = useLocalization(['partners']);
     const [activeTab, setActiveTab] = useState('overview');
 
@@ -30,7 +31,7 @@ const PartnerDetailView: React.FC<PartnerDetailViewProps> = ({ partner, onBack, 
     const renderTab = () => {
         switch (activeTab) {
             case 'overview':
-                return <OverviewTab partner={partner} onPartnerUpdate={onPartnerUpdate} />;
+                return <OverviewTab partner={partner} onPartnerUpdate={onPartnerUpdate} isSaving={isSaving} />;
             case 'projects':
                 return <ProjectsTab />;
             case 'performance':
@@ -43,7 +44,7 @@ const PartnerDetailView: React.FC<PartnerDetailViewProps> = ({ partner, onBack, 
             case 'documents':
                 return <DocumentsTab />;
             case 'contacts':
-                return <ContactTab partner={partner} onPartnerUpdate={onPartnerUpdate} />;
+                return <ContactTab partner={partner} onPartnerUpdate={onPartnerUpdate} isSaving={isSaving} />;
             default:
                 return null;
         }

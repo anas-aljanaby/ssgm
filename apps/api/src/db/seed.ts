@@ -7,6 +7,7 @@ import { SEED_BENEFICIARIES } from './beneficiarySeed';
 import { resolveProjectId, seedProjects } from './projectSeed';
 import { seedBousala } from './bousalaSeed';
 import { SEED_STAKEHOLDERS } from './stakeholderSeed';
+import { SEED_IMPLEMENTING_PARTNERS } from './implementingPartnerSeed';
 import { seedOrgModules } from '../lib/orgModules';
 
 const client = postgres(process.env.DIRECT_URL || process.env.DATABASE_URL!);
@@ -250,6 +251,7 @@ async function reset() {
     await db.delete(schema.donor_tasks);
     await db.delete(schema.donations);
     await db.delete(schema.individual_donors);
+    await db.delete(schema.implementing_partners);
     await db.delete(schema.stakeholders);
     await db.delete(schema.beneficiaries);
     await db.delete(schema.project_team_members);
@@ -862,6 +864,16 @@ async function seed() {
             .returning();
         const label = inserted.name_ar?.trim() || inserted.name_en;
         console.log(`  Stakeholder: ${label} (${inserted.type})`);
+    }
+
+    console.log('Seeding implementing partners...');
+    for (const partner of SEED_IMPLEMENTING_PARTNERS) {
+        const [inserted] = await db
+            .insert(schema.implementing_partners)
+            .values({ org_id: org.id, ...partner })
+            .returning();
+        const label = inserted.name_ar?.trim() || inserted.name_en;
+        console.log(`  Implementing Partner: ${label} (${inserted.sector})`);
     }
 
     await seedFinancials(org.id, userEmail, institutionalDonorIdByKey);

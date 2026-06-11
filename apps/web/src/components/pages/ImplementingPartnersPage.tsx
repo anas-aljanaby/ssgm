@@ -1,9 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { LayoutGrid, List, Search, Users } from 'lucide-react';
+import { AlertCircle, LayoutGrid, List, Search, Users } from 'lucide-react';
 import type { Partner, PartnerSector, PartnerStatus } from '../../types';
-import { MOCK_PARTNERS } from '../../data/partnersData';
 import { useLocalization } from '../../hooks/useLocalization';
+import {
+    type PartnerCreateInput,
+    useCreatePartner,
+    usePartners,
+    useUpdatePartner,
+} from '../../hooks/usePartners';
+import { useToast } from '../../hooks/useToast';
 import { formatNumber } from '../../lib/utils';
 import EmptyState from '../common/EmptyState';
 import PartnerAnalytics from './implementing_partners/PartnerAnalytics';
@@ -56,9 +62,11 @@ const FilterSelect: React.FC<{
 
 const ImplementingPartnersPage: React.FC = () => {
     const { t, language } = useLocalization(['partners', 'common']);
+    const toast = useToast();
+    const { data: partners = [], isLoading, isError, refetch } = usePartners(language);
+    const createPartnerMutation = useCreatePartner(language);
+    const updatePartnerMutation = useUpdatePartner(language);
 
-    const [loading, setLoading] = useState(true);
-    const [partners, setPartners] = useState<Partner[]>([]);
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [layout, setLayout] = useState<'grid' | 'list'>('grid');
     const [search, setSearch] = useState('');
@@ -69,16 +77,12 @@ const ImplementingPartnersPage: React.FC = () => {
         performance: FILTER_ALL,
     });
     const [page, setPage] = useState(1);
-    const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+    const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
 
-    useEffect(() => {
-        setLoading(true);
-        const timer = setTimeout(() => {
-            setPartners(MOCK_PARTNERS);
-            setLoading(false);
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, []);
+    const selectedPartner = useMemo(
+        () => partners.find((partner) => partner.id === selectedPartnerId) ?? null,
+        [partners, selectedPartnerId],
+    );
 
     const countryOptions = useMemo(() => {
         const countries = [...new Set(partners.map((p) => p.country))].sort();
@@ -128,22 +132,28 @@ const ImplementingPartnersPage: React.FC = () => {
     };
 
     const openProfile = (partner: Partner) => {
-        setSelectedPartner(partner);
+        setSelectedPartnerId(partner.id);
         setViewMode('profile');
     };
 
     const backToList = () => {
-        setSelectedPartner(null);
+        setSelectedPartnerId(null);
         setViewMode('list');
     };
 
     const handlePartnerUpdate = (updated: Partner) => {
-        setPartners((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-        setSelectedPartner(updated);
+        updatePartnerMutation.mutate(updated, {
+            onError: () => toast.showError(t('partners.errors.saveFailed')),
+        });
     };
 
-    const handlePartnerCreate = (partner: Partner) => {
-        setPartners((prev) => [partner, ...prev]);
+    const handlePartnerCreate = (input: PartnerCreateInput, callbacks?: { onSuccess?: () => void }) => {
+        createPartnerMutation.mutate(input, {
+            onSuccess: () => {
+                callbacks?.onSuccess?.();
+            },
+            onError: () => toast.showError(t('partners.errors.createFailed')),
+        });
     };
 
     if (viewMode === 'profile' && selectedPartner) {
@@ -152,12 +162,19 @@ const ImplementingPartnersPage: React.FC = () => {
                 partner={selectedPartner}
                 onBack={backToList}
                 onPartnerUpdate={handlePartnerUpdate}
+                isSaving={updatePartnerMutation.isPending}
             />
         );
     }
 
     if (viewMode === 'add') {
-        return <AddPartnerWizard onBack={backToList} onSubmit={handlePartnerCreate} />;
+        return (
+            <AddPartnerWizard
+                onBack={backToList}
+                onSubmit={handlePartnerCreate}
+                isSubmitting={createPartnerMutation.isPending}
+            />
+        );
     }
 
     return (
@@ -174,7 +191,21 @@ const ImplementingPartnersPage: React.FC = () => {
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('partners.subtitle')}</p>
             </div>
 
-            {!loading && <PartnerAnalytics partners={partners} />}
+            {isError && (
+                <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200">
+                    <AlertCircle size={20} className="flex-shrink-0" />
+                    <p className="flex-1 text-sm">{t('partners.errors.loadFailed')}</p>
+                    <button
+                        type="button"
+                        onClick={() => void refetch()}
+                        className="text-sm font-semibold underline"
+                    >
+                        {t('common.retry')}
+                    </button>
+                </div>
+            )}
+
+            {!isLoading && <PartnerAnalytics partners={partners} />}
 
             <div className="bg-white dark:bg-dark-card rounded-xl shadow p-4 space-y-4">
                 <div className="relative">
@@ -238,7 +269,7 @@ const ImplementingPartnersPage: React.FC = () => {
                 </div>
             </div>
 
-            {loading ? (
+            {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {Array.from({ length: PAGE_SIZE }).map((_, i) => (
                         <PartnerCardSkeleton key={i} />
@@ -256,7 +287,7 @@ const ImplementingPartnersPage: React.FC = () => {
                 </AnimatePresence>
             )}
 
-            {!loading && filtered.length > 0 && (
+            {!isLoading && filtered.length > 0 && (
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
                     <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
                         <Users size={16} />

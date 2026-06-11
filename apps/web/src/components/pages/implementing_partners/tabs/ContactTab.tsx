@@ -68,16 +68,16 @@ interface ContactInfoForm {
 interface ContactTabProps {
     partner: Partner;
     onPartnerUpdate: (updated: Partner) => void;
+    isSaving?: boolean;
 }
 
-const ContactTab: React.FC<ContactTabProps> = ({ partner, onPartnerUpdate }) => {
+const ContactTab: React.FC<ContactTabProps> = ({ partner, onPartnerUpdate, isSaving = false }) => {
     const { t } = useLocalization(['partners', 'common']);
     const toast = useToast();
     const [contacts, setContacts] = useState<ContactPerson[]>(partner.contacts ?? []);
     const [addOpen, setAddOpen] = useState(false);
     const [contactToDelete, setContactToDelete] = useState<ContactPerson | null>(null);
     const [isInfoEditing, setIsInfoEditing] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
     const [infoForm, setInfoForm] = useState<ContactInfoForm>({
         phone: partner.phone ?? '',
         email: partner.email ?? '',
@@ -113,18 +113,14 @@ const ContactTab: React.FC<ContactTabProps> = ({ partner, onPartnerUpdate }) => 
             toast.showError(t('partners.validation.invalidEmail'));
             return;
         }
-        setIsSaving(true);
-        setTimeout(() => {
-            persistPartner({
-                phone: infoForm.phone.trim() || undefined,
-                email: infoForm.email.trim() || undefined,
-                website: infoForm.website.trim() || undefined,
-                address: infoForm.address.trim() || undefined,
-            });
-            setIsSaving(false);
-            setIsInfoEditing(false);
-            toast.showSuccess(t('partners.detail.contactInfoSaveSuccess'));
-        }, 300);
+        persistPartner({
+            phone: infoForm.phone.trim() || undefined,
+            email: infoForm.email.trim() || undefined,
+            website: infoForm.website.trim() || undefined,
+            address: infoForm.address.trim() || undefined,
+        });
+        setIsInfoEditing(false);
+        toast.showSuccess(t('partners.detail.contactInfoSaveSuccess'));
     };
 
     const handleCancelInfo = () => {

@@ -7,6 +7,7 @@ import { SEED_BENEFICIARIES } from './beneficiarySeed';
 import { resolveProjectId, seedProjects } from './projectSeed';
 import { seedBousala } from './bousalaSeed';
 import { SEED_STAKEHOLDERS } from './stakeholderSeed';
+import { SEED_IMPLEMENTING_PARTNERS } from './implementingPartnerSeed';
 import { supabaseAdmin } from '../lib/supabaseAdmin';
 
 const TEST_ORG_NAME = 'Test';
@@ -232,6 +233,23 @@ async function seedStakeholders(orgId: string) {
     }
 }
 
+async function seedImplementingPartners(orgId: string) {
+    if ((await countForOrg('implementing_partners', orgId)) > 0) {
+        console.log('Implementing partners already seeded — skipping.');
+        return;
+    }
+
+    console.log('Seeding implementing partners...');
+    for (const partner of SEED_IMPLEMENTING_PARTNERS) {
+        const [inserted] = await db
+            .insert(schema.implementing_partners)
+            .values({ org_id: orgId, ...partner })
+            .returning();
+        const label = inserted.name_ar?.trim() || inserted.name_en;
+        console.log(`  Implementing Partner: ${label}`);
+    }
+}
+
 async function seedFinancials(orgId: string) {
     if ((await countForOrg('funds', orgId)) > 0) {
         console.log('Financials already seeded — skipping.');
@@ -342,6 +360,7 @@ async function seed() {
     await seedDonors(org.id);
     await seedBeneficiaries(org.id, projectLegacyMap);
     await seedStakeholders(org.id);
+    await seedImplementingPartners(org.id);
     await seedFinancials(org.id);
 
     const staffCount = await db

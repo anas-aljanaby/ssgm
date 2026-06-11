@@ -34,13 +34,13 @@ const OverviewRow: React.FC<OverviewRowProps> = ({ icon, label, value }) => (
 interface OverviewTabProps {
     partner: Partner;
     onPartnerUpdate: (updated: Partner) => void;
+    isSaving?: boolean;
 }
 
-const OverviewTab: React.FC<OverviewTabProps> = ({ partner, onPartnerUpdate }) => {
+const OverviewTab: React.FC<OverviewTabProps> = ({ partner, onPartnerUpdate, isSaving = false }) => {
     const { t, language } = useLocalization(['partners', 'common']);
     const toast = useToast();
     const [isEditing, setIsEditing] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
     const [form, setForm] = useState({
         status: partner.status,
         sector: partner.sector,
@@ -65,13 +65,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ partner, onPartnerUpdate }) =
             toast.showError(t('partners.validation.required'));
             return;
         }
-        setIsSaving(true);
-        setTimeout(() => {
-            onPartnerUpdate({ ...partner, status: form.status, sector: form.sector, country: form.country.trim() });
-            setIsSaving(false);
-            setIsEditing(false);
-            toast.showSuccess(t('partners.detail.overviewSaveSuccess'));
-        }, 300);
+        onPartnerUpdate({ ...partner, status: form.status, sector: form.sector, country: form.country.trim() });
+        setIsEditing(false);
+        toast.showSuccess(t('partners.detail.overviewSaveSuccess'));
     };
 
     const handleCancel = () => {

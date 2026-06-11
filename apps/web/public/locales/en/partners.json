@@ -207,6 +207,11 @@
       "successNotice": "You can update eligibility status from the partner profile once review is complete.",
       "backToList": "Back to Partners",
       "viewProfile": "View Partner Profile"
+    },
+    "errors": {
+      "loadFailed": "Could not load partners. Please try again.",
+      "saveFailed": "Could not save partner changes. Please try again.",
+      "createFailed": "Could not register partner. Please try again."
     }
   }
 }

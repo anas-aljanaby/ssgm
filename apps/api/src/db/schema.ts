@@ -611,6 +611,36 @@ export const project_team_members = pgTable('project_team_members', {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// IMPLEMENTING PARTNERS MODULE
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const implementing_partners = pgTable('implementing_partners', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    name_en: text('name_en').notNull(),
+    name_ar: text('name_ar').default(''),
+    logo: text('logo').default(''),
+    sector: text('sector').notNull(),
+    status: text('status').notNull().default('قيد المراجعة'),
+    country: text('country').default(''),
+    city: text('city').default(''),
+    description: text('description').default(''),
+    phone: text('phone').default(''),
+    email: text('email').default(''),
+    website: text('website').default(''),
+    address: text('address').default(''),
+    coordinates: jsonb('coordinates'),
+    rating: numeric('rating', { precision: 3, scale: 1 }).notNull().default('0'),
+    budget: numeric('budget', { precision: 14, scale: 2 }).notNull().default('0'),
+    projects_completed: integer('projects_completed').notNull().default(0),
+    projects_in_progress: integer('projects_in_progress').notNull().default(0),
+    contacts: jsonb('contacts').default([]),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+    updated_at: timestamp('updated_at').defaultNow(),
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // STAKEHOLDERS MODULE
 // ═══════════════════════════════════════════════════════════════════════════
 

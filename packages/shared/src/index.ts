@@ -4,6 +4,7 @@ export * from './schemas/financials';
 export * from './schemas/project';
 export * from './schemas/bousala';
 export * from './schemas/stakeholder';
+export * from './schemas/partner';
 export * from './schemas/institutionalDonor';
 export * from './schemas/staff';
 export * from './constants/donorOptions';
