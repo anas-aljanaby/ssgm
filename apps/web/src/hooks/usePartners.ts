@@ -44,6 +44,7 @@ export interface ApiPartner {
     projectsCompleted: number;
     projectsInProgress: number;
     contacts: ContactPerson[];
+    custom_fields: Record<string, unknown>;
 }
 
 function asNumber(value: unknown): number {
@@ -56,6 +57,11 @@ function asContacts(value: unknown): ContactPerson[] {
     return value.filter((item): item is ContactPerson => {
         return !!item && typeof item === 'object' && typeof (item as ContactPerson).id === 'string';
     });
+}
+
+function asCustomFields(value: unknown): Record<string, unknown> {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    return value as Record<string, unknown>;
 }
 
 function displayCountry(country: string, city: string): string {
@@ -74,6 +80,8 @@ export function mapApiPartnerToPartner(row: ApiPartner, language: Language = 'ar
     return {
         id: row.id,
         name: displayName,
+        nameAr,
+        nameEn,
         logo: row.logo || logoSource.slice(0, 2).toUpperCase(),
         country: displayCountry(row.country, row.city),
         sector: row.sector,
@@ -82,12 +90,14 @@ export function mapApiPartnerToPartner(row: ApiPartner, language: Language = 'ar
         projectsInProgress: row.projectsInProgress,
         rating: asNumber(row.rating),
         budget: asNumber(row.budget),
+        description: row.description || undefined,
         phone: row.phone || undefined,
         email: row.email || undefined,
         website: row.website || undefined,
         address: row.address || undefined,
         coordinates: row.coordinates,
         contacts: asContacts(row.contacts),
+        customFields: asCustomFields(row.custom_fields),
     };
 }
 
@@ -97,6 +107,9 @@ export function mapPartnerToUpdatePayload(partner: Partner): Record<string, unkn
     const city = countryParts.length > 1 ? countryParts.slice(1).join('·').trim() : '';
 
     return {
+        name_en: partner.nameEn.trim() || partner.nameAr.trim() || partner.name.trim(),
+        name_ar: partner.nameAr.trim() || partner.nameEn.trim() || partner.name.trim(),
+        description: partner.description ?? '',
         sector: partner.sector,
         status: partner.status,
         country,
@@ -111,6 +124,7 @@ export function mapPartnerToUpdatePayload(partner: Partner): Record<string, unkn
         projectsInProgress: partner.projectsInProgress,
         contacts: partner.contacts ?? [],
         coordinates: partner.coordinates ?? null,
+        custom_fields: partner.customFields ?? {},
     };
 }
 

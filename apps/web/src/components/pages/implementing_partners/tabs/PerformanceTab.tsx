@@ -1,12 +1,24 @@
 import React, { useMemo, useState } from 'react';
 import { Plus, Star, X } from 'lucide-react';
+import type { Partner } from '../../../../types';
 import { useLocalization } from '../../../../hooks/useLocalization';
+import { useProjects } from '../../../../hooks/useProjects';
 import { useToast } from '../../../../hooks/useToast';
-import { MOCK_EVALUATION_KPIS, MOCK_PARTNER_REVIEWS, type PartnerReview } from '../partnerStaticData';
+import {
+    type PartnerEvaluationRecord,
+    useCreatePartnerEvaluation,
+    usePartnerEvaluations,
+} from '../../../../hooks/usePartnerEvaluations';
+import { projectMatchesPartner } from '../partnerProjectUtils';
 import ModalPortal from '../../../common/ModalPortal';
+import Spinner from '../../../common/Spinner';
 import { fieldClass } from '../shared';
 
-// TODO: Replace local reviews with evaluations API when backend exists
+interface PerformanceTabProps {
+    partner: Partner;
+    onPartnerUpdate: (updated: Partner) => void;
+    isSaving?: boolean;
+}
 
 const StarRating: React.FC<{ rating: number; size?: number; showValue?: boolean }> = ({ rating, size = 16, showValue = false }) => (
     <div className="flex items-center gap-1">
@@ -21,8 +33,8 @@ const StarRating: React.FC<{ rating: number; size?: number; showValue?: boolean 
     </div>
 );
 
-const EvaluationRecordCard: React.FC<{ review: PartnerReview }> = ({ review }) => {
-    const { t } = useLocalization(['partners']);
+const EvaluationRecordCard: React.FC<{ review: PartnerEvaluationRecord }> = ({ review }) => {
+    const { t, language } = useLocalization(['partners']);
 
     return (
         <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-lg border dark:border-slate-600">
@@ -30,7 +42,11 @@ const EvaluationRecordCard: React.FC<{ review: PartnerReview }> = ({ review }) =
                 <div>
                     <h4 className="font-bold">{review.reviewer}</h4>
                     <p className="text-xs text-gray-500">
-                        {review.date} · {t('partners.performance.projectLabel')}: {review.project}
+                        {new Date(review.date).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                        })} · {t('partners.performance.projectLabel')}: {review.project}
                     </p>
                 </div>
                 <StarRating rating={review.rating} />
@@ -40,23 +56,24 @@ const EvaluationRecordCard: React.FC<{ review: PartnerReview }> = ({ review }) =
     );
 };
 
-interface PerformanceTabProps {
-    partnerRating: number;
-    onRatingChange: (rating: number) => void;
-}
-
-const PerformanceTab: React.FC<PerformanceTabProps> = ({ partnerRating, onRatingChange }) => {
-    const { t } = useLocalization(['partners', 'common']);
+const PerformanceTab: React.FC<PerformanceTabProps> = ({ partner, onPartnerUpdate }) => {
+    const { t, language } = useLocalization(['partners', 'common']);
     const toast = useToast();
-    const [reviews, setReviews] = useState<PartnerReview[]>(MOCK_PARTNER_REVIEWS);
+    const { data: allProjects = [] } = useProjects();
+    const { data: reviews = [], isLoading } = usePartnerEvaluations(partner.id);
+    const createEvaluation = useCreatePartnerEvaluation(partner.id);
+    const linkedProjects = useMemo(
+        () => allProjects.filter((project) => projectMatchesPartner(project, partner)),
+        [allProjects, partner],
+    );
     const [modalOpen, setModalOpen] = useState(false);
     const [form, setForm] = useState({ reviewer: '', project: '', rating: 5, comment: '' });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const overallRating = useMemo(() => {
-        if (reviews.length === 0) return partnerRating;
-        return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-    }, [reviews, partnerRating]);
+        if (reviews.length === 0) return partner.rating;
+        return reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+    }, [reviews, partner.rating]);
 
     const validate = () => {
         const next: Record<string, string> = {};
@@ -70,22 +87,34 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partnerRating, onRating
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!validate()) return;
-        const newReview: PartnerReview = {
-            reviewer: form.reviewer.trim(),
-            project: form.project.trim(),
-            rating: form.rating,
-            comment: form.comment.trim(),
-            date: new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }),
-        };
-        const updated = [newReview, ...reviews];
-        setReviews(updated);
-        const newRating = updated.reduce((sum, r) => sum + r.rating, 0) / updated.length;
-        onRatingChange(newRating);
-        toast.showSuccess(t('partners.performance.addSuccess'));
-        setForm({ reviewer: '', project: '', rating: 5, comment: '' });
-        setErrors({});
-        setModalOpen(false);
+
+        createEvaluation.mutate(
+            {
+                reviewer: form.reviewer.trim(),
+                project: form.project.trim(),
+                rating: form.rating,
+                comment: form.comment.trim(),
+            },
+            {
+                onSuccess: (result) => {
+                    onPartnerUpdate({ ...partner, rating: result.partnerRating });
+                    toast.showSuccess(t('partners.performance.addSuccess'));
+                    setForm({ reviewer: '', project: '', rating: 5, comment: '' });
+                    setErrors({});
+                    setModalOpen(false);
+                },
+                onError: () => toast.showError(t('partners.errors.saveFailed')),
+            },
+        );
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center py-16">
+                <Spinner />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8">
@@ -107,23 +136,8 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partnerRating, onRating
 
             <div className="bg-gray-50 dark:bg-slate-700/50 p-6 rounded-xl">
                 <h3 className="font-bold mb-4">{t('partners.performance.criteriaTitle')}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
-                    {MOCK_EVALUATION_KPIS.map((kpi) => (
-                        <div key={kpi.label}>
-                            <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm font-semibold">
-                                    {t(`partners.performance.criteria.${kpi.label}`)}
-                                </span>
-                                <StarRating rating={kpi.rating} showValue />
-                            </div>
-                            <div className="w-full bg-gray-200 dark:bg-slate-600 rounded-full h-2">
-                                <div
-                                    className={`h-2 rounded-full ${kpi.progress > 85 ? 'bg-green-500' : kpi.progress > 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                                    style={{ width: `${kpi.progress}%` }}
-                                />
-                            </div>
-                        </div>
-                    ))}
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+                    {t('partners.performance.criteriaPlaceholder')}
                 </div>
             </div>
 
@@ -135,8 +149,8 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partnerRating, onRating
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {reviews.map((review, index) => (
-                            <EvaluationRecordCard key={`${review.reviewer}-${review.date}-${index}`} review={review} />
+                        {reviews.map((review) => (
+                            <EvaluationRecordCard key={review.id} review={review} />
                         ))}
                     </div>
                 )}
@@ -158,7 +172,18 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partnerRating, onRating
                                 </div>
                                 <div>
                                     <label className="text-sm font-semibold">{t('partners.performance.projectLabel')} *</label>
-                                    <input className={fieldClass} value={form.project} onChange={(e) => setForm((f) => ({ ...f, project: e.target.value }))} />
+                                    {linkedProjects.length > 0 ? (
+                                        <select className={fieldClass} value={form.project} onChange={(e) => setForm((f) => ({ ...f, project: e.target.value }))}>
+                                            <option value="">{t('partners.performance.selectProject')}</option>
+                                            {linkedProjects.map((project) => (
+                                                <option key={project.id} value={language === 'ar' ? project.name.ar : project.name.en}>
+                                                    {language === 'ar' ? project.name.ar : project.name.en}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input className={fieldClass} value={form.project} onChange={(e) => setForm((f) => ({ ...f, project: e.target.value }))} />
+                                    )}
                                     {errors.project && <p className="text-xs text-red-500 mt-1">{errors.project}</p>}
                                 </div>
                                 <div>
@@ -177,7 +202,9 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partnerRating, onRating
                             </div>
                             <div className="px-6 py-4 bg-gray-50 dark:bg-dark-card/50 rounded-b-xl flex justify-end gap-3">
                                 <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-semibold border rounded-lg">{t('common.cancel')}</button>
-                                <button type="submit" className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg">{t('common.save')}</button>
+                                <button type="submit" disabled={createEvaluation.isPending} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg disabled:opacity-50">
+                                    {createEvaluation.isPending ? t('common.loading') : t('common.save')}
+                                </button>
                             </div>
                 </form>
             </ModalPortal>

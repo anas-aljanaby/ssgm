@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CirclePlus, Globe, Mail, MapPin, Phone, Trash2 } from 'lucide-react';
+import { CirclePlus, Globe, Mail, MapPin, Pencil, Phone, Trash2 } from 'lucide-react';
 import type { ContactPerson, Partner } from '../../../../types';
 import { useLocalization } from '../../../../hooks/useLocalization';
 import { useToast } from '../../../../hooks/useToast';
@@ -20,16 +20,21 @@ const InfoRow: React.FC<{ icon: React.ReactNode; label: string; value: React.Rea
 const ContactPersonCard: React.FC<{
     contact: ContactPerson;
     primaryLabel: string;
+    onEdit: () => void;
     onDelete: () => void;
     deleteLabel: string;
-}> = ({ contact, primaryLabel, onDelete, deleteLabel }) => (
+    editLabel: string;
+}> = ({ contact, primaryLabel, onEdit, onDelete, deleteLabel, editLabel }) => (
     <div className={`bg-card dark:bg-dark-card rounded-xl shadow-md p-4 border dark:border-slate-700/50 relative ${contact.isPrimary ? 'ring-2 ring-secondary' : ''}`}>
         {contact.isPrimary && (
             <span className="absolute top-2 left-2 text-xs font-bold bg-secondary text-white px-2 py-0.5 rounded-full">
                 {primaryLabel}
             </span>
         )}
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-2 flex gap-1">
+            <button type="button" onClick={onEdit} className="p-1.5 rounded-full hover:bg-gray-100 text-gray-600" title={editLabel}>
+                <Pencil size={14} />
+            </button>
             <button type="button" onClick={onDelete} className="p-1.5 rounded-full hover:bg-red-100 text-red-500" title={deleteLabel}>
                 <Trash2 size={14} />
             </button>
@@ -76,6 +81,7 @@ const ContactTab: React.FC<ContactTabProps> = ({ partner, onPartnerUpdate, isSav
     const toast = useToast();
     const [contacts, setContacts] = useState<ContactPerson[]>(partner.contacts ?? []);
     const [addOpen, setAddOpen] = useState(false);
+    const [contactToEdit, setContactToEdit] = useState<ContactPerson | null>(null);
     const [contactToDelete, setContactToDelete] = useState<ContactPerson | null>(null);
     const [isInfoEditing, setIsInfoEditing] = useState(false);
     const [infoForm, setInfoForm] = useState<ContactInfoForm>({
@@ -154,6 +160,27 @@ const ContactTab: React.FC<ContactTabProps> = ({ partner, onPartnerUpdate, isSav
         setContactToDelete(null);
     };
 
+    const handleEdit = (updatedContact: ContactPerson) => {
+        const updated = contacts.map((contact) => {
+            if (contact.id === updatedContact.id) return updatedContact;
+            if (updatedContact.isPrimary) return { ...contact, isPrimary: false };
+            return contact;
+        });
+        setContacts(updated);
+        persistPartner({ contacts: updated });
+        toast.showSuccess(t('partners.detail.editContactSuccess'));
+        setContactToEdit(null);
+    };
+
+    const mapEmbedUrl = partner.coordinates
+        ? `https://www.openstreetmap.org/export/embed.html?bbox=${partner.coordinates.lng - 0.02}%2C${partner.coordinates.lat - 0.02}%2C${partner.coordinates.lng + 0.02}%2C${partner.coordinates.lat + 0.02}&layer=mapnik&marker=${partner.coordinates.lat}%2C${partner.coordinates.lng}`
+        : null;
+    const mapLinkUrl = partner.coordinates
+        ? `https://www.openstreetmap.org/?mlat=${partner.coordinates.lat}&mlon=${partner.coordinates.lng}#map=14/${partner.coordinates.lat}/${partner.coordinates.lng}`
+        : partner.address
+            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(partner.address)}`
+            : null;
+
     return (
         <div className="animate-fade-in space-y-6">
             <div className="bg-card dark:bg-dark-card p-6 rounded-xl shadow-inner border dark:border-slate-700/50">
@@ -221,11 +248,26 @@ const ContactTab: React.FC<ContactTabProps> = ({ partner, onPartnerUpdate, isSav
                             </>
                         )}
                     </div>
-                    {/* PLACEHOLDER: Map/location panel — no geocoding backend yet */}
-                    <div className="flex items-center justify-center bg-gray-50 dark:bg-slate-800/50 rounded-lg min-h-[200px] text-gray-400">
-                        <MapPin className="mr-2" />
-                        {t('partners.detail.noLocation')}
-                    </div>
+                    {mapEmbedUrl ? (
+                        <div className="space-y-2">
+                            <iframe
+                                title={t('partners.detail.mapTitle')}
+                                className="w-full min-h-[200px] rounded-lg border dark:border-slate-700"
+                                src={mapEmbedUrl}
+                                loading="lazy"
+                            />
+                            {mapLinkUrl && (
+                                <a href={mapLinkUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                                    {t('partners.detail.openMap')}
+                                </a>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-center bg-gray-50 dark:bg-slate-800/50 rounded-lg min-h-[200px] text-gray-400">
+                            <MapPin className="mr-2" />
+                            {t('partners.detail.noLocation')}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -251,7 +293,9 @@ const ContactTab: React.FC<ContactTabProps> = ({ partner, onPartnerUpdate, isSav
                                 key={contact.id}
                                 contact={contact}
                                 primaryLabel={t('partners.detail.primaryContact')}
+                                editLabel={t('common.edit')}
                                 deleteLabel={t('common.delete')}
+                                onEdit={() => setContactToEdit(contact)}
                                 onDelete={() => setContactToDelete(contact)}
                             />
                         ))}
@@ -259,7 +303,16 @@ const ContactTab: React.FC<ContactTabProps> = ({ partner, onPartnerUpdate, isSav
                 )}
             </div>
 
-            <AddContactModal isOpen={addOpen} onClose={() => setAddOpen(false)} onAdd={handleAdd} />
+            <AddContactModal
+                isOpen={addOpen || !!contactToEdit}
+                onClose={() => {
+                    setAddOpen(false);
+                    setContactToEdit(null);
+                }}
+                onAdd={handleAdd}
+                contactToEdit={contactToEdit}
+                onUpdate={handleEdit}
+            />
             <ConfirmationModal
                 isOpen={!!contactToDelete}
                 onClose={() => setContactToDelete(null)}

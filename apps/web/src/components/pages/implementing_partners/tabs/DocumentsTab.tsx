@@ -3,16 +3,26 @@ import { Download, Eye, File, FileText, Folder, Image, Trash2, Video } from 'luc
 import { useLocalization } from '../../../../hooks/useLocalization';
 import { formatDate } from '../../../../lib/utils';
 import { useToast } from '../../../../hooks/useToast';
+import type { Partner } from '../../../../types';
 import {
-    MOCK_PARTNER_DOCUMENTS,
+    useDeletePartnerDocument,
+    usePartnerDocuments,
+    useUploadPartnerDocument,
+    resolvePartnerDocumentUrl,
+    type PartnerDocumentRecord,
+} from '../../../../hooks/usePartnerDocuments';
+import {
     PARTNER_DOCUMENT_CATEGORY_KEYS,
     type PartnerDocument,
     type PartnerDocumentCategory,
 } from '../partnerStaticData';
 import ModalPortal from '../../../common/ModalPortal';
 import ConfirmationModal from '../../../common/ConfirmationModal';
+import Spinner from '../../../common/Spinner';
 
-// TODO: Replace local document state with partner documents API + storage when backend exists
+interface DocumentsTabProps {
+    partner: Partner;
+}
 
 const FileIcon: React.FC<{ type: PartnerDocument['type'] }> = ({ type }) => {
     switch (type) {
@@ -34,22 +44,47 @@ const inferDocType = (fileName: string): PartnerDocument['type'] => {
     return 'pdf';
 };
 
-const formatFileSize = (bytes: number): string => {
+const formatFileSize = (bytes: number | null | undefined): string => {
+    if (!bytes) return '--';
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const DocumentsTab: React.FC = () => {
+function mapApiDocument(record: PartnerDocumentRecord): PartnerDocument {
+    return {
+        id: record.id,
+        name: record.label || record.filename,
+        category: record.category,
+        date: record.uploaded_at?.split('T')[0] ?? new Date().toISOString().split('T')[0],
+        size: formatFileSize(record.size_bytes),
+        type: inferDocType(record.filename),
+    };
+}
+
+const DocumentsTab: React.FC<DocumentsTabProps> = ({ partner }) => {
     const { t, language } = useLocalization(['partners', 'common']);
     const toast = useToast();
+    const { data: apiDocuments = [], isLoading } = usePartnerDocuments(partner.id);
+    const uploadDocument = useUploadPartnerDocument(partner.id);
+    const deleteDocument = useDeletePartnerDocument(partner.id);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [category, setCategory] = useState<string>('all');
     const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [documents, setDocuments] = useState(MOCK_PARTNER_DOCUMENTS);
+    const [localFolders, setLocalFolders] = useState<PartnerDocument[]>([]);
     const [folderOpen, setFolderOpen] = useState(false);
     const [folderName, setFolderName] = useState('');
-    const [docToDelete, setDocToDelete] = useState<PartnerDocument | null>(null);
+    const [docToDelete, setDocToDelete] = useState<{ id: string; name: string; source: 'api' | 'local' } | null>(null);
+
+    const apiDocumentMap = useMemo(
+        () => new Map(apiDocuments.map((doc) => [doc.id, doc])),
+        [apiDocuments],
+    );
+
+    const documents = useMemo(
+        () => [...localFolders, ...apiDocuments.map(mapApiDocument)],
+        [localFolders, apiDocuments],
+    );
 
     const filtered = useMemo(
         () => (category === 'all' ? documents : documents.filter((d) => d.category === category)),
@@ -69,16 +104,13 @@ const DocumentsTab: React.FC = () => {
         const file = e.target.files?.[0];
         if (!file) return;
         const docCategory: PartnerDocumentCategory = category === 'all' ? 'reports' : (category as PartnerDocumentCategory);
-        const newDoc: PartnerDocument = {
-            id: `doc-${Date.now()}`,
-            name: file.name,
-            category: docCategory,
-            date: new Date().toISOString().split('T')[0],
-            size: formatFileSize(file.size),
-            type: inferDocType(file.name),
-        };
-        setDocuments((prev) => [newDoc, ...prev]);
-        toast.showSuccess(t('partners.documents.uploadSuccess'));
+        uploadDocument.mutate(
+            { file, label: file.name, category: docCategory },
+            {
+                onSuccess: () => toast.showSuccess(t('partners.documents.uploadSuccess')),
+                onError: () => toast.showError(t('partners.errors.saveFailed')),
+            },
+        );
         e.target.value = '';
     };
 
@@ -89,14 +121,14 @@ const DocumentsTab: React.FC = () => {
             return;
         }
         const folder: PartnerDocument = {
-            id: `folder-${Date.now()}`,
+            id: `folder-${partner.id}-${Date.now()}`,
             name: folderName.trim(),
             category: category === 'all' ? 'legalCompliance' : (category as PartnerDocumentCategory),
             date: new Date().toISOString().split('T')[0],
             size: '--',
             type: 'folder',
         };
-        setDocuments((prev) => [folder, ...prev]);
+        setLocalFolders((prev) => [folder, ...prev]);
         toast.showSuccess(t('partners.documents.folderCreated'));
         setFolderName('');
         setFolderOpen(false);
@@ -104,25 +136,51 @@ const DocumentsTab: React.FC = () => {
 
     const handleDelete = () => {
         if (!docToDelete) return;
-        setDocuments((prev) => prev.filter((d) => d.id !== docToDelete.id));
-        setSelected((prev) => {
-            const next = new Set(prev);
-            next.delete(docToDelete.id);
-            return next;
+        if (docToDelete.source === 'local') {
+            setLocalFolders((prev) => prev.filter((d) => d.id !== docToDelete.id));
+            toast.showSuccess(t('partners.documents.deleteSuccess'));
+            setDocToDelete(null);
+            return;
+        }
+        deleteDocument.mutate(docToDelete.id, {
+            onSuccess: () => {
+                setSelected((prev) => {
+                    const next = new Set(prev);
+                    next.delete(docToDelete.id);
+                    return next;
+                });
+                toast.showSuccess(t('partners.documents.deleteSuccess'));
+                setDocToDelete(null);
+            },
+            onError: () => toast.showError(t('partners.errors.saveFailed')),
         });
-        toast.showSuccess(t('partners.documents.deleteSuccess'));
-        setDocToDelete(null);
     };
 
-    const handlePreview = () => {
-        // TODO: Wire document preview when storage backend exists
-        toast.showInfo(t('partners.documents.previewPlaceholder'));
+    const handlePreview = (doc: PartnerDocument) => {
+        const record = apiDocumentMap.get(doc.id);
+        if (!record?.file_url) {
+            toast.showInfo(t('partners.documents.previewPlaceholder'));
+            return;
+        }
+        window.open(resolvePartnerDocumentUrl(record.file_url), '_blank', 'noopener,noreferrer');
     };
 
-    const handleDownload = () => {
-        // TODO: Wire document download when storage backend exists
-        toast.showInfo(t('partners.documents.downloadPlaceholder'));
+    const handleDownload = (doc: PartnerDocument) => {
+        const record = apiDocumentMap.get(doc.id);
+        if (!record?.file_url) {
+            toast.showInfo(t('partners.documents.downloadPlaceholder'));
+            return;
+        }
+        window.open(resolvePartnerDocumentUrl(record.file_url), '_blank', 'noopener,noreferrer');
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center py-16">
+                <Spinner />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4">
@@ -141,8 +199,8 @@ const DocumentsTab: React.FC = () => {
 
             <div className="flex gap-2">
                 <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4" onChange={handleUpload} />
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                    {t('partners.documents.upload')}
+                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadDocument.isPending} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                    {uploadDocument.isPending ? t('common.loading') : t('partners.documents.upload')}
                 </button>
                 <button type="button" onClick={() => setFolderOpen(true)} className="px-4 py-2 text-sm font-semibold border rounded-lg hover:bg-gray-100 dark:border-slate-600 dark:hover:bg-slate-700">
                     {t('partners.documents.newFolder')}
@@ -176,13 +234,22 @@ const DocumentsTab: React.FC = () => {
                                 <td className="p-3 text-gray-500">{doc.size}</td>
                                 <td className="p-3">
                                     <div className="flex justify-start gap-1">
-                                        <button type="button" onClick={handlePreview} className="p-2 rounded-full hover:bg-gray-200 text-gray-600" title={t('partners.documents.preview')}>
+                                        <button type="button" onClick={() => handlePreview(doc)} className="p-2 rounded-full hover:bg-gray-200 text-gray-600" title={t('partners.documents.preview')}>
                                             <Eye size={16} />
                                         </button>
-                                        <button type="button" onClick={handleDownload} className="p-2 rounded-full hover:bg-gray-200 text-gray-600" title={t('partners.documents.download')}>
+                                        <button type="button" onClick={() => handleDownload(doc)} className="p-2 rounded-full hover:bg-gray-200 text-gray-600" title={t('partners.documents.download')}>
                                             <Download size={16} />
                                         </button>
-                                        <button type="button" onClick={() => setDocToDelete(doc)} className="p-2 rounded-full hover:bg-red-100 text-red-500" title={t('partners.documents.delete')}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setDocToDelete({
+                                                id: doc.id,
+                                                name: doc.name,
+                                                source: apiDocumentMap.has(doc.id) ? 'api' : 'local',
+                                            })}
+                                            className="p-2 rounded-full hover:bg-red-100 text-red-500"
+                                            title={t('partners.documents.delete')}
+                                        >
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -221,6 +288,7 @@ const DocumentsTab: React.FC = () => {
                 onConfirm={handleDelete}
                 title={t('partners.documents.deleteTitle')}
                 message={t('partners.documents.deleteMessage', { name: docToDelete?.name ?? '' })}
+                isConfirming={deleteDocument.isPending}
             />
         </div>
     );

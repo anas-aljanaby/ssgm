@@ -251,6 +251,8 @@ async function reset() {
     await db.delete(schema.donor_tasks);
     await db.delete(schema.donations);
     await db.delete(schema.individual_donors);
+    await db.delete(schema.partner_evaluations);
+    await db.delete(schema.partner_documents);
     await db.delete(schema.implementing_partners);
     await db.delete(schema.stakeholders);
     await db.delete(schema.beneficiaries);

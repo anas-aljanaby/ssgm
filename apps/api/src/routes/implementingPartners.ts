@@ -1,14 +1,20 @@
 import { Hono } from 'hono';
-import { and, desc, eq } from 'drizzle-orm';
-import { createPartnerSchema, updatePartnerSchema } from '@gms/shared';
+import { and, desc, eq, or } from 'drizzle-orm';
+import { randomUUID } from 'node:crypto';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { createPartnerEvaluationSchema, createPartnerSchema, partnerDocumentCategorySchema, updatePartnerSchema } from '@gms/shared';
 import { db } from '../db';
-import { implementing_partners } from '../db/schema';
+import { implementing_partners, partner_documents, partner_evaluations, projects } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
 import { OrgContextVars, orgContext } from '../middleware/orgContext';
 
 const implementingPartnersRouter = new Hono<{ Variables: OrgContextVars }>();
 implementingPartnersRouter.use(authMiddleware);
 implementingPartnersRouter.use(orgContext);
+
+const UPLOAD_DIR = process.env.PARTNER_UPLOAD_DIR || path.resolve(process.cwd(), 'uploads', 'partner-documents');
+const UPLOAD_PUBLIC_PATH = '/uploads/partner-documents';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -19,9 +25,30 @@ function asNumber(value: unknown): number {
     return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function toIso(value: Date | string | null | undefined): string | null {
+    if (!value) return null;
+    return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
 function defaultLogo(nameEn: string, nameAr: string): string {
     const source = (nameAr || nameEn || 'IP').trim();
     return source.slice(0, 2).toUpperCase();
+}
+
+function sanitizeFilename(value: string): string {
+    return value
+        .replace(/[/\\?%*:|"<>]/g, '-')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 160) || 'document';
+}
+
+function isUploadedFile(value: unknown): value is { name: string; type?: string; size?: number; arrayBuffer: () => Promise<ArrayBuffer> } {
+    return !!value
+        && typeof value === 'object'
+        && 'name' in value
+        && 'arrayBuffer' in value
+        && typeof (value as { arrayBuffer?: unknown }).arrayBuffer === 'function';
 }
 
 function mapContacts(value: unknown) {
@@ -76,6 +103,31 @@ function mapPartner(row: typeof implementing_partners.$inferSelect) {
     };
 }
 
+function mapDocument(row: typeof partner_documents.$inferSelect) {
+    return {
+        id: row.id,
+        filename: row.filename,
+        file_url: row.file_url,
+        label: row.label || 'Document',
+        category: row.category || 'reports',
+        content_type: row.content_type,
+        size_bytes: row.size_bytes,
+        uploaded_at: toIso(row.uploaded_at),
+        custom_fields: row.custom_fields || {},
+    };
+}
+
+function mapEvaluation(row: typeof partner_evaluations.$inferSelect) {
+    return {
+        id: row.id,
+        reviewer: row.reviewer,
+        project: row.project || '',
+        rating: row.rating,
+        comment: row.comment || '',
+        date: toIso(row.evaluated_at) ?? new Date().toISOString(),
+    };
+}
+
 async function getOrgPartner(id: string, orgId: string) {
     const rows = await db
         .select()
@@ -83,6 +135,52 @@ async function getOrgPartner(id: string, orgId: string) {
         .where(and(eq(implementing_partners.id, id), eq(implementing_partners.org_id, orgId)))
         .limit(1);
     return rows[0] ?? null;
+}
+
+async function computePartnerProjectStats(partner: typeof implementing_partners.$inferSelect, orgId: string) {
+    const projectRows = await db
+        .select()
+        .from(projects)
+        .where(and(
+            eq(projects.org_id, orgId),
+            or(
+                eq(projects.implementing_partner_id, partner.id),
+                eq(projects.implementing_partner, partner.id),
+                eq(projects.implementing_partner, partner.name_en),
+                eq(projects.implementing_partner, partner.name_ar),
+            ),
+        ));
+
+    const activeProjects = projectRows.filter(
+        (row) => row.stage === 'implementation' || row.stage === 'monitoring' || row.stage === 'planning',
+    ).length;
+    const completedProjects = projectRows.filter((row) => row.stage === 'closure').length;
+    const totalBudget = projectRows.reduce((sum, row) => sum + asNumber(row.budget), 0);
+
+    return {
+        activeProjects,
+        completedProjects,
+        totalBudget,
+        linkedCount: projectRows.length,
+    };
+}
+
+async function syncPartnerRatingFromEvaluations(partnerId: string, orgId: string) {
+    const evaluations = await db
+        .select()
+        .from(partner_evaluations)
+        .where(and(eq(partner_evaluations.partner_id, partnerId), eq(partner_evaluations.org_id, orgId)));
+
+    const rating = evaluations.length === 0
+        ? 0
+        : Number((evaluations.reduce((sum, row) => sum + row.rating, 0) / evaluations.length).toFixed(1));
+
+    await db
+        .update(implementing_partners)
+        .set({ rating: String(rating), updated_at: new Date() })
+        .where(and(eq(implementing_partners.id, partnerId), eq(implementing_partners.org_id, orgId)));
+
+    return rating;
 }
 
 implementingPartnersRouter.get('/', async (c) => {
@@ -95,14 +193,6 @@ implementingPartnersRouter.get('/', async (c) => {
         .orderBy(desc(implementing_partners.created_at));
 
     return c.json(rows.map(mapPartner));
-});
-
-implementingPartnersRouter.get('/:id', async (c) => {
-    const orgId = c.get('orgId');
-
-    const row = await getOrgPartner(c.req.param('id'), orgId);
-    if (!row) return c.json({ error: 'Not found' }, 404);
-    return c.json(mapPartner(row));
 });
 
 implementingPartnersRouter.post('/', async (c) => {
@@ -143,6 +233,127 @@ implementingPartnersRouter.post('/', async (c) => {
         .returning();
 
     return c.json(mapPartner(row), 201);
+});
+
+implementingPartnersRouter.get('/:id/project-stats', async (c) => {
+    const orgId = c.get('orgId');
+    const partner = await getOrgPartner(c.req.param('id'), orgId);
+    if (!partner) return c.json({ error: 'Not found' }, 404);
+    return c.json(await computePartnerProjectStats(partner, orgId));
+});
+
+implementingPartnersRouter.get('/:id/documents', async (c) => {
+    const orgId = c.get('orgId');
+    const partner = await getOrgPartner(c.req.param('id'), orgId);
+    if (!partner) return c.json({ error: 'Not found' }, 404);
+
+    const rows = await db
+        .select()
+        .from(partner_documents)
+        .where(and(eq(partner_documents.org_id, orgId), eq(partner_documents.partner_id, partner.id)))
+        .orderBy(desc(partner_documents.uploaded_at));
+
+    return c.json(rows.map(mapDocument));
+});
+
+implementingPartnersRouter.post('/:id/documents', async (c) => {
+    const orgId = c.get('orgId');
+    const partner = await getOrgPartner(c.req.param('id'), orgId);
+    if (!partner) return c.json({ error: 'Not found' }, 404);
+
+    const body = await c.req.parseBody();
+    const file = body.file;
+    if (!isUploadedFile(file)) return c.json({ error: 'A file field is required.' }, 400);
+
+    const labelValue = body.label;
+    const label = typeof labelValue === 'string' && labelValue.trim() ? labelValue.trim() : file.name || 'Document';
+    const categoryValue = body.category;
+    const categoryParsed = partnerDocumentCategorySchema.safeParse(categoryValue);
+    const category = categoryParsed.success ? categoryParsed.data : 'reports';
+    const originalFilename = sanitizeFilename(file.name || 'document');
+    const storedFilename = `${partner.id}-${randomUUID()}${path.extname(originalFilename)}`;
+
+    await mkdir(UPLOAD_DIR, { recursive: true });
+    await writeFile(path.join(UPLOAD_DIR, storedFilename), Buffer.from(await file.arrayBuffer()));
+
+    const [document] = await db.insert(partner_documents).values({
+        org_id: orgId,
+        partner_id: partner.id,
+        filename: originalFilename,
+        file_url: `${UPLOAD_PUBLIC_PATH}/${storedFilename}`,
+        label,
+        category,
+        content_type: file.type || null,
+        size_bytes: typeof file.size === 'number' ? file.size : null,
+        custom_fields: {},
+    }).returning();
+
+    return c.json(mapDocument(document), 201);
+});
+
+implementingPartnersRouter.delete('/:id/documents/:documentId', async (c) => {
+    const orgId = c.get('orgId');
+    const partner = await getOrgPartner(c.req.param('id'), orgId);
+    if (!partner) return c.json({ error: 'Not found' }, 404);
+
+    const [deleted] = await db.delete(partner_documents).where(and(
+        eq(partner_documents.id, c.req.param('documentId')),
+        eq(partner_documents.org_id, orgId),
+        eq(partner_documents.partner_id, partner.id),
+    )).returning();
+
+    if (!deleted) return c.json({ error: 'Not found' }, 404);
+    if (deleted.file_url?.startsWith(`${UPLOAD_PUBLIC_PATH}/`)) {
+        const filename = path.basename(deleted.file_url);
+        await unlink(path.join(UPLOAD_DIR, filename)).catch(() => undefined);
+    }
+    return c.json({ ok: true });
+});
+
+implementingPartnersRouter.get('/:id/evaluations', async (c) => {
+    const orgId = c.get('orgId');
+    const partner = await getOrgPartner(c.req.param('id'), orgId);
+    if (!partner) return c.json({ error: 'Not found' }, 404);
+
+    const rows = await db
+        .select()
+        .from(partner_evaluations)
+        .where(and(eq(partner_evaluations.org_id, orgId), eq(partner_evaluations.partner_id, partner.id)))
+        .orderBy(desc(partner_evaluations.evaluated_at));
+
+    return c.json(rows.map(mapEvaluation));
+});
+
+implementingPartnersRouter.post('/:id/evaluations', async (c) => {
+    const orgId = c.get('orgId');
+    const partner = await getOrgPartner(c.req.param('id'), orgId);
+    if (!partner) return c.json({ error: 'Not found' }, 404);
+
+    const body = await c.req.json();
+    const parsed = createPartnerEvaluationSchema.safeParse(body);
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+
+    const data = parsed.data;
+    const [evaluation] = await db.insert(partner_evaluations).values({
+        org_id: orgId,
+        partner_id: partner.id,
+        reviewer: data.reviewer.trim(),
+        project: data.project.trim(),
+        rating: data.rating,
+        comment: data.comment.trim(),
+        custom_fields: {},
+    }).returning();
+
+    const rating = await syncPartnerRatingFromEvaluations(partner.id, orgId);
+    return c.json({ ...mapEvaluation(evaluation), partnerRating: rating }, 201);
+});
+
+implementingPartnersRouter.get('/:id', async (c) => {
+    const orgId = c.get('orgId');
+
+    const row = await getOrgPartner(c.req.param('id'), orgId);
+    if (!row) return c.json({ error: 'Not found' }, 404);
+    return c.json(mapPartner(row));
 });
 
 implementingPartnersRouter.patch('/:id', async (c) => {
@@ -204,6 +415,30 @@ implementingPartnersRouter.delete('/:id', async (c) => {
     const existing = await getOrgPartner(c.req.param('id'), orgId);
     if (!existing) return c.json({ error: 'Not found' }, 404);
 
+    const documentRows = await db
+        .select()
+        .from(partner_documents)
+        .where(and(eq(partner_documents.org_id, orgId), eq(partner_documents.partner_id, existing.id)));
+
+    for (const document of documentRows) {
+        if (document.file_url?.startsWith(`${UPLOAD_PUBLIC_PATH}/`)) {
+            const filename = path.basename(document.file_url);
+            await unlink(path.join(UPLOAD_DIR, filename)).catch(() => undefined);
+        }
+    }
+
+    await db.delete(partner_evaluations).where(and(
+        eq(partner_evaluations.org_id, orgId),
+        eq(partner_evaluations.partner_id, existing.id),
+    ));
+    await db.delete(partner_documents).where(and(
+        eq(partner_documents.org_id, orgId),
+        eq(partner_documents.partner_id, existing.id),
+    ));
+    await db
+        .update(projects)
+        .set({ implementing_partner_id: null, implementing_partner: '', updated_at: new Date() })
+        .where(and(eq(projects.org_id, orgId), eq(projects.implementing_partner_id, existing.id)));
     await db
         .delete(implementing_partners)
         .where(and(eq(implementing_partners.id, existing.id), eq(implementing_partners.org_id, orgId)));

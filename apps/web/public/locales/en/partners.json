@@ -29,6 +29,8 @@
       "pendingReview": "Pending Review"
     },
     "exportList": "Export List",
+    "exportSuccess": "Partner list exported.",
+    "exportEmpty": "No partners to export with the current filters.",
     "registerPartner": "Register Partner",
     "validation": {
       "required": "This field is required.",
@@ -71,6 +73,16 @@
       "deleteContactTitle": "Remove Contact",
       "deleteContactMessage": "Remove {{name}} from this partner's contacts?",
       "deleteContactSuccess": "Contact removed.",
+      "editContactSuccess": "Contact updated.",
+      "nameAr": "Organization Name (Arabic)",
+      "nameEn": "Organization Name (English)",
+      "description": "Description",
+      "headerSaveSuccess": "Partner profile updated.",
+      "deleteTitle": "Delete Partner",
+      "deleteMessage": "Delete {{name}}? This action cannot be undone.",
+      "deleteSuccess": "Partner deleted.",
+      "mapTitle": "Partner location",
+      "openMap": "Open in map",
       "overview": {
         "summaryTitle": "Partner Summary",
         "statusEligibility": "Status & Eligibility",
@@ -109,6 +121,7 @@
       "selectPlaceholder": "-- Select from project list --",
       "linkSubmit": "Link Project",
       "linkSuccess": "Project \"{{name}}\" linked successfully.",
+      "linkError": "Could not link the project. Please try again.",
       "empty": "No projects linked to this partner yet.",
       "emptyFiltered": "No projects match the selected filter.",
       "noAvailableProjects": "All available projects are already linked."
@@ -125,7 +138,9 @@
       "criteriaTitle": "Performance Criteria",
       "recordsTitle": "Recent Evaluation Records",
       "projectLabel": "Project",
+      "selectProject": "Select linked project",
       "evaluatorLabel": "Evaluator",
+      "criteriaPlaceholder": "Detailed criteria scores will appear here once the evaluations module is activated.",
       "criteria": {
         "deliveryQuality": "Delivery Quality",
         "timeliness": "Timeliness",
@@ -135,6 +150,7 @@
       }
     },
     "documents": {
+      "apiPending": "Document upload and storage will persist once the partner documents API is activated. Files added here are temporary.",
       "upload": "Upload File",
       "newFolder": "New Folder",
       "fileName": "File Name",
@@ -165,6 +181,7 @@
     },
     "wizard": {
       "title": "Register Implementing Partner",
+      "documentsDeferred": "Document upload in this wizard is not saved yet. You can upload partner documents from the partner profile after registration.",
       "breadcrumbRegister": "Register Partner",
       "steps": {
         "basic": "Basic Information",
@@ -211,7 +228,8 @@
     "errors": {
       "loadFailed": "Could not load partners. Please try again.",
       "saveFailed": "Could not save partner changes. Please try again.",
-      "createFailed": "Could not register partner. Please try again."
+      "createFailed": "Could not register partner. Please try again.",
+      "deleteFailed": "Could not delete partner. Please try again."
     }
   }
 }

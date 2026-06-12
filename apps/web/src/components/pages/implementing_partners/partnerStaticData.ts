@@ -20,6 +20,7 @@ export const MOCK_PARTNER_PROJECTS: PartnerProject[] = [
 ];
 
 export interface PartnerReview {
+    id: string;
     reviewer: string;
     date: string;
     project: string;
@@ -28,10 +29,10 @@ export interface PartnerReview {
 }
 
 export const MOCK_PARTNER_REVIEWS: PartnerReview[] = [
-    { reviewer: 'أحمد محمد - مدير المشروع', date: '15 ديسمبر 2023', project: 'برنامج محو الأمية', rating: 5, comment: 'أداء ممتاز في تنفيذ المشروع. الشريك أظهر احترافية عالية والتزام بالجدول الزمني. التواصل كان فعال وشفاف طوال فترة المشروع.' },
-    { reviewer: 'فاطمة علي - مديرة البرامج', date: '20 نوفمبر 2023', project: 'حملة تطعيم الأطفال', rating: 4, comment: 'تنفيذ جيد بشكل عام. بعض التأخيرات البسيطة لكن تم معالجتها بسرعة.' },
-    { reviewer: 'خالد سعيد', date: '5 نوفمبر 2023', project: 'تدريب مهني للشباب', rating: 5, comment: 'شريك موثوق وملتزم. نتطلع لمشاريع مستقبلية.' },
-    { reviewer: 'علي حسن', date: '30 سبتمبر 2023', project: 'توزيع مستلزمات مدرسية', rating: 5, comment: 'فريق متعاون جداً.' },
+    { id: 'rev-1', reviewer: 'أحمد محمد - مدير المشروع', date: '15 ديسمبر 2023', project: 'برنامج محو الأمية', rating: 5, comment: 'أداء ممتاز في تنفيذ المشروع. الشريك أظهر احترافية عالية والتزام بالجدول الزمني. التواصل كان فعال وشفاف طوال فترة المشروع.' },
+    { id: 'rev-2', reviewer: 'فاطمة علي - مديرة البرامج', date: '20 نوفمبر 2023', project: 'حملة تطعيم الأطفال', rating: 4, comment: 'تنفيذ جيد بشكل عام. بعض التأخيرات البسيطة لكن تم معالجتها بسرعة.' },
+    { id: 'rev-3', reviewer: 'خالد سعيد', date: '5 نوفمبر 2023', project: 'تدريب مهني للشباب', rating: 5, comment: 'شريك موثوق وملتزم. نتطلع لمشاريع مستقبلية.' },
+    { id: 'rev-4', reviewer: 'علي حسن', date: '30 سبتمبر 2023', project: 'توزيع مستلزمات مدرسية', rating: 5, comment: 'فريق متعاون جداً.' },
 ];
 
 export const MOCK_EVALUATION_KPIS = [

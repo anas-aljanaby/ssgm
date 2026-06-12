@@ -2,13 +2,21 @@ import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Calendar, ChevronDown, DollarSign, MapPin, Tag, UsersRound, X } from 'lucide-react';
 import { useLocalization } from '../../../../hooks/useLocalization';
+import { useProjects, useUpdateProject } from '../../../../hooks/useProjects';
 import { formatCurrency } from '../../../../lib/utils';
-import { MOCK_PARTNER_PROJECTS, type PartnerProject } from '../partnerStaticData';
-import { MOCK_PROJECTS } from '../../../../data/projectData';
+import type { Partner } from '../../../../types';
+import { type PartnerProject } from '../partnerStaticData';
+import {
+    mapProjectToPartnerProject,
+    projectMatchesPartner,
+} from '../partnerProjectUtils';
 import ModalPortal from '../../../common/ModalPortal';
+import Spinner from '../../../common/Spinner';
 import { useToast } from '../../../../hooks/useToast';
 
-// TODO: Replace MOCK_PARTNER_PROJECTS / MOCK_PROJECTS with useProjects when projects are wired per-partner
+interface ProjectsTabProps {
+    partner: Partner;
+}
 
 const STATUS_STYLES: Record<string, { badge: string; bar: string }> = {
     'مكتمل': { badge: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300', bar: 'bg-green-500' },
@@ -62,14 +70,26 @@ const ProjectCard: React.FC<{ project: PartnerProject }> = ({ project }) => {
     );
 };
 
-const ProjectsTab: React.FC = () => {
-    const { t, language } = useLocalization(['partners', 'projects']);
+const ProjectsTab: React.FC<ProjectsTabProps> = ({ partner }) => {
+    const { t, language } = useLocalization(['partners', 'projects', 'common']);
     const toast = useToast();
-    const [projects, setProjects] = useState(MOCK_PARTNER_PROJECTS);
+    const { data: allProjects = [], isLoading } = useProjects();
+    const updateProject = useUpdateProject();
     const [statusFilter, setStatusFilter] = useState('الكل');
     const [sortBy, setSortBy] = useState('الأحدث');
     const [linkOpen, setLinkOpen] = useState(false);
     const [selectedProjectId, setSelectedProjectId] = useState('');
+
+    const projects = useMemo(
+        () => allProjects
+            .filter((project) => projectMatchesPartner(project, partner))
+            .map((project) => mapProjectToPartnerProject(
+                project,
+                language,
+                t(`projects.types.${project.type}`, project.type),
+            )),
+        [allProjects, partner, language, t],
+    );
 
     const filtered = useMemo(() => {
         const list = statusFilter === 'الكل' ? projects : projects.filter((p) => p.status === statusFilter);
@@ -80,36 +100,46 @@ const ProjectsTab: React.FC = () => {
     }, [projects, statusFilter, sortBy]);
 
     const availableProjects = useMemo(
-        () => MOCK_PROJECTS.filter((p) => !projects.some((linked) => linked.name === p.name.ar)),
-        [projects],
+        () => allProjects.filter((project) => !projectMatchesPartner(project, partner)),
+        [allProjects, partner],
     );
 
-    const handleLink = (e: React.FormEvent) => {
+    const handleLink = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedProjectId) {
             toast.showError(t('partners.validation.required'));
             return;
         }
-        const project = MOCK_PROJECTS.find((p) => p.id === selectedProjectId);
+        const project = allProjects.find((p) => p.id === selectedProjectId);
         if (!project) return;
-        const linked: PartnerProject = {
-            id: `pp-${Date.now()}`,
-            status: 'جاري التنفيذ',
-            name: project.name.ar,
-            sector: t(`projects.types.${project.type}`, project.type),
-            duration: `${project.plannedStartDate} - ${project.plannedEndDate}`,
-            budget: project.budget,
-            beneficiaries: parseInt(project.stakeholders.targetBeneficiaries.replace(/\D/g, ''), 10) || 0,
-            location: project.location.city,
-            progress: project.progress,
-        };
-        setProjects((prev) => [linked, ...prev]);
-        toast.showSuccess(t('partners.projects.linkSuccess', { name: linked.name }));
-        setLinkOpen(false);
-        setSelectedProjectId('');
+
+        try {
+            await updateProject.mutateAsync({
+                ...project,
+                stakeholders: {
+                    ...project.stakeholders,
+                    implementingPartner: partner.id,
+                },
+            });
+            toast.showSuccess(t('partners.projects.linkSuccess', {
+                name: language === 'ar' ? (project.name.ar || project.name.en) : (project.name.en || project.name.ar),
+            }));
+            setLinkOpen(false);
+            setSelectedProjectId('');
+        } catch {
+            toast.showError(t('partners.projects.linkError'));
+        }
     };
 
     const statusFilters = ['الكل', 'جاري التنفيذ', 'مكتمل', 'متوقف'];
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center py-16">
+                <Spinner />
+            </div>
+        );
+    }
 
     return (
         <>
@@ -189,7 +219,13 @@ const ProjectsTab: React.FC = () => {
                                 </div>
                                 <div className="px-6 py-4 bg-gray-50 dark:bg-dark-card/50 rounded-b-xl flex justify-end gap-3">
                                     <button type="button" onClick={() => setLinkOpen(false)} className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-slate-700 text-sm font-semibold">{t('common.cancel')}</button>
-                                    <button type="submit" disabled={availableProjects.length === 0} className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold disabled:opacity-50">{t('partners.projects.linkSubmit')}</button>
+                                    <button
+                                        type="submit"
+                                        disabled={availableProjects.length === 0 || updateProject.isPending}
+                                        className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold disabled:opacity-50"
+                                    >
+                                        {updateProject.isPending ? t('common.loading') : t('partners.projects.linkSubmit')}
+                                    </button>
                                 </div>
                             </form>
                 </div>

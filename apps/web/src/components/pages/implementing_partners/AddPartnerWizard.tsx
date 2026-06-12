@@ -259,6 +259,9 @@ const AddPartnerWizard: React.FC<AddPartnerWizardProps> = ({ onBack, onSubmit, i
                 return (
                     <div className="space-y-6 max-w-4xl mx-auto text-center">
                         <h2 className="text-xl font-bold">{t('partners.wizard.steps.documents')}</h2>
+                        <p className="text-sm text-amber-700 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-200 rounded-lg px-4 py-3 text-right">
+                            {t('partners.wizard.documentsDeferred')}
+                        </p>
                         <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.doc,.docx" multiple onChange={handleFileUpload} />
                         <button
                             type="button"

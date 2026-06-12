@@ -6,6 +6,7 @@ import { useLocalization } from '../../hooks/useLocalization';
 import {
     type PartnerCreateInput,
     useCreatePartner,
+    useDeletePartner,
     usePartners,
     useUpdatePartner,
 } from '../../hooks/usePartners';
@@ -31,6 +32,29 @@ const SECTORS: PartnerSector[] = ['التعليم', 'الصحة', 'الإغاث�
 const STATUSES: PartnerStatus[] = ['نشط', 'غير نشط', 'قيد المراجعة'];
 const FILTER_ALL = 'الكل';
 const PAGE_SIZE = 12;
+
+function exportPartnersCsv(partners: Partner[]) {
+    const headers = ['Name', 'Country', 'Sector', 'Status', 'Rating', 'Budget', 'Email'];
+    const rows = partners.map((partner) => [
+        partner.name,
+        partner.country,
+        partner.sector,
+        partner.status,
+        partner.rating.toFixed(1),
+        partner.budget.toString(),
+        partner.email ?? '',
+    ]);
+    const csv = [headers, ...rows]
+        .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `implementing-partners-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+}
 
 const PERFORMANCE_FILTER_VALUES = {
     high: '4.5+',
@@ -66,6 +90,7 @@ const ImplementingPartnersPage: React.FC = () => {
     const { data: partners = [], isLoading, isError, refetch } = usePartners(language);
     const createPartnerMutation = useCreatePartner(language);
     const updatePartnerMutation = useUpdatePartner(language);
+    const deletePartnerMutation = useDeletePartner();
 
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [layout, setLayout] = useState<'grid' | 'list'>('grid');
@@ -156,13 +181,34 @@ const ImplementingPartnersPage: React.FC = () => {
         });
     };
 
+    const handlePartnerDelete = (partnerId: string) => {
+        deletePartnerMutation.mutate(partnerId, {
+            onSuccess: () => {
+                backToList();
+                toast.showSuccess(t('partners.detail.deleteSuccess'));
+            },
+            onError: () => toast.showError(t('partners.errors.deleteFailed')),
+        });
+    };
+
+    const handleExportList = () => {
+        if (filtered.length === 0) {
+            toast.showInfo(t('partners.exportEmpty'));
+            return;
+        }
+        exportPartnersCsv(filtered);
+        toast.showSuccess(t('partners.exportSuccess'));
+    };
+
     if (viewMode === 'profile' && selectedPartner) {
         return (
             <PartnerDetailView
                 partner={selectedPartner}
                 onBack={backToList}
                 onPartnerUpdate={handlePartnerUpdate}
+                onPartnerDelete={handlePartnerDelete}
                 isSaving={updatePartnerMutation.isPending}
+                isDeleting={deletePartnerMutation.isPending}
             />
         );
     }
@@ -247,7 +293,7 @@ const ImplementingPartnersPage: React.FC = () => {
                         />
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                        <button type="button" className="px-4 py-2 text-sm font-semibold border rounded-lg hover:bg-gray-100 dark:border-slate-600 dark:hover:bg-slate-700">
+                        <button type="button" onClick={handleExportList} className="px-4 py-2 text-sm font-semibold border rounded-lg hover:bg-gray-100 dark:border-slate-600 dark:hover:bg-slate-700">
                             {t('partners.exportList')}
                         </button>
                         <button

@@ -68,6 +68,16 @@ function toIsoDate(dateValue: Date | string | null | undefined): string {
     return dateValue instanceof Date ? dateValue.toISOString() : String(dateValue);
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function resolveImplementingPartnerStakeholder(value: string | undefined) {
+    const raw = (value || '').trim();
+    if (UUID_RE.test(raw)) {
+        return { implementing_partner: raw, implementing_partner_id: raw };
+    }
+    return { implementing_partner: raw, implementing_partner_id: null };
+}
+
 function buildProjectModel(
     row: typeof projects.$inferSelect,
     related?: {
@@ -148,7 +158,7 @@ function buildProjectModel(
         },
         stakeholders: {
             donor: row.donor || '',
-            implementingPartner: row.implementing_partner || '',
+            implementingPartner: row.implementing_partner_id || row.implementing_partner || '',
             targetBeneficiaries: row.target_beneficiaries || '',
             primaryContact: row.primary_contact || '',
         },
@@ -234,6 +244,7 @@ projectsRouter.post('/', async (c) => {
     if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
 
     const data = parsed.data;
+    const partnerFields = resolveImplementingPartnerStakeholder(data.stakeholders.implementingPartner);
     const [project] = await db
         .insert(projects)
         .values({
@@ -249,7 +260,8 @@ projectsRouter.post('/', async (c) => {
             city: data.location.city,
             region: data.location.region || '',
             donor: data.stakeholders.donor,
-            implementing_partner: data.stakeholders.implementingPartner || '',
+            implementing_partner: partnerFields.implementing_partner,
+            implementing_partner_id: partnerFields.implementing_partner_id,
             target_beneficiaries: data.stakeholders.targetBeneficiaries,
             primary_contact: data.stakeholders.primaryContact,
             goal: data.goal,
@@ -328,8 +340,10 @@ projectsRouter.patch('/:id', async (c) => {
         values.region = data.location.region || '';
     }
     if (data.stakeholders !== undefined) {
+        const partnerFields = resolveImplementingPartnerStakeholder(data.stakeholders.implementingPartner);
         values.donor = data.stakeholders.donor;
-        values.implementing_partner = data.stakeholders.implementingPartner || '';
+        values.implementing_partner = partnerFields.implementing_partner;
+        values.implementing_partner_id = partnerFields.implementing_partner_id;
         values.target_beneficiaries = data.stakeholders.targetBeneficiaries;
         values.primary_contact = data.stakeholders.primaryContact;
     }

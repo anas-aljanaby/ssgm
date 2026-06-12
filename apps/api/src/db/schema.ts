@@ -519,6 +519,7 @@ export const projects = pgTable('projects', {
     region: text('region').default(''),
     donor: text('donor').default(''),
     implementing_partner: text('implementing_partner').default(''),
+    implementing_partner_id: uuid('implementing_partner_id'),
     target_beneficiaries: text('target_beneficiaries').default(''),
     primary_contact: text('primary_contact').default(''),
     goal: text('goal').default(''),
@@ -638,6 +639,33 @@ export const implementing_partners = pgTable('implementing_partners', {
     custom_fields: jsonb('custom_fields').default({}),
     created_at: timestamp('created_at').defaultNow(),
     updated_at: timestamp('updated_at').defaultNow(),
+});
+
+export const partner_documents = pgTable('partner_documents', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    partner_id: uuid('partner_id').notNull().references(() => implementing_partners.id),
+    filename: text('filename').notNull(),
+    file_url: text('file_url').notNull(),
+    label: text('label').default('Document'),
+    category: text('category').notNull().default('reports'),
+    content_type: text('content_type'),
+    size_bytes: integer('size_bytes'),
+    custom_fields: jsonb('custom_fields').default({}),
+    uploaded_at: timestamp('uploaded_at').defaultNow(),
+});
+
+export const partner_evaluations = pgTable('partner_evaluations', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    partner_id: uuid('partner_id').notNull().references(() => implementing_partners.id),
+    reviewer: text('reviewer').notNull(),
+    project: text('project').notNull().default(''),
+    rating: integer('rating').notNull(),
+    comment: text('comment').notNull().default(''),
+    evaluated_at: timestamp('evaluated_at').defaultNow(),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

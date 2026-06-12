@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Briefcase, CheckCircle, FileCheck, Mail, MapPin, Star, Tag, User } from 'lucide-react';
 import type { Partner, PartnerSector, PartnerStatus } from '../../../../types';
 import { useLocalization } from '../../../../hooks/useLocalization';
+import { useProjects } from '../../../../hooks/useProjects';
 import { useToast } from '../../../../hooks/useToast';
 import { formatCurrency } from '../../../../lib/utils';
 import { EditActions, fieldClass } from '../shared';
+import { computePartnerProjectStats, getPartnerCustomFieldString } from '../partnerProjectUtils';
 
 const STATUS_STYLES: Record<string, string> = {
     'نشط': 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300',
@@ -40,6 +42,7 @@ interface OverviewTabProps {
 const OverviewTab: React.FC<OverviewTabProps> = ({ partner, onPartnerUpdate, isSaving = false }) => {
     const { t, language } = useLocalization(['partners', 'common']);
     const toast = useToast();
+    const { data: allProjects = [] } = useProjects();
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState({
         status: partner.status,
@@ -56,9 +59,17 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ partner, onPartnerUpdate, isS
     const primaryContact = partner.contacts?.find((c) => c.isPrimary) ?? partner.contacts?.[0];
     const isEligible = partner.status === 'نشط';
 
-    // PLACEHOLDER: Agreement/compliance derived from status until dedicated backend exists
-    const hasAgreement = partner.status !== 'غير نشط';
-    const complianceCurrent = partner.status !== 'قيد المراجعة';
+    const agreementStatus = getPartnerCustomFieldString(partner.customFields, 'agreement_status');
+    const complianceStatus = getPartnerCustomFieldString(partner.customFields, 'due_diligence_status');
+
+    const projectStats = useMemo(
+        () => computePartnerProjectStats(allProjects, partner),
+        [allProjects, partner],
+    );
+    const hasLinkedProjects = projectStats.linkedProjects.length > 0;
+    const activeProjects = hasLinkedProjects ? projectStats.activeProjects : partner.projectsInProgress;
+    const completedProjects = hasLinkedProjects ? projectStats.completedProjects : partner.projectsCompleted;
+    const totalBudget = hasLinkedProjects ? projectStats.totalBudget : partner.budget;
 
     const handleSave = () => {
         if (!form.country.trim()) {
@@ -162,17 +173,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ partner, onPartnerUpdate, isS
                 </div>
 
                 <div className="bg-gray-50 dark:bg-slate-700/50 p-5 rounded-xl space-y-4">
-                    {/* PLACEHOLDER: Agreement status — no agreements backend yet */}
                     <OverviewRow
                         icon={<FileCheck size={18} />}
                         label={t('partners.detail.overview.agreementStatus')}
-                        value={hasAgreement ? t('partners.detail.overview.agreementActive') : t('partners.detail.overview.agreementNone')}
+                        value={agreementStatus ?? t('partners.detail.overview.agreementNone')}
                     />
-                    {/* PLACEHOLDER: Compliance status — no compliance backend yet */}
                     <OverviewRow
                         icon={<MapPin size={18} />}
                         label={t('partners.detail.overview.complianceStatus')}
-                        value={complianceCurrent ? t('partners.detail.overview.complianceCurrent') : t('partners.detail.overview.compliancePending')}
+                        value={complianceStatus ?? t('partners.detail.overview.compliancePending')}
                     />
                 </div>
             </div>
@@ -181,16 +190,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ partner, onPartnerUpdate, isS
                 <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl text-center">
                     <Briefcase className="mx-auto mb-2 text-blue-600" size={24} />
                     <p className="text-sm text-gray-500">{t('partners.detail.overview.activeProjects')}</p>
-                    <p className="text-2xl font-bold">{partner.projectsInProgress}</p>
+                    <p className="text-2xl font-bold">{activeProjects}</p>
                 </div>
                 <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl text-center">
                     <CheckCircle className="mx-auto mb-2 text-green-600" size={24} />
                     <p className="text-sm text-gray-500">{t('partners.detail.overview.completedProjects')}</p>
-                    <p className="text-2xl font-bold">{partner.projectsCompleted}</p>
+                    <p className="text-2xl font-bold">{completedProjects}</p>
                 </div>
                 <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl text-center">
                     <p className="text-sm text-gray-500">{t('partners.detail.overview.totalBudget')}</p>
-                    <p className="text-2xl font-bold">{formatCurrency(partner.budget, language)}</p>
+                    <p className="text-2xl font-bold">{formatCurrency(totalBudget, language)}</p>
                 </div>
             </div>
         </div>

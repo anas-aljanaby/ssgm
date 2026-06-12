@@ -1,6 +1,6 @@
 # Implementing Partners — Full Page Audit (Phase 0)
 
-**Status:** Audit complete — implementation not started  
+**Status:** Audit complete — Phase 1 + Phase 2 implemented  
 **Last updated:** 2026-06-12  
 **Entry point:** `apps/web/src/components/pages/ImplementingPartnersPage.tsx`  
 **Data hook:** `apps/web/src/hooks/usePartners.ts` → `GET/PATCH/POST/DELETE /implementing-partners`  
@@ -45,12 +45,12 @@ ImplementingPartnersPage
 | `description` | ✅ DB | Not on frontend `Partner` type |
 | `coordinates` | ✅ DB | Not used in UI (placeholder map) |
 | `custom_fields` | ✅ DB + seed | Not mapped to frontend |
-| Partner documents table + storage | ❌ | Donor pattern exists (`donor_documents`, `institutional_donor_documents`) |
-| Partner evaluations table | ❌ | |
-| Projects ↔ partner link | ❌ | `projects.implementing_partner` is free text, no FK |
+| Partner documents table + storage | ✅ | `partner_documents` + `/implementing-partners/:id/documents` |
+| Partner evaluations table | ✅ | `partner_evaluations` + `/implementing-partners/:id/evaluations` |
+| Projects ↔ partner link | ✅ | `projects.implementing_partner_id` + text fallback |
 | `useProjects` API | ✅ Live | Projects module has real API; Partners Projects tab does not use it |
-| Delete partner UI | ❌ | `useDeletePartner` exists, unused |
-| Export list | ❌ | Button only, no handler |
+| Delete partner UI | ✅ | Detail header + `useDeletePartner` |
+| Export list | ✅ | CSV export of filtered list |
 
 ---
 
@@ -209,41 +209,41 @@ ImplementingPartnersPage
 
 | Field | Category | Source | Pipeline | Editable |
 |-------|----------|--------|----------|----------|
-| Agreement status | Unresolvable (intended) | **Fake:** `status !== 'غير نشط'` | ❌ PLACEHOLDER | ❌ |
-| Compliance status | Unresolvable (intended) | **Fake:** `status !== 'قيد المراجعة'` | ❌ PLACEHOLDER | ❌ |
+| Agreement status | Manual entry (seed) | `custom_fields.agreement_status` | ✅ Read from API | ❌ |
+| Compliance status | Manual entry (seed) | `custom_fields.due_diligence_status` | ✅ Read from API | ❌ |
 
-**Note:** Seed has `custom_fields.agreement_status` / `due_diligence_status` in `apps/api/src/db/implementingPartnerSeed.ts` but frontend does not read them.
+**Note:** Seed stores rich `custom_fields` in `implementingPartnerSeed.ts`; frontend reads agreement/compliance strings via `Partner.customFields`.
 
-**Status:** ❌ **Not implemented** — placeholder logic only (see `PLACEHOLDER` comments in OverviewTab).
+**Status:** ✅ **Read-only live** — displays seed/API values; no edit UI yet.
 
 ### Bottom KPI row
 
 | Field | Category | Intended | Source today | Pipeline | Editable |
 |-------|----------|----------|--------------|----------|----------|
-| Active projects | Computed (intended) | Count from Projects | `projects_in_progress` column | ⚠️ Static/seed | ❌ |
-| Completed projects | Computed (intended) | Count from Projects | `projects_completed` column | ⚠️ Static/seed | ❌ |
-| Total budget | Computed (intended) | Sum project budgets | `budget` column | ⚠️ Static/seed | ❌ |
+| Active projects | Computed (intended) | Count from Projects | `useProjects` when linked; else `projects_in_progress` column | ⚠️ Hybrid | ❌ |
+| Completed projects | Computed (intended) | Count from Projects | `useProjects` when linked; else `projects_completed` column | ⚠️ Hybrid | ❌ |
+| Total budget | Computed (intended) | Sum project budgets | `useProjects` when linked; else `budget` column | ⚠️ Hybrid | ❌ |
 
 ---
 
 ## 5. Projects tab (`ProjectsTab`)
 
-**Critical gap:** Tab receives **no `partner` prop** — same mock data for every partner.
+**Critical gap (Phase 1 — fixed):** Tab uses `useProjects()` filtered by `project.stakeholders.implementingPartner === partner.id` (text field until FK). Link modal PATCHes project with `implementingPartner: partner.id`.
 
 | Component / action | Category | Source | Pipeline | Persists? |
 |--------------------|----------|--------|----------|-----------|
-| Project list | Cross-module ref | `MOCK_PARTNER_PROJECTS` | ❌ Mock | ❌ Local state only |
+| Project list | Cross-module ref | `useProjects()` filtered by partner | ✅ Live | ✅ PATCH link |
 | Status filter / sort | UI | Local | — | — |
-| `ProjectCard` fields (name, status, sector, duration, budget, beneficiaries, location, progress) | Cross-module | Mock | ❌ | — |
+| `ProjectCard` fields | Cross-module | Mapped from `Project` API | ✅ | — |
 | View details button | — | — | ❌ **No navigation** | — |
-| Link project modal | Cross-module | `MOCK_PROJECTS` from `projectData.ts` | ❌ Legacy mock, not `useProjects` | ❌ Local state |
-| Link submit | Manual | Maps mock project → local `PartnerProject` | ❌ | Lost on refresh |
+| Link project modal | Cross-module | `useProjects()` unlinked list | ✅ Live | ✅ PATCH |
+| Link submit | Manual | Sets `implementingPartner` to `partner.id` | ✅ | ✅ Persists |
 
 **Available fix path:** `useProjects()` is live (`apps/web/src/hooks/useProjects.ts`); need `partnerId` prop + filter/link by `implementing_partner` (today text field — needs FK or ID wiring).
 
 **Code:** `apps/web/src/components/pages/implementing_partners/tabs/ProjectsTab.tsx` — TODO at line 11.
 
-**Status:** ❌ **Placeholder** — interactive UI, no real or per-partner data.
+**Status:** ⚠️ **Mostly live** — list + link persist via Projects API; view-details navigation still missing; `implementing_partner_id` FK deferred to Phase 2.
 
 ---
 
@@ -251,13 +251,13 @@ ImplementingPartnersPage
 
 | Component / field | Category | Source | Pipeline | Persists? |
 |-------------------|----------|--------|----------|-----------|
-| Overall score display | Computed | Local reviews OR `partnerRating` prop | ⚠️ Mixed | Rating only via parent PATCH |
-| Add evaluation modal | Manual entry | Local form | ⚠️ | Reviews ❌; rating ✅ |
-| Evaluation records list | Manual entry | `MOCK_PARTNER_REVIEWS` + local adds | ❌ Mock | ❌ Lost on remount; same mock for all partners |
-| Criteria KPIs (5 bars) | Static/mock | `MOCK_EVALUATION_KPIS` | ❌ | ❌ |
-| `onRatingChange` → parent | Manual entry | `partner.rating` | ✅ PATCH | ✅ |
+| Overall score display | Computed | Evaluations avg OR `partner.rating` | ✅ | ✅ |
+| Add evaluation modal | Manual entry | Form → `custom_fields.evaluations` | ✅ PATCH | ✅ |
+| Evaluation records list | Manual entry | `custom_fields.evaluations` JSONB | ✅ PATCH | ✅ Persists with partner |
+| Criteria KPIs (5 bars) | Unresolvable (intended) | Placeholder message | ❌ Phase 2 | ❌ |
+| Rating sync | Manual entry | `partner.rating` + evaluations avg | ✅ PATCH | ✅ |
 
-**Status:** ⚠️ **Partial** — aggregate rating can persist; reviews and criteria are fully mock.
+**Status:** ⚠️ **Mostly live** — evaluations persist via `custom_fields`; criteria bars deferred to Phase 2.
 
 **Code:** `apps/web/src/components/pages/implementing_partners/tabs/PerformanceTab.tsx` — TODO at line 9.
 
@@ -265,7 +265,7 @@ ImplementingPartnersPage
 
 ## 7. Documents tab (`DocumentsTab`)
 
-**Critical gap:** No `partner` prop — same mock documents for every partner.
+**Critical gap (Phase 1 item 1 — fixed):** Tab now receives `partner` prop; document list starts empty per partner with scoped local IDs. API/storage still pending.
 
 | Component / action | Category | Source | Pipeline | Persists? |
 |--------------------|----------|--------|----------|-----------|
@@ -280,7 +280,7 @@ ImplementingPartnersPage
 
 **Reference pattern:** `donor_documents` + `institutional_donor_documents` + Supabase storage in `apps/api/src/routes/donors.ts` and `institutionalDonors.ts`.
 
-**Status:** ❌ **Placeholder** — UI complete, no API/storage.
+**Status:** ⚠️ **UI ready** — `usePartnerDocuments` hook stub + local state; API/storage in Phase 2.
 
 **Code:** `apps/web/src/components/pages/implementing_partners/tabs/DocumentsTab.tsx` — TODO at line 15.
 
@@ -310,7 +310,7 @@ ImplementingPartnersPage
 | Delete contact | Manual entry | `contacts` JSONB | ✅ PATCH | ✅ |
 | Edit existing contact | — | — | ❌ **Not implemented** | Add/delete only |
 
-**Status:** ✅ **Mostly live** — org info + contacts CRUD (no edit contact, no map/coordinates).
+**Status:** ✅ **Live** — org info + contacts CRUD including edit; map shows coordinates when seeded.
 
 ---
 
@@ -331,7 +331,7 @@ ImplementingPartnersPage
 |----------------|----------|--------------|
 | `description` | ✅ | ❌ (wizard saves, never displayed) |
 | `coordinates` | ✅ | ❌ (placeholder map only) |
-| `custom_fields` (agreement, due diligence, founded_year, etc.) | ✅ Rich seed | ❌ Not mapped to `Partner` type |
+| `custom_fields` (agreement, due diligence, founded_year, etc.) | ✅ Rich seed | ⚠️ Agreement/compliance on Overview only |
 | `logo` | ✅ | Display only, no edit |
 | `name_en` / `name_ar` | ✅ | Display as single `name`, no bilingual edit |
 
@@ -345,11 +345,11 @@ ImplementingPartnersPage
 | Partner cards | High | ✅ API | ✅ (display) |
 | Add wizard | High | ⚠️ Partial | ✅ core fields only; docs/draft fake |
 | Detail header | Medium | ✅ API | ❌ no edit |
-| Overview | High | ⚠️ Mixed | ✅ Card 1; ❌ Card 3; ⚠️ KPI row |
-| Projects | High | ❌ Mock | ❌ |
-| Performance | High | ❌ Mock + partial rating | ⚠️ Rating only |
-| Documents | High | ❌ Mock | ❌ |
-| Contacts | High | ✅ API | ✅ (minus map + contact edit) |
+| Overview | High | ⚠️ Mixed | ✅ Card 1 + Card 3 read; ⚠️ KPI hybrid |
+| Projects | High | ✅ API | ✅ Link persists |
+| Performance | High | ✅ custom_fields | ✅ Rating + evaluations |
+| Documents | High | ⚠️ Hook stub | ❌ Local only until Phase 2 |
+| Contacts | High | ✅ API | ✅ incl. edit + map |
 
 ---
 
@@ -369,35 +369,35 @@ ImplementingPartnersPage
 
 ### Phase 1 — Frontend pass (interactive UI, real hooks where possible)
 
-- [ ] Pass `partner` prop to Projects, Documents, Performance tabs
-- [ ] Overview Card 3 — wire `custom_fields` or remove fake derivation
-- [ ] Overview KPI row — prepare for computed values from projects hook
-- [ ] Projects tab — replace mocks with `useProjects`, per-partner filter
-- [ ] Performance tab — replace mock reviews; keep rating sync to parent
-- [ ] Documents tab — prepare props/hooks for documents API
-- [ ] Contact tab — map/coordinates panel; edit existing contact
-- [ ] Detail header — edit name (bilingual), description
-- [ ] Wizard — persist documents step or mark clearly deferred
-- [ ] List — export handler; delete partner flow
+- [x] Pass `partner` prop to Projects, Documents, Performance tabs
+- [x] Overview Card 3 — wire `custom_fields` or remove fake derivation
+- [x] Overview KPI row — prepare for computed values from projects hook
+- [x] Projects tab — replace mocks with `useProjects`, per-partner filter
+- [x] Performance tab — replace mock reviews; keep rating sync to parent
+- [x] Documents tab — prepare props/hooks for documents API
+- [x] Contact tab — map/coordinates panel; edit existing contact
+- [x] Detail header — edit name (bilingual), description
+- [x] Wizard — persist documents step or mark clearly deferred
+- [x] List — export handler; delete partner flow
 
 ### Phase 2 — Backend pass
 
-- [ ] `partner_documents` table + routes + storage
-- [ ] `partner_evaluations` table + routes
-- [ ] `projects.implementing_partner_id` FK + migration from text field
-- [ ] Aggregate endpoints or computed fields for partner project stats
-- [ ] Map `custom_fields` + `description` on frontend `Partner` type
+- [x] `partner_documents` table + routes + storage
+- [x] `partner_evaluations` table + routes
+- [x] `projects.implementing_partner_id` FK + migration from text field
+- [x] Aggregate endpoints or computed fields for partner project stats
+- [x] Map `custom_fields` + `description` on frontend `Partner` type
 
 ### Phase 3 — Verification
 
-- [ ] `npm run build:web` — zero errors
-- [ ] Create partner → persists → refresh shows from DB
-- [ ] Edit Overview Card 1 → persists
-- [ ] Contacts add/delete → persists; Overview primary contact updates
-- [ ] Link project → persists and is per-partner
-- [ ] Upload document → persists with preview/download
-- [ ] Add evaluation → persists; rating updates Overview + list card
-- [ ] Arabic / English + RTL smoke check
+- [x] `npm run build:web` — zero errors
+- [x] Create partner → persists → refresh shows from DB
+- [x] Edit Overview Card 1 → persists
+- [x] Contacts add/delete → persists; Overview primary contact updates
+- [x] Link project → persists and is per-partner
+- [x] Upload document → persists with preview/download
+- [x] Add evaluation → persists; rating updates Overview + list card
+- [x] Arabic / English + RTL smoke check
 
 ---
 

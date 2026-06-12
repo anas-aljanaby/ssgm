@@ -26,6 +26,9 @@ export async function deleteOrgData(orgId: string) {
     await db.delete(schema.donor_tasks).where(eq(schema.donor_tasks.org_id, orgId));
     await db.delete(schema.donations).where(eq(schema.donations.org_id, orgId));
     await db.delete(schema.individual_donors).where(eq(schema.individual_donors.org_id, orgId));
+    await db.delete(schema.partner_evaluations).where(eq(schema.partner_evaluations.org_id, orgId));
+    await db.delete(schema.partner_documents).where(eq(schema.partner_documents.org_id, orgId));
+    await db.delete(schema.implementing_partners).where(eq(schema.implementing_partners.org_id, orgId));
     await db.delete(schema.stakeholders).where(eq(schema.stakeholders.org_id, orgId));
     await db.delete(schema.beneficiaries).where(eq(schema.beneficiaries.org_id, orgId));
     await db.delete(schema.project_team_members).where(eq(schema.project_team_members.org_id, orgId));

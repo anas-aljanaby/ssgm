@@ -62,5 +62,22 @@ export const createPartnerSchema = partnerBaseSchema.superRefine((data, ctx) => 
 
 export const updatePartnerSchema = partnerBaseSchema.partial();
 
+export const partnerDocumentCategorySchema = z.enum([
+    'agreements',
+    'legalCompliance',
+    'reports',
+    'correspondence',
+    'media',
+    'projectReports',
+]);
+
+export const createPartnerEvaluationSchema = z.object({
+    reviewer: z.string().min(1),
+    project: z.string().min(1),
+    rating: z.number().int().min(1).max(5),
+    comment: z.string().min(1),
+});
+
 export type CreatePartner = z.infer<typeof createPartnerSchema>;
 export type UpdatePartner = z.infer<typeof updatePartnerSchema>;
+export type CreatePartnerEvaluation = z.infer<typeof createPartnerEvaluationSchema>;

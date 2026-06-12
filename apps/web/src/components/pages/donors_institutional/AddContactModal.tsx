@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ModalPortal from '../../common/ModalPortal';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
@@ -10,9 +10,11 @@ interface AddContactModalProps {
     isOpen: boolean;
     onClose: () => void;
     onAdd: (contact: Omit<ContactPerson, 'id'>) => void;
+    contactToEdit?: ContactPerson | null;
+    onUpdate?: (contact: ContactPerson) => void;
 }
 
-const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onAdd }) => {
+const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onAdd, contactToEdit = null, onUpdate }) => {
     const { t } = useLocalization(['common', 'institutional_donors']);
     const toast = useToast();
 
@@ -25,6 +27,32 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onAd
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const isEditing = !!contactToEdit;
+
+    useEffect(() => {
+        if (!isOpen) return;
+        if (contactToEdit) {
+            setName(contactToEdit.name);
+            setPosition(contactToEdit.position);
+            setEmail(contactToEdit.email);
+            setPhone(contactToEdit.phone ?? '');
+            setWhatsapp(contactToEdit.whatsapp ?? '');
+            setIsPrimary(contactToEdit.isPrimary ?? false);
+            setPhotoPreview(contactToEdit.photoUrl || null);
+            setPhoto(null);
+            setErrors({});
+            return;
+        }
+        setName('');
+        setPosition('');
+        setEmail('');
+        setPhone('');
+        setWhatsapp('');
+        setIsPrimary(false);
+        setPhoto(null);
+        setPhotoPreview(null);
+        setErrors({});
+    }, [isOpen, contactToEdit]);
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles[0]) {
@@ -59,15 +87,28 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onAd
             toast.showError(t('institutional_donors.documentsTab.fixFormErrors'));
             return;
         }
-        onAdd({
-            name,
-            position,
-            email,
-            phone,
-            whatsapp,
-            isPrimary,
-            photoUrl: photoPreview || '',
-        });
+        if (isEditing && contactToEdit && onUpdate) {
+            onUpdate({
+                ...contactToEdit,
+                name,
+                position,
+                email,
+                phone,
+                whatsapp,
+                isPrimary,
+                photoUrl: photoPreview || contactToEdit.photoUrl || '',
+            });
+        } else {
+            onAdd({
+                name,
+                position,
+                email,
+                phone,
+                whatsapp,
+                isPrimary,
+                photoUrl: photoPreview || '',
+            });
+        }
         setName('');
         setPosition('');
         setEmail('');
@@ -84,7 +125,9 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onAd
         <ModalPortal isOpen={isOpen} onClose={onClose}>
             <div className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
-                    <h2 className="text-xl font-bold">{t('institutional_donors.detail.addContactTitle')}</h2>
+                    <h2 className="text-xl font-bold">
+                        {isEditing ? t('institutional_donors.detail.editContactTitle', 'Edit Contact') : t('institutional_donors.detail.addContactTitle')}
+                    </h2>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"><XIcon /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="flex-grow contents">

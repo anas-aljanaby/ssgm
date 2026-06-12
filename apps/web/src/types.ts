@@ -1544,6 +1544,8 @@ export type PartnerSector = 'التعليم' | 'الصحة' | 'الإغاثة' |
 export interface Partner {
     id: string;
     name: string;
+    nameAr: string;
+    nameEn: string;
     logo: string;
     country: string;
     sector: PartnerSector;
@@ -1552,12 +1554,14 @@ export interface Partner {
     projectsInProgress: number;
     rating: number;
     budget: number;
+    description?: string;
     phone?: string;
     email?: string;
     website?: string;
     address?: string;
     coordinates?: { lat: number, lng: number } | null;
     contacts?: ContactPerson[];
+    customFields?: Record<string, unknown>;
 }
 
 // Anomaly Detection
