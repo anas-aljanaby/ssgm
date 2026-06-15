@@ -948,7 +948,7 @@ export interface Decision { id: string; title: Record<Language, string>; date: s
 export type ComplianceStatus = 'compliant' | 'partially-compliant' | 'non-compliant' | 'not-assessed';
 export interface ComplianceRequirement { id: string; code: string; title: Record<Language, string>; source: string; sourceName: Record<Language, string>; priority: 'high' | 'medium' | 'low'; nextDueDate: string; status: 'active' | 'inactive'; }
 export interface Assessment { id: string; requirementId: string; date: string; status: ComplianceStatus; score: number; assessorId: string; findings?: Record<Language, string>; }
-export interface AuditLog { id: number; module: string; recordType: string; recordId: string; action: string; userId: string; timestamp: string; }
+export interface AuditLog { id: string; module: string; recordType: string; recordId: string; action: string; userId: string; timestamp: string; }
 export interface GrcData {
     policies: Policy[];
     decisions: Decision[];

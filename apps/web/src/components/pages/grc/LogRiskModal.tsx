@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
-import { useToast } from '../../../hooks/useToast';
 import type { GrcRiskLevel } from '../../../types';
 
 export interface LogRiskPayload {
@@ -16,20 +15,19 @@ export interface LogRiskPayload {
 
 interface LogRiskModalProps {
   onClose: () => void;
-  onLog: (payload: LogRiskPayload) => void;
+  onLog: (payload: LogRiskPayload) => void | Promise<void>;
 }
 
 const CATEGORY_OPTIONS = ['cyber', 'financial', 'compliance', 'operational', 'reputational'] as const;
 
 const LogRiskModal: React.FC<LogRiskModalProps> = ({ onClose, onLog }) => {
   const { t } = useLocalization(['common', 'grc']);
-  const { showSuccess } = useToast();
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<string>('operational');
   const [impact, setImpact] = useState(3);
   const [probability, setProbability] = useState(3);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const score = impact * probability;
     let level: GrcRiskLevel = 'Low';
@@ -42,17 +40,20 @@ const LogRiskModal: React.FC<LogRiskModalProps> = ({ onClose, onLog }) => {
       ar: description,
     };
 
-    onLog({
-      risk: localizedRisk,
-      category,
-      impact,
-      probability,
-      score,
-      level,
-      scope: 'global',
-    });
-    showSuccess(t('grc.risk.toasts.logged'));
-    onClose();
+    try {
+      await onLog({
+        risk: localizedRisk,
+        category,
+        impact,
+        probability,
+        score,
+        level,
+        scope: 'organization',
+      });
+      onClose();
+    } catch {
+      // Parent handles error toast; keep modal open.
+    }
   };
 
   return (

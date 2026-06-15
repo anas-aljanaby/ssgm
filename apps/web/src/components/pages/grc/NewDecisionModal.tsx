@@ -1,7 +1,9 @@
-import React from 'react';
-import { X } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Loader2 } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
+import { useCreateGrcDecision } from '../../../hooks/useGrc';
+import type { Decision } from '../../../types';
 
 interface NewDecisionModalProps {
   isOpen: boolean;
@@ -10,12 +12,31 @@ interface NewDecisionModalProps {
 
 const NewDecisionModal: React.FC<NewDecisionModalProps> = ({ isOpen, onClose }) => {
   const { t } = useLocalization(['common', 'grc']);
-  const { showSuccess } = useToast();
+  const { showSuccess, showError } = useToast();
+  const createDecision = useCreateGrcDecision();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [impact, setImpact] = useState<Decision['impact']>('medium');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showSuccess(t('grc.governance.toasts.decisionLogged'));
-    onClose();
+    if (!title.trim()) return;
+
+    try {
+      await createDecision.mutateAsync({
+        title: { en: title.trim(), ar: title.trim() },
+        date,
+        impact,
+      });
+      showSuccess(t('grc.governance.toasts.decisionLogged'));
+      setTitle('');
+      setDate(new Date().toISOString().slice(0, 10));
+      setImpact('medium');
+      onClose();
+    } catch (err) {
+      showError(err instanceof Error ? err.message : t('common.error'));
+    }
   };
 
   if (!isOpen) return null;
@@ -47,6 +68,8 @@ const NewDecisionModal: React.FC<NewDecisionModalProps> = ({ isOpen, onClose }) 
               </label>
               <input
                 type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 required
                 className="mt-1 block w-full p-2 border rounded-md bg-gray-50 dark:bg-slate-800 dark:border-slate-700"
               />
@@ -58,6 +81,9 @@ const NewDecisionModal: React.FC<NewDecisionModalProps> = ({ isOpen, onClose }) 
                 </label>
                 <input
                   type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
                   className="mt-1 block w-full p-2 border rounded-md bg-gray-50 dark:bg-slate-800 dark:border-slate-700"
                 />
               </div>
@@ -65,7 +91,11 @@ const NewDecisionModal: React.FC<NewDecisionModalProps> = ({ isOpen, onClose }) 
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t('grc.governance.decisionImpact')}
                 </label>
-                <select className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800 dark:border-slate-700">
+                <select
+                  value={impact}
+                  onChange={(e) => setImpact(e.target.value as Decision['impact'])}
+                  className="w-full p-2 mt-1 border rounded-md bg-gray-50 dark:bg-slate-800 dark:border-slate-700"
+                >
                   <option value="low">{t('grc.governance.impactLevels.low')}</option>
                   <option value="medium">{t('grc.governance.impactLevels.medium')}</option>
                   <option value="high">{t('grc.governance.impactLevels.high')}</option>
@@ -83,8 +113,10 @@ const NewDecisionModal: React.FC<NewDecisionModalProps> = ({ isOpen, onClose }) 
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold"
+              disabled={createDecision.isPending}
+              className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold flex items-center gap-2 disabled:opacity-50"
             >
+              {createDecision.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
               {t('common.save')}
             </button>
           </div>

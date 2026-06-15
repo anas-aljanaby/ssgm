@@ -18,6 +18,7 @@ import { institutionalDonorsRouter } from './routes/institutionalDonors';
 import { staffRouter } from './routes/staff';
 import { platformRouter } from './routes/platform';
 import { modulesRouter } from './routes/modules';
+import { grcRouter } from './routes/grc';
 
 type Variables = {
     user: User;
@@ -80,6 +81,7 @@ app.route('/institutional-donors', institutionalDonorsRouter);
 app.route('/staff', staffRouter);
 app.route('/platform', platformRouter);
 app.route('/modules', modulesRouter);
+app.route('/grc', grcRouter);
 
 const port = Number(process.env.PORT) || 3000;
 

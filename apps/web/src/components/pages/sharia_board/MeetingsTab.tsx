@@ -16,16 +16,23 @@ import type { ShariaMeeting } from '../../../types';
 import { MOCK_SHARIA_BOARD_MEMBERS, MOCK_SHARIA_MEETINGS } from '../../../data/shariaBoardData';
 import { formatDate } from '../../../lib/utils';
 
+type ScheduleMeetingInput = {
+  title: { en: string; ar: string };
+  date: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  attendees: string[];
+  agenda: {
+    topic: { en: string; ar: string };
+    presenter: string;
+  }[];
+};
+
 interface ScheduleMeetingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddMeeting: (meeting: {
-    title: { en: string; ar: string };
-    date: string;
-    startTime: string;
-    endTime: string;
-    location: string;
-  }) => void;
+  onAddMeeting: (meeting: ScheduleMeetingInput) => void;
 }
 
 const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
@@ -33,30 +40,63 @@ const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
   onClose,
   onAddMeeting,
 }) => {
-  const { t } = useLocalization(['sharia', 'common']);
-  const [title, setTitle] = useState('');
+  const { t, language } = useLocalization(['sharia', 'common']);
+  const defaultAttendeeIds = MOCK_SHARIA_BOARD_MEMBERS.filter((member) => member.status === 'Active').map((member) => member.id);
+  const [titleEn, setTitleEn] = useState('');
+  const [titleAr, setTitleAr] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [startTime, setStartTime] = useState('10:00');
   const [endTime, setEndTime] = useState('11:00');
   const [location, setLocation] = useState('');
+  const [attendeeIds, setAttendeeIds] = useState<string[]>(defaultAttendeeIds);
+  const [agendaTopicEn, setAgendaTopicEn] = useState('');
+  const [agendaTopicAr, setAgendaTopicAr] = useState('');
+  const [agendaPresenter, setAgendaPresenter] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !date || !startTime || !endTime) return;
+    if ((!titleEn.trim() && !titleAr.trim()) || !date || !startTime || !endTime || !location.trim()) return;
 
     setIsSubmitting(true);
+    const agenda =
+      agendaTopicEn.trim() || agendaTopicAr.trim()
+        ? [{
+            topic: {
+              en: agendaTopicEn.trim() || agendaTopicAr.trim(),
+              ar: agendaTopicAr.trim() || agendaTopicEn.trim(),
+            },
+            presenter: agendaPresenter.trim() || t('sharia.board.meetings.form.presenterFallback'),
+          }]
+        : [];
+
     onAddMeeting({
-      title: { en: title, ar: title },
+      title: {
+        en: titleEn.trim() || titleAr.trim(),
+        ar: titleAr.trim() || titleEn.trim(),
+      },
       date: new Date(date).toISOString(),
       startTime,
       endTime,
-      location,
+      location: location.trim(),
+      attendees: attendeeIds,
+      agenda,
     });
-    setTitle('');
+    setTitleEn('');
+    setTitleAr('');
     setLocation('');
+    setAttendeeIds(defaultAttendeeIds);
+    setAgendaTopicEn('');
+    setAgendaTopicAr('');
+    setAgendaPresenter('');
     setIsSubmitting(false);
     onClose();
+  };
+
+  const toggleAttendee = (memberId: string) => {
+    setAttendeeIds((current) =>
+      current.includes(memberId) ? current.filter((id) => id !== memberId) : [...current, memberId],
+    );
   };
 
   if (!isOpen) return null;
@@ -67,7 +107,7 @@ const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-lg m-4"
+        className="bg-card dark:bg-dark-card rounded-2xl shadow-xl w-full max-w-2xl m-4 max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b dark:border-slate-700">
@@ -81,20 +121,32 @@ const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
           </button>
         </div>
         <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium">{t('sharia.board.meetings.form.title')}</label>
+          <div className="p-6 space-y-5 overflow-y-auto max-h-[calc(90vh-145px)]">
+            <div className="grid grid-cols-2 gap-4">
+              <label className="block">
+                <span className="block text-sm font-medium">{t('sharia.board.meetings.form.titleEn')}</span>
               <input
                 type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                  value={titleEn}
+                  onChange={(e) => setTitleEn(e.target.value)}
                 required
                 className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
               />
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium">{t('sharia.board.meetings.form.titleAr')}</span>
+                <input
+                  type="text"
+                  value={titleAr}
+                  onChange={(e) => setTitleAr(e.target.value)}
+                  dir="rtl"
+                  className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
+                />
+              </label>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">{t('sharia.board.meetings.form.date')}</label>
+              <label className="block">
+                <span className="block text-sm font-medium">{t('sharia.board.meetings.form.date')}</span>
                 <input
                   type="date"
                   value={date}
@@ -102,9 +154,9 @@ const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                   required
                   className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">{t('sharia.board.meetings.form.location')}</label>
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium">{t('sharia.board.meetings.form.location')}</span>
                 <input
                   type="text"
                   value={location}
@@ -113,11 +165,11 @@ const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                   required
                   className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
                 />
-              </div>
+              </label>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">{t('sharia.board.meetings.form.startTime')}</label>
+              <label className="block">
+                <span className="block text-sm font-medium">{t('sharia.board.meetings.form.startTime')}</span>
                 <input
                   type="time"
                   value={startTime}
@@ -125,9 +177,9 @@ const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                   required
                   className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">{t('sharia.board.meetings.form.endTime')}</label>
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium">{t('sharia.board.meetings.form.endTime')}</span>
                 <input
                   type="time"
                   value={endTime}
@@ -135,7 +187,58 @@ const ScheduleMeetingModal: React.FC<ScheduleMeetingModalProps> = ({
                   required
                   className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
                 />
+              </label>
+            </div>
+            <div>
+              <p className="text-sm font-medium">{t('sharia.board.meetings.form.attendees')}</p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {MOCK_SHARIA_BOARD_MEMBERS.map((member) => (
+                  <label key={member.id} className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={attendeeIds.includes(member.id)}
+                      onChange={() => toggleAttendee(member.id)}
+                      className="rounded border-gray-300 text-secondary focus:ring-secondary"
+                    />
+                    <span>{member.name[language]}</span>
+                  </label>
+                ))}
               </div>
+            </div>
+            <div className="rounded-xl border border-gray-200 p-4 dark:border-slate-700">
+              <p className="text-sm font-bold">{t('sharia.board.meetings.form.agendaSection')}</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('sharia.board.meetings.form.agendaHint')}</p>
+              <div className="mt-3 grid grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="block text-sm font-medium">{t('sharia.board.meetings.form.agendaTopicEn')}</span>
+                  <input
+                    type="text"
+                    value={agendaTopicEn}
+                    onChange={(e) => setAgendaTopicEn(e.target.value)}
+                    placeholder={t('sharia.board.meetings.form.agendaPlaceholder')}
+                    className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
+                  />
+                </label>
+                <label className="block">
+                  <span className="block text-sm font-medium">{t('sharia.board.meetings.form.agendaTopicAr')}</span>
+                  <input
+                    type="text"
+                    value={agendaTopicAr}
+                    onChange={(e) => setAgendaTopicAr(e.target.value)}
+                    dir="rtl"
+                    className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
+                  />
+                </label>
+              </div>
+              <label className="mt-3 block">
+                <span className="block text-sm font-medium">{t('sharia.board.meetings.form.agendaPresenter')}</span>
+                <input
+                  type="text"
+                  value={agendaPresenter}
+                  onChange={(e) => setAgendaPresenter(e.target.value)}
+                  className="w-full p-2 mt-1 border rounded-md dark:bg-slate-800 dark:border-slate-600"
+                />
+              </label>
             </div>
           </div>
           <div className="px-6 py-4 bg-gray-50 dark:bg-dark-card/50 rounded-b-xl flex justify-end gap-3">
@@ -192,18 +295,10 @@ const MeetingsTab: React.FC = () => {
     new Date(2023, 0, i + 1).toLocaleDateString(language, { weekday: 'short' }),
   );
 
-  const handleAddMeeting = (input: {
-    title: { en: string; ar: string };
-    date: string;
-    startTime: string;
-    endTime: string;
-    location: string;
-  }) => {
+  const handleAddMeeting = (input: ScheduleMeetingInput) => {
     const newMeeting: ShariaMeeting = {
       ...input,
       id: `sm-${Date.now()}`,
-      attendees: [],
-      agenda: [],
     };
     setMeetings((prev) => [...prev, newMeeting]);
   };
@@ -353,26 +448,30 @@ const MeetingsTab: React.FC = () => {
                   {t('sharia.board.members.title')}
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {selectedMeeting.attendees?.map((attendeeId) => {
-                    const member = MOCK_SHARIA_BOARD_MEMBERS.find((m) => m.id === attendeeId);
-                    return member ? (
-                      <span
-                        key={attendeeId}
-                        className="text-xs px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded-full"
-                      >
-                        {member.name[language]}
-                      </span>
-                    ) : null;
-                  })}
+                  {selectedMeeting.attendees && selectedMeeting.attendees.length > 0 ? (
+                    selectedMeeting.attendees.map((attendeeId) => {
+                      const member = MOCK_SHARIA_BOARD_MEMBERS.find((m) => m.id === attendeeId);
+                      return member ? (
+                        <span
+                          key={attendeeId}
+                          className="text-xs px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded-full"
+                        >
+                          {member.name[language]}
+                        </span>
+                      ) : null;
+                    })
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('sharia.board.meetings.noAttendees')}</p>
+                  )}
                 </div>
               </div>
 
-              {selectedMeeting.agenda && selectedMeeting.agenda.length > 0 && (
-                <div>
-                  <h3 className="font-bold mb-2 flex items-center gap-2">
-                    <FileText size={18} />
-                    {t('sharia.meetings.agenda')}
-                  </h3>
+              <div>
+                <h3 className="font-bold mb-2 flex items-center gap-2">
+                  <FileText size={18} />
+                  {t('sharia.meetings.agenda')}
+                </h3>
+                {selectedMeeting.agenda && selectedMeeting.agenda.length > 0 ? (
                   <ul className="list-disc list-inside space-y-2 text-sm">
                     {selectedMeeting.agenda.map((item, index) => (
                       <li key={index}>
@@ -381,8 +480,10 @@ const MeetingsTab: React.FC = () => {
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('sharia.board.meetings.noAgenda')}</p>
+                )}
+              </div>
             </div>
 
             {selectedMeeting.minutesUrl && (

@@ -42,6 +42,13 @@ export async function deleteOrgData(orgId: string) {
     await db.delete(schema.bousala_goal_projects).where(eq(schema.bousala_goal_projects.org_id, orgId));
     await db.delete(schema.bousala_kpis).where(eq(schema.bousala_kpis.org_id, orgId));
     await db.delete(schema.bousala_goals).where(eq(schema.bousala_goals.org_id, orgId));
+    await db.delete(schema.grc_screening_alerts).where(eq(schema.grc_screening_alerts.org_id, orgId));
+    await db.delete(schema.grc_screening_entities).where(eq(schema.grc_screening_entities.org_id, orgId));
+    await db.delete(schema.grc_compliance_assessments).where(eq(schema.grc_compliance_assessments.org_id, orgId));
+    await db.delete(schema.grc_compliance_requirements).where(eq(schema.grc_compliance_requirements.org_id, orgId));
+    await db.delete(schema.grc_risks).where(eq(schema.grc_risks.org_id, orgId));
+    await db.delete(schema.grc_decisions).where(eq(schema.grc_decisions.org_id, orgId));
+    await db.delete(schema.grc_policies).where(eq(schema.grc_policies.org_id, orgId));
     await db.delete(schema.audit_log).where(eq(schema.audit_log.org_id, orgId));
     await db.delete(schema.modules).where(eq(schema.modules.org_id, orgId));
     await db.delete(schema.memberships).where(eq(schema.memberships.org_id, orgId));

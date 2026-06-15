@@ -19,7 +19,6 @@ import BottomNavBar from './components/layout/BottomNavBar';
 import AiFab from './components/common/AiFab';
 
 import { useHrData } from './hooks/useHrData';
-import { useGrcData } from './hooks/useGrcData';
 import { MOCK_PROJECTS } from './data/projectData';
 import { useModuleRouteGuard } from './hooks/useModuleRouteGuard';
 import {
@@ -37,14 +36,12 @@ interface ModuleRendererProps {
     onEnabledLanguagesChange: (langs: Language[]) => void;
     deepLinkTarget: { id?: string; tab?: string } | null;
     hrData: HrData;
-    grcData: ReturnType<typeof useGrcData>['grcData'];
-    dispatchGrcAction: ReturnType<typeof useGrcData>['dispatchGrcAction'];
 }
 
 const ModuleRenderer: React.FC<ModuleRendererProps> = ({
     activeModule, updateActiveModule, role,
     enabledLanguages, onEnabledLanguagesChange, deepLinkTarget,
-    hrData, grcData, dispatchGrcAction,
+    hrData,
 }) => {
     const { projects } = { projects: MOCK_PROJECTS as Project[] };
 
@@ -74,8 +71,9 @@ const ModuleRenderer: React.FC<ModuleRendererProps> = ({
         case 'settings':
             return <Page enabledLanguages={enabledLanguages} onEnabledLanguagesChange={onEnabledLanguagesChange} />;
         case 'grc':
-            return <Page grcData={grcData} dispatchGrcAction={dispatchGrcAction} />;
+            return <Page />;
         case 'sharia_compliance':
+        case 'sharia_board':
             return <Page setActiveModule={updateActiveModule} />;
         default:
             return <Page />;
@@ -100,7 +98,6 @@ function App() {
     const [deepLinkTarget, setDeepLinkTarget] = useState<{ id?: string; tab?: string } | null>(null);
 
     const { hrData } = useHrData();
-    const { grcData, dispatchGrcAction } = useGrcData();
 
     const updateActiveModule = useCallback((module: string) => {
         window.location.hash = module;
@@ -179,8 +176,6 @@ function App() {
                                         onEnabledLanguagesChange={setEnabledLanguages}
                                         deepLinkTarget={deepLinkTarget}
                                         hrData={hrData}
-                                        grcData={grcData}
-                                        dispatchGrcAction={dispatchGrcAction}
                                     />
                                 </Suspense>
                             </main>

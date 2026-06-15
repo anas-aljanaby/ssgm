@@ -1,6 +1,8 @@
-import React from 'react';
-import { X } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Loader2 } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useToast } from '../../../hooks/useToast';
+import { useUpdateGrcRisk } from '../../../hooks/useGrc';
 import type { GrcRisk } from '../../../types';
 import { getRiskLevelBadgeStyles } from './utils';
 
@@ -23,10 +25,32 @@ interface RiskDetailModalProps {
 
 const RiskDetailModal: React.FC<RiskDetailModalProps> = ({ risk, onClose }) => {
   const { t, language } = useLocalization(['common', 'grc', 'projects']);
+  const toast = useToast();
+  const updateRisk = useUpdateGrcRisk();
+  const [mitigationText, setMitigationText] = useState('');
 
   if (!risk) return null;
 
   const { text, bg } = getRiskLevelBadgeStyles(risk.level);
+
+  const handleUpdateMitigation = async () => {
+    const nextMitigation = mitigationText.trim()
+      ? [{ en: mitigationText.trim(), ar: mitigationText.trim() }, ...risk.mitigation]
+      : risk.mitigation;
+
+    try {
+      await updateRisk.mutateAsync({
+        id: risk.id,
+        mitigation: nextMitigation,
+        status: risk.status === 'identified' ? 'mitigating' : risk.status,
+      });
+      toast.showSuccess(t('grc.risk.toasts.updated'));
+      setMitigationText('');
+      onClose();
+    } catch (err) {
+      toast.showError(err instanceof Error ? err.message : t('common.error'));
+    }
+  };
 
   return (
     <div
@@ -77,6 +101,13 @@ const RiskDetailModal: React.FC<RiskDetailModalProps> = ({ risk, onClose }) => {
                 <li key={idx}>{item[language]}</li>
               ))}
             </ul>
+            <textarea
+              value={mitigationText}
+              onChange={(e) => setMitigationText(e.target.value)}
+              rows={2}
+              placeholder={t('grc.risk.mitigation.placeholder')}
+              className="mt-3 w-full p-2 border rounded-md dark:bg-slate-800 dark:border-slate-700 text-sm"
+            />
           </div>
         </div>
 
@@ -90,8 +121,11 @@ const RiskDetailModal: React.FC<RiskDetailModalProps> = ({ risk, onClose }) => {
           </button>
           <button
             type="button"
-            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold"
+            onClick={handleUpdateMitigation}
+            disabled={updateRisk.isPending}
+            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold flex items-center gap-2 disabled:opacity-50"
           >
+            {updateRisk.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
             {t('grc.risk.mitigation.update')}
           </button>
         </div>

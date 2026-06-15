@@ -2,76 +2,9 @@ import React, { useState } from 'react';
 import { Loader2, Search } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
-import {
-  saveEntity,
-  getEntities,
-  saveAlert,
-  getAlerts,
-  getStats,
-} from '../../../data/compliance';
-import type { ComplianceEntity, ComplianceEntityType, RiskLevel } from '../../../types';
+import { useGrcScreening, useScreenEntity, type ScreeningResult } from '../../../hooks/useGrc';
+import type { ComplianceEntityType, RiskLevel } from '../../../types';
 import { formatDate, formatNumber } from '../../../lib/utils';
-
-interface ScreeningResult {
-  risk_score: number;
-  risk_level: RiskLevel;
-  recommendation: 'approve' | 'review' | 'reject';
-  reasoning_en: string;
-  reasoning_ar: string;
-  matchDetails: string | null;
-}
-
-function simulateScreening(name: string, _type: ComplianceEntityType, country: string): ScreeningResult {
-  const nameLower = name.trim().toLowerCase();
-  const countryTrimmed = country.trim();
-
-  if (!nameLower || !countryTrimmed) {
-    return {
-      risk_score: 10,
-      risk_level: 'low',
-      recommendation: 'approve',
-      reasoning_en: 'Insufficient data provided for a meaningful match. No watchlist hits detected in simulated screening.',
-      reasoning_ar: 'البيانات المقدمة غير كافية لمطابقة ذات معنى. لم يتم رصد أي تطابق في الفحص المحاكى.',
-      matchDetails: null,
-    };
-  }
-
-  const highKeywords = ['sanction', 'sanctions', 'terror', 'ofac', 'blocked', 'embargo'];
-  if (highKeywords.some((k) => nameLower.includes(k) || countryTrimmed.toLowerCase().includes(k))) {
-    return {
-      risk_score: 88,
-      risk_level: 'high',
-      recommendation: 'reject',
-      reasoning_en: `Strong simulated match for "${name}" on international sanctions lists (OFAC/UN). Direct name similarity requires rejection pending manual review.`,
-      reasoning_ar: `تطابق محاكى قوي لـ "${name}" مع قوائم العقوبات الدولية (OFAC/UN). يتطلب التشابه المباشر الرفض بانتظار المراجعة اليدوية.`,
-      matchDetails: `Potential OFAC SDN match: ${name} (${countryTrimmed})`,
-    };
-  }
-
-  const mediumKeywords = ['global', 'international', 'trading', 'holdings', 'group'];
-  if (
-    mediumKeywords.some((k) => nameLower.includes(k)) ||
-    nameLower.split(/\s+/).length === 1
-  ) {
-    return {
-      risk_score: 55,
-      risk_level: 'medium',
-      recommendation: 'review',
-      reasoning_en: `Partial or ambiguous simulated match for "${name}". Common name or corporate structure warrants enhanced due diligence.`,
-      reasoning_ar: `تطابق محاكى جزئي أو غامض لـ "${name}". الاسم الشائع أو الهيكل المؤسسي يستدعي عناية واجبة معززة.`,
-      matchDetails: `Ambiguous PEP/adverse media partial match: ${name}`,
-    };
-  }
-
-  return {
-    risk_score: 18,
-    risk_level: 'low',
-    recommendation: 'approve',
-    reasoning_en: `No significant matches found for "${name}" in simulated OFAC, UN, EU, PEP, or adverse media lists.`,
-    reasoning_ar: `لم يتم العثور على تطابقات مهمة لـ "${name}" في قوائم OFAC وUN وEU وPEP أو وسائل الإعلام السلبية المحاكاة.`,
-    matchDetails: null,
-  };
-}
 
 const ShieldCheckIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
@@ -122,21 +55,21 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => {
 const ScreeningTab: React.FC = () => {
   const { t, language } = useLocalization(['common', 'compliance', 'projects', 'grc']);
   const toast = useToast();
+  const { data, isLoading, isError } = useGrcScreening();
+  const screenEntity = useScreenEntity();
 
-  const [stats, setStats] = useState(getStats);
-  const [entities, setEntities] = useState<ComplianceEntity[]>(getEntities);
-  const [alerts, setAlerts] = useState(getAlerts);
   const [entityName, setEntityName] = useState('');
   const [entityType, setEntityType] = useState<ComplianceEntityType>('individual');
   const [country, setCountry] = useState('');
-  const [isScreening, setIsScreening] = useState(false);
   const [screeningResult, setScreeningResult] = useState<ScreeningResult | null>(null);
 
-  const refreshData = () => {
-    setStats(getStats());
-    setEntities(getEntities());
-    setAlerts(getAlerts());
+  const stats = data?.stats ?? {
+    totalEntities: 0,
+    highRisk: 0,
+    openAlerts: 0,
   };
+  const entities = data?.entities ?? [];
+  const alerts = data?.alerts ?? [];
 
   const handleScreen = async () => {
     if (!entityName.trim() || !country.trim()) {
@@ -146,41 +79,22 @@ const ScreeningTab: React.FC = () => {
       return;
     }
 
-    setIsScreening(true);
     setScreeningResult(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      const result = simulateScreening(entityName, entityType, country);
-      setScreeningResult(result);
-
-      const savedEntity = saveEntity({
-        name: entityName,
+      const response = await screenEntity.mutateAsync({
+        name: entityName.trim(),
         type: entityType,
-        country,
-        riskLevel: result.risk_level,
-        lastScreened: new Date().toISOString(),
+        country: country.trim(),
+        listSourceLabel: t('compliance.simulatedWatchlist'),
       });
-
-      if (result.risk_level === 'high' || result.risk_level === 'medium') {
-        saveAlert({
-          entityId: savedEntity.id,
-          entityName: savedEntity.name,
-          matchDetails: result.matchDetails || result.reasoning_en,
-          listSource: t('compliance.simulatedWatchlist'),
-        });
-      }
-
-      refreshData();
+      setScreeningResult(response.result);
       setEntityName('');
       setCountry('');
     } catch {
       toast.showError(t('compliance.toasts.screeningFailedMessage'), {
         title: t('compliance.toasts.screeningFailedTitle'),
       });
-    } finally {
-      setIsScreening(false);
     }
   };
 
@@ -228,8 +142,31 @@ const ScreeningTab: React.FC = () => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-16">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-primary" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
+        {t('common.error')}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* DEFERRED: needs external AML/sanctions provider — see Deferred Activation Register */}
+      <div className="relative">
+        <span className="absolute top-0 end-0 z-10 inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+          {t('grc.deferred.simulatedScreening')}
+        </span>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title={t('compliance.totalEntities')}
@@ -288,10 +225,10 @@ const ScreeningTab: React.FC = () => {
             </div>
             <button
               onClick={handleScreen}
-              disabled={isScreening}
+              disabled={screenEntity.isPending}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-secondary hover:bg-secondary-dark rounded-lg transition-colors disabled:bg-gray-400"
             >
-              {isScreening ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              {screenEntity.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
               {t('compliance.aiScreen')}
             </button>
           </div>
@@ -317,7 +254,7 @@ const ScreeningTab: React.FC = () => {
                       {t(`compliance.types.${entity.type}`)}
                     </td>
                     <td className="p-2">
-                      <RiskBadge level={entity.riskLevel} />
+                      <RiskBadge level={entity.riskLevel as RiskLevel} />
                     </td>
                     <td className="p-2 text-xs text-gray-500 dark:text-gray-400">
                       {formatDate(entity.lastScreened, language)}

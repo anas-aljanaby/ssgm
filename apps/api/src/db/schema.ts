@@ -759,3 +759,112 @@ export const bousala_tasks = pgTable('bousala_tasks', {
     created_at: timestamp('created_at').defaultNow(),
     updated_at: timestamp('updated_at').defaultNow(),
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GRC MODULE
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const grc_policies = pgTable('grc_policies', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    title_en: text('title_en').notNull(),
+    title_ar: text('title_ar').default(''),
+    category: text('category').notNull().default('compliance'),
+    status: text('status').notNull().default('draft'),
+    version: text('version').default('1.0'),
+    effective_date: timestamp('effective_date'),
+    review_date: timestamp('review_date'),
+    owner_user_id: text('owner_user_id').default(''),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const grc_decisions = pgTable('grc_decisions', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    title_en: text('title_en').notNull(),
+    title_ar: text('title_ar').default(''),
+    decision_date: timestamp('decision_date').notNull(),
+    status: text('status').notNull().default('pending'),
+    impact: text('impact').notNull().default('medium'),
+    related_policy_id: uuid('related_policy_id').references(() => grc_policies.id, { onDelete: 'set null' }),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const grc_risks = pgTable('grc_risks', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    risk_en: text('risk_en').notNull(),
+    risk_ar: text('risk_ar').default(''),
+    category: text('category').notNull().default('operational'),
+    probability: integer('probability').notNull().default(3),
+    impact: integer('impact').notNull().default(3),
+    score: integer('score').notNull().default(9),
+    level: text('level').notNull().default('Medium'),
+    scope: text('scope').notNull().default('organization'),
+    mitigation: jsonb('mitigation').default([]),
+    status: text('status').notNull().default('identified'),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+    updated_at: timestamp('updated_at').defaultNow(),
+});
+
+export const grc_compliance_requirements = pgTable('grc_compliance_requirements', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    code: text('code').notNull(),
+    title_en: text('title_en').notNull(),
+    title_ar: text('title_ar').default(''),
+    source: text('source').notNull().default('regulatory'),
+    source_name_en: text('source_name_en').notNull(),
+    source_name_ar: text('source_name_ar').default(''),
+    priority: text('priority').notNull().default('medium'),
+    next_due_date: timestamp('next_due_date').notNull(),
+    status: text('status').notNull().default('active'),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const grc_compliance_assessments = pgTable('grc_compliance_assessments', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    requirement_id: uuid('requirement_id').notNull().references(() => grc_compliance_requirements.id, { onDelete: 'cascade' }),
+    assessment_date: timestamp('assessment_date').notNull(),
+    status: text('status').notNull().default('compliant'),
+    score: integer('score').notNull().default(100),
+    assessor_id: text('assessor_id').default(''),
+    findings_en: text('findings_en').default(''),
+    findings_ar: text('findings_ar').default(''),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const grc_screening_entities = pgTable('grc_screening_entities', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    name: text('name').notNull(),
+    entity_type: text('entity_type').notNull().default('individual'),
+    country: text('country').notNull(),
+    risk_level: text('risk_level').notNull().default('low'),
+    risk_score: integer('risk_score').default(0),
+    recommendation: text('recommendation').default('approve'),
+    reasoning_en: text('reasoning_en').default(''),
+    reasoning_ar: text('reasoning_ar').default(''),
+    match_details: text('match_details'),
+    last_screened: timestamp('last_screened').defaultNow(),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});
+
+export const grc_screening_alerts = pgTable('grc_screening_alerts', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    entity_id: uuid('entity_id').references(() => grc_screening_entities.id, { onDelete: 'cascade' }),
+    entity_name: text('entity_name').notNull(),
+    match_details: text('match_details').notNull(),
+    list_source: text('list_source').default(''),
+    status: text('status').notNull().default('open'),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+});

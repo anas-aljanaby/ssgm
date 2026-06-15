@@ -77,8 +77,6 @@ const MODULE_ROUTE_MAP: Record<string, string> = {
   financials: 'financials',
   projects: 'projects',
   donors: 'donors',
-  zakat: 'financials',
-  reviews: 'financials',
 };
 
 const todayInput = () => new Date().toISOString().slice(0, 10);
@@ -1124,7 +1122,17 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
   };
 
   const renderLinkedButton = (module: string, label: string) => (
-    <button type="button" onClick={() => navigateToModule(module)} className="font-semibold text-primary hover:underline">
+    <button
+      type="button"
+      onClick={() => {
+        if (module === 'reviews' || module === 'zakat') {
+          setActiveTab(module);
+          return;
+        }
+        navigateToModule(module);
+      }}
+      className="font-semibold text-primary hover:underline"
+    >
       {label || t('sharia.common.notSet')}
     </button>
   );

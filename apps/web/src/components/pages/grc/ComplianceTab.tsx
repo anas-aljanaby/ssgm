@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { CirclePlus, ClipboardCheck, Pencil, Trash2 } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
 import { useToast } from '../../../hooks/useToast';
+import {
+  useCreateGrcAssessment,
+  useCreateGrcRequirement,
+  useDeleteGrcRequirement,
+  useUpdateGrcRequirement,
+} from '../../../hooks/useGrc';
 import { formatDate } from '../../../lib/utils';
 import type { Assessment, ComplianceRequirement, ComplianceStatus } from '../../../types';
 import AiCard from '../ai/AiCard';
@@ -28,15 +34,14 @@ const ComplianceStatusBadge: React.FC<{ status: ComplianceStatus }> = ({ status 
   );
 };
 
-const ComplianceTab: React.FC<ComplianceTabProps> = ({
-  requirements: initialRequirements,
-  assessments: initialAssessments,
-}) => {
+const ComplianceTab: React.FC<ComplianceTabProps> = ({ requirements, assessments }) => {
   const { t, language } = useLocalization(['common', 'grc']);
   const toast = useToast();
+  const createRequirement = useCreateGrcRequirement();
+  const updateRequirement = useUpdateGrcRequirement();
+  const deleteRequirement = useDeleteGrcRequirement();
+  const createAssessment = useCreateGrcAssessment();
 
-  const [requirements, setRequirements] = useState(initialRequirements);
-  const [assessments, setAssessments] = useState(initialAssessments);
   const [isRequirementModalOpen, setIsRequirementModalOpen] = useState(false);
   const [editingRequirement, setEditingRequirement] = useState<ComplianceRequirement | null>(null);
   const [assessingRequirement, setAssessingRequirement] = useState<ComplianceRequirement | null>(
@@ -58,40 +63,40 @@ const ComplianceTab: React.FC<ComplianceTabProps> = ({
     setIsRequirementModalOpen(true);
   };
 
-  const handleSubmitRequirement = (payload: RequirementPayload) => {
-    if (editingRequirement) {
-      setRequirements((prev) =>
-        prev.map((req) =>
-          req.id === editingRequirement.id ? { ...req, ...payload } : req,
-        ),
-      );
-      toast.showSuccess(t('grc.compliance.toasts.requirementUpdated'));
-    } else {
-      const newRequirement: ComplianceRequirement = {
-        id: `REQ-${Date.now()}`,
-        ...payload,
-      };
-      setRequirements((prev) => [newRequirement, ...prev]);
-      toast.showSuccess(t('grc.compliance.toasts.requirementAdded'));
+  const handleSubmitRequirement = async (payload: RequirementPayload) => {
+    try {
+      if (editingRequirement) {
+        await updateRequirement.mutateAsync({ id: editingRequirement.id, ...payload });
+        toast.showSuccess(t('grc.compliance.toasts.requirementUpdated'));
+      } else {
+        await createRequirement.mutateAsync(payload);
+        toast.showSuccess(t('grc.compliance.toasts.requirementAdded'));
+      }
+    } catch (err) {
+      toast.showError(err instanceof Error ? err.message : t('common.error'));
     }
   };
 
-  const handleDeleteRequirement = (requirement: ComplianceRequirement) => {
-    setRequirements((prev) => prev.filter((req) => req.id !== requirement.id));
-    setAssessments((prev) => prev.filter((a) => a.requirementId !== requirement.id));
-    toast.showSuccess(t('grc.compliance.toasts.requirementDeleted'));
+  const handleDeleteRequirement = async (requirement: ComplianceRequirement) => {
+    try {
+      await deleteRequirement.mutateAsync(requirement.id);
+      toast.showSuccess(t('grc.compliance.toasts.requirementDeleted'));
+    } catch (err) {
+      toast.showError(err instanceof Error ? err.message : t('common.error'));
+    }
   };
 
-  const handleSubmitAssessment = (payload: AssessmentPayload) => {
+  const handleSubmitAssessment = async (payload: AssessmentPayload) => {
     if (!assessingRequirement) return;
-    const newAssessment: Assessment = {
-      id: `ASS-${Date.now()}`,
-      requirementId: assessingRequirement.id,
-      assessorId: 'current-user',
-      ...payload,
-    };
-    setAssessments((prev) => [newAssessment, ...prev]);
-    toast.showSuccess(t('grc.compliance.toasts.assessmentLogged'));
+    try {
+      await createAssessment.mutateAsync({
+        requirementId: assessingRequirement.id,
+        payload,
+      });
+      toast.showSuccess(t('grc.compliance.toasts.assessmentLogged'));
+    } catch (err) {
+      toast.showError(err instanceof Error ? err.message : t('common.error'));
+    }
   };
 
   return (

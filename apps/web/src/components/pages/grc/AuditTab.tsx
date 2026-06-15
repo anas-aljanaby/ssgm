@@ -13,6 +13,12 @@ const AuditTab: React.FC<AuditTabProps> = ({ log }) => {
 
   return (
     <AiCard title={t('grc.audit.title')}>
+      <div className="mb-4 flex justify-end">
+        {/* DEFERRED: needs platform-wide audit emission — see Deferred Activation Register */}
+        <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+          {t('grc.deferred.crossModuleAudit')}
+        </span>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-gray-500 dark:text-gray-400">

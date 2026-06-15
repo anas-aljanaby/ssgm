@@ -5,8 +5,12 @@ import Tabs from '../common/Tabs';
 import MeetingsTab from './sharia_board/MeetingsTab';
 import MembersTab from './sharia_board/MembersTab';
 
-const ShariaBoardManagementPage: React.FC = () => {
-  const { t } = useLocalization(['common', 'compliance', 'sharia', 'sidebar', 'misc', 'projects']);
+interface ShariaBoardManagementPageProps {
+  setActiveModule?: (module: string) => void;
+}
+
+const ShariaBoardManagementPage: React.FC<ShariaBoardManagementPageProps> = () => {
+  const { t } = useLocalization(['sharia']);
 
   const [activeTab, setActiveTab] = useState('members');
 
@@ -22,11 +26,7 @@ const ShariaBoardManagementPage: React.FC = () => {
       case 'meetings':
         return <MeetingsTab />;
       default:
-        return (
-          <div className="p-8 text-center bg-card dark:bg-dark-card rounded-lg">
-            {t('placeholder.underConstruction', { moduleName: activeTab })}
-          </div>
-        );
+        return <MembersTab />;
     }
   };
 

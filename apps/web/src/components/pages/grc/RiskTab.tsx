@@ -6,13 +6,15 @@ import {
   CirclePlus,
 } from 'lucide-react';
 import { useLocalization } from '../../../hooks/useLocalization';
+import { useToast } from '../../../hooks/useToast';
+import { useCreateGrcRisk } from '../../../hooks/useGrc';
 import type { GrcRisk, GrcRiskLevel } from '../../../types';
 import AiCard from '../ai/AiCard';
 import StatCard from './StatCard';
 import RiskMatrix from './RiskMatrix';
 import RiskStatusBadge from './RiskStatusBadge';
 import RiskDetailModal from './RiskDetailModal';
-import LogRiskModal, { type LogRiskPayload } from './LogRiskModal';
+import LogRiskModal from './LogRiskModal';
 import { getRiskLevelCardStyles } from './utils';
 
 interface RiskTabProps {
@@ -29,9 +31,10 @@ const LevelBadge: React.FC<{ level: GrcRiskLevel }> = ({ level }) => {
   );
 };
 
-const RiskTab: React.FC<RiskTabProps> = ({ risks: initialRisks }) => {
+const RiskTab: React.FC<RiskTabProps> = ({ risks }) => {
   const { t, language } = useLocalization(['common', 'grc', 'projects']);
-  const [risks, setRisks] = useState(initialRisks);
+  const toast = useToast();
+  const createRisk = useCreateGrcRisk();
   const [registerSearch, setRegisterSearch] = useState('');
   const [selectedRisk, setSelectedRisk] = useState<GrcRisk | null>(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -59,15 +62,15 @@ const RiskTab: React.FC<RiskTabProps> = ({ risks: initialRisks }) => {
     [risks, registerSearch],
   );
 
-  const handleLogRisk = (payload: LogRiskPayload) => {
-    const newRisk: GrcRisk = {
-      ...payload,
-      id: `risk-${Date.now()}`,
-      mitigation: [{ en: t('grc.risk.mitigation.placeholder'), ar: t('grc.risk.mitigation.placeholder') }],
-      status: 'identified',
-    };
-    setRisks((prev) => [newRisk, ...prev]);
-    setIsLogModalOpen(false);
+  const handleLogRisk = async (payload: Parameters<typeof createRisk.mutateAsync>[0]) => {
+    try {
+      await createRisk.mutateAsync(payload);
+      toast.showSuccess(t('grc.risk.toasts.logged'));
+      setIsLogModalOpen(false);
+    } catch (err) {
+      toast.showError(err instanceof Error ? err.message : t('common.error'));
+      throw err;
+    }
   };
 
   const translateCategory = (category: string) =>

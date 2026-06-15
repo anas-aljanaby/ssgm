@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useLocalization } from '../../hooks/useLocalization';
-import { MOCK_GRC_DATA } from '../../data/grcData';
-import type { GrcData } from '../../types';
+import { useGrc } from '../../hooks/useGrc';
 import { GrcIcon } from '../icons/ModuleIcons';
 import Tabs from '../common/Tabs';
 import OverviewTab from './grc/OverviewTab';
@@ -11,14 +10,10 @@ import ComplianceTab from './grc/ComplianceTab';
 import ScreeningTab from './grc/ScreeningTab';
 import AuditTab from './grc/AuditTab';
 
-interface GrcPageProps {
-  grcData?: GrcData;
-  dispatchGrcAction?: React.Dispatch<unknown>;
-}
-
-const GrcPage: React.FC<GrcPageProps> = ({ grcData = MOCK_GRC_DATA }) => {
+const GrcPage: React.FC = () => {
   const { t } = useLocalization(['common', 'grc', 'projects', 'sidebar', 'compliance']);
   const [activeTab, setActiveTab] = useState('overview');
+  const { data, isLoading, isError, error } = useGrc();
 
   const tabs = [
     { id: 'overview', label: t('grc.tabs.overview') },
@@ -28,6 +23,15 @@ const GrcPage: React.FC<GrcPageProps> = ({ grcData = MOCK_GRC_DATA }) => {
     { id: 'screening', label: t('grc.tabs.screening') },
     { id: 'audit', label: t('grc.tabs.audit') },
   ];
+
+  const grcData = data ?? {
+    policies: [],
+    decisions: [],
+    risks: [],
+    requirements: [],
+    assessments: [],
+    auditLog: [],
+  };
 
   const renderActiveTab = () => {
     switch (activeTab) {
@@ -62,7 +66,19 @@ const GrcPage: React.FC<GrcPageProps> = ({ grcData = MOCK_GRC_DATA }) => {
 
       <Tabs tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
 
-      <div className="mt-6">{renderActiveTab()}</div>
+      {isLoading && (
+        <div className="flex justify-center py-16">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-primary" />
+        </div>
+      )}
+
+      {isError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
+          {error instanceof Error ? error.message : t('common.error')}
+        </div>
+      )}
+
+      {!isLoading && !isError && <div className="mt-6">{renderActiveTab()}</div>}
     </div>
   );
 };

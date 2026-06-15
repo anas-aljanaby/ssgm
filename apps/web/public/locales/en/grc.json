@@ -123,7 +123,8 @@
         "placeholder": "Newly logged mitigation plan to be defined."
       },
       "toasts": {
-        "logged": "Risk has been logged."
+        "logged": "Risk has been logged.",
+        "updated": "Risk has been updated."
       }
     },
     "compliance": {
@@ -209,6 +210,10 @@
         "action": "Action",
         "recordId": "Record ID"
       }
+    },
+    "deferred": {
+      "simulatedScreening": "Simulated screening — live OFAC/UN provider coming soon",
+      "crossModuleAudit": "Cross-module audit entries appear when other modules emit events"
     }
   }
 }

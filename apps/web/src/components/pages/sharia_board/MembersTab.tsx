@@ -5,7 +5,6 @@ import {
   LayoutGrid,
   List,
   Mail,
-  MoreHorizontal,
   Search,
   X,
 } from 'lucide-react';
@@ -54,7 +53,12 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
           {t(`sharia.board.roles.${member.role}`)}
         </div>
         <div className="mt-4 pt-4 border-t dark:border-slate-700 flex justify-center items-center gap-4 text-gray-500">
-          <a href={`mailto:${member.email}`} className="hover:text-primary">
+          <a
+            href={`mailto:${member.email}`}
+            className="hover:text-primary"
+            aria-label={t('sharia.board.members.emailMember', { name: member.name[language] })}
+            title={t('sharia.board.members.emailMember', { name: member.name[language] })}
+          >
             <Mail size={18} />
           </a>
         </div>
@@ -131,9 +135,14 @@ const MembersList: React.FC<MembersListProps> = ({ members }) => {
                   </div>
                 </td>
                 <td className="p-4 text-right">
-                  <button type="button" className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
+                  <a
+                    href={`mailto:${member.email}`}
+                    className="inline-flex p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"
+                    aria-label={t('sharia.board.members.emailMember', { name: member.name[language] })}
+                    title={t('sharia.board.members.emailMember', { name: member.name[language] })}
+                  >
+                    <Mail className="w-4 h-4" />
+                  </a>
                 </td>
               </tr>
             ))}

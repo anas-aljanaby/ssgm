@@ -4,11 +4,50 @@
       "subtitle": "Control room for fatwas, Sharia reviews, zakat certification, exceptions, and the audit trail."
     },
     "tabs": {
+      "portal": "Board Portal",
       "overview": "Overview",
       "fatwas": "Fatwas & Rulings",
       "reviews": "Reviews",
       "zakat": "Zakat Oversight",
       "exceptions": "Exceptions & Activity"
+    },
+    "portal": {
+      "title": "Sharia Board Portal",
+      "welcome": "Welcome, {{name}}",
+      "subtitle": "Your board cockpit — decisions awaiting your vote, documents in review, and recent rulings.",
+      "stats": {
+        "underReview": "Cases under review",
+        "upcomingMeetings": "Upcoming meetings",
+        "fatwasIssued": "Fatwas issued (this year)"
+      },
+      "actions": {
+        "title": "Required actions",
+        "description": "Items awaiting a board decision, highest priority first.",
+        "review": "Review",
+        "discuss": "Discuss",
+        "emptyTitle": "Nothing awaiting a decision",
+        "emptyDescription": "No reviews are currently pending a board decision."
+      },
+      "documents": {
+        "title": "Document repository",
+        "description": "Contracts, proposals, and policies routed to the board.",
+        "document": "Document",
+        "status": "Status",
+        "actions": "Actions",
+        "viewAll": "View all",
+        "emptyTitle": "No documents",
+        "emptyDescription": "No documents have been routed to the board yet."
+      },
+      "fatwas": {
+        "title": "Fatwas & questions",
+        "description": "Recent rulings and questions raised to the board.",
+        "reference": "Reference",
+        "topic": "Topic",
+        "status": "Status",
+        "actions": "Actions",
+        "view": "View details",
+        "viewAll": "View all"
+      }
     },
     "common": {
       "notSet": "Not set",
@@ -318,7 +357,8 @@
         "add": "Add Member",
         "searchPlaceholder": "Search members...",
         "allRoles": "All Roles",
-        "allStatuses": "All Statuses"
+        "allStatuses": "All Statuses",
+        "emailMember": "Email {{name}}"
       },
       "tabs": {
         "meetings": "Meetings",
@@ -353,13 +393,25 @@
       },
       "meetings": {
         "schedule": "Schedule Meeting",
+        "noAttendees": "No attendees selected.",
+        "noAgenda": "No agenda items recorded.",
         "form": {
           "title": "Meeting Title",
+          "titleEn": "Meeting Title (English)",
+          "titleAr": "Meeting Title (Arabic)",
           "date": "Date",
           "location": "Location",
           "locationPlaceholder": "e.g. Conference Room 1",
           "startTime": "Start Time",
-          "endTime": "End Time"
+          "endTime": "End Time",
+          "attendees": "Attendees",
+          "agendaSection": "Agenda item",
+          "agendaHint": "Optional governance agenda text. Compliance items remain owned by Sharia Compliance.",
+          "agendaTopicEn": "Agenda topic (English)",
+          "agendaTopicAr": "Agenda topic (Arabic)",
+          "agendaPlaceholder": "e.g. Discuss pending zakat policy questions",
+          "agendaPresenter": "Presenter",
+          "presenterFallback": "Board Secretary"
         }
       }
     }

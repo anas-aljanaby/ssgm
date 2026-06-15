@@ -13,3 +13,4 @@ export * from './constants/financialOptions';
 export * from './constants/rbac';
 export * from './constants/modules';
 export * from './schemas/module';
+export * from './schemas/grc';
