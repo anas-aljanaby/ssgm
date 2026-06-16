@@ -26,10 +26,11 @@
       "department": "Department",
       "phone": "Phone",
       "status": "Status",
-      "password": "Password"
+      "password": "Password",
+      "password_reset": "New password"
     },
     "password_helper_create": "Leave empty to auto-generate. Minimum 8 characters if you set one.",
-    "password_helper_edit": "Demo only — visible here for easy reference. Minimum 8 characters.",
+    "password_helper_edit": "Leave blank to keep the current password. Enter a new value only to reset it. Minimum 8 characters.",
     "show_password": "Show password",
     "hide_password": "Hide password",
     "roles": {

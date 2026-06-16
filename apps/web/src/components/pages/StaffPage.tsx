@@ -64,7 +64,6 @@ function buildOptimisticStaff(form: StaffFormData, id: string): StaffMember {
         avatar: '',
         status: 'active',
         custom_fields: {},
-        demo_password: '',
         created_at: new Date().toISOString(),
     };
 }
@@ -235,7 +234,7 @@ const StaffFormModal: React.FC<StaffFormModalProps> = ({
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            {t('staff.fields.password')}
+                            {editingId ? t('staff.fields.password_reset') : t('staff.fields.password')}
                         </label>
                         <div className="flex items-center gap-2">
                             <input
@@ -461,7 +460,7 @@ const StaffPage: React.FC = () => {
             full_name_en: member.name.en,
             full_name_ar: member.name.ar,
             email: member.email,
-            password: member.demo_password || '',
+            password: '',
             role: member.role,
             title: member.title,
             department: member.department,
@@ -477,6 +476,7 @@ const StaffPage: React.FC = () => {
                 full_name_en: data.full_name_en,
                 full_name_ar: data.full_name_ar,
                 email: data.email,
+                password: '',
                 role: data.role,
                 title: data.title,
                 department: data.department,

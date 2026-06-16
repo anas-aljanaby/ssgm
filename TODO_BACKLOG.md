@@ -8,7 +8,7 @@ Each item includes: ticker, title, short summary, and likely relevant code locat
 - [X] **SEC-001 — Remove frontend auth backdoor**
   - Short summary: Login flow appears to allow a hardcoded credential shortcut that can bypass normal Supabase authentication. Replace with environment-gated dev-only behavior or remove entirely.
   - Relevant code: `apps/web/src/contexts/AuthContext.tsx`, `apps/web/src/components/pages/LoginPage.tsx`
-- [ ] **SEC-002 — Stop storing/exposing plaintext staff demo passwords**
+- [X] **SEC-002 — Stop storing/exposing plaintext staff demo passwords**
   - Short summary: Staff-related API and mapping logic appears to persist and return sensitive password-like values. Remove persistence/response exposure and migrate existing data safely.
   - Relevant code: `apps/api/src/routes/staff.ts`, `apps/api/src/db/schema.ts`
 - [ ] **SEC-003 — Harden file uploads**

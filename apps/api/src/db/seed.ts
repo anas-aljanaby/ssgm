@@ -894,7 +894,7 @@ async function seed() {
             user_id: '00000000-0000-0000-0000-000000000000',
             ...s,
             status: 'active',
-            custom_fields: { demo_password: 'DemoPass123!' },
+            custom_fields: {},
         });
     }
     console.log(`Added ${sampleStaff.length} sample staff members`);

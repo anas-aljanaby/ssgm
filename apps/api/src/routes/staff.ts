@@ -20,13 +20,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
     return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
-function readDemoPassword(customFields: unknown): string {
-    if (!isRecord(customFields)) return '';
-    return typeof customFields.demo_password === 'string' ? customFields.demo_password : '';
+function sanitizeCustomFields(value: unknown): Record<string, unknown> {
+    if (!isRecord(value)) return {};
+    const { demo_password: _removed, ...rest } = value;
+    return rest;
 }
 
 function mapStaff(row: MembershipRow) {
-    const custom_fields = isRecord(row.custom_fields) ? row.custom_fields : {};
+    const custom_fields = sanitizeCustomFields(row.custom_fields);
     return {
         id: row.id,
         user_id: row.user_id,
@@ -39,7 +40,6 @@ function mapStaff(row: MembershipRow) {
         avatar: row.avatar,
         status: row.status,
         custom_fields,
-        demo_password: readDemoPassword(custom_fields),
         created_at: row.created_at?.toISOString() ?? null,
     };
 }
@@ -129,10 +129,7 @@ staffRouter.post('/', requirePermission('staff', 'write'), async (c) => {
             phone: data.phone,
             avatar: data.avatar,
             status: data.status,
-            custom_fields: {
-                ...data.custom_fields,
-                demo_password: password,
-            },
+            custom_fields: sanitizeCustomFields(data.custom_fields),
         })
         .returning();
 
@@ -168,18 +165,13 @@ staffRouter.patch('/:id', requirePermission('staff', 'write'), async (c) => {
     if (data.avatar !== undefined) values.avatar = data.avatar;
     if (data.status !== undefined) values.status = data.status;
     if (data.custom_fields !== undefined) {
-        values.custom_fields = {
+        values.custom_fields = sanitizeCustomFields({
             ...(isRecord(existing.custom_fields) ? existing.custom_fields : {}),
             ...data.custom_fields,
-        };
+        });
     }
 
     if (data.password !== undefined) {
-        values.custom_fields = {
-            ...(isRecord(values.custom_fields) ? values.custom_fields : (isRecord(existing.custom_fields) ? existing.custom_fields : {})),
-            demo_password: data.password,
-        };
-
         if (existing.user_id && existing.user_id !== PLACEHOLDER_USER_ID) {
             const { error } = await supabaseAdmin.auth.admin.updateUserById(existing.user_id, {
                 password: data.password,
@@ -195,7 +187,6 @@ staffRouter.patch('/:id', requirePermission('staff', 'write'), async (c) => {
         .set(values)
         .where(and(eq(memberships.id, existing.id), eq(memberships.org_id, orgId)))
         .returning();
-
     return c.json(mapStaff(updated));
 });
 

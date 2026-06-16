@@ -17,7 +17,6 @@ export interface StaffMember {
     avatar: string;
     status: 'active' | 'disabled';
     custom_fields: Record<string, unknown>;
-    demo_password: string;
     created_at: string | null;
 }
 

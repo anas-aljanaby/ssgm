@@ -167,7 +167,7 @@ async function seedStaff(orgId: string) {
             department: member.department,
             phone: member.phone,
             status: 'active',
-            custom_fields: { demo_password: STAFF_PASSWORD },
+            custom_fields: {},
         });
         console.log(`  Staff: ${member.full_name_en} (${member.role})`);
     }
