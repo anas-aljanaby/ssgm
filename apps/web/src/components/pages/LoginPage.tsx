@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth, DEMO_EMAIL, DEMO_PASSWORD } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
     const { signIn, signUp, isSupabaseConfigured } = useAuth();
@@ -36,24 +36,10 @@ const LoginPage: React.FC = () => {
 
                 {!isSupabaseConfigured && (
                     <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
-                        <p className="font-semibold">Local demo mode</p>
+                        <p className="font-semibold">Supabase is not configured</p>
                         <p className="mt-1 text-amber-800 dark:text-amber-200">
-                            Supabase is not configured. Sign in with{' '}
-                            <span className="font-mono">{DEMO_EMAIL}</span> /{' '}
-                            <span className="font-mono">{DEMO_PASSWORD}</span>
+                            Supabase is not configured. add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to apps/web/.env. 
                         </p>
-                        <button
-                            type="button"
-                            className="mt-2 text-xs font-medium text-primary hover:underline"
-                            onClick={() => {
-                                setEmail(DEMO_EMAIL);
-                                setPassword(DEMO_PASSWORD);
-                                setIsSignUp(false);
-                                setError('');
-                            }}
-                        >
-                            Fill demo credentials
-                        </button>
                     </div>
                 )}
 

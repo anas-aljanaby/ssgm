@@ -4,22 +4,6 @@ import type { User, Session } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { api } from '../lib/api';
 
-// export const DEMO_EMAIL = 'admin@admin.com';
-// export const DEMO_PASSWORD = 'admin';
-
-// const createDemoUser = (): User =>
-//     ({
-//         id: 'demo-admin-user',
-//         email: DEMO_EMAIL,
-//         aud: 'authenticated',
-//         app_metadata: { provider: 'demo' },
-//         user_metadata: { name: 'Demo Admin' },
-//         created_at: new Date(0).toISOString(),
-//     }) as User;
-
-// const isDemoCredentials = (email: string, password: string) =>
-//     email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD;
-
 interface AuthContextType {
     user: User | null;
     session: Session | null;
@@ -69,17 +53,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [queryClient]);
 
     const signIn = async (email: string, password: string) => {
-        // if (isDemoCredentials(email, password)) {
-        //     setUser(createDemoUser());
-        //     setSession(null);
-        //     api.setToken(null);
-        //     return { error: null };
-        // }
-
         if (!isSupabaseConfigured || !supabase) {
             return {
                 error: new Error(
-                    'Supabase is not configured. Use demo sign-in (admin@admin.com / admin) or add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to apps/web/.env.',
+                    'Supabase is not configured. add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to apps/web/.env.',
                 ),
             };
         }
@@ -102,13 +79,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     const signOut = async () => {
-        if (user?.id === 'demo-admin-user') {
-            setUser(null);
-            setSession(null);
-            api.setToken(null);
-            return;
-        }
-
         if (supabase) {
             await supabase.auth.signOut();
         }
