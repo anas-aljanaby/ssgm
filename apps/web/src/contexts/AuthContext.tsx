@@ -4,21 +4,21 @@ import type { User, Session } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { api } from '../lib/api';
 
-export const DEMO_EMAIL = 'admin@admin.com';
-export const DEMO_PASSWORD = 'admin';
+// export const DEMO_EMAIL = 'admin@admin.com';
+// export const DEMO_PASSWORD = 'admin';
 
-const createDemoUser = (): User =>
-    ({
-        id: 'demo-admin-user',
-        email: DEMO_EMAIL,
-        aud: 'authenticated',
-        app_metadata: { provider: 'demo' },
-        user_metadata: { name: 'Demo Admin' },
-        created_at: new Date(0).toISOString(),
-    }) as User;
+// const createDemoUser = (): User =>
+//     ({
+//         id: 'demo-admin-user',
+//         email: DEMO_EMAIL,
+//         aud: 'authenticated',
+//         app_metadata: { provider: 'demo' },
+//         user_metadata: { name: 'Demo Admin' },
+//         created_at: new Date(0).toISOString(),
+//     }) as User;
 
-const isDemoCredentials = (email: string, password: string) =>
-    email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD;
+// const isDemoCredentials = (email: string, password: string) =>
+//     email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD;
 
 interface AuthContextType {
     user: User | null;
@@ -69,12 +69,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [queryClient]);
 
     const signIn = async (email: string, password: string) => {
-        if (isDemoCredentials(email, password)) {
-            setUser(createDemoUser());
-            setSession(null);
-            api.setToken(null);
-            return { error: null };
-        }
+        // if (isDemoCredentials(email, password)) {
+        //     setUser(createDemoUser());
+        //     setSession(null);
+        //     api.setToken(null);
+        //     return { error: null };
+        // }
 
         if (!isSupabaseConfigured || !supabase) {
             return {
