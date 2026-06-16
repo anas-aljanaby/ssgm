@@ -30,3 +30,6 @@ dist-ssr
 # Playwright CLI / agent artifacts
 .playwright-cli/
 .playwright-mcp/
+
+# Internal audit docs (local only)
+docs/audits/codebase-quality-eval.md

@@ -7,7 +7,7 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
 if (!isSupabaseConfigured) {
     console.warn(
-        'Supabase env vars missing.' +
+        'Supabase env vars missing. ' +
             'Copy apps/web/.env.example to apps/web/.env and set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
     );
 }
