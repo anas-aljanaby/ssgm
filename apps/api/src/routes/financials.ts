@@ -41,13 +41,7 @@ function toIso(v: Date | string | null | undefined): string | null {
     return v instanceof Date ? v.toISOString() : new Date(v).toISOString();
 }
 
-function isUploadedFile(v: unknown): v is { name: string; type?: string; size?: number; arrayBuffer: () => Promise<ArrayBuffer> } {
-    return !!v && typeof v === 'object' && 'name' in v && 'arrayBuffer' in v && typeof (v as any).arrayBuffer === 'function';
-}
 
-function sanitizeFilename(v: string): string {
-    return v.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, ' ').trim().slice(0, 160) || 'document';
-}
 
 const FINANCIAL_UPLOAD_DIR = process.env.FINANCIAL_UPLOAD_DIR || path.resolve(process.cwd(), 'uploads', 'financial-documents');
 const FINANCIAL_UPLOAD_PUBLIC_PATH = '/uploads/financial-documents';

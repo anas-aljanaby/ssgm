@@ -33,3 +33,4 @@ dist-ssr
 
 # Internal audit docs (local only)
 docs/audits/codebase-quality-eval.md
+docs/SEC-003-harden-file-uploads.md
