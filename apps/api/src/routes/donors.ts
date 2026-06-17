@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { and, desc, eq } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { db } from '../db';
@@ -9,6 +8,7 @@ import { authMiddleware } from '../middleware/auth';
 import { OrgContextVars, orgContext } from '../middleware/orgContext';
 import { normalizeDonorTags, validateDonorCustomFieldsPatch, validateDonorTags } from '../lib/donorPatchValidation';
 import { createDonationSchema, createDonorInteractionSchema, createDonorSchema, createDonorTaskSchema, updateDonorInteractionSchema, updateDonorSchema, updateDonorTaskSchema } from '@gms/shared';
+import { isUploadedFile, sanitizeFilename, validateUpload, buildStoredFilename, assertBufferWithinLimit } from '../lib/fileUpload';
 
 const donorsRouter = new Hono<{ Variables: OrgContextVars }>();
 
@@ -145,22 +145,6 @@ function mapDocument(row: DonorDocumentRow) {
         uploaded_at: toIso(row.uploaded_at),
         custom_fields: row.custom_fields || {},
     };
-}
-
-function isUploadedFile(value: unknown): value is { name: string; type?: string; size?: number; arrayBuffer: () => Promise<ArrayBuffer> } {
-    return !!value
-        && typeof value === 'object'
-        && 'name' in value
-        && 'arrayBuffer' in value
-        && typeof (value as { arrayBuffer?: unknown }).arrayBuffer === 'function';
-}
-
-function sanitizeFilename(value: string): string {
-    return value
-        .replace(/[/\\?%*:|"<>]/g, '-')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .slice(0, 160) || 'document';
 }
 
 async function removeLocalDocumentFile(fileUrl: string | null | undefined) {
@@ -710,24 +694,35 @@ donorsRouter.post('/:id/documents', async (c) => {
     const file = body.file;
     if (!isUploadedFile(file)) return c.json({ error: 'A file field is required.' }, 400);
 
+    const uploadCheck = validateUpload(file)
+    if (!uploadCheck.ok) {
+        return c.json({error: uploadCheck.error }, uploadCheck.status)
+    }
+
     const labelValue = body.label;
     const label = typeof labelValue === 'string' && labelValue.trim() ? labelValue.trim() : 'Document';
-    const originalFilename = sanitizeFilename(file.name || 'document');
-    const storedFilename = `${donor.id}-${randomUUID()}${path.extname(originalFilename)}`;
+    const storedFilename = buildStoredFilename(donor.id, uploadCheck.ext)
+
 
     await mkdir(DONOR_UPLOAD_DIR, { recursive: true });
-    await writeFile(path.join(DONOR_UPLOAD_DIR, storedFilename), Buffer.from(await file.arrayBuffer()));
+    const buffer  = await file.arrayBuffer()
+    const bufferCheck = assertBufferWithinLimit(buffer)
+    if (!bufferCheck.ok) {
+        return c.json({error: bufferCheck.error}, bufferCheck.status)
+    }
+
+    await writeFile(path.join(DONOR_UPLOAD_DIR, storedFilename), Buffer.from(buffer));
 
     const [document] = await db
         .insert(donor_documents)
         .values({
             org_id: orgId,
             donor_id: donor.id,
-            filename: originalFilename,
+            filename: uploadCheck.safeName,
             file_url: `${DONOR_UPLOAD_PUBLIC_PATH}/${storedFilename}`,
             label,
             content_type: file.type || null,
-            size_bytes: typeof file.size === 'number' ? file.size : null,
+            size_bytes: buffer.byteLength,
             custom_fields: {},
         })
         .returning();
