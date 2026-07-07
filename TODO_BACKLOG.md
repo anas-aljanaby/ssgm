@@ -38,11 +38,13 @@ Each item includes: ticker, title, short summary, and likely relevant code locat
 - [ ] **REL-004 — Tighten date/input validation contracts**
   - Short summary: Shared schemas should validate date-like fields more strictly to avoid invalid runtime coercion and inconsistent API behavior.
   - Relevant code: `packages/shared/src/schemas/donor.ts`, `packages/shared/src/schemas/financials.ts`, `apps/api/src/routes/donors.ts`, `apps/api/src/routes/financials.ts`
-- [ ] **REL-005 — Add database indexes on hot query columns**
+- [ ] **REL-005 — Add database indexes on hot query columns** — DEFERRED
   - Short summary: Add Drizzle migration with indexes on `org_id` (domain tables), `memberships(user_id, org_id)`, common FK columns (`donor_id`, `project_id`), and `financial_transactions.status`.
+  - NOTE (2026-07-07): Safe but deferred. Migration history has diverged from the DB (the team used `db:push`, so `drizzle-kit generate/migrate` no longer matches the live schema), meaning indexes must be added to `schema.ts` across ~40 tables and applied via a full-schema `db:push` whose plan can't be previewed non-interactively. Zero measurable benefit at current data scale (single-digit rows per table). Do as a dedicated pass.
   - Relevant code: `apps/api/src/db/schema.ts`, `apps/api/src/db/migrations/`
-- [ ] **REL-006 — Convert text FK fields to UUID references**
+- [ ] **REL-006 — Convert text FK fields to UUID references** — BLOCKED (needs decision)
   - Short summary: Migrate `donor_id`, `project_id`, and `beneficiary_id` in financial tables from `text` to `uuid` with proper `.references()` and `onDelete` rules matching app delete behavior.
+  - BLOCKER (2026-07-07): (1) Dirty data — `donation_records.donor_id` and `financial_pledges.donor_id` hold non-UUID seed placeholders (`'DN-001'`) that cannot cast to uuid. (2) `donor_id` is POLYMORPHIC — a donation/pledge can reference either `individual_donors` OR `institutional_donors` (confirmed: an existing donation_records row references institutional_donors, not individual). A single `.references()` FK is impossible. Needs a design decision: keep `donor_id` as uuid-without-FK, or split into two typed nullable columns. `db:push` was NOT run.
   - Relevant code: `apps/api/src/db/schema.ts`, `apps/api/src/db/migrations/`, `apps/api/src/routes/financials.ts`
 - [ ] **REL-007 — Standardize route-level error handling**
   - Short summary: Add reusable try/catch wrapper or middleware for route handlers; map Drizzle/Postgres errors to 409 (constraints) and 404 (not found) instead of generic 500s.
