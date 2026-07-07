@@ -66,16 +66,20 @@ async function fetchScreeningBundle(): Promise<ApiScreeningBundle> {
 }
 
 export function useGrc() {
+    const { user, session, loading: authLoading } = useAuth();
     return useQuery({
         queryKey: GRC_QUERY_KEY,
         queryFn: fetchGrcBundle,
+        enabled: !authLoading && !!user && !!session?.access_token,
     });
 }
 
 export function useGrcScreening() {
+    const { user, session, loading: authLoading } = useAuth();
     return useQuery({
         queryKey: GRC_SCREENING_QUERY_KEY,
         queryFn: fetchScreeningBundle,
+        enabled: !authLoading && !!user && !!session?.access_token,
     });
 }
 

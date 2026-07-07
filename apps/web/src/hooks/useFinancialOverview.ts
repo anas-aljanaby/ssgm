@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import {
   MOCK_ALERTS,
@@ -59,8 +60,10 @@ async function fetchFinancialOverview(): Promise<FinancialOverviewData> {
 }
 
 export function useFinancialOverview() {
+  const { user, session, loading: authLoading } = useAuth();
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchFinancialOverview,
+    enabled: !authLoading && !!user && !!session?.access_token,
   });
 }

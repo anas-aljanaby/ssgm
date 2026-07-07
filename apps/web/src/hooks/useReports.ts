@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { MOCK_REPORTS } from '../data/financialsPageData';
 import type { FinancialReport, FinancialReportType } from '../types/financials';
@@ -73,9 +74,11 @@ export async function downloadReportByType(type: FinancialReportType): Promise<D
 }
 
 export function useReports() {
+  const { user, session, loading: authLoading } = useAuth();
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchReports,
+    enabled: !authLoading && !!user && !!session?.access_token,
   });
 }
 

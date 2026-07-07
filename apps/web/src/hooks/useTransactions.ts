@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { MOCK_TRANSACTIONS, MOCK_DONATIONS } from '../data/financialsPageData';
 import type { DonationRecord, FinancialTransaction } from '../types/financials';
@@ -174,9 +175,11 @@ async function createTransaction(
 }
 
 export function useTransactions() {
+  const { user, session, loading: authLoading } = useAuth();
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchTransactions,
+    enabled: !authLoading && !!user && !!session?.access_token,
   });
 }
 

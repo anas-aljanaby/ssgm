@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { MOCK_PLEDGES, MOCK_TRANSACTIONS } from '../data/financialsPageData';
 import type { FinancialPledge, FinancialTransaction, PledgeInstallment } from '../types/financials';
@@ -101,9 +102,11 @@ async function recordPledgePayment(input: RecordPledgePaymentInput): Promise<Rec
 }
 
 export function usePledges() {
+  const { user, session, loading: authLoading } = useAuth();
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchPledges,
+    enabled: !authLoading && !!user && !!session?.access_token,
   });
 }
 

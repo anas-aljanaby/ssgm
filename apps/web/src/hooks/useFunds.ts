@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { MOCK_FUNDS } from '../data/financialsPageData';
 import type { Fund } from '../types/financials';
@@ -17,8 +18,10 @@ async function fetchFunds(): Promise<Fund[]> {
 }
 
 export function useFunds() {
+  const { user, session, loading: authLoading } = useAuth();
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchFunds,
+    enabled: !authLoading && !!user && !!session?.access_token,
   });
 }

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import type { DonorStageId, IndividualDonor } from '../types';
 import { api } from '../lib/api';
 import { mapApiDonorToIndividualDonor, type ApiIndividualDonor } from './useDonorProfileSummary';
@@ -13,10 +14,14 @@ export async function fetchDonorsList(): Promise<IndividualDonor[]> {
     return rows.map(mapApiDonorToIndividualDonor);
 }
 
-export const useDonors = () => useQuery({
-    queryKey: DONORS_QUERY_KEY,
-    queryFn: fetchDonorsList,
-});
+export const useDonors = () => {
+    const { user, session, loading: authLoading } = useAuth();
+    return useQuery({
+        queryKey: DONORS_QUERY_KEY,
+        queryFn: fetchDonorsList,
+        enabled: !authLoading && !!user && !!session?.access_token,
+    });
+};
 
 export interface CreateDonorInput {
     fullName: { en: string; ar: string };

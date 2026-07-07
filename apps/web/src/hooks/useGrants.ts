@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { MOCK_GRANTS, MOCK_TRANSACTIONS } from '../data/financialsPageData';
 import type { Grant, FinancialTransaction } from '../types/financials';
@@ -91,9 +92,11 @@ async function receiveGrantInstallment(input: ReceiveGrantInstallmentInput): Pro
 }
 
 export function useGrants() {
+  const { user, session, loading: authLoading } = useAuth();
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchGrants,
+    enabled: !authLoading && !!user && !!session?.access_token,
   });
 }
 

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { MOCK_DONATIONS } from '../data/financialsPageData';
 import type { DonationRecord } from '../types/financials';
@@ -17,8 +18,10 @@ async function fetchDonations(): Promise<DonationRecord[]> {
 }
 
 export function useDonations() {
+  const { user, session, loading: authLoading } = useAuth();
   return useQuery({
     queryKey: DONATIONS_QUERY_KEY,
     queryFn: fetchDonations,
+    enabled: !authLoading && !!user && !!session?.access_token,
   });
 }

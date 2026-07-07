@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { MOCK_APPROVAL_ITEMS, MOCK_DISBURSEMENTS, MOCK_TRANSACTIONS } from '../data/financialsPageData';
 import type { ApprovalItem } from '../types/financials';
@@ -94,9 +95,11 @@ async function rejectItem(input: ApprovalActionInput): Promise<ApprovalItem> {
 }
 
 export function useApprovals() {
+  const { user, session, loading: authLoading } = useAuth();
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: fetchApprovals,
+    enabled: !authLoading && !!user && !!session?.access_token,
   });
 }
 

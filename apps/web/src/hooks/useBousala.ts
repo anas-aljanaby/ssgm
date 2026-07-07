@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import { useAuth } from '../contexts/AuthContext';
 import type { BousalaGoal, BousalaKpi, BousalaProject, BousalaTask, BousalaDirection } from '../types';
 import type { BousalaDemoState } from '../lib/bousalaDemoData';
 import { api } from '../lib/api';
@@ -39,10 +40,14 @@ function patchBousalaTreeCache(
     invalidateBousalaQueries(queryClient);
 }
 
-export const useBousala = () => useQuery({
-    queryKey: BOUSALA_QUERY_KEY,
-    queryFn: fetchBousalaTree,
-});
+export const useBousala = () => {
+    const { user, session, loading: authLoading } = useAuth();
+    return useQuery({
+        queryKey: BOUSALA_QUERY_KEY,
+        queryFn: fetchBousalaTree,
+        enabled: !authLoading && !!user && !!session?.access_token,
+    });
+};
 
 export interface BousalaImpact {
     beneficiariesReached: number;
@@ -54,10 +59,14 @@ export interface BousalaImpact {
 
 export const BOUSALA_IMPACT_QUERY_KEY = ['bousala-impact'] as const;
 
-export const useBousalaImpact = () => useQuery({
-    queryKey: BOUSALA_IMPACT_QUERY_KEY,
-    queryFn: () => api.get<BousalaImpact>('/bousala/impact'),
-});
+export const useBousalaImpact = () => {
+    const { user, session, loading: authLoading } = useAuth();
+    return useQuery({
+        queryKey: BOUSALA_IMPACT_QUERY_KEY,
+        queryFn: () => api.get<BousalaImpact>('/bousala/impact'),
+        enabled: !authLoading && !!user && !!session?.access_token,
+    });
+};
 
 export interface CreateBousalaGoalInput {
     title: string;
