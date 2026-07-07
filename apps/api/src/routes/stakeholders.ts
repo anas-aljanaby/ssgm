@@ -4,11 +4,12 @@ import { createStakeholderSchema, updateStakeholderSchema } from '@gms/shared';
 import { db } from '../db';
 import { stakeholders } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 
 const stakeholdersRouter = new Hono<{ Variables: OrgContextVars }>();
 stakeholdersRouter.use(authMiddleware);
 stakeholdersRouter.use(orgContext);
+stakeholdersRouter.use(requireModuleAccess('stakeholder_management'));
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return !!value && typeof value === 'object' && !Array.isArray(value);

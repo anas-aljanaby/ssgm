@@ -25,12 +25,13 @@ import {
     memberships,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 import { writeAuditLog } from '../lib/auditLog';
 
 const grcRouter = new Hono<{ Variables: OrgContextVars }>();
 grcRouter.use(authMiddleware);
 grcRouter.use(orgContext);
+grcRouter.use(requireModuleAccess('grc'));
 
 type PolicyRow = typeof grc_policies.$inferSelect;
 type DecisionRow = typeof grc_decisions.$inferSelect;

@@ -12,7 +12,7 @@ import {
     project_team_members,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 import {
     createProjectExpenseSchema,
     createProjectRiskSchema,
@@ -26,6 +26,7 @@ import {
 const projectsRouter = new Hono<{ Variables: OrgContextVars }>();
 projectsRouter.use(authMiddleware);
 projectsRouter.use(orgContext);
+projectsRouter.use(requireModuleAccess('projects'));
 
 function asNumber(value: unknown): number {
     const parsed = Number(value);

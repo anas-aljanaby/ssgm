@@ -13,7 +13,7 @@ import {
     donations, individual_donors,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 import {
     createTransactionSchema, updateTransactionSchema,
     createPledgeSchema, updatePledgeSchema,
@@ -27,6 +27,7 @@ import {
 const financialsRouter = new Hono<{ Variables: OrgContextVars }>();
 financialsRouter.use(authMiddleware);
 financialsRouter.use(orgContext);
+financialsRouter.use(requireModuleAccess('financials'));
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 

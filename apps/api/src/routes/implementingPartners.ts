@@ -7,11 +7,12 @@ import { db } from '../db';
 import { implementing_partners, partner_documents, partner_evaluations, projects } from '../db/schema';
 import { assertBufferWithinLimit, buildStoredFilename, isUploadedFile, validateUpload } from '../lib/fileUpload';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 
 const implementingPartnersRouter = new Hono<{ Variables: OrgContextVars }>();
 implementingPartnersRouter.use(authMiddleware);
 implementingPartnersRouter.use(orgContext);
+implementingPartnersRouter.use(requireModuleAccess('implementing_partners'));
 
 const UPLOAD_DIR = process.env.PARTNER_UPLOAD_DIR || path.resolve(process.cwd(), 'uploads', 'partner-documents');
 const UPLOAD_PUBLIC_PATH = '/uploads/partner-documents';

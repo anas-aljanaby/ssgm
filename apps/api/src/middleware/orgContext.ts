@@ -89,6 +89,26 @@ export function requirePermission(module: RbacModule, action: PermissionAction) 
     };
 }
 
+/**
+ * Router-level RBAC guard: enforces `read` on GET and `write` on any mutating
+ * verb (POST/PATCH/PUT/DELETE) for the given module. Mount once per router,
+ * after orgContext, instead of annotating every handler. Platform admins bypass.
+ */
+export function requireModuleAccess(module: RbacModule) {
+    return async (c: Context, next: Next) => {
+        if (c.get('isPlatformAdmin')) {
+            await next();
+            return;
+        }
+        const action: PermissionAction = c.req.method === 'GET' ? 'read' : 'write';
+        const role = c.get('role') as OrgRole | undefined;
+        if (!role || !can(role, module, action)) {
+            return c.json({ error: 'Forbidden' }, 403);
+        }
+        await next();
+    };
+}
+
 /** Guards platform-only routes. Must run after authMiddleware. */
 export async function requirePlatformAdmin(c: Context, next: Next) {
     const user = c.get('user') as User;

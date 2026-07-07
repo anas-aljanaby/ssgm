@@ -3,13 +3,14 @@ import { and, desc, eq } from 'drizzle-orm';
 import { db } from '../db';
 import { beneficiaries } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 import { createBeneficiarySchema, updateBeneficiarySchema } from '@gms/shared';
 
 const beneficiariesRouter = new Hono<{ Variables: OrgContextVars }>();
 
 beneficiariesRouter.use(authMiddleware);
 beneficiariesRouter.use(orgContext);
+beneficiariesRouter.use(requireModuleAccess('beneficiaries'));
 
 type BeneficiaryRow = typeof beneficiaries.$inferSelect;
 

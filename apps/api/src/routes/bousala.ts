@@ -13,7 +13,7 @@ import {
     projects,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 import {
     createBousalaGoalSchema,
     createBousalaKpiSchema,
@@ -29,6 +29,7 @@ import {
 const bousalaRouter = new Hono<{ Variables: OrgContextVars }>();
 bousalaRouter.use(authMiddleware);
 bousalaRouter.use(orgContext);
+bousalaRouter.use(requireModuleAccess('bousala'));
 
 function asNumber(value: unknown): number {
     if (value === null || value === undefined) return 0;

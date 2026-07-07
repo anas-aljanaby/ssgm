@@ -11,7 +11,7 @@ import {
     institutional_donors,
 } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 import {
     createInstitutionalDonorContactSchema,
     createInstitutionalDonorSchema,
@@ -22,6 +22,7 @@ import {
 const institutionalDonorsRouter = new Hono<{ Variables: OrgContextVars }>();
 institutionalDonorsRouter.use(authMiddleware);
 institutionalDonorsRouter.use(orgContext);
+institutionalDonorsRouter.use(requireModuleAccess('institutional_donors'));
 
 const UPLOAD_DIR = process.env.INSTITUTIONAL_DONOR_UPLOAD_DIR || path.resolve(process.cwd(), 'uploads', 'institutional-donor-documents');
 const UPLOAD_PUBLIC_PATH = '/uploads/institutional-donor-documents';

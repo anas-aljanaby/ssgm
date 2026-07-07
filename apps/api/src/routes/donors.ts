@@ -5,7 +5,7 @@ import path from 'node:path';
 import { db } from '../db';
 import { donor_documents, donor_interactions, donor_tasks, donations, individual_donors } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { OrgContextVars, orgContext } from '../middleware/orgContext';
+import { OrgContextVars, orgContext, requireModuleAccess } from '../middleware/orgContext';
 import { normalizeDonorTags, validateDonorCustomFieldsPatch, validateDonorTags } from '../lib/donorPatchValidation';
 import { createDonationSchema, createDonorInteractionSchema, createDonorSchema, createDonorTaskSchema, updateDonorInteractionSchema, updateDonorSchema, updateDonorTaskSchema } from '@gms/shared';
 import { isUploadedFile, sanitizeFilename, validateUpload, buildStoredFilename, assertBufferWithinLimit } from '../lib/fileUpload';
@@ -14,6 +14,7 @@ const donorsRouter = new Hono<{ Variables: OrgContextVars }>();
 
 donorsRouter.use(authMiddleware);
 donorsRouter.use(orgContext);
+donorsRouter.use(requireModuleAccess('donors'));
 
 type DonationRow = typeof donations.$inferSelect;
 type DonorRow = typeof individual_donors.$inferSelect;
