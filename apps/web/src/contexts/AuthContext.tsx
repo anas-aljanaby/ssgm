@@ -38,10 +38,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return;
         }
 
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            syncSession(session);
-            setLoading(false);
-        });
+        let cancelled = false;
+
+        const initSession = async () => {
+            const SESSION_INIT_TIMEOUT_MS = 10_000;
+
+            try {
+                const result = await Promise.race([
+                    supabase.auth.getSession(),
+                    new Promise<never>((_, reject) =>
+                        setTimeout(() => reject(new Error('Session init timed out')), SESSION_INIT_TIMEOUT_MS),
+                    ),
+                ]);
+
+                if (cancelled) return;
+
+                const { data: { session }, error } = result;
+                if (error) throw error;
+                syncSession(session);
+            } catch (err) {
+                if (cancelled) return;
+                console.warn('Failed to restore auth session:', err);
+                try {
+                    await supabase.auth.signOut({ scope: 'local' });
+                } catch {
+                    // ignore — local cleanup is best-effort when Supabase is unreachable
+                }
+                syncSession(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        void initSession();
 
         const {
             data: { subscription },
@@ -49,7 +78,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             syncSession(session);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            cancelled = true;
+            subscription.unsubscribe();
+        };
     }, [queryClient]);
 
     const signIn = async (email: string, password: string) => {
