@@ -60,6 +60,10 @@ app.onError((err, c) => {
     if (err instanceof HTTPException) {
         return err.getResponse();
     }
+    // Malformed JSON request bodies surface as SyntaxError from c.req.json().
+    if (err instanceof SyntaxError) {
+        return c.json({ error: 'Invalid JSON body' }, 400);
+    }
     return c.json({ error: 'Internal server error' }, 500);
 });
 
