@@ -245,7 +245,9 @@ bousalaRouter.get('/goals/:id', async (c) => {
 bousalaRouter.post('/goals', async (c) => {
     const orgId = c.get('orgId');
 
-    const body = createBousalaGoalSchema.parse(await c.req.json());
+    const parsed = createBousalaGoalSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
     const [inserted] = await db
         .insert(bousala_goals)
         .values({
@@ -270,7 +272,9 @@ bousalaRouter.patch('/goals/:id', async (c) => {
     const orgId = c.get('orgId');
 
     const goalId = c.req.param('id');
-    const body = updateBousalaGoalSchema.parse(await c.req.json());
+    const parsed = updateBousalaGoalSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
 
     const [existing] = await db
         .select()
@@ -322,7 +326,9 @@ bousalaRouter.post('/goals/:goalId/kpis', async (c) => {
     const orgId = c.get('orgId');
 
     const goalId = c.req.param('goalId');
-    const body = createBousalaKpiSchema.parse(await c.req.json());
+    const parsed = createBousalaKpiSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
 
     const [goal] = await db
         .select({ id: bousala_goals.id })
@@ -358,7 +364,9 @@ bousalaRouter.patch('/kpis/:id', async (c) => {
     const orgId = c.get('orgId');
 
     const kpiId = c.req.param('id');
-    const body = updateBousalaKpiSchema.parse(await c.req.json());
+    const parsed = updateBousalaKpiSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
 
     const [existing] = await db
         .select()
@@ -413,7 +421,9 @@ bousalaRouter.post('/goals/:goalId/projects', async (c) => {
     const orgId = c.get('orgId');
 
     const goalId = c.req.param('goalId');
-    const body = linkBousalaProjectsSchema.parse(await c.req.json());
+    const parsed = linkBousalaProjectsSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
 
     const [goal] = await db
         .select({ id: bousala_goals.id })
@@ -458,7 +468,9 @@ bousalaRouter.patch('/goal-projects/:id', async (c) => {
     const orgId = c.get('orgId');
 
     const projectId = c.req.param('id');
-    const body = updateBousalaGoalProjectSchema.parse(await c.req.json());
+    const parsed = updateBousalaGoalProjectSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
 
     const [existing] = await db
         .select()
@@ -510,7 +522,9 @@ bousalaRouter.delete('/goal-projects/:id', async (c) => {
 bousalaRouter.post('/tasks', async (c) => {
     const orgId = c.get('orgId');
 
-    const body = createBousalaTaskSchema.parse(await c.req.json());
+    const parsed = createBousalaTaskSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
 
     const [goalProject] = await db
         .select({ id: bousala_goal_projects.id })
@@ -543,7 +557,9 @@ bousalaRouter.patch('/tasks/:id', async (c) => {
     const orgId = c.get('orgId');
 
     const taskId = c.req.param('id');
-    const body = updateBousalaTaskSchema.parse(await c.req.json());
+    const parsed = updateBousalaTaskSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
 
     const [existing] = await db
         .select({ id: bousala_tasks.id })
@@ -589,7 +605,9 @@ bousalaRouter.delete('/tasks/:id', async (c) => {
 bousalaRouter.patch('/direction', async (c) => {
     const orgId = c.get('orgId');
 
-    const body = updateBousalaDirectionSchema.parse(await c.req.json());
+    const parsed = updateBousalaDirectionSchema.safeParse(await c.req.json());
+    if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
+    const body = parsed.data;
 
     const [existing] = await db
         .select({ custom_fields: organizations.custom_fields })
