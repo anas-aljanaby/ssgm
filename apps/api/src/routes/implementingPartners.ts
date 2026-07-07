@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
 import { and, desc, eq, or } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createPartnerEvaluationSchema, createPartnerSchema, partnerDocumentCategorySchema, updatePartnerSchema } from '@gms/shared';
 import { db } from '../db';
 import { implementing_partners, partner_documents, partner_evaluations, projects } from '../db/schema';
+import { assertBufferWithinLimit, buildStoredFilename, isUploadedFile, validateUpload } from '../lib/fileUpload';
 import { authMiddleware } from '../middleware/auth';
 import { OrgContextVars, orgContext } from '../middleware/orgContext';
 
@@ -33,22 +33,6 @@ function toIso(value: Date | string | null | undefined): string | null {
 function defaultLogo(nameEn: string, nameAr: string): string {
     const source = (nameAr || nameEn || 'IP').trim();
     return source.slice(0, 2).toUpperCase();
-}
-
-function sanitizeFilename(value: string): string {
-    return value
-        .replace(/[/\\?%*:|"<>]/g, '-')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .slice(0, 160) || 'document';
-}
-
-function isUploadedFile(value: unknown): value is { name: string; type?: string; size?: number; arrayBuffer: () => Promise<ArrayBuffer> } {
-    return !!value
-        && typeof value === 'object'
-        && 'name' in value
-        && 'arrayBuffer' in value
-        && typeof (value as { arrayBuffer?: unknown }).arrayBuffer === 'function';
 }
 
 function mapContacts(value: unknown) {
@@ -265,26 +249,35 @@ implementingPartnersRouter.post('/:id/documents', async (c) => {
     const file = body.file;
     if (!isUploadedFile(file)) return c.json({ error: 'A file field is required.' }, 400);
 
+    const uploadCheck = validateUpload(file);
+    if (!uploadCheck.ok) {
+        return c.json({ error: uploadCheck.error }, uploadCheck.status);
+    }
+
     const labelValue = body.label;
     const label = typeof labelValue === 'string' && labelValue.trim() ? labelValue.trim() : file.name || 'Document';
     const categoryValue = body.category;
     const categoryParsed = partnerDocumentCategorySchema.safeParse(categoryValue);
     const category = categoryParsed.success ? categoryParsed.data : 'reports';
-    const originalFilename = sanitizeFilename(file.name || 'document');
-    const storedFilename = `${partner.id}-${randomUUID()}${path.extname(originalFilename)}`;
+    const storedFilename = buildStoredFilename(partner.id, uploadCheck.ext);
 
     await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(path.join(UPLOAD_DIR, storedFilename), Buffer.from(await file.arrayBuffer()));
+    const buffer = await file.arrayBuffer();
+    const bufferCheck = assertBufferWithinLimit(buffer);
+    if (!bufferCheck.ok) {
+        return c.json({ error: bufferCheck.error }, bufferCheck.status);
+    }
+    await writeFile(path.join(UPLOAD_DIR, storedFilename), Buffer.from(buffer));
 
     const [document] = await db.insert(partner_documents).values({
         org_id: orgId,
         partner_id: partner.id,
-        filename: originalFilename,
+        filename: uploadCheck.safeName,
         file_url: `${UPLOAD_PUBLIC_PATH}/${storedFilename}`,
         label,
         category,
         content_type: file.type || null,
-        size_bytes: typeof file.size === 'number' ? file.size : null,
+        size_bytes: buffer.byteLength,
         custom_fields: {},
     }).returning();
 

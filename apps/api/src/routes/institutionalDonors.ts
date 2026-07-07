@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { and, desc, eq, sql } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { db } from '../db';
+import { assertBufferWithinLimit, buildStoredFilename, isUploadedFile, validateUpload } from '../lib/fileUpload';
 import {
     grants,
     institutional_donor_contacts,
@@ -61,22 +61,6 @@ function getCustomObject(customFields: unknown, key: string): Record<string, unk
 function asStringArray(value: unknown): string[] {
     if (!Array.isArray(value)) return [];
     return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
-}
-
-function sanitizeFilename(value: string): string {
-    return value
-        .replace(/[/\\?%*:|"<>]/g, '-')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .slice(0, 160) || 'document';
-}
-
-function isUploadedFile(value: unknown): value is { name: string; type?: string; size?: number; arrayBuffer: () => Promise<ArrayBuffer> } {
-    return !!value
-        && typeof value === 'object'
-        && 'name' in value
-        && 'arrayBuffer' in value
-        && typeof (value as { arrayBuffer?: unknown }).arrayBuffer === 'function';
 }
 
 async function getOrgInstitutionalDonor(donorId: string, orgId: string) {
@@ -475,22 +459,31 @@ institutionalDonorsRouter.post('/:id/documents', async (c) => {
     const file = body.file;
     if (!isUploadedFile(file)) return c.json({ error: 'A file field is required.' }, 400);
 
+    const uploadCheck = validateUpload(file);
+    if (!uploadCheck.ok) {
+        return c.json({ error: uploadCheck.error }, uploadCheck.status);
+    }
+
     const labelValue = body.label;
     const label = typeof labelValue === 'string' && labelValue.trim() ? labelValue.trim() : 'Document';
-    const originalFilename = sanitizeFilename(file.name || 'document');
-    const storedFilename = `${donor.id}-${randomUUID()}${path.extname(originalFilename)}`;
+    const storedFilename = buildStoredFilename(donor.id, uploadCheck.ext);
 
     await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(path.join(UPLOAD_DIR, storedFilename), Buffer.from(await file.arrayBuffer()));
+    const buffer = await file.arrayBuffer();
+    const bufferCheck = assertBufferWithinLimit(buffer);
+    if (!bufferCheck.ok) {
+        return c.json({ error: bufferCheck.error }, bufferCheck.status);
+    }
+    await writeFile(path.join(UPLOAD_DIR, storedFilename), Buffer.from(buffer));
 
     const [document] = await db.insert(institutional_donor_documents).values({
         org_id: orgId,
         institutional_donor_id: donor.id,
-        filename: originalFilename,
+        filename: uploadCheck.safeName,
         file_url: `${UPLOAD_PUBLIC_PATH}/${storedFilename}`,
         label,
         content_type: file.type || null,
-        size_bytes: typeof file.size === 'number' ? file.size : null,
+        size_bytes: buffer.byteLength,
         custom_fields: {},
     }).returning();
 

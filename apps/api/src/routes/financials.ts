@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { User } from '@supabase/supabase-js';
 import { and, desc, eq, ilike, or } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { db } from '../db';
+import { assertBufferWithinLimit, buildStoredFilename, isUploadedFile, validateUpload } from '../lib/fileUpload';
 import {
     financial_transactions, transaction_attachments, donation_records,
     financial_pledges, pledge_installments, project_budgets, budget_lines,
@@ -486,6 +486,15 @@ financialsRouter.post('/transactions', async (c) => {
     const parsed = createTransactionSchema.safeParse(body);
     if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
 
+    // Validate the receipt before any DB write so bad uploads are rejected up front.
+    let uploadCheck: ReturnType<typeof validateUpload> | null = null;
+    if (receiptFile && isUploadedFile(receiptFile)) {
+        uploadCheck = validateUpload(receiptFile);
+        if (!uploadCheck.ok) {
+            return c.json({ error: uploadCheck.error }, uploadCheck.status);
+        }
+    }
+
     const data = parsed.data;
     const descriptionEn = data.description_en.trim();
     const descriptionAr = data.description_ar.trim();
@@ -511,18 +520,22 @@ financialsRouter.post('/transactions', async (c) => {
     }).returning();
 
     // Handle receipt upload
-    if (receiptFile && isUploadedFile(receiptFile)) {
-        const originalFilename = sanitizeFilename(receiptFile.name || 'receipt');
-        const storedFilename = `${txn.id}-${randomUUID()}${path.extname(originalFilename)}`;
+    if (receiptFile && isUploadedFile(receiptFile) && uploadCheck?.ok) {
+        const storedFilename = buildStoredFilename(txn.id, uploadCheck.ext);
         await mkdir(FINANCIAL_UPLOAD_DIR, { recursive: true });
-        await writeFile(path.join(FINANCIAL_UPLOAD_DIR, storedFilename), Buffer.from(await receiptFile.arrayBuffer()));
+        const buffer = await receiptFile.arrayBuffer();
+        const bufferCheck = assertBufferWithinLimit(buffer);
+        if (!bufferCheck.ok) {
+            return c.json({ error: bufferCheck.error }, bufferCheck.status);
+        }
+        await writeFile(path.join(FINANCIAL_UPLOAD_DIR, storedFilename), Buffer.from(buffer));
         await db.insert(transaction_attachments).values({
             org_id: orgId,
             transaction_id: txn.id,
-            filename: originalFilename,
+            filename: uploadCheck.safeName,
             file_url: `${FINANCIAL_UPLOAD_PUBLIC_PATH}/${storedFilename}`,
             content_type: receiptFile.type || null,
-            size_bytes: typeof receiptFile.size === 'number' ? receiptFile.size : null,
+            size_bytes: buffer.byteLength,
         });
         await db.update(financial_transactions).set({ attachments_count: 1 }).where(eq(financial_transactions.id, txn.id));
         txn.attachments_count = 1;
