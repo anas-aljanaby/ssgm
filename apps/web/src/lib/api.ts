@@ -45,7 +45,12 @@ class ApiClient {
             throw new Error(body.error || `API error ${res.status}`);
         }
 
-        return res.json();
+        // Handle 204 No Content and other empty-body successes without throwing.
+        if (res.status === 204) {
+            return undefined as T;
+        }
+        const text = await res.text();
+        return (text ? JSON.parse(text) : undefined) as T;
     }
 
     get<T>(path: string, orgIdOverride?: string | null) {
