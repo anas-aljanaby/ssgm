@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
+import { HTTPException } from 'hono/http-exception';
 import { User } from '@supabase/supabase-js';
 import { authMiddleware } from './middleware/auth';
 import { me } from './routes/me';
@@ -51,8 +52,15 @@ app.use(
 app.use('/uploads/*', serveStatic({ root: process.cwd() }));
 
 app.onError((err, c) => {
+    // Always log the full error server-side for diagnostics.
     console.error(err);
-    return c.json({ error: err.message || 'Internal server error' }, 500);
+    // Only surface messages that were intentionally thrown for the client
+    // (via HTTPException). Everything else gets a generic 500 so we never
+    // leak internal exception details (stack traces, DB errors, etc.).
+    if (err instanceof HTTPException) {
+        return err.getResponse();
+    }
+    return c.json({ error: 'Internal server error' }, 500);
 });
 
 app.get('/', (c) => c.text('Hono!'));
