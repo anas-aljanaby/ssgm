@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
-    # reached internally by Caddy as api:3000 — no public port
     environment:
       - PORT=3000
       - SUPABASE_URL=${SUPABASE_URL}
@@ -13,6 +12,11 @@ services:
       - DIRECT_URL=${DIRECT_URL}
       - WEB_ORIGIN=${WEB_ORIGIN}
     restart: unless-stopped
+    networks: [web]
+    labels:
+      caddy: ssgm.app www.ssgm.app
+      caddy.handle_path: /api/*
+      caddy.handle_path.reverse_proxy: "{{upstreams 3000}}"
 
   web:
     build:
@@ -22,28 +26,14 @@ services:
         - VITE_API_URL=${VITE_API_URL}
         - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
         - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
-    # reached internally by Caddy as web:80 — no public port
     depends_on:
       - api
     restart: unless-stopped
+    networks: [web]
+    labels:
+      caddy: ssgm.app www.ssgm.app
+      caddy.reverse_proxy: "{{upstreams 80}}"
 
-  caddy:
-    image: caddy:2-alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    extra_hosts:
-      # lets Caddy reach the host's published port 81 (full-pages app, separate project)
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - web
-      - api
-    restart: unless-stopped
-
-volumes:
-  caddy_data:
-  caddy_config:
+networks:
+  web:
+    external: true
