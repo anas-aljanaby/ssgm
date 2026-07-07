@@ -11,13 +11,13 @@ Each item includes: ticker, title, short summary, and likely relevant code locat
 - [X] **SEC-002 — Stop storing/exposing plaintext staff demo passwords**
   - Short summary: Staff-related API and mapping logic appears to persist and return sensitive password-like values. Remove persistence/response exposure and migrate existing data safely.
   - Relevant code: `apps/api/src/routes/staff.ts`, `apps/api/src/db/schema.ts`
-- [ ] **SEC-003 — Harden file uploads**
+- [X] **SEC-003 — Harden file uploads**
   - Short summary: Upload handlers need strict validation (size, MIME/type allowlist, filename/path sanitization, and storage policy) to reduce DoS and malicious content risks.
   - Relevant code: `apps/api/src/routes/donors.ts`, `apps/api/src/routes/financials.ts`, `apps/api/src/routes/implementingPartners.ts`, `apps/api/src/routes/institutionalDonors.ts`, `apps/api/src/index.ts`
-- [ ] **SEC-004 — Enforce module RBAC on all backend routes**
+- [X] **SEC-004 — Enforce module RBAC on all backend routes**
   - Short summary: Apply `requirePermission(module, 'read')` on GET handlers and `requirePermission(module, 'write')` on POST/PATCH/DELETE across all business route files (including `bousala.ts`).
   - Relevant code: `apps/api/src/routes/donors.ts`, `apps/api/src/routes/projects.ts`, `apps/api/src/routes/financials.ts`, `apps/api/src/routes/beneficiaries.ts`, `apps/api/src/routes/bousala.ts`, `apps/api/src/routes/stakeholders.ts`, `apps/api/src/routes/implementingPartners.ts`, `apps/api/src/routes/institutionalDonors.ts`
-- [ ] **SEC-005 — Reduce internal error disclosure in API responses**
+- [X] **SEC-005 — Reduce internal error disclosure in API responses**
   - Short summary: Global error responses should avoid returning raw internal exception details to clients; keep detailed info in server logs only. Consider a safe client-facing error class for intentional messages.
   - Relevant code: `apps/api/src/index.ts`
 - [ ] **SEC-006 — Secure static file serving for uploads**
@@ -29,10 +29,10 @@ Each item includes: ticker, title, short summary, and likely relevant code locat
 - [ ] **REL-001 — Make multi-step writes/deletes transactional**
   - Short summary: Complex flows touching multiple rows/files should be wrapped in transactions (and compensating cleanup where needed) to avoid partial failure states.
   - Relevant code: `apps/api/src/routes/donors.ts`, `apps/api/src/routes/financials.ts`, `apps/api/src/routes/implementingPartners.ts`, `apps/api/src/routes/institutionalDonors.ts`, `apps/api/src/lib/deleteOrgData.ts`
-- [ ] **REL-002 — Handle non-JSON/empty successful API responses**
+- [X] **REL-002 — Handle non-JSON/empty successful API responses**
   - Short summary: Shared frontend API client should safely handle `204` and empty-body success responses instead of always calling `res.json()`.
   - Relevant code: `apps/web/src/lib/api.ts`
-- [ ] **REL-003 — Standardize auth-gating for frontend queries**
+- [X] **REL-003 — Standardize auth-gating for frontend queries**
   - Short summary: Apply consistent `enabled: !authLoading && !!user` (or session-token check) across all hooks in `apps/web/src/hooks/` to prevent unauthorized API calls.
   - Relevant code: `apps/web/src/hooks/useDonors.ts`, `apps/web/src/hooks/useFinancialOverview.ts`, `apps/web/src/hooks/useProjects.ts`, `apps/web/src/hooks/`
 - [ ] **REL-004 — Tighten date/input validation contracts**
@@ -47,10 +47,10 @@ Each item includes: ticker, title, short summary, and likely relevant code locat
 - [ ] **REL-007 — Standardize route-level error handling**
   - Short summary: Add reusable try/catch wrapper or middleware for route handlers; map Drizzle/Postgres errors to 409 (constraints) and 404 (not found) instead of generic 500s.
   - Relevant code: `apps/api/src/middleware/`, `apps/api/src/routes/`
-- [ ] **REL-008 — Fix Bousala validation to use safeParse**
+- [X] **REL-008 — Fix Bousala validation to use safeParse**
   - Short summary: Replace `.parse()` with `.safeParse()` in Bousala routes and return 400 with validation issues on failure, matching donors/projects/financials pattern.
   - Relevant code: `apps/api/src/routes/bousala.ts`, `packages/shared/src/schemas/bousala.ts`
-- [ ] **REL-009 — Handle invalid JSON request bodies**
+- [X] **REL-009 — Handle invalid JSON request bodies**
   - Short summary: Catch `c.req.json()` parse failures and return 400 with a clear message instead of an unhandled 500.
   - Relevant code: `apps/api/src/index.ts`, `apps/api/src/middleware/`
 - [ ] **REL-010 — Add 401 handling with token refresh in API client**
