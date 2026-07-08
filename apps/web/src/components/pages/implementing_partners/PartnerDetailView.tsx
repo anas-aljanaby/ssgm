@@ -19,6 +19,7 @@ interface PartnerDetailViewProps {
     onPartnerDelete?: (partnerId: string) => void;
     isSaving?: boolean;
     isDeleting?: boolean;
+    initialTab?: string;
 }
 
 const PartnerDetailView: React.FC<PartnerDetailViewProps> = ({
@@ -28,10 +29,11 @@ const PartnerDetailView: React.FC<PartnerDetailViewProps> = ({
     onPartnerDelete,
     isSaving = false,
     isDeleting = false,
+    initialTab = 'overview',
 }) => {
     const { t } = useLocalization(['partners', 'common']);
     const toast = useToast();
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [isHeaderEditing, setIsHeaderEditing] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [headerForm, setHeaderForm] = useState({

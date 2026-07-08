@@ -1,28 +1,51 @@
 {
   "gri": {
     "title": "GRI Reporting",
-    "subtitle": "A comprehensive tool to manage and create your Global Reporting Initiative reports.",
+    "subtitle": "Author, track, and produce your Global Reporting Initiative sustainability report.",
+    "tabs": {
+      "overview": "Overview",
+      "disclosures": "Disclosures",
+      "report": "Report"
+    },
     "overallCompletion": "Overall Completion",
     "universalStandards": "Universal Standards",
     "topicStandards": "Topic-Specific Standards",
-    "sectorStandards": "Sector Standards",
     "statusBreakdown": "Disclosure Status",
     "statuses": {
-      "completed": "Complete",
+      "complete": "Complete",
       "partial": "Partial",
       "missing": "Missing"
     },
-    "materialTopics": "Material Topics to Address",
-    "nextSteps": "Ready for the next step?",
-    "nextStepsDesc": "You have multiple options to continue your GRI report. Start collecting data manually or use AI to find gaps first.",
-    "startDataCollection": "Start Data Collection",
-    "dataCollection": {
-      "title": "GRI Data Collection",
-      "backToDashboard": "Back to Dashboard",
+    "overview": {
+      "gapsTitle": "Gaps to Address",
+      "gapsDesc": "Mandatory disclosures that still need data.",
+      "missingData": "Data needed",
+      "allComplete": "All mandatory disclosures are complete.",
+      "materialTopicsTitle": "Material Topics in Scope",
+      "materialTopicsCaption": "Derived from the organization's materiality assessment.",
+      "reportMetaTitle": "Report Details",
+      "reportPeriod": "Reporting Period",
+      "frameworkVersion": "Framework Version"
+    },
+    "activation": {
+      "loading": "Loading GRI report...",
+      "error": "Failed to load GRI data.",
+      "createReport": "Create report workspace",
+      "createSuccess": "GRI report workspace created",
+      "deleteReport": "Delete report workspace",
+      "deleteConfirm": "Delete this report and all disclosure responses?",
+      "deleteSuccess": "GRI report deleted"
+    },
+    "deferred": {
+      "comingSoon": "Coming soon"
+    },
+    "disclosures": {
       "universal": "Universal Standards",
       "topic": "Topic-Specific Standards",
-      "sector": "Sector Standards",
-      "sectorPlaceholder": "Sector-specific standards are currently under development.",
+      "showIncomplete": "Show incomplete only",
+      "empty": "No disclosures match the current filter."
+    },
+    "dataCollection": {
       "categories": {
         "Economic": "Economic",
         "Environmental": "Environmental",
@@ -37,43 +60,33 @@
       "statusNotStarted": "Not started",
       "statusInProgress": "In progress",
       "statusComplete": "Complete",
-      "saveProgress": "Save progress"
-    },
-    "gapAnalysis": {
-      "runAnalysis": "Gap Analysis",
-      "title": "GRI Gap Analysis",
-      "backToDashboard": "Back to Dashboard",
-      "loading": "AI is analyzing report gaps...",
-      "summaryTitle": "Analysis Summary",
-      "criticalGapsTitle": "Critical Gaps Identified",
-      "criticalGapsDesc": "The following mandatory disclosures contain missing data.",
-      "aiQuestionsTitle": "AI-Generated Smart Questions",
-      "aiQuestionsDesc": "Use these questions to guide data collection for missing items.",
-      "questionFor": "Question for",
-      "category": "Category",
-      "missingData": "Missing data",
-      "error": "An error occurred during analysis. Please try again."
+      "saveProgress": "Save progress",
+      "saveSuccess": "Disclosure saved",
+      "unsavedChanges": "Unsaved changes"
     },
     "questionnaire": {
-      "title": "Smart GRI Data Collection Questionnaire",
-      "backToAnalysis": "Back to analysis",
-      "progress": "Progress",
-      "answerHere": "Enter your answer here...",
-      "skip": "Skip",
-      "saveAnswers": "Save answers",
-      "saveSuccess": "Answers saved successfully",
-      "category": {
-        "organizational": "Organizational",
-        "economic": "Economic",
-        "social": "Social"
+      "progress": "Progress"
+    },
+    "report": {
+      "contentIndexTitle": "GRI Content Index",
+      "colNumber": "Disclosure",
+      "colTitle": "Title",
+      "colRequirement": "Requirement",
+      "colStatus": "Status",
+      "colReference": "Page / Reference",
+      "referencePlaceholder": "e.g. p. 12",
+      "export": "Export report",
+      "exporting": "Exporting...",
+      "exportSuccess": "Report export started",
+      "exportPending": "Report export is coming soon",
+      "dangerZone": "Danger zone",
+      "deleteHint": "Permanently removes this report and all disclosure responses.",
+      "readiness": "{{done}} of {{total}} mandatory disclosures complete",
+      "required": {
+        "yes": "Yes",
+        "ifApplicable": "If applicable",
+        "recommended": "Recommended"
       }
-    },
-    "settings": {
-      "title": "GRI System Settings",
-      "save": "Save settings"
-    },
-    "placeholder": {
-      "underConstruction": "Under construction"
     }
   }
 }

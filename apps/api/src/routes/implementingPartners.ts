@@ -102,13 +102,50 @@ function mapDocument(row: typeof partner_documents.$inferSelect) {
     };
 }
 
+function deriveOverallScore(scores: {
+    timeline: number;
+    quality: number;
+    communication: number;
+    transparency: number;
+    flexibility: number;
+    budget: number;
+    resources: number;
+}): number {
+    const values = [
+        scores.timeline,
+        scores.quality,
+        scores.communication,
+        scores.transparency,
+        scores.flexibility,
+        scores.budget,
+        scores.resources,
+    ];
+    return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+/** Map a 0–100 evaluation score to the partner's 5-star summary rating. */
+function scoreToStars(score100: number): number {
+    return Math.round((score100 / 20) * 10) / 10;
+}
+
 function mapEvaluation(row: typeof partner_evaluations.$inferSelect) {
     return {
         id: row.id,
         reviewer: row.reviewer,
         project: row.project || '',
         rating: row.rating,
-        comment: row.comment || '',
+        scores: {
+            timeline: row.score_timeline,
+            quality: row.score_quality,
+            communication: row.score_communication,
+            transparency: row.score_transparency,
+            flexibility: row.score_flexibility,
+            budget: row.score_budget,
+            resources: row.score_resources,
+        },
+        strengths: row.strengths || '',
+        weaknesses: row.weaknesses || '',
+        recommendations: row.recommendations || '',
         date: toIso(row.evaluated_at) ?? new Date().toISOString(),
     };
 }
@@ -158,7 +195,9 @@ async function syncPartnerRatingFromEvaluations(partnerId: string, orgId: string
 
     const rating = evaluations.length === 0
         ? 0
-        : Number((evaluations.reduce((sum, row) => sum + row.rating, 0) / evaluations.length).toFixed(1));
+        : scoreToStars(
+            evaluations.reduce((sum, row) => sum + row.rating, 0) / evaluations.length,
+        );
 
     await db
         .update(implementing_partners)
@@ -304,6 +343,21 @@ implementingPartnersRouter.delete('/:id/documents/:documentId', async (c) => {
     return c.json({ ok: true });
 });
 
+implementingPartnersRouter.get('/evaluations', async (c) => {
+    const orgId = c.get('orgId');
+
+    const rows = await db
+        .select()
+        .from(partner_evaluations)
+        .where(eq(partner_evaluations.org_id, orgId))
+        .orderBy(desc(partner_evaluations.evaluated_at));
+
+    return c.json(rows.map((row) => ({
+        ...mapEvaluation(row),
+        partner_id: row.partner_id,
+    })));
+});
+
 implementingPartnersRouter.get('/:id/evaluations', async (c) => {
     const orgId = c.get('orgId');
     const partner = await getOrgPartner(c.req.param('id'), orgId);
@@ -328,13 +382,23 @@ implementingPartnersRouter.post('/:id/evaluations', async (c) => {
     if (!parsed.success) return c.json({ error: parsed.error.issues }, 400);
 
     const data = parsed.data;
+    const overall = deriveOverallScore(data.scores);
     const [evaluation] = await db.insert(partner_evaluations).values({
         org_id: orgId,
         partner_id: partner.id,
         reviewer: data.reviewer.trim(),
         project: data.project.trim(),
-        rating: data.rating,
-        comment: data.comment.trim(),
+        rating: overall,
+        score_timeline: data.scores.timeline,
+        score_quality: data.scores.quality,
+        score_communication: data.scores.communication,
+        score_transparency: data.scores.transparency,
+        score_flexibility: data.scores.flexibility,
+        score_budget: data.scores.budget,
+        score_resources: data.scores.resources,
+        strengths: data.strengths.trim(),
+        weaknesses: data.weaknesses.trim(),
+        recommendations: data.recommendations.trim(),
         custom_fields: {},
     }).returning();
 

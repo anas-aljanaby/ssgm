@@ -661,12 +661,54 @@ export const partner_evaluations = pgTable('partner_evaluations', {
     partner_id: uuid('partner_id').notNull().references(() => implementing_partners.id),
     reviewer: text('reviewer').notNull(),
     project: text('project').notNull().default(''),
+    /** Derived overall score 0–100 (average of the 7 criterion scores). */
     rating: integer('rating').notNull(),
-    comment: text('comment').notNull().default(''),
+    score_timeline: integer('score_timeline').notNull().default(0),
+    score_quality: integer('score_quality').notNull().default(0),
+    score_communication: integer('score_communication').notNull().default(0),
+    score_transparency: integer('score_transparency').notNull().default(0),
+    score_flexibility: integer('score_flexibility').notNull().default(0),
+    score_budget: integer('score_budget').notNull().default(0),
+    score_resources: integer('score_resources').notNull().default(0),
+    strengths: text('strengths').notNull().default(''),
+    weaknesses: text('weaknesses').notNull().default(''),
+    recommendations: text('recommendations').notNull().default(''),
     evaluated_at: timestamp('evaluated_at').defaultNow(),
     custom_fields: jsonb('custom_fields').default({}),
     created_at: timestamp('created_at').defaultNow(),
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GRI REPORTING MODULE
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const gri_reports = pgTable('gri_reports', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    org_id: uuid('org_id').notNull().references(() => organizations.id),
+    report_period: text('report_period').notNull().default(''),
+    framework_version: text('framework_version').notNull().default('GRI Standards 2021'),
+    material_topics: jsonb('material_topics').default([]),
+    custom_fields: jsonb('custom_fields').default({}),
+    created_at: timestamp('created_at').defaultNow(),
+    updated_at: timestamp('updated_at').defaultNow(),
+});
+
+export const gri_disclosure_responses = pgTable(
+    'gri_disclosure_responses',
+    {
+        id: uuid('id').primaryKey().defaultRandom(),
+        org_id: uuid('org_id').notNull().references(() => organizations.id),
+        report_id: uuid('report_id').notNull().references(() => gri_reports.id),
+        disclosure_number: text('disclosure_number').notNull(),
+        narrative: text('narrative').notNull().default(''),
+        status: text('status').notNull().default('not_started'),
+        reference: text('reference').notNull().default(''),
+        custom_fields: jsonb('custom_fields').default({}),
+        created_at: timestamp('created_at').defaultNow(),
+        updated_at: timestamp('updated_at').defaultNow(),
+    },
+    (table) => [uniqueIndex('gri_disclosure_responses_report_disclosure_unique').on(table.report_id, table.disclosure_number)],
+);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STAKEHOLDERS MODULE

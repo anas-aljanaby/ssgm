@@ -15,3 +15,4 @@ export * from './constants/modules';
 export * from './schemas/module';
 export * from './schemas/grc';
 export * from './schemas/sharia';
+export * from './schemas/gri';

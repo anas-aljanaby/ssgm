@@ -71,13 +71,28 @@ export const partnerDocumentCategorySchema = z.enum([
     'projectReports',
 ]);
 
+export const partnerEvaluationScoreSchema = z.number().int().min(0).max(100);
+
+export const partnerEvaluationScoresSchema = z.object({
+    timeline: partnerEvaluationScoreSchema,
+    quality: partnerEvaluationScoreSchema,
+    communication: partnerEvaluationScoreSchema,
+    transparency: partnerEvaluationScoreSchema,
+    flexibility: partnerEvaluationScoreSchema,
+    budget: partnerEvaluationScoreSchema,
+    resources: partnerEvaluationScoreSchema,
+});
+
 export const createPartnerEvaluationSchema = z.object({
     reviewer: z.string().min(1),
     project: z.string().min(1),
-    rating: z.number().int().min(1).max(5),
-    comment: z.string().min(1),
+    scores: partnerEvaluationScoresSchema,
+    strengths: z.string().min(1),
+    weaknesses: z.string().default(''),
+    recommendations: z.string().default(''),
 });
 
 export type CreatePartner = z.infer<typeof createPartnerSchema>;
 export type UpdatePartner = z.infer<typeof updatePartnerSchema>;
+export type PartnerEvaluationScores = z.infer<typeof partnerEvaluationScoresSchema>;
 export type CreatePartnerEvaluation = z.infer<typeof createPartnerEvaluationSchema>;

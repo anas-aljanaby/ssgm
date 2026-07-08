@@ -1,19 +1,24 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, Star, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import type { Partner } from '../../../../types';
 import { useLocalization } from '../../../../hooks/useLocalization';
 import { useProjects } from '../../../../hooks/useProjects';
 import { useToast } from '../../../../hooks/useToast';
 import {
+    useCreatePartnerEvaluation,
+    usePartnerEvaluations,
+} from '../../../../hooks/usePartnerEvaluations';
+import {
     type EvaluationScores,
     type PartnerEvaluation,
     CRITERIA_GROUPS,
     deriveRating,
-    MOCK_PARTNER_EVALUATIONS,
+    scoreToStars,
 } from '../../../../data/partnerEvaluationsData';
 import { projectMatchesPartner } from '../partnerProjectUtils';
 import ModalPortal from '../../../common/ModalPortal';
-import { fieldClass } from '../shared';
+import Spinner from '../../../common/Spinner';
+import { fieldClass, scoreTone } from '../shared';
 
 interface PerformanceTabProps {
     partner: Partner;
@@ -22,61 +27,61 @@ interface PerformanceTabProps {
 }
 
 const EMPTY_SCORES: EvaluationScores = {
-    timeline: 3,
-    quality: 3,
-    communication: 3,
-    transparency: 3,
-    flexibility: 3,
-    budget: 3,
-    resources: 3,
+    timeline: 70,
+    quality: 70,
+    communication: 70,
+    transparency: 70,
+    flexibility: 70,
+    budget: 70,
+    resources: 70,
 };
 
-const StarRating: React.FC<{ rating: number; size?: number; showValue?: boolean }> = ({ rating, size = 16, showValue = false }) => (
-    <div className="flex items-center gap-1">
-        {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-                key={i}
-                size={size}
-                className={i < Math.round(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
-            />
-        ))}
-        {showValue && <span className="font-bold text-sm ml-1">({rating.toFixed(1)})</span>}
-    </div>
-);
-
-/** Interactive 1–5 star input for a single criterion. */
-const CriterionStars: React.FC<{ value: number; onChange: (value: number) => void; label: string }> = ({ value, onChange, label }) => (
-    <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-medium">{label}</span>
-        <div className="flex items-center gap-0.5">
-            {Array.from({ length: 5 }).map((_, i) => (
-                <button
-                    key={i}
-                    type="button"
-                    onClick={() => onChange(i + 1)}
-                    className="p-0.5"
-                    aria-label={`${label}: ${i + 1}`}
-                >
-                    <Star size={18} className={i < value ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 hover:text-yellow-300'} />
-                </button>
-            ))}
-        </div>
-    </div>
-);
-
-/** Read-only average bar for a single criterion (scaled from a 1–5 average). */
+/** Read-only average bar for a single criterion (0–100). */
 const CriterionBar: React.FC<{ label: string; value: number }> = ({ label, value }) => {
-    const percent = (value / 5) * 100;
+    const tone = scoreTone(value);
     return (
         <div>
             <div className="flex justify-between items-center mb-1">
                 <span className="text-sm font-medium">{label}</span>
-                <span className="text-sm font-bold text-gray-600 dark:text-gray-300">{value.toFixed(1)}</span>
+                <span className={`text-sm font-bold ${tone.text}`}>{value}</span>
             </div>
             <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-slate-700">
-                <div className="h-2 rounded-full bg-blue-600" style={{ width: `${percent}%` }} />
+                <div className={`h-2 rounded-full ${tone.bar}`} style={{ width: `${value}%` }} />
             </div>
         </div>
+    );
+};
+
+/** 0–100 slider input for a single criterion. */
+const ScoreSlider: React.FC<{ label: string; value: number; onChange: (value: number) => void }> = ({ label, value, onChange }) => {
+    const tone = scoreTone(value);
+    const trackColor = value >= 85 ? '#22c55e' : value >= 70 ? '#2563eb' : value >= 55 ? '#f59e0b' : '#ef4444';
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-1">
+                <label className="text-sm font-medium">{label}</label>
+                <span className={`text-sm font-bold px-2 py-0.5 rounded-md ${tone.soft} ${tone.text}`}>{value}</span>
+            </div>
+            <input
+                type="range"
+                min={0}
+                max={100}
+                value={value}
+                onChange={(e) => onChange(Number(e.target.value))}
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                style={{ background: `linear-gradient(to left, ${trackColor} ${value}%, #e5e7eb ${value}%)` }}
+            />
+        </div>
+    );
+};
+
+const ScoreBadge: React.FC<{ value: number; size?: 'sm' | 'lg' }> = ({ value, size = 'sm' }) => {
+    const tone = scoreTone(value);
+    return (
+        <span className={`inline-flex items-baseline gap-0.5 font-bold rounded-lg ${tone.soft} ${tone.text} ${size === 'lg' ? 'px-3 py-1 text-lg' : 'px-2 py-0.5 text-sm'}`}>
+            {value}
+            <span className="text-xs font-semibold opacity-70">/100</span>
+        </span>
     );
 };
 
@@ -92,7 +97,6 @@ const NoteBlock: React.FC<{ label: string; value: string }> = ({ label, value })
 
 const EvaluationRecordCard: React.FC<{ review: PartnerEvaluation }> = ({ review }) => {
     const { t, language } = useLocalization(['partners']);
-    const rating = deriveRating(review.scores);
 
     return (
         <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-lg border dark:border-slate-600">
@@ -107,7 +111,7 @@ const EvaluationRecordCard: React.FC<{ review: PartnerEvaluation }> = ({ review 
                         })} · {t('partners.performance.projectLabel')}: {review.project}
                     </p>
                 </div>
-                <StarRating rating={rating} showValue />
+                <ScoreBadge value={deriveRating(review.scores)} />
             </div>
             <div className="mt-3 space-y-2">
                 <NoteBlock label={t('partners.performance.strengths')} value={review.strengths} />
@@ -122,7 +126,8 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partner, onPartnerUpdat
     const { t, language } = useLocalization(['partners', 'common']);
     const toast = useToast();
     const { data: allProjects = [] } = useProjects();
-    const [reviews, setReviews] = useState<PartnerEvaluation[]>(MOCK_PARTNER_EVALUATIONS);
+    const { data: reviews = [], isLoading, isError, refetch } = usePartnerEvaluations(partner.id);
+    const createEvaluation = useCreatePartnerEvaluation(partner.id);
     const linkedProjects = useMemo(
         () => allProjects.filter((project) => projectMatchesPartner(project, partner)),
         [allProjects, partner],
@@ -137,24 +142,26 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partner, onPartnerUpdat
         recommendations: '',
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const overallRating = useMemo(() => {
-        if (reviews.length === 0) return partner.rating;
-        return reviews.reduce((sum, review) => sum + deriveRating(review.scores), 0) / reviews.length;
+    const overallScore = useMemo(() => {
+        if (reviews.length === 0) return Math.round(partner.rating * 20);
+        return Math.round(reviews.reduce((sum, review) => sum + deriveRating(review.scores), 0) / reviews.length);
     }, [reviews, partner.rating]);
 
     const criteriaAverages = useMemo(() => {
         const totals = {} as Record<keyof EvaluationScores, number>;
         CRITERIA_GROUPS.forEach((group) =>
             group.criteria.forEach((key) => {
-                totals[key] = reviews.reduce((sum, review) => sum + review.scores[key], 0) / reviews.length;
+                totals[key] = reviews.length
+                    ? Math.round(reviews.reduce((sum, review) => sum + review.scores[key], 0) / reviews.length)
+                    : 0;
             }),
         );
         return totals;
     }, [reviews]);
 
-    const derivedRating = useMemo(() => deriveRating(form.scores), [form.scores]);
+    const derivedScore = useMemo(() => deriveRating(form.scores), [form.scores]);
+    const overallTone = scoreTone(overallScore);
 
     const setScore = (key: keyof EvaluationScores, value: number) =>
         setForm((f) => ({ ...f, scores: { ...f.scores, [key]: value } }));
@@ -177,37 +184,64 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partner, onPartnerUpdat
         e.preventDefault();
         if (!validate()) return;
 
-        // TODO: replace with useCreatePartnerEvaluation mutation when activated.
-        setIsSubmitting(true);
-        setTimeout(() => {
-            const record: PartnerEvaluation = {
-                id: `pe-${Date.now()}`,
+        createEvaluation.mutate(
+            {
                 reviewer: form.reviewer.trim(),
                 project: form.project.trim(),
-                date: new Date().toISOString(),
                 scores: { ...form.scores },
                 strengths: form.strengths.trim(),
                 weaknesses: form.weaknesses.trim(),
                 recommendations: form.recommendations.trim(),
-            };
-            const nextReviews = [record, ...reviews];
-            setReviews(nextReviews);
-            const newOverall = nextReviews.reduce((sum, review) => sum + deriveRating(review.scores), 0) / nextReviews.length;
-            onPartnerUpdate({ ...partner, rating: newOverall });
-            toast.showSuccess(t('partners.performance.addSuccess'));
-            resetForm();
-            setModalOpen(false);
-            setIsSubmitting(false);
-        }, 500);
+            },
+            {
+                onSuccess: (result) => {
+                    onPartnerUpdate({ ...partner, rating: result.partnerRating ?? scoreToStars(deriveRating(result.scores)) });
+                    toast.showSuccess(t('partners.performance.addSuccess'));
+                    resetForm();
+                    setModalOpen(false);
+                },
+                onError: () => {
+                    toast.showError(t('partners.performance.addError'));
+                },
+            },
+        );
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center py-16">
+                <Spinner />
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 p-6 text-center space-y-3">
+                <p className="text-sm text-red-700 dark:text-red-300">{t('partners.performance.loadError')}</p>
+                <button
+                    type="button"
+                    onClick={() => void refetch()}
+                    className="text-sm font-semibold text-red-700 dark:text-red-300 underline"
+                >
+                    {t('common.retry')}
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8">
             <div className="bg-gray-50 dark:bg-slate-700/50 p-6 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-center sm:text-right">
                     <p className="text-sm font-semibold text-gray-500">{t('partners.performance.overallScore')}</p>
-                    <p className="text-5xl font-bold text-blue-600">{overallRating.toFixed(1)}</p>
-                    <StarRating rating={overallRating} size={20} />
+                    <p className={`text-5xl font-bold ${overallTone.text}`}>
+                        {overallScore}
+                        <span className="text-2xl font-semibold text-gray-400"> / 100</span>
+                    </p>
+                    <div className="h-2 w-48 mx-auto sm:mx-0 mt-2 rounded-full bg-gray-200 dark:bg-slate-600">
+                        <div className={`h-2 rounded-full ${overallTone.bar}`} style={{ width: `${overallScore}%` }} />
+                    </div>
                     <p className="text-sm text-gray-500 mt-2">{t('partners.performance.basedOn', { count: reviews.length })}</p>
                 </div>
                 <button
@@ -293,10 +327,10 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partner, onPartnerUpdat
 
                         {CRITERIA_GROUPS.map((group) => (
                             <div key={group.section} className="p-4 border rounded-lg bg-gray-50/50 dark:bg-slate-800/30 dark:border-slate-700">
-                                <h4 className="text-sm font-bold mb-3">{t(`partners.performance.sections.${group.section}`)}</h4>
-                                <div className="space-y-3">
+                                <h4 className="text-sm font-bold mb-4">{t(`partners.performance.sections.${group.section}`)}</h4>
+                                <div className="space-y-4">
                                     {group.criteria.map((key) => (
-                                        <CriterionStars
+                                        <ScoreSlider
                                             key={key}
                                             label={t(`partners.performance.criteria.${key}`)}
                                             value={form.scores[key]}
@@ -309,7 +343,7 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partner, onPartnerUpdat
 
                         <div className="flex items-center justify-between px-1">
                             <span className="text-sm font-semibold">{t('partners.performance.overallRatingLabel')}</span>
-                            <StarRating rating={derivedRating} showValue />
+                            <ScoreBadge value={derivedScore} size="lg" />
                         </div>
 
                         <div>
@@ -328,8 +362,8 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ partner, onPartnerUpdat
                     </div>
                     <div className="px-6 py-4 bg-gray-50 dark:bg-dark-card/50 rounded-b-xl flex justify-end gap-3">
                         <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-semibold border rounded-lg">{t('common.cancel')}</button>
-                        <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg disabled:opacity-50">
-                            {isSubmitting ? t('common.loading') : t('common.save')}
+                        <button type="submit" disabled={createEvaluation.isPending} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg disabled:opacity-50">
+                            {createEvaluation.isPending ? t('common.loading') : t('common.save')}
                         </button>
                     </div>
                 </form>

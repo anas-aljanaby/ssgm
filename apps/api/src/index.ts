@@ -21,6 +21,7 @@ import { platformRouter } from './routes/platform';
 import { modulesRouter } from './routes/modules';
 import { grcRouter } from './routes/grc';
 import { shariaRouter } from './routes/sharia';
+import { griReportingRouter } from './routes/griReporting';
 
 type Variables = {
     user: User;
@@ -92,6 +93,7 @@ app.route('/platform', platformRouter);
 app.route('/modules', modulesRouter);
 app.route('/grc', grcRouter);
 app.route('/sharia', shariaRouter);
+app.route('/gri-reporting', griReportingRouter);
 
 const port = Number(process.env.PORT) || 3000;
 

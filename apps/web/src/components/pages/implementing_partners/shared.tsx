@@ -4,6 +4,14 @@ import { Check, Pencil, X } from 'lucide-react';
 export const fieldClass =
     'mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold dark:border-slate-600 dark:bg-slate-900';
 
+/** Tailwind classes for a 0–100 evaluation score, banded by performance tier. */
+export const scoreTone = (value: number): { bar: string; text: string; soft: string } => {
+    if (value >= 85) return { bar: 'bg-green-500', text: 'text-green-600 dark:text-green-400', soft: 'bg-green-100 dark:bg-green-900/30' };
+    if (value >= 70) return { bar: 'bg-blue-600', text: 'text-blue-600 dark:text-blue-400', soft: 'bg-blue-100 dark:bg-blue-900/30' };
+    if (value >= 55) return { bar: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400', soft: 'bg-amber-100 dark:bg-amber-900/30' };
+    return { bar: 'bg-red-500', text: 'text-red-600 dark:text-red-400', soft: 'bg-red-100 dark:bg-red-900/30' };
+};
+
 export const EditActions: React.FC<{
     isEditing: boolean;
     isSaving?: boolean;

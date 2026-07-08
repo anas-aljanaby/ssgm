@@ -132,6 +132,8 @@
       "addEvaluation": "Add Evaluation",
       "addModalTitle": "Add Evaluation Record",
       "addSuccess": "Evaluation added.",
+      "addError": "Could not save the evaluation. Please try again.",
+      "loadError": "Could not load evaluation records. Please try again.",
       "empty": "No evaluation records yet.",
       "criteriaTitle": "Performance Criteria",
       "criteriaPlaceholder": "Detailed criteria scores will appear here once evaluations are recorded.",
@@ -157,6 +159,15 @@
         "budget": "Budget management",
         "resources": "Resource utilization"
       }
+    },
+    "evaluations": {
+      "tabPartners": "Partners",
+      "tabEvaluations": "Evaluations",
+      "comparisonTitle": "Evaluation Comparison",
+      "comparisonSubtitle": "Compare partner scores across all evaluation criteria.",
+      "searchPlaceholder": "Search partners...",
+      "partnerColumn": "Partner",
+      "overallColumn": "Overall"
     },
     "documents": {
       "apiPending": "Document upload and storage will persist once the partner documents API is activated. Files added here are temporary.",

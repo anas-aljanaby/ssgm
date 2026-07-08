@@ -1,28 +1,51 @@
 {
   "gri": {
     "title": "تقارير GRI",
-    "subtitle": "أداة شاملة لإدارة وإنشاء تقارير مبادرة التقارير العالمية الخاصة بك.",
+    "subtitle": "أنشئ وتابع وأصدر تقرير الاستدامة الخاص بمنظمتك وفق مبادرة التقارير العالمية.",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "disclosures": "الإفصاحات",
+      "report": "التقرير"
+    },
     "overallCompletion": "الإنجاز الكلي",
     "universalStandards": "المعايير العالمية",
     "topicStandards": "المعايير حسب الموضوع",
-    "sectorStandards": "المعايير القطاعية",
     "statusBreakdown": "حالة الإفصاحات",
     "statuses": {
-      "completed": "مكتمل",
+      "complete": "مكتمل",
       "partial": "جزئي",
       "missing": "مفقود"
     },
-    "materialTopics": "المواضيع الجوهرية التي يجب معالجتها",
-    "nextSteps": "جاهز للخطوة التالية؟",
-    "nextStepsDesc": "لديك خيارات متعددة للمتابعة في تقرير GRI الخاص بك. ابدأ بجمع البيانات يدويًا أو استخدم الذكاء الاصطناعي للعثور على الفجوات أولاً.",
-    "startDataCollection": "بدء جمع البيانات",
-    "dataCollection": {
-      "title": "جمع بيانات GRI",
-      "backToDashboard": "العودة إلى لوحة القيادة",
+    "overview": {
+      "gapsTitle": "الفجوات المطلوب معالجتها",
+      "gapsDesc": "الإفصاحات الإلزامية التي لا تزال بحاجة إلى بيانات.",
+      "missingData": "البيانات المطلوبة",
+      "allComplete": "جميع الإفصاحات الإلزامية مكتملة.",
+      "materialTopicsTitle": "المواضيع الجوهرية ضمن النطاق",
+      "materialTopicsCaption": "مستمدة من تقييم الجوهرية الخاص بالمنظمة.",
+      "reportMetaTitle": "تفاصيل التقرير",
+      "reportPeriod": "فترة التقرير",
+      "frameworkVersion": "إصدار الإطار"
+    },
+    "activation": {
+      "loading": "جارٍ تحميل تقرير GRI...",
+      "error": "تعذر تحميل بيانات GRI.",
+      "createReport": "إنشاء مساحة عمل التقرير",
+      "createSuccess": "تم إنشاء مساحة عمل تقرير GRI",
+      "deleteReport": "حذف مساحة عمل التقرير",
+      "deleteConfirm": "حذف هذا التقرير وجميع استجابات الإفصاح؟",
+      "deleteSuccess": "تم حذف تقرير GRI"
+    },
+    "deferred": {
+      "comingSoon": "قريبًا"
+    },
+    "disclosures": {
       "universal": "المعايير العالمية",
       "topic": "المعايير حسب الموضوع",
-      "sector": "المعايير القطاعية",
-      "sectorPlaceholder": "المعايير القطاعية قيد التطوير حالياً.",
+      "showIncomplete": "عرض غير المكتمل فقط",
+      "empty": "لا توجد إفصاحات مطابقة للتصفية الحالية."
+    },
+    "dataCollection": {
       "categories": {
         "Economic": "اقتصادية",
         "Environmental": "بيئية",
@@ -32,48 +55,38 @@
       "supportingEvidence": "الأدلة الداعمة",
       "uploadFile": "ارفع ملفًا",
       "orDragDrop": "أو اسحبه وأفلته هنا",
-      "fileTypes": "PDF, DOCX, XLSX up to 10MB",
+      "fileTypes": "PDF, DOCX, XLSX حتى 10 ميجابايت",
       "status": "الحالة",
       "statusNotStarted": "لم يبدأ",
       "statusInProgress": "قيد التنفيذ",
       "statusComplete": "مكتمل",
-      "saveProgress": "حفظ التقدم"
-    },
-    "gapAnalysis": {
-      "runAnalysis": "تحليل الفجوات",
-      "title": "تحليل فجوات GRI",
-      "backToDashboard": "العودة إلى لوحة القيادة",
-      "loading": "الذكاء الاصطناعي يقوم بتحليل فجوات التقرير...",
-      "summaryTitle": "ملخص التحليل",
-      "criticalGapsTitle": "الفجوات الحرجة المكتشفة",
-      "criticalGapsDesc": "الإفصاحات الإلزامية التالية تحتوي على بيانات مفقودة.",
-      "aiQuestionsTitle": "أسئلة ذكية مولدة بالذكاء الاصطناعي",
-      "aiQuestionsDesc": "استخدم هذه الأسئلة لتوجيه عملية جمع البيانات للعناصر المفقودة.",
-      "questionFor": "سؤال بخصوص",
-      "category": "الفئة",
-      "missingData": "البيانات المفقودة",
-      "error": "حدث خطأ أثناء التحليل. يرجى المحاولة مرة أخرى."
+      "saveProgress": "حفظ التقدم",
+      "saveSuccess": "تم حفظ الإفصاح",
+      "unsavedChanges": "تغييرات غير محفوظة"
     },
     "questionnaire": {
-      "title": "استبيان جمع بيانات GRI الذكي",
-      "backToAnalysis": "العودة إلى التحليل",
-      "progress": "التقدم",
-      "answerHere": "أدخل إجابتك هنا...",
-      "skip": "تخطي",
-      "saveAnswers": "حفظ الإجابات",
-      "saveSuccess": "تم حفظ الإجابات بنجاح",
-      "category": {
-        "organizational": "تنظيمي",
-        "economic": "اقتصادي",
-        "social": "اجتماعي"
+      "progress": "التقدم"
+    },
+    "report": {
+      "contentIndexTitle": "فهرس محتوى GRI",
+      "colNumber": "الإفصاح",
+      "colTitle": "العنوان",
+      "colRequirement": "الإلزامية",
+      "colStatus": "الحالة",
+      "colReference": "الصفحة / المرجع",
+      "referencePlaceholder": "مثال: ص. 12",
+      "export": "تصدير التقرير",
+      "exporting": "جارٍ التصدير...",
+      "exportSuccess": "بدأ تصدير التقرير",
+      "exportPending": "تصدير التقرير قريبًا",
+      "dangerZone": "منطقة الخطر",
+      "deleteHint": "يؤدي إلى حذف هذا التقرير وجميع ردود الإفصاح نهائيًا.",
+      "readiness": "{{done}} من {{total}} إفصاحات إلزامية مكتملة",
+      "required": {
+        "yes": "نعم",
+        "ifApplicable": "عند الانطباق",
+        "recommended": "موصى به"
       }
-    },
-    "settings": {
-      "title": "إعدادات نظام GRI",
-      "save": "حفظ الإعدادات"
-    },
-    "placeholder": {
-      "underConstruction": "قيد الإنشاء"
     }
   }
 }

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { AlertCircle, LayoutGrid, List, Search, Users } from 'lucide-react';
+import { AlertCircle, BarChart3, LayoutGrid, List, Search, Users } from 'lucide-react';
 import type { Partner, PartnerSector, PartnerStatus } from '../../types';
 import { useLocalization } from '../../hooks/useLocalization';
 import {
@@ -17,9 +17,10 @@ import PartnerAnalytics from './implementing_partners/PartnerAnalytics';
 import PartnerCard from './implementing_partners/PartnerCard';
 import PartnerCardSkeleton from './implementing_partners/PartnerCardSkeleton';
 import PartnerDetailView from './implementing_partners/PartnerDetailView';
+import PartnerEvaluationsComparison from './implementing_partners/PartnerEvaluationsComparison';
 import AddPartnerWizard from './implementing_partners/AddPartnerWizard';
 
-type ViewMode = 'list' | 'profile' | 'add';
+type ViewMode = 'list' | 'evaluations' | 'profile' | 'add';
 
 interface PartnerFilters {
     sector: string;
@@ -103,6 +104,8 @@ const ImplementingPartnersPage: React.FC = () => {
     });
     const [page, setPage] = useState(1);
     const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
+    const [detailInitialTab, setDetailInitialTab] = useState('overview');
+    const [returnView, setReturnView] = useState<'list' | 'evaluations'>('list');
 
     const selectedPartner = useMemo(
         () => partners.find((partner) => partner.id === selectedPartnerId) ?? null,
@@ -156,14 +159,16 @@ const ImplementingPartnersPage: React.FC = () => {
         setPage(1);
     };
 
-    const openProfile = (partner: Partner) => {
+    const openProfile = (partner: Partner, tab: string = 'overview') => {
         setSelectedPartnerId(partner.id);
+        setDetailInitialTab(tab);
+        setReturnView(viewMode === 'evaluations' ? 'evaluations' : 'list');
         setViewMode('profile');
     };
 
     const backToList = () => {
         setSelectedPartnerId(null);
-        setViewMode('list');
+        setViewMode(returnView);
     };
 
     const handlePartnerUpdate = (updated: Partner) => {
@@ -209,6 +214,7 @@ const ImplementingPartnersPage: React.FC = () => {
                 onPartnerDelete={handlePartnerDelete}
                 isSaving={updatePartnerMutation.isPending}
                 isDeleting={deletePartnerMutation.isPending}
+                initialTab={detailInitialTab}
             />
         );
     }
@@ -251,6 +257,31 @@ const ImplementingPartnersPage: React.FC = () => {
                 </div>
             )}
 
+            <div className="inline-flex p-1 bg-gray-100 dark:bg-slate-800 rounded-lg">
+                <button
+                    type="button"
+                    onClick={() => setViewMode('list')}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-colors ${viewMode === 'list' ? 'bg-white dark:bg-slate-700 shadow text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}
+                >
+                    <List size={16} /> {t('partners.evaluations.tabPartners')}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setViewMode('evaluations')}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-colors ${viewMode === 'evaluations' ? 'bg-white dark:bg-slate-700 shadow text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}
+                >
+                    <BarChart3 size={16} /> {t('partners.evaluations.tabEvaluations')}
+                </button>
+            </div>
+
+            {viewMode === 'evaluations' ? (
+                <PartnerEvaluationsComparison
+                    partners={partners}
+                    onSelectPartner={(partner) => openProfile(partner, 'performance')}
+                    isLoading={isLoading}
+                />
+            ) : (
+            <>
             {!isLoading && <PartnerAnalytics partners={partners} />}
 
             <div className="bg-white dark:bg-dark-card rounded-xl shadow p-4 space-y-4">
@@ -372,6 +403,8 @@ const ImplementingPartnersPage: React.FC = () => {
                         </button>
                     </div>
                 </div>
+            )}
+            </>
             )}
         </div>
     );
