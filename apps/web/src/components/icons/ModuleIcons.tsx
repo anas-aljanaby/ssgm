@@ -219,15 +219,6 @@ export const AdminDashboardIcon: React.FC<{ className?: string }> = ({ className
 export const PartnerIcon: React.FC<{ className?: string }> = ({ className }) => <IconWrapper className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></IconWrapper>;
 
 /**
- * PartnerEvaluationIcon - أيقونة تقييم الشركاء.
- * @component
- * @param {object} [props] - الخصائص.
- * @param {string} [props.className] - فئات CSS إضافية.
- * @returns {JSX.Element}
- */
-export const PartnerEvaluationIcon: React.FC<{ className?: string }> = ({ className }) => <IconWrapper className={className}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="m12 11.5-1.55 3.16L6 15.5l3.25 2.8-1 4.2L12 19.5l3.75 3-1-4.2L18 15.5l-4.45-.84Z"/></IconWrapper>;
-
-/**
  * ComplianceIcon - أيقونة الامتثال.
  * @component
  * @param {object} [props] - الخصائص.

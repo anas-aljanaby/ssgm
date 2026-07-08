@@ -43,8 +43,8 @@ the user to run them for you, they are on these ports:
 
     VITE v6.4.2  ready in 357 ms
 
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: http://192.168.1.101:5173/
+  ➜  Local:   http://localhost:8000/
+  ➜  Network: http://192.168.1.101:8000/
   ➜  press h + enter to show help
 
 npm run build:web        # Production build

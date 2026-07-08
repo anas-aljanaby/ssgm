@@ -15,6 +15,7 @@ import {
     PlatformIcon,
     PartnerIcon,
     GrcIcon,
+    GRIReportingIcon,
     ShariaComplianceIcon,
     ShariaBoardIcon,
 } from './components/icons/ModuleIcons';
@@ -44,6 +45,7 @@ export const MODULE_REGISTRY: ModuleRegistryEntry[] = [
     { key: 'financials', icon: FinancialsIcon, locked: false, component: lazyPage(() => import('./components/pages/FinancialsPage')) },
     { key: 'implementing_partners', icon: PartnerIcon, locked: false, component: lazyPage(() => import('./components/pages/ImplementingPartnersPage')) },
     { key: 'grc', icon: GrcIcon, locked: false, component: lazyPage(() => import('./components/pages/GrcPage')) },
+    { key: 'gri_reporting', icon: GRIReportingIcon, locked: false, component: lazyPage(() => import('./components/pages/GRIReportingPage')) },
     { key: 'sharia_compliance', icon: ShariaComplianceIcon, locked: false, component: lazyPage(() => import('./components/pages/ShariaCompliancePage')) },
     { key: 'sharia_board', icon: ShariaBoardIcon, locked: false, component: lazyPage(() => import('./components/pages/ShariaBoardManagementPage')) },
     { key: 'staff', icon: StaffIcon, locked: false, component: lazyPage(() => import('./components/pages/StaffPage')) },

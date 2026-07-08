@@ -8,6 +8,7 @@ import { resolveProjectId, seedProjects } from './projectSeed';
 import { seedBousala } from './bousalaSeed';
 import { SEED_STAKEHOLDERS } from './stakeholderSeed';
 import { SEED_IMPLEMENTING_PARTNERS } from './implementingPartnerSeed';
+import { seedShariaCompliance } from './shariaSeed';
 import { seedOrgModules } from '../lib/orgModules';
 
 const client = postgres(process.env.DIRECT_URL || process.env.DATABASE_URL!);
@@ -267,6 +268,19 @@ async function reset() {
     await db.delete(schema.bousala_goal_projects);
     await db.delete(schema.bousala_kpis);
     await db.delete(schema.bousala_goals);
+    await db.delete(schema.grc_screening_alerts);
+    await db.delete(schema.grc_screening_entities);
+    await db.delete(schema.grc_compliance_assessments);
+    await db.delete(schema.grc_compliance_requirements);
+    await db.delete(schema.grc_risks);
+    await db.delete(schema.grc_decisions);
+    await db.delete(schema.grc_policies);
+    await db.delete(schema.sharia_activities);
+    await db.delete(schema.sharia_exceptions);
+    await db.delete(schema.sharia_zakat_policy_rules);
+    await db.delete(schema.sharia_zakat_reviews);
+    await db.delete(schema.sharia_reviews);
+    await db.delete(schema.sharia_fatwas);
     await db.delete(schema.audit_log);
     await db.delete(schema.modules);
     await db.delete(schema.memberships);
@@ -316,6 +330,19 @@ async function seedFinancials(orgId: string, requestedBy: string, institutionalD
             total_received: '35000',
             total_spent: '18550',
             total_committed: '1000',
+        },
+        {
+            org_id: orgId,
+            name_en: 'Zakat Distribution Fund',
+            name_ar: 'صندوق توزيع الزكاة',
+            type: 'zakat',
+            balance: '112000',
+            currency: 'USD',
+            donor_restriction: 'Zakat funds only',
+            start_date: new Date('2024-01-01'),
+            total_received: '250000',
+            total_spent: '138000',
+            total_committed: '22000',
         },
     ]).returning();
     const generalFund = fundRows[0];
@@ -879,6 +906,10 @@ async function seed() {
     }
 
     await seedFinancials(org.id, userEmail, institutionalDonorIdByKey);
+
+    console.log('Seeding sharia compliance...');
+    await seedShariaCompliance(db, org.id);
+    console.log('  Sharia compliance data seeded');
 
     // ── Sample staff (demo memberships with different roles) ────────────
     const sampleStaff = [

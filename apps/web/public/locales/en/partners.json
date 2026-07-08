@@ -131,22 +131,31 @@
       "basedOn": "Based on {{count}} evaluation records",
       "addEvaluation": "Add Evaluation",
       "addModalTitle": "Add Evaluation Record",
-      "ratingLabel": "Rating",
-      "commentLabel": "Comments",
       "addSuccess": "Evaluation added.",
       "empty": "No evaluation records yet.",
       "criteriaTitle": "Performance Criteria",
+      "criteriaPlaceholder": "Detailed criteria scores will appear here once evaluations are recorded.",
       "recordsTitle": "Recent Evaluation Records",
       "projectLabel": "Project",
       "selectProject": "Select linked project",
       "evaluatorLabel": "Evaluator",
-      "criteriaPlaceholder": "Detailed criteria scores will appear here once the evaluations module is activated.",
+      "overallRatingLabel": "Overall Rating (auto-calculated)",
+      "strengths": "Strengths",
+      "weaknesses": "Weaknesses",
+      "recommendations": "Recommendations",
+      "sections": {
+        "commitment": "Commitment",
+        "cooperation": "Cooperation",
+        "efficiency": "Efficiency"
+      },
       "criteria": {
-        "deliveryQuality": "Delivery Quality",
-        "timeliness": "Timeliness",
-        "transparency": "Transparency & Reporting",
-        "communication": "Communication",
-        "beneficiarySatisfaction": "Beneficiary Satisfaction"
+        "timeline": "Adherence to schedule",
+        "quality": "Quality of outputs",
+        "communication": "Quality of communication",
+        "transparency": "Transparency",
+        "flexibility": "Flexibility and responsiveness",
+        "budget": "Budget management",
+        "resources": "Resource utilization"
       }
     },
     "documents": {

@@ -1,0 +1,79 @@
+{
+  "gri": {
+    "title": "تقارير GRI",
+    "subtitle": "أداة شاملة لإدارة وإنشاء تقارير مبادرة التقارير العالمية الخاصة بك.",
+    "overallCompletion": "الإنجاز الكلي",
+    "universalStandards": "المعايير العالمية",
+    "topicStandards": "المعايير حسب الموضوع",
+    "sectorStandards": "المعايير القطاعية",
+    "statusBreakdown": "حالة الإفصاحات",
+    "statuses": {
+      "completed": "مكتمل",
+      "partial": "جزئي",
+      "missing": "مفقود"
+    },
+    "materialTopics": "المواضيع الجوهرية التي يجب معالجتها",
+    "nextSteps": "جاهز للخطوة التالية؟",
+    "nextStepsDesc": "لديك خيارات متعددة للمتابعة في تقرير GRI الخاص بك. ابدأ بجمع البيانات يدويًا أو استخدم الذكاء الاصطناعي للعثور على الفجوات أولاً.",
+    "startDataCollection": "بدء جمع البيانات",
+    "dataCollection": {
+      "title": "جمع بيانات GRI",
+      "backToDashboard": "العودة إلى لوحة القيادة",
+      "universal": "المعايير العالمية",
+      "topic": "المعايير حسب الموضوع",
+      "sector": "المعايير القطاعية",
+      "sectorPlaceholder": "المعايير القطاعية قيد التطوير حالياً.",
+      "categories": {
+        "Economic": "اقتصادية",
+        "Environmental": "بيئية",
+        "Social": "اجتماعية"
+      },
+      "narrativeResponse": "الرد السردي",
+      "supportingEvidence": "الأدلة الداعمة",
+      "uploadFile": "ارفع ملفًا",
+      "orDragDrop": "أو اسحبه وأفلته هنا",
+      "fileTypes": "PDF, DOCX, XLSX up to 10MB",
+      "status": "الحالة",
+      "statusNotStarted": "لم يبدأ",
+      "statusInProgress": "قيد التنفيذ",
+      "statusComplete": "مكتمل",
+      "saveProgress": "حفظ التقدم"
+    },
+    "gapAnalysis": {
+      "runAnalysis": "تحليل الفجوات",
+      "title": "تحليل فجوات GRI",
+      "backToDashboard": "العودة إلى لوحة القيادة",
+      "loading": "الذكاء الاصطناعي يقوم بتحليل فجوات التقرير...",
+      "summaryTitle": "ملخص التحليل",
+      "criticalGapsTitle": "الفجوات الحرجة المكتشفة",
+      "criticalGapsDesc": "الإفصاحات الإلزامية التالية تحتوي على بيانات مفقودة.",
+      "aiQuestionsTitle": "أسئلة ذكية مولدة بالذكاء الاصطناعي",
+      "aiQuestionsDesc": "استخدم هذه الأسئلة لتوجيه عملية جمع البيانات للعناصر المفقودة.",
+      "questionFor": "سؤال بخصوص",
+      "category": "الفئة",
+      "missingData": "البيانات المفقودة",
+      "error": "حدث خطأ أثناء التحليل. يرجى المحاولة مرة أخرى."
+    },
+    "questionnaire": {
+      "title": "استبيان جمع بيانات GRI الذكي",
+      "backToAnalysis": "العودة إلى التحليل",
+      "progress": "التقدم",
+      "answerHere": "أدخل إجابتك هنا...",
+      "skip": "تخطي",
+      "saveAnswers": "حفظ الإجابات",
+      "saveSuccess": "تم حفظ الإجابات بنجاح",
+      "category": {
+        "organizational": "تنظيمي",
+        "economic": "اقتصادي",
+        "social": "اجتماعي"
+      }
+    },
+    "settings": {
+      "title": "إعدادات نظام GRI",
+      "save": "حفظ الإعدادات"
+    },
+    "placeholder": {
+      "underConstruction": "قيد الإنشاء"
+    }
+  }
+}

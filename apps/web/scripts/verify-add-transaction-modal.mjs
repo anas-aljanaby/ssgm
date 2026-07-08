@@ -4,7 +4,7 @@
  */
 import { chromium } from 'playwright';
 
-const BASE_URL = process.env.PW_BASE_URL || 'http://localhost:5173';
+const BASE_URL = process.env.PW_BASE_URL || 'http://localhost:8000';
 const VIEWPORT = { width: 1280, height: 900 };
 
 async function login(page) {

@@ -20,6 +20,7 @@ import { staffRouter } from './routes/staff';
 import { platformRouter } from './routes/platform';
 import { modulesRouter } from './routes/modules';
 import { grcRouter } from './routes/grc';
+import { shariaRouter } from './routes/sharia';
 
 type Variables = {
     user: User;
@@ -27,12 +28,8 @@ type Variables = {
 
 const app = new Hono<{ Variables: Variables }>();
 const defaultOrigins = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5174',
-    'http://127.0.0.1:5175',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ];
 const allowedOrigins = (process.env.WEB_ORIGIN ? process.env.WEB_ORIGIN.split(',') : defaultOrigins)
     .map((origin) => origin.trim())
@@ -94,6 +91,7 @@ app.route('/staff', staffRouter);
 app.route('/platform', platformRouter);
 app.route('/modules', modulesRouter);
 app.route('/grc', grcRouter);
+app.route('/sharia', shariaRouter);
 
 const port = Number(process.env.PORT) || 3000;
 

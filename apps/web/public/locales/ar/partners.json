@@ -131,22 +131,31 @@
       "basedOn": "بناءً على {{count}} سجل تقييم",
       "addEvaluation": "إضافة تقييم",
       "addModalTitle": "إضافة سجل تقييم",
-      "ratingLabel": "التقييم",
-      "commentLabel": "التعليقات",
       "addSuccess": "تمت إضافة التقييم.",
       "empty": "لا توجد سجلات تقييم بعد.",
       "criteriaTitle": "معايير الأداء",
+      "criteriaPlaceholder": "ستظهر درجات المعايير التفصيلية هنا بعد تسجيل التقييمات.",
       "recordsTitle": "سجلات التقييم الأخيرة",
       "projectLabel": "المشروع",
       "selectProject": "اختر مشروعاً مرتبطاً",
       "evaluatorLabel": "المقيّم",
-      "criteriaPlaceholder": "ستظهر درجات المعايير التفصيلية هنا بعد تفعيل وحدة التقييمات.",
+      "overallRatingLabel": "التقييم العام (محتسب تلقائياً)",
+      "strengths": "نقاط القوة",
+      "weaknesses": "نقاط الضعف",
+      "recommendations": "التوصيات",
+      "sections": {
+        "commitment": "الالتزام",
+        "cooperation": "التعاون",
+        "efficiency": "الكفاءة"
+      },
       "criteria": {
-        "deliveryQuality": "جودة التنفيذ",
-        "timeliness": "الالتزام بالمواعيد",
-        "transparency": "الشفافية والتقارير",
-        "communication": "التواصل",
-        "beneficiarySatisfaction": "رضا المستفيدين"
+        "timeline": "الالتزام بالجدول الزمني",
+        "quality": "جودة المخرجات",
+        "communication": "جودة التواصل",
+        "transparency": "الشفافية",
+        "flexibility": "المرونة والاستجابة",
+        "budget": "إدارة الميزانية",
+        "resources": "استخدام الموارد"
       }
     },
     "documents": {

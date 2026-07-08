@@ -53,6 +53,11 @@
       "notSet": "غير محدد",
       "statusHistory": "سجل الحالة"
     },
+    "deferred": {
+      "boardRoster": "قريبًا",
+      "boardReviewers": "قائمة الهيئة قريبًا",
+      "zakatTarget": "هدف صندوق الزكاة من المالية"
+    },
     "validation": {
       "required": "أكمل الحقول المطلوبة قبل الحفظ."
     },

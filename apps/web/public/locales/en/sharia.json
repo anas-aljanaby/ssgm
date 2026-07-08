@@ -53,6 +53,11 @@
       "notSet": "Not set",
       "statusHistory": "Status history"
     },
+    "deferred": {
+      "boardRoster": "Coming soon",
+      "boardReviewers": "Board roster coming soon",
+      "zakatTarget": "Zakat fund target from Financials"
+    },
     "validation": {
       "required": "Complete the required fields before saving."
     },

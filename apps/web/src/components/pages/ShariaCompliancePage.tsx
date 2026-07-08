@@ -26,32 +26,42 @@ import {
 import { useLocalization } from '../../hooks/useLocalization';
 import { useTheme } from '../../hooks/useTheme';
 import { useDestructiveConfirmation } from '../../hooks/useDestructiveConfirmation';
+import { useToast } from '../../hooks/useToast';
+import {
+    useCreateShariaFatwa,
+    useCreateShariaReview,
+    useCreateShariaZakatReview,
+    useDeleteShariaException,
+    useDeleteShariaFatwa,
+    useDeleteShariaReview,
+    useDeleteShariaZakatReview,
+    useSharia,
+    useUpdateShariaException,
+    useUpdateShariaFatwa,
+    useUpdateShariaReview,
+    useUpdateShariaZakatReview,
+} from '../../hooks/useSharia';
+import { useDisbursements } from '../../hooks/useDisbursements';
 import { ShariaComplianceIcon } from '../icons/ModuleIcons';
 import GaugeChart from '../common/GaugeChart';
 import ModalPortal from '../common/ModalPortal';
 import ConfirmationModal from '../common/ConfirmationModal';
 import {
-  MOCK_SHARIA_ACTIVITIES,
-  MOCK_COMPLIANCE_TREND_DATA,
-  MOCK_SHARIA_EXCEPTIONS,
-  MOCK_SHARIA_FATWAS,
-  MOCK_SHARIA_REVIEWS,
-  MOCK_ZAKAT_ALLOCATION_REVIEWS,
-  MOCK_ZAKAT_POLICY_RULES,
-  type ExceptionStatus,
-  type FatwaStatus,
-  type LocalizedValue,
-  type ReviewDecision,
-  type ReviewStatus,
-  type ReviewType,
-  type ShariaActivityEvent,
-  type ShariaException,
-  type ShariaFatwa,
-  type ShariaPriority,
-  type ShariaReview,
-  type ZakatAllocationReview,
-  type ZakatEligibilityStatus,
+    type ExceptionStatus,
+    type FatwaStatus,
+    type LocalizedValue,
+    type ReviewDecision,
+    type ReviewStatus,
+    type ReviewType,
+    type ShariaActivityEvent,
+    type ShariaException,
+    type ShariaFatwa,
+    type ShariaPriority,
+    type ShariaReview,
+    type ZakatAllocationReview,
+    type ZakatEligibilityStatus,
 } from '../../data/shariaData';
+// DEFERRED: needs sharia_board backend — see Deferred Activation Register
 import { MOCK_SHARIA_BOARD_MEMBERS } from '../../data/shariaBoardData';
 import { formatCurrency, formatDate, formatNumber } from '../../lib/utils';
 import type { ShariaBoardMember } from '../../types';
@@ -83,7 +93,11 @@ const todayInput = () => new Date().toISOString().slice(0, 10);
 const localized = (en: string, ar: string): LocalizedValue => ({ en: en.trim(), ar: ar.trim() || en.trim() });
 const emptyLocalized: LocalizedValue = { en: '', ar: '' };
 
-const simulateStaticDelete = () => new Promise<void>((resolve) => window.setTimeout(resolve, 180));
+const ComingSoonBadge: React.FC<{ label: string }> = ({ label }) => (
+  <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+    {label}
+  </span>
+);
 
 const getPriorityWeight = (priority: ShariaPriority) => {
   const weights: Record<ShariaPriority, number> = { critical: 4, high: 3, medium: 2, low: 1 };
@@ -428,9 +442,14 @@ const FatwaRequestModal: React.FC<{
             <SelectInput label={t('sharia.forms.priority')} value={priority} onChange={(value) => setPriority(value as ShariaPriority)}>
               {PRIORITIES.map((item) => <option key={item} value={item}>{t(`sharia.priority.${item}`)}</option>)}
             </SelectInput>
-            <SelectInput label={t('sharia.forms.assignedReviewer')} value={assignedReviewerId} onChange={setAssignedReviewerId} required>
-              {reviewers.map((reviewer) => <option key={reviewer.id} value={reviewer.id}>{pickLocalized(reviewer.name)}</option>)}
-            </SelectInput>
+            <div className="relative">
+              <span className="absolute -top-1 end-0 z-10">
+                <ComingSoonBadge label={t('sharia.deferred.boardReviewers')} />
+              </span>
+              <SelectInput label={t('sharia.forms.assignedReviewer')} value={assignedReviewerId} onChange={setAssignedReviewerId} required>
+                {reviewers.map((reviewer) => <option key={reviewer.id} value={reviewer.id}>{pickLocalized(reviewer.name)}</option>)}
+              </SelectInput>
+            </div>
           </div>
           <div className="grid grid-cols-4 gap-4">
             <SelectInput label={t('sharia.forms.relatedModule')} value={relatedModule} onChange={setRelatedModule}>
@@ -649,9 +668,14 @@ const ReviewSubmissionModal: React.FC<{
               {REVIEW_TYPES.map((item) => <option key={item} value={item}>{t(`sharia.reviews.types.${item}`)}</option>)}
             </SelectInput>
             <TextInput label={t('sharia.reviews.form.counterparty')} value={counterpartyOrProject} onChange={setCounterpartyOrProject} required />
-            <SelectInput label={t('sharia.forms.assignedReviewer')} value={assignedReviewerId} onChange={setAssignedReviewerId} required>
-              {reviewers.map((reviewer) => <option key={reviewer.id} value={reviewer.id}>{pickLocalized(reviewer.name)}</option>)}
-            </SelectInput>
+            <div className="relative">
+              <span className="absolute -top-1 end-0 z-10">
+                <ComingSoonBadge label={t('sharia.deferred.boardReviewers')} />
+              </span>
+              <SelectInput label={t('sharia.forms.assignedReviewer')} value={assignedReviewerId} onChange={setAssignedReviewerId} required>
+                {reviewers.map((reviewer) => <option key={reviewer.id} value={reviewer.id}>{pickLocalized(reviewer.name)}</option>)}
+              </SelectInput>
+            </div>
           </div>
           <div className="grid grid-cols-4 gap-4">
             <SelectInput label={t('sharia.forms.relatedModule')} value={sourceModule} onChange={setSourceModule}>
@@ -798,6 +822,7 @@ const ZakatReviewModal: React.FC<{
   review?: ZakatAllocationReview | null;
 }> = ({ isOpen, onClose, onSubmit, reviewers, review }) => {
   const { t, pickLocalized } = useLocalization(['common', 'sharia']);
+  const { data: disbursements = [] } = useDisbursements();
   const [nameEn, setNameEn] = useState('');
   const [nameAr, setNameAr] = useState('');
   const [category, setCategory] = useState('poorNeedy');
@@ -867,10 +892,22 @@ const ZakatReviewModal: React.FC<{
             <SelectInput label={t('sharia.zakat.table.eligibility')} value={eligibilityStatus} onChange={(value) => setEligibilityStatus(value as ZakatEligibilityStatus)}>
               {ZAKAT_ELIGIBILITY_STATUSES.map((item) => <option key={item} value={item}>{t(`sharia.zakat.eligibility.${item}`)}</option>)}
             </SelectInput>
-            <TextInput label={t('sharia.zakat.table.transaction')} value={financialTransaction} onChange={setFinancialTransaction} />
-            <SelectInput label={t('sharia.zakat.table.reviewer')} value={reviewerId} onChange={setReviewerId} required>
-              {reviewers.map((reviewer) => <option key={reviewer.id} value={reviewer.id}>{pickLocalized(reviewer.name)}</option>)}
+            <SelectInput label={t('sharia.zakat.table.transaction')} value={financialTransaction} onChange={setFinancialTransaction}>
+              <option value="">{t('sharia.common.notSet')}</option>
+              {disbursements.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {pickLocalized(item.beneficiaryName)} · {item.amount} {item.currency}
+                </option>
+              ))}
             </SelectInput>
+            <div className="relative">
+              <span className="absolute -top-1 end-0 z-10">
+                <ComingSoonBadge label={t('sharia.deferred.boardReviewers')} />
+              </span>
+              <SelectInput label={t('sharia.zakat.table.reviewer')} value={reviewerId} onChange={setReviewerId} required>
+                {reviewers.map((reviewer) => <option key={reviewer.id} value={reviewer.id}>{pickLocalized(reviewer.name)}</option>)}
+              </SelectInput>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <TextAreaInput label={t('sharia.zakat.form.notesEn')} value={notesEn} onChange={setNotesEn} />
@@ -957,15 +994,36 @@ const ResolveExceptionModal: React.FC<{
 const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveModule }) => {
   const { t, language, dir, pickLocalized } = useLocalization(['common', 'sharia', 'sidebar']);
   const { theme } = useTheme();
+  const { showError } = useToast();
   const isDark = theme === 'dark';
+  // DEFERRED: needs sharia_board backend — see Deferred Activation Register
   const reviewers = MOCK_SHARIA_BOARD_MEMBERS;
 
+  const { data, isLoading, isError, error } = useSharia();
+  const createFatwa = useCreateShariaFatwa();
+  const updateFatwa = useUpdateShariaFatwa();
+  const deleteFatwa = useDeleteShariaFatwa();
+  const createReview = useCreateShariaReview();
+  const updateReview = useUpdateShariaReview();
+  const deleteReview = useDeleteShariaReview();
+  const createZakatReview = useCreateShariaZakatReview();
+  const updateZakatReview = useUpdateShariaZakatReview();
+  const deleteZakatReview = useDeleteShariaZakatReview();
+  const updateException = useUpdateShariaException();
+  const deleteException = useDeleteShariaException();
+
+  const fatwas = data?.fatwas ?? [];
+  const reviews = data?.reviews ?? [];
+  const zakatReviews = data?.zakatReviews ?? [];
+  const policyRules = data?.policyRules ?? [];
+  const exceptions = data?.exceptions ?? [];
+  const activities = data?.activities ?? [];
+  const trendData = useMemo(
+    () => (data?.trend ?? []).map((point) => ({ ...point, name: t(`sharia.months.${point.month}`) })),
+    [data?.trend, t],
+  );
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
-  const [fatwas, setFatwas] = useState<ShariaFatwa[]>(MOCK_SHARIA_FATWAS);
-  const [reviews, setReviews] = useState<ShariaReview[]>(MOCK_SHARIA_REVIEWS);
-  const [zakatReviews, setZakatReviews] = useState<ZakatAllocationReview[]>(MOCK_ZAKAT_ALLOCATION_REVIEWS);
-  const [exceptions, setExceptions] = useState<ShariaException[]>(MOCK_SHARIA_EXCEPTIONS);
-  const [activities, setActivities] = useState<ShariaActivityEvent[]>(MOCK_SHARIA_ACTIVITIES);
   const [isFatwaModalOpen, setIsFatwaModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isZakatModalOpen, setIsZakatModalOpen] = useState(false);
@@ -979,10 +1037,11 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
   const zakatDeletion = useDestructiveConfirmation<ZakatAllocationReview>({ getRowId: (item) => item.id });
   const exceptionDeletion = useDestructiveConfirmation<ShariaException>({ getRowId: (item) => item.id });
 
-  const zakatTarget = 250000;
+  const zakatTarget = data?.zakatTarget ?? null;
   const zakatDistributed = zakatReviews.reduce((sum, item) => sum + item.amount, 0);
-  const zakatRemaining = Math.max(0, zakatTarget - zakatDistributed);
-  const zakatProgress = Math.min(100, Math.round((zakatDistributed / zakatTarget) * 100));
+  const zakatProgressTarget = zakatTarget ?? Math.max(zakatDistributed, 1);
+  const zakatRemaining = Math.max(0, zakatProgressTarget - zakatDistributed);
+  const zakatProgress = Math.min(100, Math.round((zakatDistributed / zakatProgressTarget) * 100));
   const pendingFatwas = fatwas.filter((item) => !['issued', 'archived'].includes(item.status)).length;
   const reviewsUnderReview = reviews.filter((item) => ['submitted', 'underReview', 'needsClarification'].includes(item.status)).length;
   const activeExceptions = exceptions.filter((item) => !['resolved', 'closed'].includes(item.status)).length;
@@ -991,11 +1050,6 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
   const complianceScore = Math.max(
     82,
     Math.round((100 - pendingFatwas * 1.3 - reviewsUnderReview * 1.1 - activeExceptions * 1.5 - criticalExceptions * 3 - ineligibleZakat * 2) * 10) / 10,
-  );
-
-  const trendData = useMemo(
-    () => MOCK_COMPLIANCE_TREND_DATA.map((point) => ({ ...point, name: t(`sharia.months.${point.month}`) })),
-    [t],
   );
 
   const priorityQueue = useMemo(() => {
@@ -1048,77 +1102,75 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
     setActiveModule?.(target);
   };
 
-  const addActivity = (event: Omit<ShariaActivityEvent, 'id' | 'timestamp'>) => {
-    setActivities((current) => [
-      { ...event, id: `activity-${Date.now()}`, timestamp: new Date().toISOString() },
-      ...current,
-    ]);
-  };
-
-  const handleAddFatwa = (input: NewFatwaInput) => {
-    const newFatwa: ShariaFatwa = {
-      ...input,
-      id: `fatwa-${Date.now()}`,
-      referenceNumber: `FTW-2026-${String(fatwas.length + 15).padStart(3, '0')}`,
-      statusHistory: [{ status: 'submitted', actor: input.requester, date: todayInput() }],
-    };
-    setFatwas((current) => [newFatwa, ...current]);
-    addActivity({
-      eventType: 'fatwaRequested',
-      actor: input.requester,
-      linkedRecord: newFatwa.referenceNumber,
-      description: localized(`Requested ruling for ${input.topic.en}.`, `تم طلب حكم حول ${input.topic.ar}.`),
-    });
-  };
-
-  const handleAddReview = (input: NewReviewInput) => {
-    const newReview: ShariaReview = {
-      ...input,
-      id: `review-${Date.now()}`,
-      activityHistory: [{ status: 'submitted', actor: input.sourceModule, date: todayInput() }],
-    };
-    setReviews((current) => [newReview, ...current]);
-    addActivity({
-      eventType: 'reviewSubmitted',
-      actor: input.sourceModule,
-      linkedRecord: input.sourceRecord || input.counterpartyOrProject,
-      description: localized(`Submitted ${input.title.en} for Sharia review.`, `تم تقديم ${input.title.ar} للمراجعة الشرعية.`),
-    });
-  };
-
-  const handleSaveZakatReview = (input: NewZakatInput, editingId?: string) => {
-    if (editingId) {
-      setZakatReviews((current) => current.map((item) => (item.id === editingId ? { ...input, id: editingId } : item)));
-      return;
+  const handleAddFatwa = async (input: NewFatwaInput) => {
+    try {
+      await createFatwa.mutateAsync(input);
+    } catch (mutationError) {
+      showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+      throw mutationError;
     }
-    const newReview: ZakatAllocationReview = { ...input, id: `zakat-${Date.now()}` };
-    setZakatReviews((current) => [newReview, ...current]);
-    addActivity({
-      eventType: 'zakatReviewLogged',
-      actor: input.reviewerId,
-      linkedRecord: input.financialTransaction || input.category,
-      description: localized(`Logged zakat review for ${input.beneficiaryOrProgram.en}.`, `تم تسجيل مراجعة زكاة لـ ${input.beneficiaryOrProgram.ar}.`),
-    });
+  };
+
+  const handleAddReview = async (input: NewReviewInput) => {
+    try {
+      await createReview.mutateAsync(input);
+    } catch (mutationError) {
+      showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+      throw mutationError;
+    }
+  };
+
+  const handleSaveZakatReview = async (input: NewZakatInput, editingId?: string) => {
+    try {
+      if (editingId) {
+        await updateZakatReview.mutateAsync({ id: editingId, ...input });
+        return;
+      }
+      await createZakatReview.mutateAsync(input);
+    } catch (mutationError) {
+      showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+      throw mutationError;
+    }
   };
 
   const confirmFatwaDelete = async () => {
-    const removed = await fatwaDeletion.confirm(simulateStaticDelete);
-    if (removed) setFatwas((current) => current.filter((item) => item.id !== removed.id));
+    try {
+      await fatwaDeletion.confirm(async (item) => {
+        await deleteFatwa.mutateAsync(item.id);
+      });
+    } catch (mutationError) {
+      showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+    }
   };
 
   const confirmReviewDelete = async () => {
-    const removed = await reviewDeletion.confirm(simulateStaticDelete);
-    if (removed) setReviews((current) => current.filter((item) => item.id !== removed.id));
+    try {
+      await reviewDeletion.confirm(async (item) => {
+        await deleteReview.mutateAsync(item.id);
+      });
+    } catch (mutationError) {
+      showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+    }
   };
 
   const confirmZakatDelete = async () => {
-    const removed = await zakatDeletion.confirm(simulateStaticDelete);
-    if (removed) setZakatReviews((current) => current.filter((item) => item.id !== removed.id));
+    try {
+      await zakatDeletion.confirm(async (item) => {
+        await deleteZakatReview.mutateAsync(item.id);
+      });
+    } catch (mutationError) {
+      showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+    }
   };
 
   const confirmExceptionDelete = async () => {
-    const removed = await exceptionDeletion.confirm(simulateStaticDelete);
-    if (removed) setExceptions((current) => current.filter((item) => item.id !== removed.id));
+    try {
+      await exceptionDeletion.confirm(async (item) => {
+        await deleteException.mutateAsync(item.id);
+      });
+    } catch (mutationError) {
+      showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+    }
   };
 
   const renderLinkedButton = (module: string, label: string) => (
@@ -1179,7 +1231,11 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
             ))}
           </div>
         </Card>
-        <Card className="col-span-4 p-6">
+        <Card className="col-span-4 p-6 relative">
+          {/* DEFERRED: needs sharia_board backend — see Deferred Activation Register */}
+          <span className="absolute top-4 end-4 z-10">
+            <ComingSoonBadge label={t('sharia.deferred.boardRoster')} />
+          </span>
           <SectionHeader title={t('sharia.overview.boardLink.title')} description={t('sharia.overview.boardLink.description')} />
           <p className="mt-5 text-3xl font-bold">{formatNumber(reviewers.length, language)}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">{t('sharia.overview.boardLink.members')}</p>
@@ -1322,7 +1378,12 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
   const renderZakat = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-12 gap-6">
-        <Card className="col-span-5 p-6">
+        <Card className="col-span-5 p-6 relative">
+          {zakatTarget === null && (
+            <span className="absolute top-4 end-4 z-10">
+              <ComingSoonBadge label={t('sharia.deferred.zakatTarget')} />
+            </span>
+          )}
           <SectionHeader title={t('sharia.zakat.summary.title')} description={t('sharia.zakat.summary.description')} />
           <div className="mt-6 space-y-4">
             <div className="flex items-end justify-between">
@@ -1338,7 +1399,7 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-gray-50 p-4 dark:bg-slate-900/50">
                 <p className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('sharia.zakat.summary.target')}</p>
-                <p className="mt-1 font-bold">{formatCurrency(zakatTarget, language)}</p>
+                <p className="mt-1 font-bold">{formatCurrency(zakatProgressTarget, language)}</p>
               </div>
               <div className="rounded-xl bg-gray-50 p-4 dark:bg-slate-900/50">
                 <p className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('sharia.zakat.summary.remaining')}</p>
@@ -1352,7 +1413,7 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
           <div className="mt-4 overflow-hidden rounded-xl border dark:border-slate-700">
             <table className="w-full text-sm">
               <tbody className="divide-y dark:divide-slate-700">
-                {MOCK_ZAKAT_POLICY_RULES.map((rule) => (
+                {policyRules.map((rule) => (
                   <tr key={rule.id}>
                     <td className="px-4 py-3 font-bold">{t(`sharia.zakat.categories.${rule.category}`)}</td>
                     <td className="px-4 py-3">{pickLocalized(rule.rule)}</td>
@@ -1479,18 +1540,65 @@ const ShariaCompliancePage: React.FC<ShariaCompliancePageProps> = ({ setActiveMo
         ))}
       </div>
 
-      {activeTab === 'overview' && renderOverview()}
-      {activeTab === 'fatwas' && renderFatwas()}
-      {activeTab === 'reviews' && renderReviews()}
-      {activeTab === 'zakat' && renderZakat()}
-      {activeTab === 'exceptions' && renderExceptions()}
+      {isLoading && (
+        <div className="flex justify-center py-16">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-dashed border-primary" />
+        </div>
+      )}
+
+      {isError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
+          {error instanceof Error ? error.message : t('common.error')}
+        </div>
+      )}
+
+      {!isLoading && !isError && activeTab === 'overview' && renderOverview()}
+      {!isLoading && !isError && activeTab === 'fatwas' && renderFatwas()}
+      {!isLoading && !isError && activeTab === 'reviews' && renderReviews()}
+      {!isLoading && !isError && activeTab === 'zakat' && renderZakat()}
+      {!isLoading && !isError && activeTab === 'exceptions' && renderExceptions()}
 
       <FatwaRequestModal isOpen={isFatwaModalOpen} onClose={() => setIsFatwaModalOpen(false)} onSubmit={handleAddFatwa} reviewers={reviewers} />
       <ReviewSubmissionModal isOpen={isReviewModalOpen} onClose={() => setIsReviewModalOpen(false)} onSubmit={handleAddReview} reviewers={reviewers} />
       <ZakatReviewModal isOpen={isZakatModalOpen} onClose={() => setIsZakatModalOpen(false)} onSubmit={handleSaveZakatReview} reviewers={reviewers} review={selectedZakatReview} />
-      <FatwaDetailModal fatwa={selectedFatwa} onClose={() => setSelectedFatwa(null)} onUpdate={(updated) => { setFatwas((current) => current.map((item) => (item.id === updated.id ? updated : item))); setSelectedFatwa(updated); }} reviewers={reviewers} />
-      <ReviewDetailModal review={selectedReview} onClose={() => setSelectedReview(null)} onUpdate={(updated) => { setReviews((current) => current.map((item) => (item.id === updated.id ? updated : item))); setSelectedReview(updated); }} reviewers={reviewers} />
-      <ResolveExceptionModal exception={selectedException} onClose={() => setSelectedException(null)} onSubmit={(updated) => setExceptions((current) => current.map((item) => (item.id === updated.id ? updated : item)))} />
+      <FatwaDetailModal
+        fatwa={selectedFatwa}
+        onClose={() => setSelectedFatwa(null)}
+        onUpdate={async (updated) => {
+          try {
+            const saved = await updateFatwa.mutateAsync(updated);
+            setSelectedFatwa(saved);
+          } catch (mutationError) {
+            showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+          }
+        }}
+        reviewers={reviewers}
+      />
+      <ReviewDetailModal
+        review={selectedReview}
+        onClose={() => setSelectedReview(null)}
+        onUpdate={async (updated) => {
+          try {
+            const saved = await updateReview.mutateAsync(updated);
+            setSelectedReview(saved);
+          } catch (mutationError) {
+            showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+          }
+        }}
+        reviewers={reviewers}
+      />
+      <ResolveExceptionModal
+        exception={selectedException}
+        onClose={() => setSelectedException(null)}
+        onSubmit={async (updated) => {
+          try {
+            await updateException.mutateAsync(updated);
+          } catch (mutationError) {
+            showError(mutationError instanceof Error ? mutationError.message : t('common.error'));
+            throw mutationError;
+          }
+        }}
+      />
 
       <ConfirmationModal
         isOpen={fatwaDeletion.isOpen}

@@ -7,7 +7,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: process.env.BASE_PATH ?? '/',
   server: {
-    port: 5173,
+    port: 8000,
+    strictPort: true,
     host: '0.0.0.0',
   },
   optimizeDeps: {
