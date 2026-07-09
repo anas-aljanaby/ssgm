@@ -4,8 +4,8 @@
     {
       "name": "web",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "--port", "5175"],
-      "port": 5175,
+      "runtimeArgs": ["vite", "--port", "8000"],
+      "port": 8000,
       "cwd": "apps/web"
     },
     {

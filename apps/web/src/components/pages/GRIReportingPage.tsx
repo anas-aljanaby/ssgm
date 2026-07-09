@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Download, FileUp, Pencil } from 'lucide-react';
 import {
   Cell,
-  Legend,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -103,6 +102,99 @@ const KpiCard: React.FC<{ title: string; percentage: number; color: string }> = 
   </div>
 );
 
+type DonutDatum = { key: string; name: string; value: number; color: string };
+
+const DonutTooltip: React.FC<{ active?: boolean; payload?: any[]; total: number }> = ({
+  active,
+  payload,
+  total,
+}) => {
+  if (!active || !payload?.length) return null;
+  const datum = payload[0].payload as DonutDatum;
+  const pct = total ? Math.round((datum.value / total) * 100) : 0;
+  return (
+    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 shadow-lg">
+      <div className="flex items-center gap-2">
+        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: datum.color }} />
+        <span className="text-sm font-semibold text-foreground dark:text-dark-foreground">
+          {datum.name}
+        </span>
+      </div>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        {datum.value} ({pct}%)
+      </p>
+    </div>
+  );
+};
+
+const StatusDonut: React.FC<{ data: DonutDatum[]; centerLabel: string }> = ({
+  data,
+  centerLabel,
+}) => {
+  const total = data.reduce((sum, d) => sum + d.value, 0);
+  const complete = data.find((d) => d.key === 'complete')?.value ?? 0;
+  const completionPct = total ? Math.round((complete / total) * 100) : 0;
+  const segments = data.filter((d) => d.value > 0);
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative w-full h-56">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={segments}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={64}
+              outerRadius={92}
+              paddingAngle={segments.length > 1 ? 3 : 0}
+              cornerRadius={6}
+              startAngle={90}
+              endAngle={-270}
+              stroke="none"
+            >
+              {segments.map((entry) => (
+                <Cell key={entry.key} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip content={<DonutTooltip total={total} />} />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-3xl font-bold text-foreground dark:text-dark-foreground leading-none">
+            {completionPct}%
+          </span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">{centerLabel}</span>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2 w-full mt-4">
+        {data.map((entry) => {
+          const pct = total ? Math.round((entry.value / total) * 100) : 0;
+          return (
+            <div
+              key={entry.key}
+              className="flex flex-col items-center text-center rounded-lg py-2 bg-gray-50 dark:bg-slate-800/50"
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                <span className="text-lg font-bold text-foreground dark:text-dark-foreground leading-none">
+                  {entry.value}
+                </span>
+              </div>
+              <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-full px-1">
+                {entry.name}
+              </span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500">{pct}%</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const OverviewTab: React.FC<{
   responses: Record<string, GriDisclosureResponse>;
   reportPeriod: string;
@@ -166,19 +258,7 @@ const OverviewTab: React.FC<{
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-2 bg-card dark:bg-dark-card p-6 rounded-2xl shadow-soft border dark:border-slate-700/50">
           <h3 className="font-bold text-lg mb-4 text-center">{t('gri.statusBreakdown')}</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={donut} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                  {donut.map((entry) => (
-                    <Cell key={entry.key} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <StatusDonut data={donut} centerLabel={t('gri.statuses.complete')} />
         </div>
 
         <div className="lg:col-span-3 bg-card dark:bg-dark-card p-6 rounded-2xl shadow-soft border dark:border-slate-700/50">

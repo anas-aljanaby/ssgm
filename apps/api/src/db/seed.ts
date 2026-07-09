@@ -9,6 +9,7 @@ import { seedBousala } from './bousalaSeed';
 import { SEED_STAKEHOLDERS } from './stakeholderSeed';
 import { SEED_IMPLEMENTING_PARTNERS } from './implementingPartnerSeed';
 import { seedShariaCompliance } from './shariaSeed';
+import { seedGri } from './griSeed';
 import { seedOrgModules } from '../lib/orgModules';
 
 const client = postgres(process.env.DIRECT_URL || process.env.DATABASE_URL!);
@@ -910,6 +911,10 @@ async function seed() {
     console.log('Seeding sharia compliance...');
     await seedShariaCompliance(db, org.id);
     console.log('  Sharia compliance data seeded');
+
+    console.log('Seeding GRI reporting...');
+    const gri = await seedGri(db, org.id);
+    console.log(`  GRI report seeded with ${gri.count} disclosure responses`);
 
     // ── Sample staff (demo memberships with different roles) ────────────
     const sampleStaff = [
