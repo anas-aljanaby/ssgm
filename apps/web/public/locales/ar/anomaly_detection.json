@@ -1,0 +1,23 @@
+{
+  "anomaly_detection": {
+    "actualValue": "القيمة الفعلية",
+    "alertLog": "سجل التنبيهات",
+    "algorithm": "الخوارزمية",
+    "anomalyChart": "مخطط الحالات الشاذة",
+    "anomalyReason_drop": "انخفاض مفاجئ",
+    "anomalyReason_missing": "بيانات مفقودة",
+    "anomalyReason_outlier": "قيمة شاذة إحصائياً",
+    "anomalyReason_spike": "ارتفاع مفاجئ",
+    "configuration": "الإعدادات",
+    "kpi_dailyDonations": "التبرعات اليومية",
+    "kpi_newSignups": "التسجيلات الجديدة",
+    "kpi_websiteVisitors": "زوار الموقع",
+    "noAlerts": "لا توجد حالات شاذة بعد. شغّل الكشف لعرض التنبيهات.",
+    "runDetection": "تشغيل الكشف",
+    "runningDetection": "جارٍ الكشف…",
+    "selectKpi": "اختر مؤشر الأداء",
+    "sensitivity": "الحساسية",
+    "tooltipAnomaly": "حالة شاذة",
+    "tooltipValue": "القيمة"
+  }
+}

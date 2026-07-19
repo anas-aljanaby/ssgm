@@ -1,0 +1,214 @@
+{
+  "digital_marketing": {
+    "title": "التسويق الرقمي",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "campaigns": "الحملات",
+      "outreach": "التواصل المخصص",
+      "social": "التواصل الاجتماعي"
+    },
+    "kpi": {
+      "digitalDonations": "التبرعات الرقمية",
+      "campaignsActive": "الحملات النشطة",
+      "emailPerformance": "معدل فتح البريد",
+      "messagesSent": "الرسائل المُرسلة",
+      "vsLast30d": "مقارنة بآخر 30 يوماً"
+    },
+    "activityFeed": {
+      "title": "النشاط الأخير"
+    },
+    "quickActions": {
+      "title": "إجراءات سريعة",
+      "createCampaign": "إنشاء حملة",
+      "quickEmail": "بريد سريع",
+      "openOutreach": "فتح التواصل المخصص",
+      "scheduleSocial": "جدولة منشور"
+    },
+    "campaigns": {
+      "title": "الحملات",
+      "create": "إنشاء حملة",
+      "searchPlaceholder": "ابحث عن الحملات أو المسؤولين…",
+      "empty": "لا توجد حملات تطابق عوامل التصفية.",
+      "showing": "عرض {{from}}–{{to}} من {{total}}",
+      "filters": {
+        "all": "الكل",
+        "active": "نشط",
+        "endingSoon": "تنتهي قريباً"
+      },
+      "channels": {
+        "all": "كل القنوات",
+        "email": "البريد",
+        "sms": "رسائل قصيرة",
+        "whatsapp": "واتساب",
+        "social": "اجتماعي"
+      },
+      "kpi": {
+        "active": "نشطة",
+        "spend": "الإنفاق",
+        "messagesSent": "الرسائل المُرسلة",
+        "avgOpenRate": "متوسط معدل الفتح"
+      },
+      "table": {
+        "name": "الاسم",
+        "status": "الحالة",
+        "channel": "القناة",
+        "duration": "الفترة",
+        "audience": "الجمهور",
+        "progress": "التقدم",
+        "owner": "المسؤول",
+        "actions": "إجراءات"
+      },
+      "statuses": {
+        "Draft": "مسودة",
+        "Scheduled": "مجدول",
+        "Active": "نشط",
+        "Paused": "متوقف",
+        "Completed": "مكتمل"
+      }
+    },
+    "channelHealth": {
+      "title": "صحة القنوات",
+      "email": "البريد",
+      "sms": "رسائل قصيرة",
+      "whatsapp": "واتساب",
+      "deliverability": "معدل التسليم",
+      "quality": "الجودة",
+      "qualityLevels": {
+        "high": "مرتفعة",
+        "medium": "متوسطة",
+        "low": "منخفضة"
+      }
+    },
+    "outreach": {
+      "queue": {
+        "title": "جاهزون للتواصل",
+        "subtitle": "متبرعون بإشارات توقيت قوية — اخترهم واستخدمهم في رسالتك.",
+        "useInMessage": "استخدم في الرسالة",
+        "empty": "لا يوجد متبرعون جاهزون حالياً.",
+        "selectWarning": "اختر متبرعاً واحداً على الأقل من القائمة.",
+        "added": "تمت إضافة {{count}} متبرع(ين) كأهداف للتواصل.",
+        "prefilled": "تم اختيار {{count}} متبرع(ين) من قائمة الجاهزين.",
+        "columns": {
+          "name": "الاسم",
+          "bestTime": "أفضل يوم / وقت",
+          "channel": "أفضل قناة",
+          "engagement": "التفاعل",
+          "nextGift": "التبرع المتوقع التالي"
+        }
+      },
+      "generateError": "تعذر إنشاء رسالة لـ {{name}}."
+    },
+    "email": {
+      "createEmail": "بريد سريع",
+      "to": "إلى",
+      "subject": "الموضوع",
+      "body": "النص",
+      "toPlaceholder": "شريحة أو عنوان بريد",
+      "send": "إرسال",
+      "validationRequired": "المستلم والموضوع مطلوبان."
+    },
+    "social": {
+      "calendar": "التقويم",
+      "connectedAccounts": "الحسابات المرتبطة",
+      "createPost": "إنشاء منشور",
+      "connect": "ربط",
+      "connectAccountHelp": "اربط حساباً اجتماعياً لجدولة المنشورات.",
+      "followers": "المتابعون",
+      "postTo": "النشر على",
+      "schedulePost": "جدولة المنشور",
+      "scheduleTime": "وقت الجدولة",
+      "content": "المحتوى",
+      "contentPlaceholder": "اكتب منشورك…",
+      "statuses": {
+        "connected": "مرتبط",
+        "disconnected": "غير مرتبط",
+        "not-connected": "غير مرتبط",
+        "error": "خطأ",
+        "Error": "خطأ"
+      }
+    },
+    "wizard": {
+      "title": "إنشاء حملة",
+      "back": "رجوع",
+      "next": "التالي",
+      "finishLaunch": "إنهاء",
+      "steps": {
+        "basics": "الأساسيات",
+        "audience": "الجمهور",
+        "channel": "القناة والمحتوى",
+        "review": "مراجعة"
+      },
+      "validation": {
+        "nameRequired": "الاسم بالإنجليزية مطلوب.",
+        "objectiveRequired": "اختر الهدف.",
+        "datesRequired": "تاريخ البداية والنهاية مطلوبان.",
+        "audienceRequired": "اختر الجمهور.",
+        "channelRequired": "اختر القناة.",
+        "subjectRequired": "الموضوع مطلوب لهذه القناة.",
+        "bodyRequired": "نص الرسالة مطلوب."
+      },
+      "step1": {
+        "title": "أساسيات الحملة",
+        "description": "سمِّ الحملة، حدد غرضها، واختر التواريخ.",
+        "nameEn": "الاسم (إنجليزي)",
+        "nameAr": "الاسم (عربي)",
+        "objective": "الهدف",
+        "objectiveHelp": "ما الذي تهدف هذه الحملة إلى تحقيقه؟",
+        "objectives": {
+          "appeal": "نداء تبرع",
+          "stewardship": "رعاية المتبرعين",
+          "update": "تحديث",
+          "event": "فعالية"
+        },
+        "owner": "المسؤول",
+        "ownerHelp": "من يتولى هذه الحملة؟",
+        "timeline": "الفترة الزمنية",
+        "timelineHelp": "تاريخ بداية ونهاية الحملة.",
+        "budget": "الميزانية (اختياري)",
+        "budgetHelp": "حد إنفاق اختياري لهذه الحملة."
+      },
+      "step2": {
+        "title": "الجمهور",
+        "description": "من يجب أن يستلم هذا التواصل؟",
+        "source": "مصدر الجمهور",
+        "sourceHelp": "اختر كل جهات الاتصال أو شريحة موجودة.",
+        "allContacts": "كل جهات الاتصال",
+        "allContactsDesc": "الجميع في قائمة المتبرعين/جهات الاتصال.",
+        "allContactsWarning": "الإرسال للجميع قد يكون مكلفاً — فكّر في شريحة للنداءات.",
+        "existingSegment": "شريحة موجودة",
+        "existingSegmentDesc": "استخدم شريحة متبرعين محفوظة.",
+        "chooseSegment": "اختر الشريحة",
+        "selectSegment": "اختر شريحة…",
+        "contacts": "جهة اتصال",
+        "segmentsAvailable": "شرائح متاحة"
+      },
+      "step3": {
+        "title": "القناة والمحتوى",
+        "description": "اختر القناة الأساسية واكتب المسودة.",
+        "primaryChannel": "القناة الأساسية",
+        "language": "اللغة",
+        "langEn": "الإنجليزية",
+        "langAr": "العربية",
+        "subject": "الموضوع / العنوان",
+        "body": "نص الرسالة",
+        "bodyPlaceholder": "اكتب رسالة التواصل…"
+      },
+      "step4": {
+        "title": "مراجعة وإطلاق",
+        "description": "أكد التفاصيل، ثم احفظ كمسودة أو جدول أو أطلق.",
+        "name": "الاسم",
+        "objective": "الهدف",
+        "dates": "التواريخ",
+        "owner": "المسؤول",
+        "budget": "الميزانية",
+        "audience": "الجمهور",
+        "channel": "القناة",
+        "content": "المحتوى",
+        "launchAs": "حفظ كـ",
+        "saveDraft": "مسودة",
+        "schedule": "مجدول",
+        "launchNow": "نشط"
+      }
+    }
+  }
+}

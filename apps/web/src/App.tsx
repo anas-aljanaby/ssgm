@@ -75,6 +75,15 @@ const ModuleRenderer: React.FC<ModuleRendererProps> = ({
         case 'sharia_compliance':
         case 'sharia_board':
             return <Page setActiveModule={updateActiveModule} />;
+        case 'ai_automation':
+            return (
+                <Page
+                    setActiveModule={updateActiveModule}
+                    initialTab={deepLinkTarget?.id}
+                />
+            );
+        case 'digital_marketing':
+            return <Page role={role} />;
         default:
             return <Page />;
     }
@@ -94,7 +103,7 @@ function App() {
     const [role, setRole] = useState<Role>('Admin');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [enabledLanguages, setEnabledLanguages] = useState<Language[]>(['en', 'ar']);
-    const [_isAiFabVisible, setIsAiFabVisible] = useState(false);
+    const isAiFabVisible = activeModule !== 'ai_automation';
     const [deepLinkTarget, setDeepLinkTarget] = useState<{ id?: string; tab?: string } | null>(null);
 
     const { hrData } = useHrData();
@@ -180,7 +189,9 @@ function App() {
                                 </Suspense>
                             </main>
                         </div>
-                        {_isAiFabVisible && <AiFab onClick={() => updateActiveModule('dashboard')} />}
+                        {isAiFabVisible && (
+                            <AiFab onClick={() => updateActiveModule('ai_automation/assistant')} />
+                        )}
                          <BottomNavBar
                             activeModule={activeModule}
                             setActiveModule={updateActiveModule}

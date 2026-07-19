@@ -17,6 +17,8 @@ export const MODULE_KEYS = [
     'compliance',
     'sharia_compliance',
     'sharia_board',
+    'digital_marketing',
+    'ai_automation',
     'staff',
     'help',
     'settings',
@@ -43,6 +45,8 @@ export const DEFAULT_MODULE_ORDER: readonly ModuleKey[] = [
     'gri_reporting',
     'sharia_compliance',
     'sharia_board',
+    'digital_marketing',
+    'ai_automation',
     'staff',
     'help',
     'settings',
@@ -56,6 +60,9 @@ export const LEGACY_MODULE_NAME_MAP: Record<string, ModuleKey> = {
     stakeholders: 'stakeholder_management',
     hr: 'staff',
     finance: 'financials',
+    optimal_contact_timing: 'digital_marketing',
+    smart_message_campaign: 'digital_marketing',
+    anomaly_detection: 'ai_automation',
 };
 
 export function isModuleKey(value: string): value is ModuleKey {
@@ -82,6 +89,8 @@ export const DEFAULT_ENABLED_MODULE_KEYS: readonly ModuleKey[] = [
     'gri_reporting',
     'sharia_compliance',
     'sharia_board',
+    'digital_marketing',
+    'ai_automation',
     'staff',
     'help',
     'settings',

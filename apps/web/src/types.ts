@@ -995,20 +995,29 @@ export interface AdCampaign {
   optimizationScore?: number;
 }
 export type CampaignStatus = 'Completed' | 'Active' | 'Paused' | 'Scheduled' | 'Draft';
+export type CampaignObjective = 'appeal' | 'stewardship' | 'update' | 'event';
+export type OutreachChannel = 'Email' | 'SMS' | 'WhatsApp' | 'Social';
 export interface Campaign {
   id: string;
   name: Record<Language, string>;
   type: 'Seasonal' | 'Fundraising' | 'Awareness' | 'Volunteer' | 'Event';
+  /** Fundraising outreach purpose (BUILD/ACTIVATE). */
+  objective?: CampaignObjective;
   status: CampaignStatus;
   startDate: string;
   endDate: string;
-  channels: string[];
+  channels: OutreachChannel[] | string[];
+  /** Draft content for the primary channel. */
+  contentDraft?: { subject?: string; body?: string; language?: Language };
   budget: number;
   spent: number;
   audience: { name: string; size: number };
   goal: { type: 'Fundraising' | 'Subscribers' | 'Registrations'; target: number; current: number };
   owner: string;
   createdAt: string;
+  messagesSent?: number;
+  openRate?: number;
+  responseRate?: number;
 }
 export interface CampaignSegment {
   id: string;

@@ -1,0 +1,214 @@
+{
+  "digital_marketing": {
+    "title": "Digital Marketing",
+    "tabs": {
+      "overview": "Overview",
+      "campaigns": "Campaigns",
+      "outreach": "Outreach",
+      "social": "Social"
+    },
+    "kpi": {
+      "digitalDonations": "Digital donations",
+      "campaignsActive": "Campaigns active",
+      "emailPerformance": "Email open rate",
+      "messagesSent": "Messages sent",
+      "vsLast30d": "vs last 30 days"
+    },
+    "activityFeed": {
+      "title": "Recent activity"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "createCampaign": "Create campaign",
+      "quickEmail": "Quick email",
+      "openOutreach": "Open outreach",
+      "scheduleSocial": "Schedule social"
+    },
+    "campaigns": {
+      "title": "Campaigns",
+      "create": "Create campaign",
+      "searchPlaceholder": "Search campaigns or owners…",
+      "empty": "No campaigns match your filters.",
+      "showing": "Showing {{from}}–{{to}} of {{total}}",
+      "filters": {
+        "all": "All",
+        "active": "Active",
+        "endingSoon": "Ending soon"
+      },
+      "channels": {
+        "all": "All channels",
+        "email": "Email",
+        "sms": "SMS",
+        "whatsapp": "WhatsApp",
+        "social": "Social"
+      },
+      "kpi": {
+        "active": "Active",
+        "spend": "Spend",
+        "messagesSent": "Messages sent",
+        "avgOpenRate": "Avg open rate"
+      },
+      "table": {
+        "name": "Name",
+        "status": "Status",
+        "channel": "Channel",
+        "duration": "Date range",
+        "audience": "Audience",
+        "progress": "Progress",
+        "owner": "Owner",
+        "actions": "Actions"
+      },
+      "statuses": {
+        "Draft": "Draft",
+        "Scheduled": "Scheduled",
+        "Active": "Active",
+        "Paused": "Paused",
+        "Completed": "Completed"
+      }
+    },
+    "channelHealth": {
+      "title": "Channel health",
+      "email": "Email",
+      "sms": "SMS",
+      "whatsapp": "WhatsApp",
+      "deliverability": "deliverability",
+      "quality": "Quality",
+      "qualityLevels": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
+    },
+    "outreach": {
+      "queue": {
+        "title": "Ready to contact",
+        "subtitle": "Donors with strong timing signals — select and use in your message.",
+        "useInMessage": "Use in message",
+        "empty": "No donors currently flagged as ready.",
+        "selectWarning": "Select at least one donor from the queue.",
+        "added": "Added {{count}} donor(s) as outreach targets.",
+        "prefilled": "{{count}} donor(s) selected from the ready queue.",
+        "columns": {
+          "name": "Name",
+          "bestTime": "Best day / time",
+          "channel": "Best channel",
+          "engagement": "Engagement",
+          "nextGift": "Next predicted gift"
+        }
+      },
+      "generateError": "Could not generate message for {{name}}."
+    },
+    "email": {
+      "createEmail": "Quick email",
+      "to": "To",
+      "subject": "Subject",
+      "body": "Body",
+      "toPlaceholder": "Segment or email address",
+      "send": "Send",
+      "validationRequired": "Recipient and subject are required."
+    },
+    "social": {
+      "calendar": "Calendar",
+      "connectedAccounts": "Connected accounts",
+      "createPost": "Create post",
+      "connect": "Connect",
+      "connectAccountHelp": "Connect a social account to schedule posts.",
+      "followers": "Followers",
+      "postTo": "Post to",
+      "schedulePost": "Schedule post",
+      "scheduleTime": "Schedule time",
+      "content": "Content",
+      "contentPlaceholder": "Write your post…",
+      "statuses": {
+        "connected": "Connected",
+        "disconnected": "Not connected",
+        "not-connected": "Not connected",
+        "error": "Error",
+        "Error": "Error"
+      }
+    },
+    "wizard": {
+      "title": "Create campaign",
+      "back": "Back",
+      "next": "Next",
+      "finishLaunch": "Finish",
+      "steps": {
+        "basics": "Basics",
+        "audience": "Audience",
+        "channel": "Channel & content",
+        "review": "Review"
+      },
+      "validation": {
+        "nameRequired": "English name is required.",
+        "objectiveRequired": "Select an objective.",
+        "datesRequired": "Start and end dates are required.",
+        "audienceRequired": "Select an audience.",
+        "channelRequired": "Select a channel.",
+        "subjectRequired": "Subject is required for this channel.",
+        "bodyRequired": "Message body is required."
+      },
+      "step1": {
+        "title": "Campaign basics",
+        "description": "Name the campaign, set its purpose, and choose dates.",
+        "nameEn": "Name (English)",
+        "nameAr": "Name (Arabic)",
+        "objective": "Objective",
+        "objectiveHelp": "What is this outreach trying to achieve?",
+        "objectives": {
+          "appeal": "Appeal",
+          "stewardship": "Stewardship",
+          "update": "Update",
+          "event": "Event"
+        },
+        "owner": "Owner",
+        "ownerHelp": "Who owns this campaign?",
+        "timeline": "Date range",
+        "timelineHelp": "Campaign start and end dates.",
+        "budget": "Budget (optional)",
+        "budgetHelp": "Optional spend cap for this campaign."
+      },
+      "step2": {
+        "title": "Audience",
+        "description": "Who should receive this outreach?",
+        "source": "Audience source",
+        "sourceHelp": "Choose all contacts or an existing segment.",
+        "allContacts": "All contacts",
+        "allContactsDesc": "Everyone in your donor/contact list.",
+        "allContactsWarning": "Sending to all contacts can be costly — consider a segment for appeals.",
+        "existingSegment": "Existing segment",
+        "existingSegmentDesc": "Use a saved donor segment.",
+        "chooseSegment": "Choose segment",
+        "selectSegment": "Select a segment…",
+        "contacts": "contacts",
+        "segmentsAvailable": "segments available"
+      },
+      "step3": {
+        "title": "Channel & content",
+        "description": "Pick the primary channel and draft the message.",
+        "primaryChannel": "Primary channel",
+        "language": "Language",
+        "langEn": "English",
+        "langAr": "Arabic",
+        "subject": "Subject / headline",
+        "body": "Message body",
+        "bodyPlaceholder": "Write your outreach message…"
+      },
+      "step4": {
+        "title": "Review & launch",
+        "description": "Confirm details, then save as draft, schedule, or launch.",
+        "name": "Name",
+        "objective": "Objective",
+        "dates": "Dates",
+        "owner": "Owner",
+        "budget": "Budget",
+        "audience": "Audience",
+        "channel": "Channel",
+        "content": "Content",
+        "launchAs": "Save as",
+        "saveDraft": "Draft",
+        "schedule": "Scheduled",
+        "launchNow": "Active"
+      }
+    }
+  }
+}

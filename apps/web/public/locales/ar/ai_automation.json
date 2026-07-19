@@ -1,0 +1,115 @@
+{
+  "ai_automation": {
+    "title": "الذكاء الاصطناعي والأتمتة",
+    "description": "اسأل النظام بلغة طبيعية، وأنشئ رؤى، ونظّف بيانات المانحين، وعرّف أتمتة بسيطة، واكتشف تقلبات مؤشرات الأداء غير المعتادة.",
+    "tabs": {
+      "assistant": "المساعد",
+      "insights": "الرؤى",
+      "data_quality": "جودة البيانات",
+      "automations": "الأتمتة",
+      "anomalies": "الحالات الشاذة"
+    },
+    "assistant": {
+      "initialGreeting": "مرحباً! أنا مساعد GMS الذكي. اسأل عن المانحين أو المشاريع أو المالية أو كيفية إنجاز مهمة.",
+      "initialSuggestions": {
+        "0": "لخّص تبرعات هذا الأسبوع",
+        "1": "أي المشاريع متأخرة عن الجدول؟",
+        "2": "كيف أضيف مانحاً جديداً؟"
+      },
+      "inputPlaceholder": "اطرح سؤالاً أو صف ما تحتاجه…",
+      "listening": "جارٍ الاستماع…",
+      "micNotSupported": "التعرف على الصوت غير مدعوم في هذا المتصفح.",
+      "micPermissionDenied": "تم رفض إذن الميكروفون.",
+      "micTooltip": "اطرح سؤالك صوتياً",
+      "attachFile": "إرفاق ملف",
+      "newConversation": "محادثة جديدة",
+      "title": "المساعد",
+      "uploadedFile": "مرفق: {{fileName}}",
+      "actionSuggested": "إجراء مقترح",
+      "execute": "تنفيذ",
+      "executed": "تم التنفيذ"
+    },
+    "insights": {
+      "confidence": "الثقة",
+      "description": "أنشئ رؤى عند الطلب حول المانحين والمشاريع والعمليات.",
+      "error": "تعذر توليد الرؤى. حاول مرة أخرى.",
+      "explain": "اشرح",
+      "feedbackThanks": "شكراً على ملاحظاتك.",
+      "generateButton": "توليد الرؤى",
+      "generating": "جارٍ توليد الرؤى…",
+      "helpful": "هل كان هذا مفيداً؟",
+      "noResults": "لا توجد رؤى بعد. اضغط توليد للبدء.",
+      "resultsTitle": "الرؤى المُولَّدة",
+      "title": "الرؤى",
+      "categories": {
+        "Achievements": "الإنجازات",
+        "Warnings": "تحذيرات",
+        "Opportunities": "فرص",
+        "Predictions": "توقعات"
+      }
+    },
+    "data_quality": {
+      "action": "إجراء",
+      "aiSuggestion": "اقتراح الذكاء الاصطناعي",
+      "auditLog": "سجل التدقيق",
+      "confirmIgnoreMessage": "تجاهل هذه المشكلة؟ ستُخفى من نتائج الفحص.",
+      "confirmIgnoreTitle": "تجاهل المشكلة",
+      "confirmMerge": "تأكيد الدمج",
+      "dashboard": "لوحة القيادة",
+      "dataHealth": "صحة البيانات",
+      "details": "التفاصيل",
+      "duplicates": "التكرارات",
+      "finalRecord": "السجل النهائي",
+      "formatting": "التنسيق",
+      "formattingIssues": "مشاكل التنسيق",
+      "ignore": "تجاهل",
+      "issuesFound": "المشاكل المكتشفة",
+      "merge": "دمج",
+      "mergeRecords": "دمج السجلات",
+      "potentialDuplicates": "تكرارات محتملة",
+      "recordA": "السجل أ",
+      "recordB": "السجل ب",
+      "recordsScanned": "السجلات المفحوصة",
+      "review": "مراجعة",
+      "scanCompleted": "اكتمل الفحص",
+      "similarity": "التشابه",
+      "startScan": "بدء الفحص",
+      "timestamp": "الوقت",
+      "title": "جودة البيانات",
+      "user": "المستخدم"
+    },
+    "automations": {
+      "title": "الأتمتة",
+      "myAutomations": "الأتمتة الخاصة بي",
+      "createNew": "إنشاء أتمتة",
+      "editAutomation": "تعديل الأتمتة",
+      "edit": "تعديل",
+      "save": "حفظ الأتمتة",
+      "enabled": "مفعّلة",
+      "disabled": "معطّلة",
+      "empty": "لا توجد أتمتة بعد. أنشئ واحدة للبدء.",
+      "nameEn": "الاسم (إنجليزي)",
+      "nameAr": "الاسم (عربي)",
+      "nameRequired": "أدخل اسماً بالإنجليزية أو العربية.",
+      "triggerLabel": "المحفّز",
+      "actionLabel": "الإجراء",
+      "triggerRequired": "اختر محفّزاً.",
+      "actionRequired": "اختر إجراءً.",
+      "created": "تم إنشاء الأتمتة.",
+      "updated": "تم تحديث الأتمتة.",
+      "deleted": "تم حذف الأتمتة.",
+      "deleteTitle": "حذف الأتمتة",
+      "deleteMessage": "إزالة هذه الأتمتة؟ لا يمكن التراجع في هذه الجلسة.",
+      "triggers": {
+        "newDonation": "تبرع جديد",
+        "newDonor": "مانح جديد",
+        "projectStatusUpdate": "تحديث حالة المشروع"
+      },
+      "actions": {
+        "createTask": "إنشاء مهمة",
+        "notifyUser": "إشعار مستخدم",
+        "sendEmail": "إرسال بريد"
+      }
+    }
+  }
+}

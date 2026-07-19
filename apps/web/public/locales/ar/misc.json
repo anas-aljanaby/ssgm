@@ -37,7 +37,13 @@
   "toasts": {
     "featureInDev": "الميزة قيد التطوير",
     "newFolderComingSoon": "إنشاء مجلد سيكون متاحًا قريبًا.",
-    "uploadComingSoon": "الرفع سيكون متاحًا قريبًا."
+    "uploadComingSoon": "الرفع سيكون متاحًا قريبًا.",
+    "warningTitle": "تحذير",
+    "errorTitle": "خطأ",
+    "successTitle": "نجاح",
+    "infoTitle": "معلومة",
+    "mergeSuccess": "تم دمج السجلات بنجاح",
+    "ignoreSuccess": "تم تجاهل المشكلة"
   },
   "onboarding": {
     "startTour": "ابدأ الجولة",

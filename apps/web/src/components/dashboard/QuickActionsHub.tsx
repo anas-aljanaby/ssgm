@@ -17,7 +17,7 @@ const QuickActionsHub: React.FC<QuickActionsHubProps> = ({ setActiveModule }) =>
     const actions = [
         { id: 'addProject', labelKey: 'quick_actions.addProject', icon: PlusCircleIcon, targetModule: 'projects' },
         { id: 'createReport', labelKey: 'quick_actions.createReport', icon: BarChartIcon, targetModule: 'reports' },
-        { id: 'sendMessage', labelKey: 'quick_actions.sendMessage', icon: MailIcon, targetModule: 'smart_message_campaign' },
+        { id: 'sendMessage', labelKey: 'quick_actions.sendMessage', icon: MailIcon, targetModule: 'digital_marketing' },
         { id: 'settings', labelKey: 'quick_actions.settings', icon: SettingsIcon, targetModule: 'settings' },
     ];
 

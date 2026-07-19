@@ -37,7 +37,13 @@
   "toasts": {
     "featureInDev": "Feature in Development",
     "newFolderComingSoon": "Create folder is coming soon.",
-    "uploadComingSoon": "Upload is coming soon."
+    "uploadComingSoon": "Upload is coming soon.",
+    "warningTitle": "Warning",
+    "errorTitle": "Error",
+    "successTitle": "Success",
+    "infoTitle": "Info",
+    "mergeSuccess": "Records merged successfully",
+    "ignoreSuccess": "Issue ignored"
   },
   "onboarding": {
     "startTour": "Start Tour",

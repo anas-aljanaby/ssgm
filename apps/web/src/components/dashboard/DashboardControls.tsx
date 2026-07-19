@@ -49,7 +49,7 @@ const QuickActionsMenu: React.FC<{ setActiveModule: (module: string) => void }> 
     const actions = [
         { id: 'addProject', labelKey: 'quick_actions.addProject', icon: PlusCircle, targetModule: 'projects' },
         { id: 'createReport', labelKey: 'quick_actions.createReport', icon: BarChart3, targetModule: 'reports' },
-        { id: 'sendMessage', labelKey: 'quick_actions.sendMessage', icon: Mail, targetModule: 'smart_message_campaign' },
+        { id: 'sendMessage', labelKey: 'quick_actions.sendMessage', icon: Mail, targetModule: 'digital_marketing' },
         { id: 'settings', labelKey: 'quick_actions.settings', icon: Settings, targetModule: 'settings' },
     ];
 

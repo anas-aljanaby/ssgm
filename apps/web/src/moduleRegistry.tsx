@@ -18,6 +18,8 @@ import {
     GRIReportingIcon,
     ShariaComplianceIcon,
     ShariaBoardIcon,
+    DigitalMarketingIcon,
+    AiIcon,
 } from './components/icons/ModuleIcons';
 
 export interface ModuleSubmenuEntry {
@@ -48,6 +50,8 @@ export const MODULE_REGISTRY: ModuleRegistryEntry[] = [
     { key: 'gri_reporting', icon: GRIReportingIcon, locked: false, component: lazyPage(() => import('./components/pages/GRIReportingPage')) },
     { key: 'sharia_compliance', icon: ShariaComplianceIcon, locked: false, component: lazyPage(() => import('./components/pages/ShariaCompliancePage')) },
     { key: 'sharia_board', icon: ShariaBoardIcon, locked: false, component: lazyPage(() => import('./components/pages/ShariaBoardManagementPage')) },
+    { key: 'digital_marketing', icon: DigitalMarketingIcon, locked: false, component: lazyPage(() => import('./components/pages/DigitalMarketing')) },
+    { key: 'ai_automation', icon: AiIcon, locked: false, component: lazyPage(() => import('./components/pages/AiAutomation')) },
     { key: 'staff', icon: StaffIcon, locked: false, component: lazyPage(() => import('./components/pages/StaffPage')) },
     { key: 'help', icon: HelpSupportIcon, locked: true, component: lazyPage(() => import('./components/pages/HelpSupportPage')) },
     { key: 'settings', icon: SettingsIcon, locked: true, component: lazyPage(() => import('./components/pages/SettingsPage')) },

@@ -11,7 +11,7 @@ import { db } from '../db';
 import * as schema from '../db/schema';
 
 const { modules } = schema;
-const SIDEBAR_ORDER_VERSION = 2;
+const SIDEBAR_ORDER_VERSION = 4;
 
 type AppDb = PostgresJsDatabase<typeof schema>;
 

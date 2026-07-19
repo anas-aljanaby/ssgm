@@ -7,6 +7,7 @@ import { Target, AlertTriangle, Lightbulb, TrendingUp } from 'lucide-react';
 interface AIInsightsPanelProps {
   insights: AiInsightsData;
   autoRefresh?: boolean;
+  onViewMore?: () => void;
 }
 
 const SimpleMarkdown: React.FC<{ text: string }> = ({ text }) => {
@@ -58,7 +59,11 @@ const InsightSection: React.FC<{ title: string; items: AiInsightItem[]; icon: Re
     </div>
 );
 
-const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ insights, autoRefresh = true }) => {
+const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
+    insights,
+    autoRefresh = true,
+    onViewMore,
+}) => {
     const { t } = useLocalization();
     const [countdown, setCountdown] = useState(300);
 
@@ -102,7 +107,11 @@ const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ insights, autoRefresh
                 ))}
             </div>
             <div className="mt-4 pt-4 border-t border-white/20 dark:border-slate-700/50 text-center">
-                <button className="text-sm font-semibold text-primary dark:text-secondary hover:underline">
+                <button
+                    type="button"
+                    onClick={onViewMore}
+                    className="text-sm font-semibold text-primary dark:text-secondary hover:underline"
+                >
                     {t('dashboard.aiInsights.viewMore')}
                 </button>
             </div>

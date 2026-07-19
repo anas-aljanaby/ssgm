@@ -1,0 +1,23 @@
+{
+  "anomaly_detection": {
+    "actualValue": "Actual Value",
+    "alertLog": "Alert Log",
+    "algorithm": "Algorithm",
+    "anomalyChart": "Anomaly Chart",
+    "anomalyReason_drop": "Sudden drop",
+    "anomalyReason_missing": "Missing data",
+    "anomalyReason_outlier": "Statistical outlier",
+    "anomalyReason_spike": "Sudden spike",
+    "configuration": "Configuration",
+    "kpi_dailyDonations": "Daily Donations",
+    "kpi_newSignups": "New Signups",
+    "kpi_websiteVisitors": "Website Visitors",
+    "noAlerts": "No anomalies detected yet. Run detection to see alerts.",
+    "runDetection": "Run Detection",
+    "runningDetection": "Running detection…",
+    "selectKpi": "Select KPI",
+    "sensitivity": "Sensitivity",
+    "tooltipAnomaly": "Anomaly",
+    "tooltipValue": "Value"
+  }
+}

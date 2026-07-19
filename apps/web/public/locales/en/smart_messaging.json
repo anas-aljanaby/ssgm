@@ -1,0 +1,87 @@
+{
+  "smart_messaging": {
+    "campaign_types": {
+      "milestone": "Milestone celebration",
+      "milestone_sub": "Mark donor anniversaries and giving milestones",
+      "re_engagement": "Re-engagement",
+      "re_engagement_sub": "Win back lapsed or quiet donors",
+      "request": "Appeal / ask",
+      "request_sub": "Request a gift for a cause or campaign",
+      "thank_you": "Thank you",
+      "thank_you_sub": "Acknowledge a recent gift",
+      "update": "Impact update",
+      "update_sub": "Share progress from programs they support"
+    },
+    "config": {
+      "lang_ar": "Arabic",
+      "lang_auto": "Auto (donor preference)",
+      "lang_en": "English",
+      "lang_tr": "Turkish",
+      "messageLanguage": "Message language",
+      "messageLanguage_desc_auto": "Each message uses the donor’s preferred language.",
+      "messageLanguage_desc_specific": "All messages will be generated in the selected language.",
+      "sendTiming": "Send timing",
+      "title": "Message settings"
+    },
+    "dashboard": {
+      "avgPersonalization": "Avg personalization",
+      "distributionByLanguage": "By language",
+      "generatedToday": "Generated today",
+      "predictedOpens": "Predicted opens",
+      "scheduledWeek": "Scheduled this week"
+    },
+    "generate": {
+      "button": "Generate personalized messages",
+      "progress": "Generating {{current}} of {{total}}…",
+      "warning": "Select a message purpose and at least one donor first."
+    },
+    "personalization": {
+      "high": "High",
+      "high_desc": "Deep personalization using gift history and timing",
+      "low": "Low",
+      "low_desc": "Light personalization (name and basic context)",
+      "medium": "Medium",
+      "medium_desc": "Balanced personalization for most outreach",
+      "title": "Personalization level"
+    },
+    "preview": {
+      "open_rate": "Predicted open rate",
+      "preview_for": "Preview for",
+      "regenerate": "Regenerate",
+      "score": "Score",
+      "title": "Live preview"
+    },
+    "results": {
+      "columns": {
+        "donor": "Donor",
+        "open_rate": "Open rate",
+        "personalization": "Personalization",
+        "scheduled": "Scheduled",
+        "status": "Status",
+        "subject": "Subject"
+      },
+      "delete_selected": "Delete selected",
+      "schedule_selected": "Schedule selected",
+      "send_selected": "Send selected",
+      "title": "Generated messages"
+    },
+    "targets": {
+      "breakdown_auto": "Language mix (auto)",
+      "breakdown_specific": "Language",
+      "breakdown_specific_lang": "{{lang}}",
+      "donorsSelected": "{{count}} donors selected",
+      "preview": "Preview sample",
+      "quick_filters": {
+        "dormant": "Dormant",
+        "high_engagement": "High engagement",
+        "ready": "Ready to contact",
+        "recent": "Recent donors"
+      },
+      "title": "Target donors",
+      "filter_allActive": "All active donors",
+      "filter_specificCategory": "By donor category",
+      "filter_quickFilters": "Quick filters",
+      "filter_customFilter": "Custom filter"
+    }
+  }
+}

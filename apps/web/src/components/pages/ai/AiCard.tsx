@@ -1,21 +1,25 @@
+
 import React from 'react';
 
 interface AiCardProps {
-  title: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
+    title: string;
+    icon?: React.ReactNode;
+    children: React.ReactNode;
+    className?: string;
 }
 
-const AiCard: React.FC<AiCardProps> = ({ title, icon, children }) => {
-  return (
-    <div className="bg-card dark:bg-dark-card rounded-2xl shadow-soft border dark:border-slate-700/50 p-5">
-      <div className="flex items-center gap-2 mb-3">
-        {icon}
-        <h3 className="text-lg font-semibold">{title}</h3>
-      </div>
-      {children}
-    </div>
-  );
-};
+const AiCard = React.forwardRef<HTMLDivElement, AiCardProps>(({ title, icon, children, className = '' }, ref) => {
+    return (
+        <div ref={ref} className={`bg-card dark:bg-dark-card rounded-2xl shadow-soft border border-gray-200 dark:border-slate-700/50 ${className}`}>
+            <div className="flex items-center gap-3 p-4 border-b dark:border-slate-700">
+                {icon}
+                <h3 className="font-bold text-lg text-foreground dark:text-dark-foreground">{title}</h3>
+            </div>
+            <div className="p-4 sm:p-6">
+                {children}
+            </div>
+        </div>
+    );
+});
 
 export default AiCard;

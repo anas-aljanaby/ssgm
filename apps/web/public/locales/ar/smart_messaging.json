@@ -1,0 +1,87 @@
+{
+  "smart_messaging": {
+    "campaign_types": {
+      "milestone": "احتفال بمعلم",
+      "milestone_sub": "تمييز الذكرى السنوية ومعالم العطاء",
+      "re_engagement": "إعادة تفعيل",
+      "re_engagement_sub": "استعادة المتبرعين المنقطعين أو الهادئين",
+      "request": "نداء / طلب",
+      "request_sub": "طلب تبرع لقضية أو حملة",
+      "thank_you": "شكر",
+      "thank_you_sub": "الاعتراف بتبرع حديث",
+      "update": "تحديث الأثر",
+      "update_sub": "مشاركة تقدم البرامج التي يدعمونها"
+    },
+    "config": {
+      "lang_ar": "العربية",
+      "lang_auto": "تلقائي (تفضيل المتبرع)",
+      "lang_en": "الإنجليزية",
+      "lang_tr": "التركية",
+      "messageLanguage": "لغة الرسالة",
+      "messageLanguage_desc_auto": "كل رسالة تستخدم لغة المتبرع المفضلة.",
+      "messageLanguage_desc_specific": "ستُنشأ كل الرسائل باللغة المحددة.",
+      "sendTiming": "توقيت الإرسال",
+      "title": "إعدادات الرسالة"
+    },
+    "dashboard": {
+      "avgPersonalization": "متوسط التخصيص",
+      "distributionByLanguage": "حسب اللغة",
+      "generatedToday": "أُنشئ اليوم",
+      "predictedOpens": "فتح متوقع",
+      "scheduledWeek": "مجدول هذا الأسبوع"
+    },
+    "generate": {
+      "button": "إنشاء رسائل مخصصة",
+      "progress": "جاري الإنشاء {{current}} من {{total}}…",
+      "warning": "اختر غرض الرسالة ومتبرعاً واحداً على الأقل أولاً."
+    },
+    "personalization": {
+      "high": "مرتفع",
+      "high_desc": "تخصيص عميق باستخدام سجل التبرعات والتوقيت",
+      "low": "منخفض",
+      "low_desc": "تخصيص خفيف (الاسم والسياق الأساسي)",
+      "medium": "متوسط",
+      "medium_desc": "تخصيص متوازن لمعظم التواصل",
+      "title": "مستوى التخصيص"
+    },
+    "preview": {
+      "open_rate": "معدل الفتح المتوقع",
+      "preview_for": "معاينة لـ",
+      "regenerate": "إعادة إنشاء",
+      "score": "النتيجة",
+      "title": "معاينة مباشرة"
+    },
+    "results": {
+      "columns": {
+        "donor": "المتبرع",
+        "open_rate": "معدل الفتح",
+        "personalization": "التخصيص",
+        "scheduled": "مجدول",
+        "status": "الحالة",
+        "subject": "الموضوع"
+      },
+      "delete_selected": "حذف المحدد",
+      "schedule_selected": "جدولة المحدد",
+      "send_selected": "إرسال المحدد",
+      "title": "الرسائل المُنشأة"
+    },
+    "targets": {
+      "breakdown_auto": "توزيع اللغات (تلقائي)",
+      "breakdown_specific": "اللغة",
+      "breakdown_specific_lang": "{{lang}}",
+      "donorsSelected": "{{count}} متبرع محدد",
+      "preview": "معاينة عينة",
+      "quick_filters": {
+        "dormant": "خاملون",
+        "high_engagement": "تفاعل مرتفع",
+        "ready": "جاهزون للتواصل",
+        "recent": "متبرعون حديثون"
+      },
+      "title": "المستهدفون",
+      "filter_allActive": "كل المتبرعين النشطين",
+      "filter_specificCategory": "حسب فئة المتبرع",
+      "filter_quickFilters": "فلاتر سريعة",
+      "filter_customFilter": "فلتر مخصص"
+    }
+  }
+}

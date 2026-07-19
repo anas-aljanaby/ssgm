@@ -30,6 +30,10 @@ export const ALL_NAMESPACES = [
   'gri',
   'compliance',
   'sharia',
+  'digital_marketing',
+  'ai_automation',
+  'smart_messaging',
+  'anomaly_detection',
   'misc',
 ] as const;
 
@@ -69,6 +73,10 @@ export const NAMESPACE_BY_ROOT_KEY: Record<string, AppNamespace> = {
   financials: 'financials',
   compliance: 'compliance',
   sharia: 'sharia',
+  digital_marketing: 'digital_marketing',
+  ai_automation: 'ai_automation',
+  smart_messaging: 'smart_messaging',
+  anomaly_detection: 'anomaly_detection',
   financialSettings: 'settings',
   layoutCustomizer: 'settings',
   translations: 'settings',

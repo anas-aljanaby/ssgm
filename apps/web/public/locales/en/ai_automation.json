@@ -1,0 +1,115 @@
+{
+  "ai_automation": {
+    "title": "AI & Automation",
+    "description": "Ask the system questions, generate insights, clean donor data, define simple automations, and spot unusual KPI swings.",
+    "tabs": {
+      "assistant": "Assistant",
+      "insights": "Insights",
+      "data_quality": "Data Quality",
+      "automations": "Automations",
+      "anomalies": "Anomalies"
+    },
+    "assistant": {
+      "initialGreeting": "Hello! I'm your GMS AI assistant. Ask about donors, projects, finances, or how to complete a task.",
+      "initialSuggestions": {
+        "0": "Summarize this week's donations",
+        "1": "Which projects are behind schedule?",
+        "2": "How do I add a new donor?"
+      },
+      "inputPlaceholder": "Ask a question or describe what you need…",
+      "listening": "Listening…",
+      "micNotSupported": "Speech recognition is not supported in this browser.",
+      "micPermissionDenied": "Microphone permission was denied.",
+      "micTooltip": "Speak your question",
+      "attachFile": "Attach file",
+      "newConversation": "New conversation",
+      "title": "Assistant",
+      "uploadedFile": "Attached: {{fileName}}",
+      "actionSuggested": "Action suggested",
+      "execute": "Execute",
+      "executed": "Executed"
+    },
+    "insights": {
+      "confidence": "Confidence",
+      "description": "Generate on-demand insights across donors, projects, and operations.",
+      "error": "Could not generate insights. Please try again.",
+      "explain": "Explain",
+      "feedbackThanks": "Thanks for your feedback.",
+      "generateButton": "Generate insights",
+      "generating": "Generating insights…",
+      "helpful": "Was this helpful?",
+      "noResults": "No insights yet. Click generate to start.",
+      "resultsTitle": "Generated insights",
+      "title": "Insights",
+      "categories": {
+        "Achievements": "Achievements",
+        "Warnings": "Warnings",
+        "Opportunities": "Opportunities",
+        "Predictions": "Predictions"
+      }
+    },
+    "data_quality": {
+      "action": "Action",
+      "aiSuggestion": "AI suggestion",
+      "auditLog": "Audit log",
+      "confirmIgnoreMessage": "Ignore this issue? It will be hidden from the scan results.",
+      "confirmIgnoreTitle": "Ignore issue",
+      "confirmMerge": "Confirm merge",
+      "dashboard": "Dashboard",
+      "dataHealth": "Data health",
+      "details": "Details",
+      "duplicates": "Duplicates",
+      "finalRecord": "Final record",
+      "formatting": "Formatting",
+      "formattingIssues": "Formatting issues",
+      "ignore": "Ignore",
+      "issuesFound": "Issues found",
+      "merge": "Merge",
+      "mergeRecords": "Merge records",
+      "potentialDuplicates": "Potential duplicates",
+      "recordA": "Record A",
+      "recordB": "Record B",
+      "recordsScanned": "Records scanned",
+      "review": "Review",
+      "scanCompleted": "Scan completed",
+      "similarity": "Similarity",
+      "startScan": "Start scan",
+      "timestamp": "Timestamp",
+      "title": "Data Quality",
+      "user": "User"
+    },
+    "automations": {
+      "title": "Automations",
+      "myAutomations": "My automations",
+      "createNew": "Create automation",
+      "editAutomation": "Edit automation",
+      "edit": "Edit",
+      "save": "Save automation",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "empty": "No automations yet. Create one to get started.",
+      "nameEn": "Name (English)",
+      "nameAr": "Name (Arabic)",
+      "nameRequired": "Enter a name in English or Arabic.",
+      "triggerLabel": "Trigger",
+      "actionLabel": "Action",
+      "triggerRequired": "Select a trigger.",
+      "actionRequired": "Select an action.",
+      "created": "Automation created.",
+      "updated": "Automation updated.",
+      "deleted": "Automation deleted.",
+      "deleteTitle": "Delete automation",
+      "deleteMessage": "Remove this automation? This cannot be undone in this session.",
+      "triggers": {
+        "newDonation": "New donation",
+        "newDonor": "New donor",
+        "projectStatusUpdate": "Project status update"
+      },
+      "actions": {
+        "createTask": "Create task",
+        "notifyUser": "Notify user",
+        "sendEmail": "Send email"
+      }
+    }
+  }
+}
