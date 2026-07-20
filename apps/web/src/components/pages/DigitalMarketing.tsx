@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { BarChart3, Megaphone, MessageCircleMore, Share2 } from 'lucide-react';
 import { useLocalization } from '../../hooks/useLocalization';
 import type { Role, SocialPost, Campaign } from '../../types';
 import { MOCK_SOCIAL_POSTS } from '../../data/socialMediaData';
 import { MOCK_CAMPAIGNS } from '../../data/campaignsData';
-import Tabs from '../common/Tabs';
 import MarketingDashboard from './marketing/MarketingDashboard';
 import CampaignsTab from './marketing/CampaignsTab';
 import OutreachTab from './marketing/OutreachTab';
@@ -16,7 +16,7 @@ interface DigitalMarketingProps {
 }
 
 const DigitalMarketing: React.FC<DigitalMarketingProps> = ({ role = 'Admin' }) => {
-    const { t } = useLocalization(['digital_marketing', 'smart_messaging', 'common']);
+    const { t, dir } = useLocalization(['digital_marketing', 'smart_messaging', 'common']);
     const [activeTab, setActiveTab] = useState('overview');
 
     const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
@@ -76,10 +76,10 @@ const DigitalMarketing: React.FC<DigitalMarketingProps> = ({ role = 'Admin' }) =
     };
 
     const tabs = [
-        { id: 'overview', label: t('digital_marketing.tabs.overview') },
-        { id: 'campaigns', label: t('digital_marketing.tabs.campaigns') },
-        { id: 'outreach', label: t('digital_marketing.tabs.outreach') },
-        { id: 'social', label: t('digital_marketing.tabs.social') },
+        { id: 'overview', label: t('digital_marketing.tabs.overview'), icon: BarChart3 },
+        { id: 'campaigns', label: t('digital_marketing.tabs.campaigns'), icon: Megaphone },
+        { id: 'outreach', label: t('digital_marketing.tabs.outreach'), icon: MessageCircleMore },
+        { id: 'social', label: t('digital_marketing.tabs.social'), icon: Share2 },
     ];
 
     const renderContent = () => {
@@ -114,17 +114,63 @@ const DigitalMarketing: React.FC<DigitalMarketingProps> = ({ role = 'Admin' }) =
 
     return (
         <>
-            <div className="animate-fade-in space-y-4">
-                <h1 className="text-3xl font-bold text-foreground dark:text-dark-foreground">
-                    {t('digital_marketing.title')}
-                </h1>
+            <main
+                className="-m-4 min-h-[calc(100vh-4rem)] bg-[#f6f7f9] p-5 text-[#182338] sm:-m-6 sm:p-7 lg:p-8"
+                dir={dir}
+            >
+                <div className="mx-auto max-w-[1540px] animate-fade-in">
+                    <header className="mb-7 flex items-end justify-between gap-8">
+                        <div>
+                            <div className="mb-2 flex items-center gap-2 text-xs font-bold text-[#233b63]">
+                                <span className="h-2 w-2 rounded-full bg-[#e7a83e]" />
+                                {t('digital_marketing.redesign.workspace')}
+                            </div>
+                            <h1 className="text-[2rem] font-black tracking-[-0.035em] text-[#101d33]">
+                                {t('digital_marketing.title')}
+                            </h1>
+                            <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#687386]">
+                                {t('digital_marketing.redesign.subtitle')}
+                            </p>
+                        </div>
+                        <div className="hidden items-center gap-2 rounded-md border border-[#dce1e8] bg-white px-4 py-2 text-xs font-semibold text-[#56637a] shadow-[0_8px_30px_rgba(19,36,66,0.05)] lg:flex">
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34a177] opacity-40" />
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#24946b]" />
+                            </span>
+                            {t('digital_marketing.redesign.updated')}
+                        </div>
+                    </header>
 
-                <Tabs tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
+                    <nav
+                        aria-label={t('digital_marketing.title')}
+                        className="mb-7 flex w-fit items-center gap-1 rounded-lg border border-[#dfe3ea] bg-white p-1 shadow-[0_10px_30px_rgba(19,36,66,0.04)]"
+                    >
+                        {tabs.map(({ id, label, icon: Icon }) => {
+                            const selected = activeTab === id;
+                            return (
+                                <button
+                                    key={id}
+                                    type="button"
+                                    onClick={() => setActiveTab(id)}
+                                    aria-current={selected ? 'page' : undefined}
+                                    className={`flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-bold transition-all duration-200 ${
+                                        selected
+                                            ? 'bg-[#142542] text-white shadow-[0_7px_18px_rgba(20,37,66,0.2)]'
+                                            : 'text-[#6f7989] hover:bg-[#f1f3f6] hover:text-[#243653]'
+                                    }`}
+                                >
+                                    <Icon className="h-4 w-4" strokeWidth={selected ? 2.3 : 1.8} />
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </nav>
 
-                <div className="mt-2">
+                    <div>
                     {renderContent()}
+                    </div>
                 </div>
-            </div>
+            </main>
 
             <CreatePostModal
                 isOpen={isCreatePostModalOpen}
