@@ -139,14 +139,14 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                     <button
                         type="button"
                         onClick={() => setIsWizardOpen(true)}
-                        className="inline-flex items-center gap-2 rounded-md bg-[#e3a640] px-5 py-3 text-sm font-black text-[#182238] shadow-[0_8px_25px_rgba(227,166,64,0.22)] transition hover:-translate-y-0.5 hover:bg-[#edb34f]"
+                        className="inline-flex items-center gap-2 rounded-lg bg-[#e3a640] px-5 py-3 text-sm font-black text-[#182238] shadow-[0_8px_25px_rgba(227,166,64,0.22)] transition hover:-translate-y-0.5 hover:bg-[#edb34f]"
                     >
                         <Plus className="h-4 w-4" strokeWidth={3} />
                         {t('digital_marketing.campaigns.create')}
                     </button>
                 </section>
 
-                <section className="grid grid-cols-4 overflow-hidden rounded-lg border border-[#dfe3ea] bg-white shadow-[0_12px_35px_rgba(19,36,66,0.045)]">
+                <section className="grid grid-cols-4 overflow-hidden rounded-xl border border-[#dfe3ea] bg-white shadow-[0_12px_35px_rgba(19,36,66,0.045)]">
                     {[
                         { label: t('digital_marketing.campaigns.kpi.active'), value: stats.active.toLocaleString(locale), note: t('digital_marketing.redesign.runningNow'), icon: Megaphone, color: '#365f8b' },
                         { label: t('digital_marketing.campaigns.kpi.spend'), value: compactNumber.format(stats.spend), note: t('digital_marketing.redesign.sar'), icon: WalletCards, color: '#d39732' },
@@ -154,7 +154,7 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                         { label: t('digital_marketing.campaigns.kpi.avgOpenRate'), value: `${stats.openRate.toFixed(1)}%`, note: t('digital_marketing.redesign.healthyRate'), icon: Eye, color: '#387981' },
                     ].map((stat, index) => (
                         <div key={stat.label} className={`flex items-center gap-4 px-5 py-5 ${index < 3 ? 'border-l border-[#e8ece9]' : ''}`}>
-                            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-md" style={{ backgroundColor: `${stat.color}14`, color: stat.color }}>
+                            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[10px]" style={{ backgroundColor: `${stat.color}14`, color: stat.color }}>
                                 <stat.icon className="h-5 w-5" />
                             </div>
                             <div>
@@ -168,7 +168,7 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                     ))}
                 </section>
 
-                <section className="overflow-hidden rounded-lg border border-[#dfe3ea] bg-white shadow-[0_14px_40px_rgba(19,36,66,0.05)]">
+                <section className="overflow-hidden rounded-xl border border-[#dfe3ea] bg-white shadow-[0_14px_40px_rgba(19,36,66,0.05)]">
                     <div className="flex items-center justify-between gap-5 border-b border-[#e9eeea] p-5">
                         <div className="relative min-w-0 flex-1 max-w-md">
                             <Search className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#84938f]" />
@@ -177,12 +177,12 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                                 value={searchTerm}
                                 onChange={event => setSearchTerm(event.target.value)}
                                 placeholder={t('digital_marketing.campaigns.searchPlaceholder')}
-                                className="h-11 w-full rounded-md border border-[#dfe3ea] bg-[#fafbfc] pr-10 pl-4 text-sm font-semibold text-[#263957] outline-none transition placeholder:font-normal placeholder:text-[#a2a9b4] focus:border-[#58769d] focus:bg-white focus:ring-4 focus:ring-[#58769d]/10"
+                                className="h-11 w-full rounded-lg border border-[#dfe3ea] bg-[#fafbfc] pr-10 pl-4 text-sm font-semibold text-[#263957] outline-none transition placeholder:font-normal placeholder:text-[#a2a9b4] focus:border-[#58769d] focus:bg-white focus:ring-4 focus:ring-[#58769d]/10"
                             />
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <div className="flex rounded-md bg-[#f0f2f5] p-1">
+                            <div className="flex rounded-lg bg-[#f0f2f5] p-1">
                                 {[
                                     ['all', t('digital_marketing.campaigns.filters.all')],
                                     ['active', t('digital_marketing.campaigns.filters.active')],
@@ -193,7 +193,7 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                                         key={id}
                                         type="button"
                                         onClick={() => setStatusFilter(id)}
-                                        className={`rounded px-3.5 py-2 text-xs font-bold transition ${
+                                        className={`rounded-md px-3.5 py-2 text-xs font-bold transition ${
                                             statusFilter === id
                                                 ? 'bg-white text-[#263f64] shadow-sm'
                                                 : 'text-[#78818f] hover:text-[#354b6d]'
@@ -208,7 +208,7 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                                 <select
                                     value={channelFilter}
                                     onChange={event => setChannelFilter(event.target.value)}
-                                    className="h-11 appearance-none rounded-md border border-[#dfe3ea] bg-white pr-4 pl-9 text-xs font-bold text-[#56637a] outline-none focus:border-[#58769d]"
+                                    className="h-11 appearance-none rounded-lg border border-[#dfe3ea] bg-white pr-4 pl-9 text-xs font-bold text-[#56637a] outline-none focus:border-[#58769d]"
                                 >
                                     <option value="all">{t('digital_marketing.campaigns.channels.all')}</option>
                                     <option value="email">{t('digital_marketing.campaigns.channels.email')}</option>
@@ -247,7 +247,7 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                                     }`}
                                 >
                                     <div className="flex min-w-0 items-center gap-3.5">
-                                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-[#edf1f6] text-[#365f8b]">
+                                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[10px] bg-[#edf1f6] text-[#365f8b]">
                                             <Megaphone className="h-5 w-5" />
                                         </div>
                                         <div className="min-w-0">
@@ -294,7 +294,7 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                                                 <span
                                                     key={channel}
                                                     title={channelLabels[channel] ?? channel}
-                                                    className={`grid h-8 w-8 place-items-center rounded-md border-2 border-white bg-[#edf1f6] text-[#42658b] ${index ? '-mr-1.5' : ''}`}
+                                                    className={`grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-[#edf1f6] text-[#42658b] ${index ? '-mr-1.5' : ''}`}
                                                 >
                                                     <Icon className="h-3.5 w-3.5" />
                                                 </span>
@@ -329,7 +329,7 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
 
                         {filteredCampaigns.length === 0 && (
                             <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-                                <div className="grid h-14 w-14 place-items-center rounded-md bg-[#edf1f6] text-[#68768b]">
+                                <div className="grid h-14 w-14 place-items-center rounded-[10px] bg-[#edf1f6] text-[#68768b]">
                                     <Search className="h-6 w-6" />
                                 </div>
                                 <p className="mt-4 text-sm font-black text-[#30445f]">
@@ -351,9 +351,9 @@ const CampaignsTab: React.FC<CampaignsTabProps> = ({
                     </footer>
                 </section>
 
-                <section className="grid grid-cols-[1.1fr_1fr_1fr] overflow-hidden rounded-lg border border-[#dfe3ea] bg-white">
+                <section className="grid grid-cols-[1.1fr_1fr_1fr] overflow-hidden rounded-xl border border-[#dfe3ea] bg-white">
                     <div className="flex items-center gap-3 bg-[#edf1f6] px-5 py-4">
-                        <div className="grid h-10 w-10 place-items-center rounded-md bg-white text-[#365f8b] shadow-sm">
+                        <div className="grid h-10 w-10 place-items-center rounded-[10px] bg-white text-[#365f8b] shadow-sm">
                             <CheckCircle2 className="h-5 w-5" />
                         </div>
                         <div>

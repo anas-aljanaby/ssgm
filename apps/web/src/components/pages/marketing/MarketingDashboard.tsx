@@ -98,7 +98,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                                     </span>
                                 </div>
                                 <div className="mt-4 flex items-center gap-2 text-sm">
-                                    <span className="inline-flex items-center gap-1 rounded-md bg-[#d8a343] px-2.5 py-1 font-black text-[#182238]">
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-[#d8a343] px-2.5 py-1 font-black text-[#182238]">
                                         <TrendingUp className="h-3.5 w-3.5" />
                                         {MOCK_MARKETING_METRICS[0].trend}%
                                     </span>
@@ -110,7 +110,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                             <button
                                 type="button"
                                 onClick={onOpenCreateCampaign}
-                                className="inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/10 px-4 py-2.5 text-xs font-bold backdrop-blur-sm transition hover:bg-white/20"
+                                className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-xs font-bold backdrop-blur-sm transition hover:bg-white/20"
                             >
                                 {t('digital_marketing.quickActions.createCampaign')}
                                 <ArrowUpLeft className="h-4 w-4" />
@@ -149,7 +149,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                                 {featuredCampaign.name[language] || featuredCampaign.name.ar}
                             </h2>
                         </div>
-                        <span className="mt-1 flex items-center gap-1.5 rounded-md bg-[#eaf0f8] px-2.5 py-1 text-[11px] font-bold text-[#31577f]">
+                        <span className="mt-1 flex items-center gap-1.5 rounded-full bg-[#eaf0f8] px-2.5 py-1 text-[11px] font-bold text-[#31577f]">
                             <span className="h-1.5 w-1.5 rounded-full bg-[#426d9d]" />
                             {t(`digital_marketing.campaigns.statuses.${featuredCampaign.status}`)}
                         </span>
@@ -188,7 +188,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                     <button
                         type="button"
                         onClick={() => setActiveTab('campaigns')}
-                        className="mt-auto flex w-full items-center justify-between rounded-md bg-[#edf1f6] px-4 py-3 text-xs font-black text-[#263f64] transition hover:bg-[#e3e9f1]"
+                        className="mt-auto flex w-full items-center justify-between rounded-lg bg-[#edf1f6] px-4 py-3 text-xs font-black text-[#263f64] transition hover:bg-[#e3e9f1]"
                     >
                         {t('digital_marketing.redesign.viewCampaign')}
                         <ArrowLeft className="h-4 w-4" />
@@ -196,7 +196,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                 </section>
             </div>
 
-            <section className="grid grid-cols-3 overflow-hidden rounded-lg border border-[#dfe3ea] bg-white shadow-[0_12px_35px_rgba(19,36,66,0.045)]">
+            <section className="grid grid-cols-3 overflow-hidden rounded-xl border border-[#dfe3ea] bg-white shadow-[0_12px_35px_rgba(19,36,66,0.045)]">
                 {supportingMetrics.map((metric, index) => {
                     const Icon = metric.icon;
                     return (
@@ -213,7 +213,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                                     <span className="text-[11px] font-bold text-[#355f8c]">{metric.trend}</span>
                                 </div>
                             </div>
-                            <div className="grid h-11 w-11 place-items-center rounded-md" style={{ backgroundColor: `${metric.accent}18`, color: metric.accent }}>
+                            <div className="grid h-11 w-11 place-items-center rounded-[10px]" style={{ backgroundColor: `${metric.accent}18`, color: metric.accent }}>
                                 <Icon className="h-5 w-5" strokeWidth={2} />
                             </div>
                         </div>
@@ -222,7 +222,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
             </section>
 
             <div className="grid grid-cols-12 gap-5">
-                <section className="col-span-8 rounded-lg border border-[#dfe3ea] bg-white p-6 shadow-[0_12px_35px_rgba(19,36,66,0.045)]">
+                <section className="col-span-8 rounded-xl border border-[#dfe3ea] bg-white p-6 shadow-[0_12px_35px_rgba(19,36,66,0.045)]">
                     <div className="mb-5 flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-black text-[#14233d]">
@@ -232,7 +232,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                                 {t('digital_marketing.redesign.activitySubtitle')}
                             </p>
                         </div>
-                        <span className="rounded-md bg-[#f0f2f6] px-3 py-1.5 text-[10px] font-bold text-[#6b7688]">
+                        <span className="rounded-full bg-[#f0f2f6] px-3 py-1.5 text-[10px] font-bold text-[#6b7688]">
                             {t('digital_marketing.redesign.live')}
                         </span>
                     </div>
@@ -242,7 +242,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                             const Icon = activityIcons[activity.type];
                             return (
                                 <div key={activity.id} className="group flex items-center gap-4 py-3.5 first:pt-1 last:pb-0">
-                                    <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-md ${
+                                    <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] ${
                                         activity.type === 'donation'
                                             ? 'bg-[#fff4df] text-[#bd7d23]'
                                             : activity.type === 'emailSent'
@@ -267,7 +267,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                     </div>
                 </section>
 
-                <section className="col-span-4 rounded-lg border border-[#dfe3ea] bg-[#eef1f5] p-6">
+                <section className="col-span-4 rounded-xl border border-[#dfe3ea] bg-[#eef1f5] p-6">
                     <h2 className="text-lg font-black text-[#14233d]">
                         {t('digital_marketing.quickActions.title')}
                     </h2>
@@ -284,7 +284,7 @@ const MarketingDashboard: React.FC<MarketingDashboardProps> = ({
                                 key={item.label}
                                 type="button"
                                 onClick={item.action}
-                                className={`flex w-full items-center justify-between rounded-md px-4 py-3 text-xs font-black shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${item.color}`}
+                                className={`flex w-full items-center justify-between rounded-lg px-4 py-3 text-xs font-black shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${item.color}`}
                             >
                                 <span className="flex items-center gap-2.5">
                                     <item.icon className="h-4 w-4" />

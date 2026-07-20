@@ -132,7 +132,7 @@ const DigitalMarketing: React.FC<DigitalMarketingProps> = ({ role = 'Admin' }) =
                                 {t('digital_marketing.redesign.subtitle')}
                             </p>
                         </div>
-                        <div className="hidden items-center gap-2 rounded-md border border-[#dce1e8] bg-white px-4 py-2 text-xs font-semibold text-[#56637a] shadow-[0_8px_30px_rgba(19,36,66,0.05)] lg:flex">
+                        <div className="hidden items-center gap-2 rounded-full border border-[#dce1e8] bg-white px-4 py-2 text-xs font-semibold text-[#56637a] shadow-[0_8px_30px_rgba(19,36,66,0.05)] lg:flex">
                             <span className="relative flex h-2 w-2">
                                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34a177] opacity-40" />
                                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#24946b]" />
@@ -143,7 +143,7 @@ const DigitalMarketing: React.FC<DigitalMarketingProps> = ({ role = 'Admin' }) =
 
                     <nav
                         aria-label={t('digital_marketing.title')}
-                        className="mb-7 flex w-fit items-center gap-1 rounded-lg border border-[#dfe3ea] bg-white p-1 shadow-[0_10px_30px_rgba(19,36,66,0.04)]"
+                        className="mb-7 flex w-fit items-center gap-1 rounded-xl border border-[#dfe3ea] bg-white p-1.5 shadow-[0_10px_30px_rgba(19,36,66,0.04)]"
                     >
                         {tabs.map(({ id, label, icon: Icon }) => {
                             const selected = activeTab === id;
@@ -153,7 +153,7 @@ const DigitalMarketing: React.FC<DigitalMarketingProps> = ({ role = 'Admin' }) =
                                     type="button"
                                     onClick={() => setActiveTab(id)}
                                     aria-current={selected ? 'page' : undefined}
-                                    className={`flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-bold transition-all duration-200 ${
+                                    className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-200 ${
                                         selected
                                             ? 'bg-[#142542] text-white shadow-[0_7px_18px_rgba(20,37,66,0.2)]'
                                             : 'text-[#6f7989] hover:bg-[#f1f3f6] hover:text-[#243653]'
